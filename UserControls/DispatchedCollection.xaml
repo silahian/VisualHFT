@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="VisualHFT.UserControls.DispatchedCollection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+			 xmlns:local="clr-namespace:VisualHFT.UserControls"
+			 xmlns:convert="clr-namespace:VisualHFT.Converters"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+	<FrameworkElement.Resources>
+		<telerik:BitmapRenderOptions x:Key="bitmapRenderOptions" />
+		<convert:DispatchedObservableCollectionConverter x:Key="collectionConverter" />
+	</FrameworkElement.Resources>
+	<Grid>
+		<telerik:RadCartesianChart>
+			<telerik:RadCartesianChart.HorizontalAxis>
+				<telerik:DateTimeContinuousAxis LabelFormat="HH:mm:ss" 
+                                                TickOrigin="2000/1/1"
+                                                MajorStepUnit="Second"
+                                                MajorStep="10" />
+			</telerik:RadCartesianChart.HorizontalAxis>
+			<telerik:RadCartesianChart.VerticalAxis>
+				<telerik:LinearAxis />
+			</telerik:RadCartesianChart.VerticalAxis>
+			<telerik:RadCartesianChart.Series>
+				<telerik:LineSeries CategoryBinding="Date" 
+                                    ValueBinding="Value"
+                                    ItemsSource="{Binding AsyncData, Converter={StaticResource collectionConverter}}"
+                                    RenderOptions="{StaticResource bitmapRenderOptions}"
+									/>
+			</telerik:RadCartesianChart.Series>
+		</telerik:RadCartesianChart>
+	</Grid>
+</UserControl>

@@ -1,0 +1,206 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:VisualHFT.View.StatisticsView"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation" 
+             x:Class="VisualHFT.View.StatisticsView.ucStrategyOverview"
+    
+            xmlns:materialDesign="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
+            xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+            TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+            TextElement.FontWeight="Regular"
+            TextElement.FontSize="15"
+            TextOptions.TextFormattingMode="Ideal" 
+            TextOptions.TextRenderingMode="Auto"        
+            Background="{DynamicResource MaterialDesignPaper}"
+            FontFamily="{StaticResource MaterialDesignFont}"                      
+
+    
+             mc:Ignorable="d" Width="470" MinWidth="470" MinHeight="210" >
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../GlobalStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="105" />
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="105"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- CARD: Winners -->
+        <Grid Grid.Row="0" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40" />
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!--TITLE-->
+            <StackPanel Grid.Row="0" >
+                <Label Content="Winners" Grid.Row="0" Style="{StaticResource CardTitles}"  />
+                <Border Style="{StaticResource CardTitleUnderline}" />
+            </StackPanel>
+            <!--VALUES-->
+            <StackPanel Grid.Row="1">
+                <Label Content="{Binding WinnersPnL}" Style="{StaticResource CardItems}" />
+                <Label Content="{Binding WinnersAttempts}" Style="{StaticResource CardItems}" />
+                <Label Content="{Binding WinnersSpan}" Style="{StaticResource CardItems}"/>
+            </StackPanel>
+        </Grid>
+        <!-- CARD: Losers -->
+        <Grid Grid.Row="0" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40" />
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!--TITLE-->
+            <StackPanel Grid.Row="0">
+                <Label Content="Losers" Grid.Row="0" Style="{StaticResource CardTitles}" />
+                <Border Style="{StaticResource CardTitleUnderline}"  />
+            </StackPanel>
+            <!--VALUES-->
+            <StackPanel Grid.Row="1">
+                <Label Content="{Binding LosersPnL}" Style="{StaticResource CardItems}" />
+                <Label Content="{Binding LosersAttempts}" Style="{StaticResource CardItems}" />
+                <Label Content="{Binding LosersSpan}" Style="{StaticResource CardItems}"/>
+            </StackPanel>
+        </Grid>
+        <!-- CARD: ALL -->
+        <Grid Grid.Row="0" Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40" />
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!--TITLE-->
+            <StackPanel Grid.Row="0">
+                <Label Content="All" Grid.Row="0" Style="{StaticResource CardTitles}" />
+                <Border Style="{StaticResource CardTitleUnderline}"  />
+            </StackPanel>
+            <!--VALUES-->
+            <StackPanel Grid.Row="1">
+                <Label Content="{Binding AllPnL}" Style="{StaticResource CardItems}" />
+                <Label Content="{Binding AllAttempts}" Style="{StaticResource CardItems}" />
+                <Label Content="{Binding AllSpan}" Style="{StaticResource CardItems}"/>
+            </StackPanel>
+        </Grid>
+        <!-- CARD: PNL -->
+        <Grid Grid.Row="0" Grid.Column="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40" />
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!--TITLE-->
+            <StackPanel Grid.Row="0">
+                <Label Content="PnL" Grid.Row="0" Style="{StaticResource CardTitles}" />
+                <Border Style="{StaticResource CardTitleUnderline}"  />
+            </StackPanel>
+            <!--VALUES-->
+            <StackPanel Grid.Row="1">
+                <Label Content="{Binding PnLAmount}" ContentStringFormat="C0" Style="{StaticResource CardItems}" FontSize="18"/>
+            </StackPanel>
+        </Grid>
+        <!--CHART WINNING RATE-->
+        <Grid Grid.Row="0" Grid.Column="4" VerticalAlignment="Top" >
+            <StackPanel Orientation="Vertical" Panel.ZIndex="9999"  HorizontalAlignment="Center" VerticalAlignment="Center" >
+                <TextBlock  TextWrapping="NoWrap" TextAlignment="Center" FontSize="35" Text="{Binding WinningRate, StringFormat=P0}" />
+                <TextBlock Text="Winning rate" TextWrapping="Wrap" TextAlignment="Center" FontSize="9" />
+            </StackPanel>
+            
+            <telerik:RadPieChart HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HoverMode="FadeOtherItems" EmptyContent="">
+                <telerik:RadPieChart.Series>
+                    <telerik:DoughnutSeries ItemsSource="{Binding WinningRateChartPoints}" ValueBinding="Value" ShowLabels="False" Margin="0,0,0,0" InnerRadiusFactor="0.8" RadiusFactor="1" >
+                        <telerik:DoughnutSeries.SliceStyles>
+                            <Style TargetType="Path">
+                                <Setter Property="Fill" Value="YellowGreen"/>
+                            </Style>
+                            <Style TargetType="Path">
+                                <Setter Property="Fill" Value="Gray"/>
+                            </Style>
+                        </telerik:DoughnutSeries.SliceStyles>
+                        <!--
+                        <telerik:DoughnutSeries.DataPoints>
+                            <telerik:PieDataPoint Label="" Value="77" />
+                            <telerik:PieDataPoint Label="" Value="23"/>
+                        </telerik:DoughnutSeries.DataPoints>
+                        -->
+                    </telerik:DoughnutSeries>
+                </telerik:RadPieChart.Series>
+            </telerik:RadPieChart>
+        </Grid>
+
+        <!--CHART-->
+
+        <telerik:RadCartesianChart Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Background="#010F00" >
+            
+            <telerik:RadCartesianChart.HorizontalAxis>
+                <telerik:DateTimeContinuousAxis FontSize="9" MajorStepUnit="Minute" MajorStep="60" LabelFormat="HH" >
+                    <telerik:DateTimeContinuousAxis.LabelStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="Gray" />
+                            <Setter Property="FontSize" Value="7" />
+                        </Style>
+                    </telerik:DateTimeContinuousAxis.LabelStyle>
+                </telerik:DateTimeContinuousAxis>
+            </telerik:RadCartesianChart.HorizontalAxis>
+            <telerik:RadCartesianChart.VerticalAxis>
+                <telerik:LinearAxis FontSize="7" LabelFormat="C0" LineThickness="0">
+                    <telerik:LinearAxis.LabelStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="Gray" />
+                            <Setter Property="FontSize" Value="7" />
+                        </Style>
+                    </telerik:LinearAxis.LabelStyle>    
+                </telerik:LinearAxis>
+            </telerik:RadCartesianChart.VerticalAxis>
+
+            <telerik:RadCartesianChart.Series>
+                <telerik:SplineSeries StrokeThickness="3" Stroke="#12F40D" ItemsSource="{Binding EquityChartPoints, Mode=TwoWay}" CategoryBinding="Date" ValueBinding="Value" >
+
+                    <!--
+                    <telerik:SplineSeries.DataPoints>
+                        <telerik:CategoricalDataPoint Value="20000" Category="1/1/2016 9:00"/>
+                        <telerik:CategoricalDataPoint Value="40000" Category="1/2/2016 10:00" />
+                        <telerik:CategoricalDataPoint Value="35000" Category="1/3/2016 11:00"/>
+                        <telerik:CategoricalDataPoint Value="40000" Category="1/4/2016 15:00"/>
+                        <telerik:CategoricalDataPoint Value="50000" Category="1/5/2016 16:00"/>
+                        <telerik:CategoricalDataPoint Value="80000" Category="1/6/2016 18:00"/>
+                    </telerik:SplineSeries.DataPoints>
+                    -->
+                </telerik:SplineSeries>
+            </telerik:RadCartesianChart.Series>
+
+            
+
+            <telerik:RadCartesianChart.Grid>
+                <telerik:CartesianChartGrid MajorLinesVisibility="XY" >
+                    <telerik:CartesianChartGrid.MajorXLineStyle>
+                        <Style TargetType="Line">
+                            <Setter Property="Stroke" Value="#0F3D01"/>
+                        </Style>
+                    </telerik:CartesianChartGrid.MajorXLineStyle>
+                    <telerik:CartesianChartGrid.MajorYLineStyle>
+                        <Style TargetType="Line">
+                            <Setter Property="Stroke" Value="#0F3D01"/>
+                        </Style>
+                    </telerik:CartesianChartGrid.MajorYLineStyle>
+                </telerik:CartesianChartGrid>
+            </telerik:RadCartesianChart.Grid>
+        </telerik:RadCartesianChart>
+        
+        
+        
+        
+        
+    </Grid>
+</UserControl>

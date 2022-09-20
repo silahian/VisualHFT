@@ -1,0 +1,127 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+                    xmlns:local="clr-namespace:VisualHFT"
+                    xmlns:c="clr-namespace:VisualHFT.Converters"
+					xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+
+    <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
+    <c:ConverterValuesToColorIfNotEqualZero x:Key="ConverterValuesToColorIfNotEqualZero" />
+
+    <Style TargetType="{x:Type DataGrid}">
+        <Setter Property="AlternatingRowBackground" Value="LightBlue" />
+        <Setter Property="AlternationCount" Value="2" />
+        <Setter Property="GridLinesVisibility" Value="Horizontal" />
+        <Setter Property="HorizontalGridLinesBrush" Value="LightBlue" />
+    </Style>
+    <Style x:Key="GridColumnAligmentRight" TargetType="DataGridCell">
+        <Setter Property="TextBlock.HorizontalAlignment" Value="Stretch" />
+        <Setter Property="TextBlock.TextAlignment" Value="Right" />
+    </Style>
+    <Style x:Key="GridColumnAligmentCenter" TargetType="DataGridCell">
+        <Setter Property="TextBlock.HorizontalAlignment" Value="Stretch" />
+        <Setter Property="TextBlock.TextAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="GridColumnAligmentRightCheckIfNotZero" TargetType="DataGridCell">
+        <Setter Property="TextBlock.HorizontalAlignment" Value="Stretch" />
+        <Setter Property="TextBlock.TextAlignment" Value="Right" />
+        <Setter Property="Background" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text, Converter={StaticResource ConverterValuesToColorIfNotEqualZero}}"/>
+    </Style>
+    <Style x:Key="GridColumnAligmentCenterCheckIfNotZero" TargetType="DataGridCell">
+        <Setter Property="TextBlock.HorizontalAlignment" Value="Stretch" />
+        <Setter Property="TextBlock.TextAlignment" Value="Center" />
+        <Setter Property="Background" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text, Converter={StaticResource ConverterValuesToColorIfNotEqualZero}}"/>
+    </Style>
+
+
+    <Style x:Key="GridHeaderAligmentRight" TargetType="DataGridColumnHeader">
+        <Setter Property="HorizontalContentAlignment" Value="Right"/>
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <TextBlock MinWidth="100" TextWrapping="Wrap" Text="{Binding}"></TextBlock>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="GridHeaderAligmentCenter" TargetType="DataGridColumnHeader">
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <TextBlock MinWidth="100" TextWrapping="Wrap" Text="{Binding}"></TextBlock>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--USER CONTROLS-->
+    <Style x:Key="TextBoxDouble" TargetType="TextBox">
+        <Setter Property="TextAlignment" Value="Right" />
+        <Setter Property="Margin" Value="5,0,5,0"/>
+        <Setter Property="FontSize" Value="18" />
+    </Style>
+    <Style x:Key="LabelDisplayValue" TargetType="Label">
+        <Setter Property="Margin" Value="5,0,5,0"/>
+        <Setter Property="FontSize" Value="18" />
+    </Style>
+    <!--END USER CONTROLS-->
+    <!--STATISTICS VIEW-->
+    <Style x:Key="CardTitleUnderline" TargetType="Border">
+        <Setter Property="BorderBrush" Value="White"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Margin" Value="5,0,5,0"/>
+    </Style>
+    <Style x:Key="CardTitles" TargetType="Label">
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Margin" Value="5,0,5,0"/>
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="CardItems" TargetType="Label">
+        <Setter Property="Foreground" Value="LightGray" />
+        <Setter Property="Padding" Value="0,1" />
+        <Setter Property="FontSize" Value="10" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="CardItemsBig" TargetType="Label">
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Padding" Value="0,3" />
+        <Setter Property="FontSize" Value="28" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="CardItemsSmall" TargetType="Label">
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Padding" Value="0,3" />
+        <Setter Property="FontSize" Value="9" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+    <!--END STATISTICS VIEW-->
+
+
+
+	<telerik:ChartPalette x:Key="customPalette">
+		<telerik:ChartPalette.SeriesEntries>
+
+			<telerik:PaletteEntryCollection SeriesFamily="Pie">
+				<telerik:PaletteEntry Fill="#FF1FAFD3" Stroke="White"/>
+				<telerik:PaletteEntry Fill="#FFC32E0A" Stroke="White"/>
+				<telerik:PaletteEntry Fill="#FFFA6F5E" Stroke="White"/>
+			</telerik:PaletteEntryCollection>
+			<telerik:PaletteEntryCollection SeriesFamily="Bar">
+				<telerik:PaletteEntry Fill="#FF006968" Stroke="White"/>
+				<telerik:PaletteEntry Fill="#FF7A6CC4" Stroke="White"/>
+				<telerik:PaletteEntry Fill="#FF1FAFD3" Stroke="White"/>
+			</telerik:PaletteEntryCollection>
+		</telerik:ChartPalette.SeriesEntries>
+
+		<telerik:ChartPalette.GlobalEntries>
+			<telerik:PaletteEntry Fill="#FF21B573" Stroke="Red" />
+			<telerik:PaletteEntry Fill="#FF88CA2A" Stroke="Blue" />
+			<telerik:PaletteEntry Fill="#FFFF921E" Stroke="Green" />
+		</telerik:ChartPalette.GlobalEntries>
+
+	</telerik:ChartPalette>
+
+</ResourceDictionary>

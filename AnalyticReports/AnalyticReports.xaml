@@ -1,0 +1,101 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"         
+        xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation" 
+        xmlns:my="clr-namespace:VisualHFT.AnalyticReport" xmlns:UserControls="clr-namespace:VisualHFT.UserControls" x:Class="VisualHFT.AnalyticReport.AnalyticReport" 
+        Title="BackTestReport" 
+        Height="474" Width="1200"         
+        Loaded="Window_Loaded"
+        Style="{DynamicResource WindowStyle}" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ReportDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Window.ContextMenu>
+        <ContextMenu>
+            <MenuItem Header="Print" x:Name="mnuPrint" Click="mnuPrint_Click"/>
+        </ContextMenu>
+    </Window.ContextMenu>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="5,5,5,5" Grid.Row="0">
+            <TextBlock Text="Palette" Margin="0,4,10,0"/>
+            <ComboBox  x:Name="cboPalette" Width="200" SelectionChanged="cboPalette_SelectionChanged">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="0,3" >
+                            <TextBlock Text="{Binding Name}" MinWidth="75" />
+                            <Border Padding="1,1,0,1" Background="White">
+                                <StackPanel Orientation="Horizontal">
+                                    <Rectangle Width="12" Height="12" Margin="0,0,1,0" Fill="{Binding GlobalEntries[0].Fill}" />
+                                    <Rectangle Width="12" Height="12" Margin="0,0,1,0" Fill="{Binding GlobalEntries[1].Fill}" />
+                                    <Rectangle Width="12" Height="12" Margin="0,0,1,0" Fill="{Binding GlobalEntries[2].Fill}" />
+                                    <Rectangle Width="12" Height="12" Margin="0,0,1,0" Fill="{Binding GlobalEntries[3].Fill}" />
+                                    <Rectangle Width="12" Height="12" Margin="0,0,1,0" Fill="{Binding GlobalEntries[4].Fill}" />
+                                    <Rectangle Width="12" Height="12" Margin="0,0,1,0" Fill="{Binding GlobalEntries[5].Fill}" />
+                                    <Rectangle Width="12" Height="12" Margin="0,0,1,0" Fill="{Binding GlobalEntries[6].Fill}" />
+                                    <Rectangle Width="12" Height="12" Margin="0,0,1,0" Fill="{Binding GlobalEntries[7].Fill}" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
+        
+        <ScrollViewer x:Name="scrollviewer1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1">
+            <StackPanel x:Name="stackAll" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <!--HEADER-->
+                <my:ucStrategyHeader x:Name="ucStrategyHeader1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+                <!--OVERVIEW-->
+                <telerik:RadExpander x:Name="Expander1" VerticalAlignment="Top" ExpandDirection="Down"  IsExpanded="True" telerik:AnimationManager.IsAnimationEnabled="True">
+                    <telerik:RadExpander.Header>
+                        <TextBlock x:Name="expanderCaption" Text="Overview" Style="{StaticResource ExpanderHeaderStyle}"/>
+                    </telerik:RadExpander.Header>
+                    <StackPanel>
+                        <my:ucOverview x:Name="ucOverview1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+                    </StackPanel>
+                </telerik:RadExpander>
+                <!--EQUITY CHART-->
+                <telerik:RadExpander x:Name="Expander3" VerticalAlignment="Top" ExpandDirection="Down"  IsExpanded="True" telerik:AnimationManager.IsAnimationEnabled="True">
+                    <telerik:RadExpander.Header>
+                        <TextBlock x:Name="expanderCaption2" Text="Equity Chart" Style="{StaticResource ExpanderHeaderStyle}"/>
+                    </telerik:RadExpander.Header>
+                    <StackPanel>
+                        <my:ucEquityChart x:Name="ucEquityChart1"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+                    </StackPanel>
+                </telerik:RadExpander>
+                <telerik:RadExpander x:Name="Expander2" VerticalAlignment="Top" ExpandDirection="Down"  IsExpanded="True" telerik:AnimationManager.IsAnimationEnabled="True">
+                    <telerik:RadExpander.Header>
+                        <TextBlock x:Name="expanderCaption1" Text="Stats" Style="{StaticResource ExpanderHeaderStyle}"/>
+                    </telerik:RadExpander.Header>
+                    <my:ucStats x:Name="ucStats1" />
+                </telerik:RadExpander>
+                <telerik:RadExpander x:Name="Expander4" VerticalAlignment="Top" ExpandDirection="Down"  IsExpanded="False" telerik:AnimationManager.IsAnimationEnabled="False" >
+                    <telerik:RadExpander.Header>
+                        <TextBlock x:Name="expanderCaption3" Text="Charts" Style="{StaticResource ExpanderHeaderStyle}"/>
+                    </telerik:RadExpander.Header>
+                    <my:ucCharts x:Name="ucCharts1" />
+                </telerik:RadExpander>
+                <telerik:RadExpander x:Name="Expander5" VerticalAlignment="Top" ExpandDirection="Down"  IsExpanded="False" telerik:AnimationManager.IsAnimationEnabled="False" >
+                    <telerik:RadExpander.Header>
+                        <TextBlock x:Name="expanderCaption4" Text="Charts Statistics" Style="{StaticResource ExpanderHeaderStyle}"/>
+                    </telerik:RadExpander.Header>
+                    <my:ucChartsStatistics x:Name="ucChartsStatistics1" />
+                </telerik:RadExpander>
+            </StackPanel>
+        </ScrollViewer>
+        <Button x:Name="butReload" Content="Reload" HorizontalAlignment="Left" Margin="10,6,0,0" VerticalAlignment="Top" Width="75" Click="butReload_Click"/>
+        <ComboBox HorizontalAlignment="Left" Height="25" VerticalAlignment="Top" Width="350" Margin="109,2,0,0" x:Name="cboMoneyManagement" SelectionChanged="cboMoneyManagement_SelectionChanged"/>
+        <UserControls:LoadingAnimationSmall HorizontalAlignment="Left" Margin="119,8,0,0" VerticalAlignment="Top" x:Name="ucLoading1" Visibility="Hidden"/>
+        <Label Content="" HorizontalAlignment="Left" Margin="464,3,0,0" VerticalAlignment="Top" Width="211" x:Name="lblMMParams"/>
+    </Grid>
+</Window>
