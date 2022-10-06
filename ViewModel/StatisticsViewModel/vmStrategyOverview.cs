@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Telerik.Windows.Controls.ChartView;
+using System.Data.Entity.Migrations.Model;
 
 namespace VisualHFT.ViewModel.StatisticsViewModel
 {
@@ -56,12 +57,9 @@ namespace VisualHFT.ViewModel.StatisticsViewModel
         private Dictionary<string, Func<string, string, bool>> _dialogs;
         public vmStrategyOverview(Dictionary<string, Func<string, string, bool>> dialogs)
         {
-            this._dialogs = dialogs;
+            _positions = new ObservableCollection<PositionEx>();
+            _dialogs = dialogs;
             BlankFields();
-        }
-        private void _positions_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            CalculatePositionStats();
         }
 
         #region Fields
@@ -338,17 +336,23 @@ namespace VisualHFT.ViewModel.StatisticsViewModel
             {
                 return _positions;
             }
-
-            set
-            {
-                _positions = value;
-                if (_positions != null)
-                    _positions.CollectionChanged += _positions_CollectionChanged;
-                CalculatePositionStats();
-            }
         }
-
-
+        public void AddNewPositions(IEnumerable<PositionEx> pos)
+        {
+            foreach (var position in pos)
+                _positions.Add(position);
+            CalculatePositionStats();
+        }
+        public void AddNewPosition(PositionEx p)
+        {
+            _positions.Add(p);
+            CalculatePositionStats();
+        }
+        public void ClearPositions()
+        {
+            _positions.Clear();
+            CalculatePositionStats();
+        }
         #endregion
         void BlankFields()
         {
@@ -380,13 +384,8 @@ namespace VisualHFT.ViewModel.StatisticsViewModel
 
             try
             {
-                //ALL
-                AllPnL = "Avg PnL: " + _positions.Where(x => x.PipsPnLInCurrency.HasValue).DefaultIfEmpty(new Position() { PipsPnLInCurrency = 0m }).Average(x => x.PipsPnLInCurrency.Value).ToString("C0");
-                AllAttempts = "Avg Attempts: " + _positions.Average(x => (double)x.AttemptsToClose).ToString("N1");
-                AllSpan = "Avg Span: " + Helpers.HelperCommon.GetKiloFormatterTime(_positions.Average(x => (x.CloseTimeStamp - x.CreationTimeStamp).TotalMilliseconds));
-
-                var losers = _positions.Where(x => x.GetPipsPnL < 0).DefaultIfEmpty(new PositionEx());
-                var winners = _positions.Where(x => x.GetPipsPnL >= 0).DefaultIfEmpty(new PositionEx());
+                var losers = _positions.Where(x => x.GetPipsPnL < 0).DefaultIfEmpty(new PositionEx()).ToList();
+                var winners = _positions.Where(x => x.GetPipsPnL >= 0).DefaultIfEmpty(new PositionEx()).ToList();
                 foreach(var item in losers)
                 {
                     if (!item.PipsPnLInCurrency.HasValue)
@@ -399,21 +398,26 @@ namespace VisualHFT.ViewModel.StatisticsViewModel
                 }
 
 
+                //ALL
 
+                this.AllPnL = "Avg PnL: " + _positions.Where(x => x.PipsPnLInCurrency.HasValue).DefaultIfEmpty(new PositionEx() { PipsPnLInCurrency = 0m }).Average(x => x.PipsPnLInCurrency.Value).ToString("C0");
+                this.AllAttempts = "Avg Attempts: " + _positions.Average(x => (double)x.AttemptsToClose).ToString("N1");
+                this.AllSpan = "Avg Span: " + Helpers.HelperCommon.GetKiloFormatterTime(_positions.Average(x => (x.CloseTimeStamp - x.CreationTimeStamp).TotalMilliseconds));
+                
 
                 if (losers != null && losers.Count() > 0)
                 {
-                    LoserCount = losers.Count();
-                    LosersPnL = "Avg PnL: " + losers.Average(x => x.PipsPnLInCurrency.Value).ToString("C0");
-                    LosersAttempts = "Avg Attempts: " + losers.Average(x => (double)x.AttemptsToClose).ToString("N1");
-                    LosersSpan = "Avg Span: " + Helpers.HelperCommon.GetKiloFormatterTime(losers.Average(x => (x.CloseTimeStamp - x.CreationTimeStamp).TotalMilliseconds));
+                    this.LoserCount = losers.Count();
+                    this.LosersPnL = "Avg PnL: " + losers.Where(x => x.PipsPnLInCurrency.HasValue).DefaultIfEmpty(new PositionEx() { PipsPnLInCurrency = 0m }).Average(x => x.PipsPnLInCurrency.Value).ToString("C2");
+                    this.LosersAttempts = "Avg Attempts: " + losers.Average(x => (double)x.AttemptsToClose).ToString("N1");
+                    this.LosersSpan = "Avg Span: " + Helpers.HelperCommon.GetKiloFormatterTime(losers.Average(x => (x.CloseTimeStamp - x.CreationTimeStamp).TotalMilliseconds));
                 }
                 if (winners != null && winners.Count() > 0)
                 {
-                    WinningCount = winners.Count();
-                    WinnersPnL = "Avg PnL: " + winners.Average(x => x.PipsPnLInCurrency.Value).ToString("C0");
-                    WinnersAttempts = "Avg Attempts: " + winners.Average(x => (double)x.AttemptsToClose).ToString("N1");
-                    WinnersSpan = "Avg Span: " + Helpers.HelperCommon.GetKiloFormatterTime(winners.Average(x => (x.CloseTimeStamp - x.CreationTimeStamp).TotalMilliseconds));
+                    this.WinningCount = winners.Count();
+                    this.WinnersPnL = "Avg PnL: " + winners.Where(x => x.PipsPnLInCurrency.HasValue).DefaultIfEmpty(new PositionEx() { PipsPnLInCurrency = 0m }).Average(x => x.PipsPnLInCurrency.Value).ToString("C2");
+                    this.WinnersAttempts = "Avg Attempts: " + winners.Average(x => (double)x.AttemptsToClose).ToString("N1");
+                    this.WinnersSpan = "Avg Span: " + Helpers.HelperCommon.GetKiloFormatterTime(winners.Average(x => (x.CloseTimeStamp - x.CreationTimeStamp).TotalMilliseconds));
                 }
                 WinningRateChartPoints[0].Value = _winningCount;
                 WinningRateChartPoints[1].Value = _loserCount;

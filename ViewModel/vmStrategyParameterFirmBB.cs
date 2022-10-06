@@ -18,7 +18,7 @@ namespace VisualHFT.ViewModel
     public class vmStrategyParameterFirmBB: vmStrategyParametersBase<StrategyParametersFirmBBVM>, INotifyPropertyChanged
     {
 
-        public vmStrategyParameterFirmBB(Dictionary<string, Func<string, string, bool>> dialogs, ucStrategyOverview uc) : base(dialogs, uc)
+        public vmStrategyParameterFirmBB(Dictionary<string, Func<string, string, bool>> dialogs) : base(dialogs)
 		{
 			_strategyNameForThisControl = "FirmBB";
 		}

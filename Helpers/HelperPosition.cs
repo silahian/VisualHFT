@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using MahApps.Metro.Converters;
 
 namespace VisualHFT.Helpers
 {
@@ -21,9 +22,13 @@ namespace VisualHFT.Helpers
 
     public class HelperPosition
     {
+        protected long? _LAST_POSITION_ID = null;
+        protected List<PositionEx> _positions;
+
         System.Windows.Threading.DispatcherTimer dispatcherTimer;
-        static BackgroundWorker bwDatabase = null;
         public event EventHandler<IEnumerable<PositionEx>> OnInitialLoad;
+        public event EventHandler<IEnumerable<PositionEx>> OnDataReceived;
+
         protected virtual void RaiseOnInitialLoad(IEnumerable<PositionEx> pos)
         {
             EventHandler<IEnumerable<PositionEx>> _handler = OnInitialLoad;
@@ -34,17 +39,25 @@ namespace VisualHFT.Helpers
 				}));
 			}
 		}
+        protected virtual void RaiseOnDataReceived(IEnumerable<PositionEx> pos)
+        {
+            EventHandler<IEnumerable<PositionEx>> _handler = OnDataReceived;
+            if (_handler != null)
+            {
+                Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                    _handler(this, pos);
+                }));
+            }
+        }
 
 
-        public ObservableCollection<PositionEx> Positions { get ; set ; }
-        public ePOSITION_LOADING_TYPE LoadingType { get; set; }
         public HelperPosition(ePOSITION_LOADING_TYPE loadingType)
         {
 
-            this.Positions = new ObservableCollection<PositionEx>();
+            _positions = new List<PositionEx>();
             this.LoadingType = loadingType;
             if (loadingType == ePOSITION_LOADING_TYPE.DATABASE)
-            {                
+            {
                 dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
                 dispatcherTimer.Tick += dispatcherTimer_Tick;
                 dispatcherTimer.Interval = new TimeSpan(0, 0, 5);
@@ -52,29 +65,50 @@ namespace VisualHFT.Helpers
                 dispatcherTimer_Tick(null, null);
             }
         }
-        private IEnumerable<PositionEx> GetPositions(long? lastPositionID)
+
+
+        
+        public List<PositionEx> Positions 
+        { 
+            get { return _positions; }
+        }
+        public ePOSITION_LOADING_TYPE LoadingType { get; set; }
+        public DateTime? SessionDate { get; set; }
+
+        private IEnumerable<PositionEx> GetPositions()
         {
+            if (!SessionDate.HasValue)
+                return null;
+
+
             try
             {
                 using (var db = new HFTEntities())
                 {
-					/*var result = (from p in db.Positions.Where(x => !lastPositionID.HasValue || x.ID > lastPositionID.Value)
-								  join op in db.OpenExecutions on p.ID equals op.PositionID
-								  join oc in db.CloseExecutions on p.ID equals oc.PositionID
-								  select p).ToList().Select(x => new PositionEx(x));
-                    */
                     db.Database.CommandTimeout = 6000;
                     db.Configuration.ValidateOnSaveEnabled = false;
                     db.Configuration.AutoDetectChangesEnabled = false;
                     db.Configuration.LazyLoadingEnabled = false;
-					var result = db.Positions.AsNoTracking().Where(x => !lastPositionID.HasValue || x.ID > lastPositionID.Value).ToList().Select(x => new PositionEx(x));
-					/*foreach (var p in result)
-                    {
-                        p.CloseExecutions = db.CloseExecutions.AsNoTracking().Where(x => x.PositionID == p.ID).ToList();
-                        p.OpenExecutions = db.OpenExecutions.AsNoTracking().Where(x => x.PositionID == p.ID).ToList();
-                    }*/
+                    var allProviders = db.Providers.ToList();
+					var result = db.Positions/*.AsNoTracking()*/.Include("OpenExecutions").Include("CloseExecutions").Where(x => x.CreationTimeStamp > SessionDate.Value && (!_LAST_POSITION_ID.HasValue || x.ID > _LAST_POSITION_ID.Value)).ToList();
 
-					return result;
+                    if (result.Any())
+                    {
+                        _LAST_POSITION_ID = result.Max(x => x.ID);
+
+                        var ret = result.Select(x => new PositionEx(x)).ToList(); //convert to our model
+                                                                                  //find provider's name
+                        ret.ForEach(x =>
+                        {
+                            x.CloseProviderName = allProviders.Where(p => p.ProviderCode == x.CloseProviderId).DefaultIfEmpty(new Provider()).FirstOrDefault().ProviderName;
+                            x.OpenProviderName = allProviders.Where(p => p.ProviderCode == x.OpenProviderId).DefaultIfEmpty(new Provider()).FirstOrDefault().ProviderName;
+
+                            x.CloseExecutions.ForEach(ex => ex.ProviderName = x.CloseProviderName);
+                            x.OpenExecutions.ForEach(ex => ex.ProviderName = x.OpenProviderName);
+                        });
+                        return ret;
+                    }
+                    return null;
                 }
             }
             catch (Exception ex)
@@ -85,88 +119,56 @@ namespace VisualHFT.Helpers
         }
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            if (bwDatabase == null)
+            var res = GetPositions();
+            if (res != null && res.Any())
             {
-                bwDatabase = new BackgroundWorker();
-                bwDatabase.DoWork += (wbSender, args) =>
+                foreach (var p in res)
                 {
-                    long lastID = 0;
-                    if (this.Positions != null && this.Positions.Any())
-                        lastID = this.Positions.Max(x => x.ID);
-                    if (this.Positions != null)
+                    if (!p.PipsPnLInCurrency.HasValue || p.PipsPnLInCurrency == 0)
                     {
-                        var res = GetPositions(lastID);
-                        if (res != null)
-                            args.Result = res.ToList();
-                        else
-                            args.Result = null;
+                        p.PipsPnLInCurrency = (p.GetCloseQuantity * p.GetCloseAvgPrice) - (p.GetOpenQuantity * p.GetOpenAvgPrice);
+                        if (p.Side == ePOSITIONSIDE.Sell)
+                        {
+                            p.PipsPnLInCurrency *= -1;
+                        }
                     }
-                    else
+                    if (!HelperCommon.ALLSYMBOLS.Contains(p.Symbol))
                     {
-                        var res = GetPositions(null);
-                        if (res != null)
-                            args.Result = res.ToList();
-                        else
-                            args.Result = null;
+                        HelperCommon.ALLSYMBOLS.Add(p.Symbol);
                     }
-                };
-                bwDatabase.RunWorkerCompleted += (wbSender, args) =>
+                }
+                if (this.Positions == null || !this.Positions.Any())
                 {
-                    if (args.Error != null)
-                    {
-                        return;
-                    }
-                    var res = args.Result as List<PositionEx>;
-                    if (res != null && res.Any())
-                    {
-                        foreach(var p in res)
-                        {
-							if (!p.PipsPnLInCurrency.HasValue || p.PipsPnLInCurrency == 0)
-							{
-								p.PipsPnLInCurrency = (p.GetCloseQuantity * p.GetCloseAvgPrice) - (p.GetOpenQuantity * p.GetOpenAvgPrice);
-								if (p.Side == ePOSITIONSIDE.Sell)
-								{
-									p.PipsPnLInCurrency *= -1;
-								}
-							}
-                            if (!HelperCommon.ALLSYMBOLS.Contains(p.Symbol))
-                            {
-                                HelperCommon.ALLSYMBOLS.Add(p.Symbol);
-                            }
-                        }
-                        if (this.Positions == null || !this.Positions.Any())
-                        {
-                            this.Positions = new ObservableCollection<PositionEx>(res);
-                            RaiseOnInitialLoad(this.Positions);
-                        }
-                        else
-                        {
-                            LoadNewPositions(res);                            
-                        }
-                    }
-                };
+                    _positions = new List<PositionEx>(res);
+                    RaiseOnInitialLoad(this.Positions);
+                }
+                else
+                {
+                    foreach (var p in res)
+                        _positions.Insert(0, p);
+                    RaiseOnDataReceived(res);
+                }
             }
-            if (!bwDatabase.IsBusy)
-                bwDatabase.RunWorkerAsync();
+
         }
         public void LoadNewPositions(IEnumerable<PositionEx> positions)
         {
             if (positions == null || !positions.Any())
                 return;
-            foreach (var p in positions)
+            App.Current.Dispatcher.Invoke((Action)delegate
             {
-                var posToUpdate = this.Positions.Where(x => x.PositionID == p.PositionID).FirstOrDefault();
-                if (posToUpdate == null)
+                foreach (var p in positions)
                 {
-                    foreach (var ex in p.AllExecutions)
-                        ex.Symbol = p.Symbol;
-					App.Current.Dispatcher.Invoke((Action)delegate
-					{
-						this.Positions.Add(p);
-					});
+                    var posToUpdate = this.Positions.Where(x => x.PositionID == p.PositionID).FirstOrDefault();
+                    if (posToUpdate == null)
+                    {
+                        foreach (var ex in p.AllExecutions)
+                            ex.Symbol = p.Symbol;
+                        this.Positions.Add(p);
+                    }
                 }
-                //
-            }
+            });
+
         }
     }
 }

@@ -8,7 +8,8 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="280" MinWidth="280">
     <Grid>
-        <ListView x:Name="lstItem" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Providers}" >
+        <GroupBox Header="Providers' Status" Style="{DynamicResource MaterialDesignDataGroupBox}">
+            <ListView x:Name="lstItem" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Providers}" >
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseDoubleClick">
                     <i:InvokeCommandAction Command="{Binding CmdUpdateStatus}" CommandParameter="{Binding SelectedItem, ElementName=lstItem}"/>
@@ -41,7 +42,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-
+        </GroupBox>
     </Grid>
 
 </UserControl>

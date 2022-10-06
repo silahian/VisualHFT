@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Telerik.Windows.Controls;
+using Newtonsoft.Json.Linq;
 
 namespace VisualHFT.ViewModel
 {
@@ -23,8 +24,7 @@ namespace VisualHFT.ViewModel
 		protected string _strategyNameForThisControl;
 		protected bool _updateButtonIsEnabled;
 		protected bool _saveDBButtonIsEnabled;
-		protected Visibility _isActive;
-        private ucStrategyOverview ucStrategyOverview;
+		protected Visibility _isActive;        
 		protected vmStrategyOverview _vmStrategyOverview;
         protected string _cmdStartImage;
 		protected string _cmdStopImage;
@@ -38,7 +38,11 @@ namespace VisualHFT.ViewModel
 		protected System.ComponentModel.BackgroundWorker bwSetParameters = new System.ComponentModel.BackgroundWorker();
 		protected string _VolumeTraded;
 		protected string _ExecutionLatencyLastHour;
-		protected T _model;
+        protected string _AckLatencyLastHour;
+		protected string _OrderFillsBuys;
+        protected string _OrderFillsSells;
+		protected string _OrderFillsDiff;
+        protected T _model;
 		protected List<T> modelItems;
 
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -48,33 +52,36 @@ namespace VisualHFT.ViewModel
 				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-
-
-		public vmStrategyParametersBase(Dictionary<string, Func<string, string, bool>> dialogs, ucStrategyOverview uc)
+		public vmStrategyParametersBase(Dictionary<string, Func<string, string, bool>> dialogs)
 		{			
 
-            this._dialogs = dialogs;
+            _dialogs = dialogs;            
+			_vmStrategyOverview = new vmStrategyOverview(Helpers.HelperCommon.GLOBAL_DIALOGS);
+            RaisePropertyChanged("vmStrategyOverview");
 
-            _vmStrategyOverview = new vmStrategyOverview(Helpers.HelperCommon.GLOBAL_DIALOGS);
-			uc.DataContext = _vmStrategyOverview;
-            this.UcStrategyOverview = uc;
-			this.IsActive = Visibility.Hidden;
 
+
+            this.IsActive = Visibility.Hidden;
             cmdStop = new RelayCommand(DoStop);			
 			cmdStart = new RelayCommand(DoStart);
 			cmdUpdate = new RelayCommand(DoUpdate);
 			cmdSaveToDB = new RelayCommand(DoSaveToDB);
-		}
+
+			_positions = new ObservableCollection<PositionEx>();
+			RaisePropertyChanged("Positions");
+        }
 		public virtual void Load()
 		{
 			GetParameters();
-			HelperCommon.CLOSEDPOSITIONS.Positions.CollectionChanged += Positions_CollectionChanged;			
-			HelperCommon.STRATEGYPARAMS.OnDataUpdateReceived += STRATEGYPARAMS_OnDataUpdateReceived;
+			HelperCommon.CLOSEDPOSITIONS.OnInitialLoad += CLOSEDPOSITIONS_OnInitialLoad;
+            HelperCommon.CLOSEDPOSITIONS.OnDataReceived += CLOSEDPOSITIONS_OnDataReceived;
+            HelperCommon.STRATEGYPARAMS.OnDataUpdateReceived += STRATEGYPARAMS_OnDataUpdateReceived;
 		}
+
 		public virtual void Unload()
 		{
-			HelperCommon.CLOSEDPOSITIONS.Positions.CollectionChanged -= Positions_CollectionChanged;
-			HelperCommon.STRATEGYPARAMS.OnDataUpdateReceived -= STRATEGYPARAMS_OnDataUpdateReceived;
+            HelperCommon.CLOSEDPOSITIONS.OnDataReceived -= CLOSEDPOSITIONS_OnDataReceived;
+            HelperCommon.STRATEGYPARAMS.OnDataUpdateReceived -= STRATEGYPARAMS_OnDataUpdateReceived;
 		}
 
 		public virtual void OnUpdateToAllModelsIfAllSymbolsIsSelected()
@@ -136,7 +143,23 @@ namespace VisualHFT.ViewModel
 				_cmdUpdate = value;
 			}
 		}
-		private void DoStop(object obj)
+        public ObservableCollection<PositionEx> Positions
+        {
+            get
+            {
+                return _positions;
+            }
+
+            set
+            {
+                _positions = value;
+                RaisePropertyChanged("Positions");
+            }
+        }
+
+
+
+        private void DoStop(object obj)
 		{
 			StartStop(false);
 		}
@@ -470,7 +493,7 @@ namespace VisualHFT.ViewModel
 		{
 			GetParameters();
 			FindStrategyModelItemBySymbol(_layerName, _selectedSymbol);
-			ReloadPositions(_selectedSymbol, _selectedStrategy);
+			ReloadPositions();
 		}
 
 		private void STRATEGYPARAMS_OnDataUpdateReceived(object sender, string e)
@@ -492,120 +515,179 @@ namespace VisualHFT.ViewModel
 
 
 
-		protected void ReloadPositions(string symbol, string strategyCode)
+		protected void ReloadPositions()
 		{
-			if (symbol == "-- All symbols --")
-				symbol = "";
-			var closedPositions = HelperCommon.CLOSEDPOSITIONS.Positions.Where(x => (string.IsNullOrEmpty(symbol) || x.Symbol == symbol) && (string.IsNullOrEmpty(strategyCode) || x.StrategyCode == strategyCode)).ToList();
-			var openPositions = HelperCommon.OPENPOSITIONS.Positions.Where(x => (string.IsNullOrEmpty(symbol) || x.Symbol == symbol) && (string.IsNullOrEmpty(strategyCode) || x.StrategyCode == strategyCode));
-			if (openPositions != null && openPositions.Any())
-				closedPositions.AddRange(openPositions);
+			if (string.IsNullOrEmpty(_selectedSymbol) || _selectedSymbol == "-- All symbols --" || string.IsNullOrEmpty(_selectedStrategy))
+			{
+				_positions.Clear();
+				_vmStrategyOverview.ClearPositions();
+                return;
+			}
+
+			var closedPositions = HelperCommon.CLOSEDPOSITIONS.Positions.Where(x => x.Symbol == _selectedSymbol && x.StrategyCode == _selectedStrategy).ToList();
 			_positions = new ObservableCollection<PositionEx>(closedPositions.OrderByDescending(x => x.CloseTimeStamp));
-            _vmStrategyOverview.Positions = _positions;
-			RaisePropertyChanged("Positions");
+            _vmStrategyOverview.AddNewPositions(_positions);
+
+            RecalculatePositionStatistics();
+            RaisePropertyChanged("Positions");
 		}
-		private void RecalculatePositionStatistics()
+        private void CLOSEDPOSITIONS_OnInitialLoad(object sender, IEnumerable<PositionEx> e)
+        {
+			_positions = new ObservableCollection<PositionEx>(e);
+            RaisePropertyChanged("Positions");
+            RecalculatePositionStatistics();
+        }
+        private void CLOSEDPOSITIONS_OnDataReceived(object sender, IEnumerable<PositionEx> e)
 		{
+			foreach (var pos in e)
+			{
+                if ((string.IsNullOrEmpty(_selectedSymbol) || pos.Symbol == _selectedSymbol) && (string.IsNullOrEmpty(_selectedStrategy) || pos.StrategyCode == _selectedStrategy))
+                {
+                    _positions.Add(pos);
+                    _vmStrategyOverview.AddNewPosition(pos);
+
+                }
+            }
+            RecalculatePositionStatistics();
+
+		}
+        private void RecalculatePositionStatistics()
+        {
 			if (_positions != null && _positions.Any())
 			{
-				_VolumeTraded = HelperCommon.GetKiloFormatter(_positions.Sum(x => x.OrderQuantity.ToDouble() * 2));
-				//EXECUTION LATENCIES
-				var lastHour = _positions.Last().CreationTimeStamp.AddHours(-1); //to get hour from server
-				var executionOpen = _positions.Where(x => x.CreationTimeStamp > lastHour && x.CloseTimeStamp > x.CreationTimeStamp && !x.IsOpenMM && x.OpenExecutions != null && x.OpenExecutions.Any()).Select(x => x.OpenExecutions.Where(s => s.Status == (int)ePOSITIONSTATUS.NEW || s.Status == (int)ePOSITIONSTATUS.FILLED).OrderBy(s => s.LocalTimeStamp)).Where(x => x.Count() > 1).ToList();
-				var executionClose = _positions.Where(x => x.CreationTimeStamp > lastHour && x.CloseTimeStamp > x.CreationTimeStamp && !x.IsCloseMM && x.CloseExecutions != null && x.CloseExecutions.Any()).Select(x => x.CloseExecutions.Where(s => s.Status == (int)ePOSITIONSTATUS.NEW || s.Status == (int)ePOSITIONSTATUS.FILLED).OrderBy(s => s.LocalTimeStamp)).Where(x => x.Count() > 1).ToList();
-				double open = 0;
-				double close = 0;
-				if (executionOpen.Any())
-					open = executionOpen.Average(x => x.Last().ServerTimeStamp.Subtract(x.First().ServerTimeStamp).TotalMilliseconds);
-				if (executionClose.Any())
-					close = executionClose.Average(x => x.Last().ServerTimeStamp.Subtract(x.First().ServerTimeStamp).TotalMilliseconds);
-				_ExecutionLatencyLastHour = HelperCommon.GetKiloFormatterTime((open + close) / 2);
+                List<double> ack_latency = new List<double>();
+                List<double> fill_latency = new List<double>();
+                List<ExecutionVM> allBuys = new List<ExecutionVM>();
+                List<ExecutionVM> allSells = new List<ExecutionVM>();
 
-				RaisePropertyChanged("VolumeTraded");
-				RaisePropertyChanged("ExecutionLatencyLastHour");
-				RaisePropertyChanged("OrderFillsBuys");
-				RaisePropertyChanged("OrderFillsSells");
-				RaisePropertyChanged("OrderFillsDiff");
-			}
-		}
-		private void Positions_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-		{
-			if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-			{
-				for (int i =0; i < e.NewItems.Count; i++)
+                var lastHour = _positions.Last().CreationTimeStamp.AddHours(-1); //to get hour from server
+                var allPositions = _positions.Where(x => x.CreationTimeStamp > lastHour && x.CloseTimeStamp > x.CreationTimeStamp);//.SelectMany(x => x.AllExecutions)
+				allBuys = _positions.SelectMany(x => x.AllExecutions).Where(x => x.Side == ePOSITIONSIDE.Buy && (x.Status == ePOSITIONSTATUS.FILLED || x.Status == ePOSITIONSTATUS.PARTIALFILLED)).ToList();
+                allSells = _positions.SelectMany(x => x.AllExecutions).Where(x => x.Side == ePOSITIONSIDE.Sell && (x.Status == ePOSITIONSTATUS.FILLED || x.Status == ePOSITIONSTATUS.PARTIALFILLED)).ToList();
+
+                #region Process Latencies
+                foreach (var pos in allPositions)
 				{
-					PositionEx pos = e.NewItems[i] as PositionEx;
-					if ((string.IsNullOrEmpty(_selectedSymbol) || pos.Symbol == _selectedSymbol) && (string.IsNullOrEmpty(_selectedStrategy) || pos.StrategyCode == _selectedStrategy))
+					var allExecutions = pos.AllExecutions.OrderBy(x => x.LocalTimeStamp);
+					ExecutionVM _new_sent = null;
+                    ExecutionVM _cancel_sent = null;
+                    ExecutionVM _replace_sent = null;
+                    ExecutionVM _new_ack = null;
+                    ExecutionVM _replace_ack = null;
+                    ExecutionVM _cancel_ack = null;
+                    ExecutionVM _filled = null;
+
+					foreach (var execution in allExecutions)
 					{
-						if (_positions == null)
-							_positions = new ObservableCollection<PositionEx>();
-						_positions.Add(pos);
-					}
-				}
-				RecalculatePositionStatistics();
-				RaisePropertyChanged("Positions");
-			}
-		}
-		public ObservableCollection<PositionEx> Positions
-		{
-			get
-			{
-				return _positions;
-			}
+                        if (execution.Status == ePOSITIONSTATUS.SENT)
+							_new_sent = execution;
+                        if (execution.Status == ePOSITIONSTATUS.REPLACESENT)
+                            _replace_sent = execution;
+                        if (execution.Status == ePOSITIONSTATUS.CANCELEDSENT)
+                            _cancel_sent = execution;
 
-			set
-			{
-				_positions = value;
-				RaisePropertyChanged("Positions");
-			}
-		}
-		public string OrderFillsBuys
-		{
-			get
-			{
-				if (_positions == null || !_positions.Any())
-					return "";
-				var allBuys = _positions.SelectMany(x => x.AllExecutions).Where(x => ((eORDERSTATUS)x.Status == eORDERSTATUS.FILLED || (eORDERSTATUS)x.Status == eORDERSTATUS.PARTIALFILLED) && (eORDERSIDE)x.Side == eORDERSIDE.Buy);
-				if (allBuys != null && allBuys.Any())
+
+                        if (execution.Status == ePOSITIONSTATUS.NEW)
+							_new_ack = execution;
+						if (execution.Status == ePOSITIONSTATUS.REPLACED || (_replace_sent != null && execution.Status == ePOSITIONSTATUS.REJECTED))
+                            _replace_ack = execution;
+                        if (execution.Status == ePOSITIONSTATUS.CANCELED || (_cancel_sent != null && execution.Status == ePOSITIONSTATUS.REJECTED))
+                            _cancel_ack = execution;
+
+						if (execution.Status == ePOSITIONSTATUS.FILLED || execution.Status == ePOSITIONSTATUS.PARTIALFILLED)
+							_filled = execution;
+
+                        //TODO: all latencies are measured in milliseconds (should we meassure them in microseconds instead?)
+                        if (_new_sent != null && _new_ack != null) //process new/ack latency = how much time the exchange take to ack the new order sent
+						{
+							var _val = _new_ack.LocalTimeStamp.Subtract(_new_sent.LocalTimeStamp).TotalMilliseconds;
+							if (_val > 0)
+								ack_latency.Add(_val);
+							_new_sent = null;
+							//_new_ack = null;
+                        }
+						if (_cancel_sent != null && _cancel_ack != null) //process cancel/ack latency = how much time the exchange take to ack the order cancel request.
+						{
+							var _val = _cancel_ack.LocalTimeStamp.Subtract(_cancel_sent.LocalTimeStamp).TotalMilliseconds;
+							if (_val > 0)
+								ack_latency.Add(_val);
+                            _cancel_sent = null;
+							_cancel_ack = null;
+                        }
+                        if (_replace_sent != null && _replace_ack != null) //process replace/ack latency = how much time the exchange take to ack the order replace request.
+                        {
+							var _val = _replace_ack.LocalTimeStamp.Subtract(_replace_sent.LocalTimeStamp).TotalMilliseconds;
+							if (_val > 0)
+								ack_latency.Add(_val);
+                            _replace_sent = null;
+                            //_replace_ack = null;
+                        }
+						if ((_new_ack != null || _replace_ack != null) && _filled != null)
+						{
+							var ini_msg = (_new_ack != null ? _new_ack : _replace_ack);
+							var _val = _filled.LocalTimeStamp.Subtract(ini_msg.LocalTimeStamp).TotalMilliseconds;
+							if (_val > 0)
+								fill_latency.Add(_val);
+							if (_new_ack != null) _new_ack = null; else _replace_ack = null;
+							_filled = null;
+                        }
+                    }
+
+                }
+                #endregion
+                if (ack_latency.Any())
+					_AckLatencyLastHour = HelperCommon.GetKiloFormatterTime(ack_latency.Sum() / ack_latency.Count());
+				if (fill_latency.Any())
+					_ExecutionLatencyLastHour = HelperCommon.GetKiloFormatterTime(fill_latency.Sum() / fill_latency.Count());
+
+				decimal _volumeDiff = 0;
+				if (allBuys.Any())
 				{
-					var _value = (double)allBuys.Sum(x => x.Price.Value * x.QtyFilled.Value);
-					return HelperCommon.GetKiloFormatter(allBuys.Sum(x => x.QtyFilled.Value)) + "x" + HelperCommon.GetKiloFormatter(_value);
+					var totSize = allBuys.Sum(x => x.QtyFilled.Value);
+					var totVol = allBuys.Sum(x => x.QtyFilled.Value * x.Price.Value);
+					_volumeDiff += totVol;
+                    _OrderFillsBuys = HelperCommon.GetKiloFormatter(totSize) + " x " + HelperCommon.GetKiloFormatter(totVol);
 				}
-				return "";
-			}
+				else
+					_OrderFillsBuys = "";
+
+                if (allSells.Any())
+				{
+					var totSize = allSells.Sum(x => x.QtyFilled.Value);
+					var totVol = allSells.Sum(x => x.QtyFilled.Value * x.Price.Value);
+                    _volumeDiff -= totVol;
+                    _OrderFillsSells = HelperCommon.GetKiloFormatter(totSize) + " x " + HelperCommon.GetKiloFormatter(totVol);
+				}
+				else
+                    _OrderFillsSells = "";
+				if (_volumeDiff != 0)
+					_OrderFillsDiff = (_volumeDiff < 0 ? "-" : "") + HelperCommon.GetKiloFormatter(Math.Abs(_volumeDiff));
+				else
+					_OrderFillsDiff = "";
+
+                _VolumeTraded = HelperCommon.GetKiloFormatter(_positions.Sum(x => (x.GetOpenAvgPrice.ToDouble() * x.GetOpenQuantity.ToDouble()) + (x.GetCloseAvgPrice.ToDouble() * x.GetCloseQuantity.ToDouble())));
+                
+
+                RaisePropertyChanged("VolumeTraded");
+                RaisePropertyChanged("ExecutionLatencyLastHour");
+                RaisePropertyChanged("AckLatencyLastHour");
+                RaisePropertyChanged("OrderFillsBuys");
+                RaisePropertyChanged("OrderFillsSells");
+                RaisePropertyChanged("OrderFillsDiff");
+            }
+        }
+
+        public string OrderFillsBuys
+		{
+			get { return _OrderFillsBuys; }
 		}
 		public string OrderFillsSells
 		{
-			get
-			{
-				if (_positions == null || !_positions.Any())
-					return "";
-				var allSells = _positions.SelectMany(x => x.AllExecutions).Where(x => ((eORDERSTATUS)x.Status == eORDERSTATUS.FILLED || (eORDERSTATUS)x.Status == eORDERSTATUS.PARTIALFILLED) && (eORDERSIDE)x.Side == eORDERSIDE.Sell);
-				if (allSells != null && allSells.Any())
-				{
-					var _value = (double)allSells.Sum(x => x.Price.Value * x.QtyFilled.Value);
-					return HelperCommon.GetKiloFormatter(allSells.Sum(x => x.QtyFilled.Value)) + "x" + HelperCommon.GetKiloFormatter(_value);
-				}
-				return "";
-			}
+			get { return _OrderFillsSells; }
 		}
 		public string OrderFillsDiff
 		{
-			get
-			{
-				if (_positions == null || !_positions.Any())
-					return "";
-				var allSells = _positions.SelectMany(x => x.AllExecutions).Where(x => ((eORDERSTATUS)x.Status == eORDERSTATUS.FILLED || (eORDERSTATUS)x.Status == eORDERSTATUS.PARTIALFILLED) && (eORDERSIDE)x.Side == eORDERSIDE.Sell);
-				var allBuys = _positions.SelectMany(x => x.AllExecutions).Where(x => ((eORDERSTATUS)x.Status == eORDERSTATUS.FILLED || (eORDERSTATUS)x.Status == eORDERSTATUS.PARTIALFILLED) && (eORDERSIDE)x.Side == eORDERSIDE.Buy);
-				if (allBuys != null && allBuys.Any() && allSells != null && allSells.Any())
-				{
-					var _valueBuy = (double)allBuys.Sum(x => x.Price.Value * x.QtyFilled.Value);
-					var _valueSell = (double)allSells.Sum(x => x.Price.Value * x.QtyFilled.Value);
-					var _diff = _valueSell - _valueBuy;
-					return (_diff < 0 ? "-" : "") + HelperCommon.GetKiloFormatter(Math.Abs(_diff));
-				}
-				return "";
-			}
+			get { return _OrderFillsDiff; }
 		}
 		public string VolumeTraded
 		{
@@ -621,10 +703,17 @@ namespace VisualHFT.ViewModel
 				return _ExecutionLatencyLastHour;
 			}
 		}
+        public string AckLatencyLastHour
+        {
+            get
+            {
+                return _AckLatencyLastHour;
+            }
+        }
 
 
 
-		public string SelectedSymbol
+        public string SelectedSymbol
 		{
 			get { return _selectedSymbol; }
 			set
@@ -675,17 +764,20 @@ namespace VisualHFT.ViewModel
 			}
 		}
 
-        protected ucStrategyOverview UcStrategyOverview 
-		{ 
-			get => ucStrategyOverview; 
+
+
+        public vmStrategyOverview vmStrategyOverview
+		{
+			get => _vmStrategyOverview;
 			set
 			{
-                ucStrategyOverview = value; 
-				RaisePropertyChanged("UcStrategyOverview");
-            }				
+				_vmStrategyOverview = value;
+				RaisePropertyChanged();
+
+            }
 		}
-        
-    }
+
+	}
 
 
 

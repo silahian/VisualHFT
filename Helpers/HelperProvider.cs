@@ -13,9 +13,9 @@ using System.Windows.Threading;
 
 namespace VisualHFT.Helpers
 {
-    public class HelperProvider: ConcurrentDictionary<int, Provider>
+    public class HelperProvider: ConcurrentDictionary<int, ProviderVM>
     {
-        public event EventHandler<Provider> OnDataReceived;
+        public event EventHandler<ProviderVM> OnDataReceived;
 
         public HelperProvider()
         {}
@@ -23,9 +23,9 @@ namespace VisualHFT.Helpers
         { }
 
 
-        protected virtual void RaiseOnDataReceived(List<Provider> providers)
+        protected virtual void RaiseOnDataReceived(List<ProviderVM> providers)
         {
-            EventHandler<Provider> _handler = OnDataReceived;
+            EventHandler<ProviderVM> _handler = OnDataReceived;
             if (_handler != null && Application.Current != null)
             {
                 Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => {
@@ -36,9 +36,9 @@ namespace VisualHFT.Helpers
         }
 
 
-        public void UpdateData(IEnumerable<Provider> providers)
+        public void UpdateData(IEnumerable<ProviderVM> providers)
         {
-            List<Provider> toUpdate = new List<Provider>();
+            List<ProviderVM> toUpdate = new List<ProviderVM>();
             foreach (var provider in providers)
             {
                 if (UpdateData(provider))
@@ -47,19 +47,45 @@ namespace VisualHFT.Helpers
             if (toUpdate.Any())
                 RaiseOnDataReceived(toUpdate);
         }
-        private bool UpdateData(Provider provider)
+        private bool UpdateData(ProviderVM provider)
         {
 
             if (provider != null)
             {
+                provider.LastUpdated = DateTime.Now; 
                 //Check provider
                 if (!this.ContainsKey(provider.ProviderID))
                 {
+                    UpdateDB(provider);
                     return this.TryAdd(provider.ProviderID, provider);
+                }
+                else
+                {
+                    if (this[provider.ProviderID].Status != provider.Status || this[provider.ProviderID].LastUpdated != provider.LastUpdated)
+                    {
+                        this[provider.ProviderID].Status = provider.Status;
+                        this[provider.ProviderID].LastUpdated = provider.LastUpdated;
+                        return true;
+                    }
                 }
 			}
             return false;
         }
-
+        private void UpdateDB(ProviderVM provider)
+        {
+            using (var db = new HFTEntities())
+            {
+                var exists = db.Providers.Where(x => x.ProviderCode == provider.ProviderID).FirstOrDefault();
+                if (exists == null)
+                {
+                    db.Providers.Add(new Provider()
+                    {
+                        ProviderCode = provider.ProviderID,
+                        ProviderName = provider.ProviderName
+                    });                    
+                    var ret = db.SaveChanges();
+                }
+            }
+        }
     }
 }

@@ -12,95 +12,43 @@ namespace VisualHFT.ViewModel
 {
     public class vmProvider : INotifyPropertyChanged
     {
-        System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
         public event PropertyChangedEventHandler PropertyChanged;
-        private Provider _selectedItem;
-        private ObservableCollection<Provider> _providers;
+        private ProviderVM _selectedItem;
+        private ObservableCollection<ProviderVM> _providers;
         private RelayCommand _cmdUpdateStatus;
         private Dictionary<string, Func<string, string, bool>> _dialogs;
-        System.ComponentModel.BackgroundWorker bwGetProviders = new System.ComponentModel.BackgroundWorker();
 
         public vmProvider(Dictionary<string, Func<string, string, bool>> dialogs)
         {
-            this._dialogs = dialogs;
-            _providers = new ObservableCollection<Provider>();
+            this._dialogs = dialogs;            
             _cmdUpdateStatus = new RelayCommand(DoUpdateStatus);
+            
+            _providers = new ObservableCollection<ProviderVM>();
+            RaisePropertyChanged("Providers");
 
-            //GetProviders();
+            HelperCommon.PROVIDERS.OnDataReceived += PROVIDERS_OnDataReceived;
 
-            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 5);
-            dispatcherTimer.Start();
-        }
-        private void dispatcherTimer_Tick(object sender, EventArgs e)
-        {
-            dispatcherTimer.IsEnabled = false;
-            //GetProviders();
-            dispatcherTimer.IsEnabled = true;
         }
 
-        private void GetProviders()
+        private void PROVIDERS_OnDataReceived(object sender, ProviderVM e)
         {
-            if (!bwGetProviders.WorkerSupportsCancellation)
+            if (e == null || e.ProviderID == -1)
+                return;
+            var existingProv = _providers.Where(x => x.ProviderID == e.ProviderID).FirstOrDefault();
+            if (existingProv != null)
             {
-                bwGetProviders.WorkerSupportsCancellation = true; //use it to know if it was already setup
-
-                bwGetProviders.DoWork += (s, args) =>
-            {
-                try
-                {
-                    dispatcherTimer.IsEnabled = false; //avoid multiple calls while executing
-					var task = Task.Run<List<Provider>>(async () => await RESTFulHelper.GetVariable<List<Provider>>());
-					task.RunSynchronously();
-					args.Result = task.Result;
-				}
-                catch (Exception ex)
-                {                    
-                    foreach (var p in _providers)
-                    {
-                        p.Status = eSESSIONSTATUS.BOTH_DISCONNECTED;
-                    }
-                    dispatcherTimer.IsEnabled = true;
-                }
-            };
-                bwGetProviders.RunWorkerCompleted += (s, args) =>
-                {
-                    var fromAPP = args.Result as List<Provider>;
-                    if (fromAPP != null)
-                    {
-                        if (_providers == null || _providers.Count == 0)
-                            _providers = new ObservableCollection<Provider>(fromAPP);
-                        else
-                        {
-                            foreach (var p in fromAPP) //update status
-                            {
-                                var provToUpdate = _providers.Where(x => x.ProviderID == p.ProviderID).FirstOrDefault();
-                                if (provToUpdate != null)
-                                {
-                                    provToUpdate.Status = p.Status;
-                                }
-                            }
-                        }
-                        RaisePropertyChanged("Providers");
-                    }
-                    else if (fromAPP == null && _providers != null && _providers.Count > 0) //NOT GETTING INFORMATION: because is disconnected
-                    {
-                        foreach (var p in _providers) //update status
-                        {
-                            p.Status = eSESSIONSTATUS.BOTH_DISCONNECTED;
-                        }
-                        RaisePropertyChanged("Providers");
-                    }
-                    dispatcherTimer.IsEnabled = true; //avoid multiple calls while executing
-                };
+                existingProv.Status = e.Status;
+                existingProv.LastUpdated = e.LastUpdated;
             }
-            if (!bwGetProviders.IsBusy)
-                bwGetProviders.RunWorkerAsync();
+            else
+            {
+                _providers.Add(e);
+            }
         }
 
         private void DoUpdateStatus(object obj)
         {
-            _selectedItem = obj as Provider;
+            _selectedItem = obj as ProviderVM;
             if (_selectedItem != null)
             {
                 eSESSIONSTATUS statusToSend;
@@ -117,7 +65,7 @@ namespace VisualHFT.ViewModel
                         try
                         {
                             _selectedItem.Status = statusToSend;
-                            args.Result = RESTFulHelper.SetVariable<List<Provider>>(_providers.ToList());
+                            args.Result = RESTFulHelper.SetVariable<List<ProviderVM>>(_providers.ToList());
                         }
                         catch { /*System.Threading.Thread.Sleep(5000);*/ }
                     };
@@ -153,7 +101,7 @@ namespace VisualHFT.ViewModel
                 handler(this, new PropertyChangedEventArgs(propertyName));
             }
         }
-        public ObservableCollection<Provider> Providers
+        public ObservableCollection<ProviderVM> Providers
         {
             get
             {
@@ -185,7 +133,7 @@ namespace VisualHFT.ViewModel
             }
         }
 
-        public Provider SelectedItem
+        public ProviderVM SelectedItem
         {
             get
             {

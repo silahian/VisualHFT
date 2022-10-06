@@ -18,7 +18,7 @@ namespace VisualHFT.ViewModel
     public class vmStrategyParameterBBook : vmStrategyParametersBase<StrategyParametersBBookVM>, INotifyPropertyChanged
 	{
         
-        public vmStrategyParameterBBook(Dictionary<string, Func<string, string, bool>> dialogs, ucStrategyOverview uc) : base(dialogs, uc)
+        public vmStrategyParameterBBook(Dictionary<string, Func<string, string, bool>> dialogs) : base(dialogs)
 		{
 			_strategyNameForThisControl = "BBook";
 		}

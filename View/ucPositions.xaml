@@ -75,34 +75,85 @@
         <GroupBox Header="Positions" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5" Padding="5">
             <Grid>
                 <TabControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-                    <TabItem Header="Executions">
+                    <TabItem Header="Executions" IsSelected="True">
                         <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60*"/>
+                                <ColumnDefinition Width="40*"/>
+                            </Grid.ColumnDefinitions>                            
                             <!--EXECUTIONS-->
-                            <DataGrid Style="{DynamicResource MaterialDesignDataGrid}" x:Name="grdExecutions" AutoGenerateColumns="False" ItemsSource="{Binding Source={StaticResource ExecutionsSorted}}" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  AlternatingRowBackground="LightGray" RowBackground="White" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserResizeRows="False" CanUserSortColumns="True" HorizontalScrollBarVisibility="Hidden" >
+                            <DataGrid x:Name="grdExecutions" Style="{DynamicResource MaterialDesignDataGrid}" AutoGenerateColumns="False" ItemsSource="{Binding Source={StaticResource ExecutionsSorted}}" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  AlternatingRowBackground="Gray" RowBackground="LightGray" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserResizeRows="False" CanUserSortColumns="True" HorizontalScrollBarVisibility="Hidden" >
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Date" Binding="{Binding LocalTimeStamp, StringFormat='{}{0:HH:mm:ss.fff}'}" Width="80" SortDirection="Descending" SortMemberPath="LocalTimeStamp" />
-                                    <DataGridTextColumn Header="Provider" Binding="{Binding ProviderName}" Width="80"  />
-                                    <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="120"  />
+                                    <DataGridTextColumn Header="Date" Binding="{Binding LocalTimeStamp, StringFormat='{}{0:HH:mm:ss.fff}'}" Width="120" SortDirection="Descending" SortMemberPath="LocalTimeStamp" />
+                                    <DataGridTextColumn Header="Provider" Binding="{Binding ProviderName}" Width="100"  />
+                                    <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="100"  />
                                     <DataGridTextColumn Header="ClOrdId" Binding="{Binding ClOrdId}" Width="250"  />
                                     <DataGridTextColumn Header="Execution ID" Binding="{Binding ExecId}" Width="80"  />
                                     <DataGridTextColumn Header="Side" Binding="{Binding Side, Converter={StaticResource ResourceKey=enumConverter}}" Width="80"  />
                                     <DataGridTextColumn Header="Status" Binding="{Binding Status, Converter={StaticResource ResourceKey=enumConverter}}" Width="80"  />
-                                    <DataGridTextColumn Header="QtyFilled" Binding="{Binding QtyFilled, Converter={StaticResource KiloFormatter}}" Width="80" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
-                                    <DataGridTextColumn Header="Price" Binding="{Binding Price}" Width="80" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
-                                    <DataGridTextColumn Header="Latency(ms)" Binding="{Binding LatencyInMiliseconds, StringFormat=N0}" Width="*" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                    <DataGridTextColumn Header="QtyFilled" Binding="{Binding QtyFilled, Converter={StaticResource KiloFormatter}}" Width="100" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                    <DataGridTextColumn Header="Price" Binding="{Binding Price}" Width="120" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                    <DataGridTextColumn Header="Srv/Loc Latency(ms)" Binding="{Binding LatencyInMiliseconds, StringFormat=N2}" Width="*" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                             <!--END EXECUTIONS-->
+                            <StackPanel Orientation="Vertical" Grid.Column="1" Margin="10 0 0 0">
+                                <!--EXPOSURES-->
+                                <GroupBox Header="Exposures" Height="245" Style="{DynamicResource MaterialDesignDataGroupBox}">
+                                    <Grid>
+                                        <DataGrid Style="{DynamicResource MaterialDesignDataGrid}" ItemsSource="{Binding Exposures}" MinRowHeight="40" FontSize="20" AutoGenerateColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  IsReadOnly="True" BorderThickness="0" CanUserResizeRows="False" CanUserSortColumns="True" >
+                                            <DataGrid.RowStyle>
+                                                <Style TargetType="DataGridRow">
+                                                    <Style.Triggers>
+                                                        <!--white-->
+                                                        <DataTrigger Binding="{Binding ExposureRowColor}" Value="White">
+                                                            <Setter Property="Background" Value="White" />
+                                                            <Setter Property="Foreground" Value="Black" />
+                                                        </DataTrigger>
+                                                        <!--red-->
+                                                        <DataTrigger Binding="{Binding ExposureRowColor}" Value="Red">
+                                                            <Setter Property="Background" Value="Red" />
+                                                        </DataTrigger>
+                                                        <!--white-->
+                                                        <DataTrigger Binding="{Binding ExposureRowColor}" Value="Green">
+                                                            <Setter Property="Background" Value="Green" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </DataGrid.RowStyle>
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="*"  />
+                                                <DataGridTextColumn Header="Size" Binding="{Binding SizeExposed, Converter={StaticResource KiloFormatter}}" Width="90" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                                <DataGridTextColumn Header="$ uPL" Binding="{Binding UnrealizedPL, StringFormat=N2}" Width="150" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </Grid>
+                                </GroupBox>
+                                <!--END EXPOSURES-->
+
+                                <!--ACTIVE ORDERS-->
+                                <GroupBox Header="Pending Orders" Height="250" Style="{DynamicResource MaterialDesignDataGroupBox}">
+                                    <DataGrid Style="{DynamicResource MaterialDesignDataGrid}" ItemsSource="{Binding ActiveOrders}" AutoGenerateColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  IsReadOnly="True" BorderThickness="0" CanUserResizeRows="False" CanUserSortColumns="True" >
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Provider" Binding="{Binding ProviderName}" Width="*" SortDirection="Ascending" />
+                                            <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="100"  SortDirection="Ascending"/>
+                                            <DataGridTextColumn Header="Side" Binding="{Binding Side}" Width="60" SortDirection="Ascending" />
+                                            <DataGridTextColumn Header="Price" Binding="{Binding PricePlaced}" Width="100" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                            <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity, Converter={StaticResource KiloFormatter}}" Width="90" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                            <DataGridTextColumn Header="Filled" Binding="{Binding FilledQuantity, Converter={StaticResource KiloFormatter}}" Width="90" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                            <DataGridTextColumn Header="Pending" Binding="{Binding PendingQuantity, Converter={StaticResource KiloFormatter}}" Width="90" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                            <DataGridTextColumn Header="(sec ago)" Binding="{Binding PostedSecondsAgo, StringFormat=N0}" Width="90" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </GroupBox>
+                                <!--END ACTIVE ORDERS-->
+                            </StackPanel>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="Positions PnL" IsSelected="True">
+                    <TabItem Header="Positions PnL">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="500"/>
-                            </Grid.ColumnDefinitions>
                             <!--POSITIONS-->
-                            <DataGrid Grid.Column="0" ItemsSource="{Binding Source={StaticResource PositionsSorted}}" RowStyleSelector="{DynamicResource PnLStyle}" Style="{DynamicResource MaterialDesignDataGrid}" FontFamily="Arial" FontSize="11" RowHeight="30" AutoGenerateColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  IsReadOnly="True" BorderThickness="0" CanUserResizeRows="False" CanUserSortColumns="True" >
+                            <DataGrid x:Name="grdPositions" Grid.Column="0" ItemsSource="{Binding Source={StaticResource PositionsSorted}}" RowStyleSelector="{DynamicResource PnLStyle}" Style="{DynamicResource MaterialDesignDataGrid}" FontFamily="Arial" FontSize="11" RowHeight="30" AutoGenerateColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  IsReadOnly="True" BorderThickness="0" CanUserResizeRows="False" CanUserSortColumns="True" >
                                 <DataGrid.Resources>
                                 </DataGrid.Resources>
                                 <DataGrid.Columns>
@@ -125,54 +176,13 @@
                                 </DataGrid.Columns>
                             </DataGrid>
                             <!--END POSITIONS-->
-                            <StackPanel Orientation="Vertical" Grid.Column="1" Margin="10 0 0 0">
-                                <!--EXPOSURES-->
-                                <DataGrid Style="{DynamicResource MaterialDesignDataGrid}" ItemsSource="{Binding Exposures}" MinRowHeight="40" FontSize="20" AutoGenerateColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  IsReadOnly="True" BorderThickness="0" CanUserResizeRows="False" CanUserSortColumns="True" >
-                                    <DataGrid.RowStyle>
-                                        <Style TargetType="DataGridRow">
-                                            <Style.Triggers>
-                                                <!--white-->
-                                                <DataTrigger Binding="{Binding ExposureRowColor}" Value="White">
-                                                    <Setter Property="Background" Value="White" />
-                                                    <Setter Property="Foreground" Value="Black" />
-                                                </DataTrigger>
-                                                <!--red-->
-                                                <DataTrigger Binding="{Binding ExposureRowColor}" Value="Red">
-                                                    <Setter Property="Background" Value="Red" />
-                                                </DataTrigger>
-                                                <!--white-->
-                                                <DataTrigger Binding="{Binding ExposureRowColor}" Value="Green">
-                                                    <Setter Property="Background" Value="Green" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </DataGrid.RowStyle>
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="*"  />
-                                        <DataGridTextColumn Header="Size" Binding="{Binding SizeExposed, Converter={StaticResource KiloFormatter}}" Width="90" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
-                                        <DataGridTextColumn Header="$ uPL" Binding="{Binding UnrealizedPL, StringFormat=N2}" Width="150" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                                <!--END EXPOSURES-->
-                                <!--ACTIVE ORDERS-->
-                                <DataGrid Style="{DynamicResource MaterialDesignDataGrid}" ItemsSource="{Binding ActiveOrders}" AutoGenerateColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  IsReadOnly="True" BorderThickness="0" CanUserResizeRows="False" CanUserSortColumns="True" >
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Provider" Binding="{Binding ProviderName}" Width="90"  />
-                                        <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="90"  />
-                                        <DataGridTextColumn Header="Side" Binding="{Binding Side}" Width="90"  />
-                                        <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity, Converter={StaticResource KiloFormatter}}" Width="90" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
-                                        <DataGridTextColumn Header="Price" Binding="{Binding PricePlaced, StringFormat=N2}" Width="*" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                                <!--END ACTIVE ORDERS-->
-                            </StackPanel>
                         </Grid>
                     </TabItem>
 
                 </TabControl>
                 <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Orientation="Horizontal" >
                     <Label Content="Session Date"></Label>
-                    <DatePicker  SelectedDate="{Binding CurrentSession}" />
+                    <DatePicker  SelectedDate="{Binding SelectedDate}" />
                     <telerik:RadButton x:Name="butExportCsv" ToolTip="Export Bottler..." Click="butExportCsv_Click" Width="20" Height="20" Padding="0" BorderThickness="0" Background="White">
                         <StackPanel Orientation="Horizontal" Margin="0" >
                             <Image Source="/Images/excel.png" Height="20" Width="20" ></Image>

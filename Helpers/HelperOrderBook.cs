@@ -39,9 +39,7 @@ namespace VisualHFT.Helpers
                 return;
 
             while (_DataQueue.TryDequeue(out var ob))
-            {
                 data.Add(ob);
-            }
 
             if (data.Any())
                 RaiseOnDataReceived(data);
@@ -54,10 +52,10 @@ namespace VisualHFT.Helpers
             EventHandler<OrderBook> _handler = OnDataReceived;
             if (_handler != null && Application.Current != null)
             {
-                foreach(var ob in books)
-                    _handler(this, ob);
-                //Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => {					
-				//}));
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => {
+                    foreach (var ob in books)
+                        _handler(this, ob);
+				}));
             }
         }
 

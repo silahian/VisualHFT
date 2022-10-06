@@ -370,7 +370,8 @@ namespace VisualHFT.Helpers
 				}
 				lastEquity = e.Equity;
 			}
-			avgHourlyPnL = avgHourlyPnL / (hourlyEquity.Count - 1.0);
+            if (hourlyEquity.Count > 1)
+			    avgHourlyPnL = avgHourlyPnL / (hourlyEquity.Count - 1.0);
 
 			return new cEquity()
 			{

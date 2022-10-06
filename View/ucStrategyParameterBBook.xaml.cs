@@ -43,7 +43,7 @@ namespace VisualHFT.View
         public ucStrategyParameterBBook()
         {
             InitializeComponent();
-            this.DataContext = new VisualHFT.ViewModel.vmStrategyParameterBBook(Helpers.HelperCommon.GLOBAL_DIALOGS, ucStrategyOverview1);
+            this.DataContext = new VisualHFT.ViewModel.vmStrategyParameterBBook(Helpers.HelperCommon.GLOBAL_DIALOGS);
             ((VisualHFT.ViewModel.vmStrategyParameterBBook)this.DataContext).IsActive = Visibility.Hidden;
         }
 

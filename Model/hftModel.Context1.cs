@@ -33,5 +33,6 @@ namespace VisualHFT.Model
         public virtual DbSet<STRATEGY_PARAMETERS_HFTACCEPTOR> STRATEGY_PARAMETERS_HFTACCEPTOR { get; set; }
         public virtual DbSet<STRATEGY_PARAMETERS_BBOOK> STRATEGY_PARAMETERS_BBOOK { get; set; }
         public virtual DbSet<STRATEGY_PARAMETERS_FIRMMM> STRATEGY_PARAMETERS_FIRMMM { get; set; }
+        public virtual DbSet<Provider> Providers { get; set; }
     }
 }

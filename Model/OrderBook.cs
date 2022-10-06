@@ -51,53 +51,74 @@ namespace VisualHFT.Model
         public void LoadData(List<BookItem> asks, List<BookItem> bids)
         {
             #region Bids
-            /*List<BookItem> addBids = new List<BookItem>();
+            List<BookItem> addBids = new List<BookItem>();
             List<BookItem> delBids = new List<BookItem>();
             List<BookItem> updBids = new List<BookItem>();
-            GetAddDeleteUpdate(_Bids, bids, out addBids, out updBids, out delBids);
-            */
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() =>
+            lock (_bidLock)
             {
-                lock (_bidLock)
+                GetAddDeleteUpdate(_Bids, bids, out addBids, out updBids, out delBids);
+                //_Bids = new ObservableCollectionEx<BookItem>(bids.OrderByDescending(x => x.Price).ToList(), _Bids.Comparison);
+                foreach (var b in delBids)
+                    _Bids.Remove(b);
+                foreach (var b in updBids)
                 {
-                    _Bids = new ObservableCollectionEx<BookItem>(bids.OrderByDescending(x => x.Price).ToList(), _Bids.Comparison);
-                    lock (_Cummulative_Bids)
+                    var toUpdate = _Bids.Where(x => x.ProviderID == b.ProviderID && x.Symbol == b.Symbol && x.Price == b.Price).FirstOrDefault();
+                    if (toUpdate != null)
+                        toUpdate.Update(b);
+                }
+                foreach (var b in addBids)
+                    _Bids.Add(b);
+                _Bids.Sort();
+
+                lock (_Cummulative_Bids)
+                {
+                    _Cummulative_Bids.Clear();
+                    double cumSize = 0;
+                    foreach (var o in _Bids.OrderByDescending(x => x.Price))
                     {
-                        _Cummulative_Bids.Clear();
-                        double cumSize = 0;
-                        foreach (var o in _Bids.OrderByDescending(x => x.Price))
-                        {
-                            cumSize += o.Size;
-                            _Cummulative_Bids.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = true });
-                        }
+                        cumSize += o.Size;
+                        _Cummulative_Bids.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = true });
                     }
                 }
-            }));
+            }
+            //System.Windows.Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() =>
+            //{
+            //}));
             #endregion
 
             #region Asks
-            /*List<BookItem> addAsks = new List<BookItem>();
-            List<BookItem> delAsks = new List<BookItem>();
-            List<BookItem> updAsks = new List<BookItem>();
-            GetAddDeleteUpdate(_Asks, asks, out addAsks, out updAsks, out delAsks);
-            */
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() =>
+            lock (_askLock)
             {
-                lock (_askLock)
+                List<BookItem> addAsks = new List<BookItem>();
+                List<BookItem> delAsks = new List<BookItem>();
+                List<BookItem> updAsks = new List<BookItem>();
+                GetAddDeleteUpdate(_Asks, asks, out addAsks, out updAsks, out delAsks);
+                //_Asks = new ObservableCollectionEx<BookItem>(asks.OrderBy(x => x.Price).ToList(), _Asks.Comparison);
+                foreach (var b in delAsks)
+                    _Asks.Remove(b);
+                foreach (var b in updAsks)
                 {
-                    _Asks = new ObservableCollectionEx<BookItem>(asks.OrderBy(x => x.Price).ToList(), _Asks.Comparison);
-                    lock(_Cummulative_Asks)
+                    var toUpdate = _Asks.Where(x => x.ProviderID == b.ProviderID && x.Symbol == b.Symbol && x.Price == b.Price).FirstOrDefault();
+                    if (toUpdate != null)
+                        toUpdate.Update(b);
+                }
+                foreach (var b in addAsks)
+                    _Asks.Add(b);
+                _Asks.Sort();
+
+
+
+                lock (_Cummulative_Asks)
+                {
+                    _Cummulative_Asks.Clear();
+                    double cumSize = 0;
+                    foreach (var o in _Asks.OrderBy(x => x.Price))
                     {
-                        _Cummulative_Asks.Clear();
-                        double cumSize = 0;
-                        foreach (var o in _Asks.OrderBy(x => x.Price))
-                        {
-                            cumSize += o.Size;
-                            _Cummulative_Asks.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = false });
-                        }
+                        cumSize += o.Size;
+                        _Cummulative_Asks.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = false });
                     }
                 }
-            }));
+            }
             #endregion
 
         }
@@ -225,11 +246,11 @@ namespace VisualHFT.Model
         {
             if (isBid)
                 lock(_bidLock)
-                    return _Bids.First();
+                    return _Bids.FirstOrDefault();
             //return _Bids.OrderByDescending(x => x.Price).FirstOrDefault();
             else
                 lock(_askLock)
-                    return _Asks.First();
+                    return _Asks.FirstOrDefault();
             //return _Asks.OrderBy(x => x.Price).FirstOrDefault();
         }
         public double GetMaxOrderSize()
@@ -239,12 +260,12 @@ namespace VisualHFT.Model
             lock (_bidLock)
             {
                 if (_Bids != null)
-                    _maxOrderSize = _Bids.Max(x => x.Size);
+                    _maxOrderSize = _Bids.DefaultIfEmpty(new BookItem()).Max(x => x.Size);
             }
             lock (_askLock)
             {
                 if (_Asks != null)
-                    _maxOrderSize = Math.Max(_maxOrderSize, _Asks.Max(x => x.Size));
+                    _maxOrderSize = Math.Max(_maxOrderSize, _Asks.DefaultIfEmpty(new BookItem()).Max(x => x.Size));
             }
             return _maxOrderSize;
         }

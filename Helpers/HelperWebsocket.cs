@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WebSocket4Net;
+using System.Windows.Threading;
+using System.Windows;
 
 namespace VisualHFT.Helpers
 {
@@ -36,7 +38,7 @@ namespace VisualHFT.Helpers
         
         protected Queue<string> _QUEUE = new Queue<string>();
         protected object LOCK_QUEUE = new object();
-
+        protected object _LOCK_SYMBOLS = new object();
 
         ~HelperWebsocket()
         {
@@ -101,7 +103,7 @@ namespace VisualHFT.Helpers
         {
             var socketException = e.Exception as System.Net.Sockets.SocketException;
             if (socketException != null && (socketException.NativeErrorCode == 10061 || socketException.NativeErrorCode == 10060))
-            {
+            {                
                 System.Threading.Thread.Sleep(30 * 1000);
                 return;
             }
@@ -169,7 +171,7 @@ namespace VisualHFT.Helpers
                                     var orderBook = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Model.OrderBook>>(dataReceived.data, settings);
                                     if (orderBook != null && orderBook.Any())
                                     {
-                                        var allProviders = orderBook.Select(x => new Provider()
+                                        var allProviders = orderBook.Select(x => new ProviderVM()
                                         {
                                             ProviderID = x.ProviderID,
                                             ProviderName = x.ProviderName,
@@ -198,22 +200,15 @@ namespace VisualHFT.Helpers
                                     var exposures = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Exposure>>(dataReceived.data, settings);
                                     ParseExposures(exposures);
                                 }
-                                /*else if (dataReceived.type == "StrategyParams")
+                                else if (dataReceived.type == "HeartBeats")
                                 {
-                                    ParseStrategyParams(dataReceived.data);
+                                    var heartbeats = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ProviderVM>>(dataReceived.data, settings);
+                                    ParseHeartBeat(heartbeats);
                                 }
-                                else if (dataReceived.type == "Positions")
+                                else
                                 {
-                                    var positions = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Model.PositionEx>>(dataReceived.data, settings);
-                                    if (positions != null && positions.Any())
-                                        ParsePositions(positions);
+                                    Console.WriteLine(dataReceived.type + " error: NOT RECOGNIZED.");
                                 }
-                                else if (dataReceived.type == "OpenPositions")
-                                {
-                                    var positions = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Model.PositionEx>>(dataReceived.data, settings);
-                                    if (positions != null && positions.Any())
-                                        ParseOpenPositions(positions);
-                                }*/
                             }
                         }
                     }
@@ -229,16 +224,25 @@ namespace VisualHFT.Helpers
         #region Parsing Methods        
         private void ParseSymbols(IEnumerable<string> symbols)
         {
-            if (HelperCommon.ALLSYMBOLS == null)
-                HelperCommon.ALLSYMBOLS = new System.Collections.ObjectModel.ObservableCollection<string>();
-            
-            foreach(var s in symbols)
+            lock (_LOCK_SYMBOLS)
             {
-                if (!HelperCommon.ALLSYMBOLS.Contains(s))
-                    HelperCommon.ALLSYMBOLS.Add(s);
+                if (HelperCommon.ALLSYMBOLS == null)
+                    HelperCommon.ALLSYMBOLS = new System.Collections.ObjectModel.ObservableCollection<string>();
+                if (Application.Current == null)
+                    return;
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+                {
+                    foreach (var s in symbols)
+                    {
+                        if (!HelperCommon.ALLSYMBOLS.Contains(s))
+                        {
+                            HelperCommon.ALLSYMBOLS.Add(s);
+                        }
+                    }
+                }));
             }
         }
-        private void ParseProviders(IEnumerable<Provider> providers)
+        private void ParseProviders(IEnumerable<ProviderVM> providers)
         {
             HelperCommon.PROVIDERS.UpdateData(providers);
         }
@@ -250,11 +254,6 @@ namespace VisualHFT.Helpers
         {
             if (HelperCommon.CLOSEDPOSITIONS.LoadingType == ePOSITION_LOADING_TYPE.WEBSOCKETS)
                 HelperCommon.CLOSEDPOSITIONS.LoadNewPositions(positions.ToList());
-        }
-        private void ParseOpenPositions(IEnumerable<PositionEx> positions)
-        {
-            if (HelperCommon.OPENPOSITIONS.LoadingType == ePOSITION_LOADING_TYPE.WEBSOCKETS)
-                HelperCommon.OPENPOSITIONS.LoadNewPositions(positions.ToList());
         }
         private void ParseExposures(IEnumerable<Exposure> exposures)
         {
@@ -272,6 +271,10 @@ namespace VisualHFT.Helpers
         {
             HelperCommon.STRATEGYPARAMS.RaiseOnDataUpdateReceived(data);
 
+        }
+        private void ParseHeartBeat(IEnumerable<ProviderVM> providers)
+        {
+            HelperCommon.PROVIDERS.UpdateData(providers.ToList());
         }
         #endregion
     }

@@ -20,6 +20,9 @@ using Telerik.Windows.Controls;
 using Telerik.Windows.Data;
 using Telerik.Windows.Controls.GridView;
 using VisualHFT.Model;
+using System.Collections.Specialized;
+using System.Web.UI.WebControls;
+using System.Threading;
 
 namespace VisualHFT.View
 {
@@ -49,6 +52,7 @@ namespace VisualHFT.View
         {
             InitializeComponent();
             this.DataContext = new VisualHFT.ViewModel.vmPosition(Helpers.HelperCommon.GLOBAL_DIALOGS);
+
         }
 
         private void SetFilter(Telerik.Windows.Controls.GridViewColumn col, string value)

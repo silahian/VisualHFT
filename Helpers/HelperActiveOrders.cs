@@ -28,10 +28,8 @@ namespace VisualHFT.Helpers
             EventHandler<OrderVM> _handler = OnDataReceived;
             if (_handler != null && Application.Current != null)
             {
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => {
-                    foreach (OrderVM o in orders)
-                        _handler(this, o);
-                }));
+                foreach (OrderVM o in orders)
+                    _handler(this, o);
             }
         }
         protected virtual void RaiseOnDataRemoved(List<OrderVM> orders)
@@ -39,10 +37,8 @@ namespace VisualHFT.Helpers
             EventHandler<OrderVM> _handler = OnDataRemoved;
             if (_handler != null && Application.Current != null)
             {
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => {
-                    foreach (OrderVM o in orders)
-                        _handler(this, o);
-                }));
+                foreach (OrderVM o in orders)
+                    _handler(this, o);
             }
         }
 
@@ -65,18 +61,23 @@ namespace VisualHFT.Helpers
         {
             List<OrderVM> _listToRemove = new List<OrderVM>();
             List<OrderVM> _listToAdd = new List<OrderVM>();
-            _listToRemove = this.Where(x => !orders.Any(o => o.ProviderId == x.Value.ProviderId && o.PricePlaced == x.Value.PricePlaced)).Select(x => x.Value).ToList();
-            _listToAdd = orders.Where(x => !_listToRemove.Any(o => o.ProviderId == x.ProviderId && o.PricePlaced == x.PricePlaced)).ToList();
-            _listToAdd = orders.Where(x => !this.Any(o => o.Value.ProviderId == x.ProviderId && o.Value.PricePlaced == x.PricePlaced)).ToList();
+            _listToRemove = this.Where(x => !orders.Any(o => o.ClOrdId == x.Value.ClOrdId)).Select(x => x.Value).ToList();
+            _listToAdd = orders.Where(x => !this.Any(o => o.Value.ClOrdId == x.ClOrdId)).ToList();
 
 
             foreach (var o in _listToRemove)
                 this.TryRemove(o.ClOrdId, out var fakeOrder);
-            foreach (var o in _listToAdd)
-                UpdateData(o);
+            if (_listToRemove.Any())
+                RaiseOnDataRemoved(_listToRemove);
 
-            RaiseOnDataRemoved(_listToRemove);
-            RaiseOnDataReceived(_listToAdd);
+            List<OrderVM> _listToAddOrUpdate = new List<OrderVM>();
+            foreach (var o in _listToAdd)
+            {
+                if (UpdateData(o))
+                    _listToAddOrUpdate.Add(o);
+            }
+            if (_listToAddOrUpdate.Any())
+                RaiseOnDataReceived(_listToAddOrUpdate);
         }
         private bool UpdateData(OrderVM order)
         {            
@@ -89,6 +90,10 @@ namespace VisualHFT.Helpers
                     if (HelperCommon.PROVIDERS.ContainsKey(order.ProviderId))
                         order.ProviderName = HelperCommon.PROVIDERS[order.ProviderId].ProviderName;
                     return this.TryAdd(order.ClOrdId, order);
+                }
+                else
+                {
+                    return TryUpdate(order.ClOrdId, order, this[order.ClOrdId]);
                 }
 			}
             return false;

@@ -14,15 +14,24 @@ namespace VisualHFT.Helpers
 {
     public class HelperStrategy: ObservableCollection<string>
     {
+        protected object _LOCK = new object();
         public HelperStrategy()
         {}
 
         public void UpdateData(List<StrategyVM> data)
         {
-            foreach (StrategyVM vm in data)
+            lock (_LOCK)
             {
-                if (!this.Any(x => x == vm.StrategyCode))
-                    this.Add(vm.StrategyCode);
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+                {
+                    foreach (StrategyVM vm in data)
+                    {
+                        if (!this.Any(x => x == vm.StrategyCode))
+                        {
+                            this.Add(vm.StrategyCode);
+                        }
+                    }
+                }));
             }
         }
     }

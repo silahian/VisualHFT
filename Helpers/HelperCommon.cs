@@ -47,7 +47,6 @@ namespace VisualHFT.Helpers
         public static HelperProvider PROVIDERS = new HelperProvider();
         public static HelperOrderBook LIMITORDERBOOK = new HelperOrderBook();
         public static HelperPosition CLOSEDPOSITIONS = new HelperPosition(ePOSITION_LOADING_TYPE.DATABASE);
-        public static HelperPosition OPENPOSITIONS = new HelperPosition(ePOSITION_LOADING_TYPE.WEBSOCKETS);
         public static HelperExposure EXPOSURES = new HelperExposure();
         public static HelperActiveOrder ACTIVEORDERS = new HelperActiveOrder();
         public static HelperStrategy ACTIVESTRATEGIES = new HelperStrategy();
@@ -114,7 +113,7 @@ namespace VisualHFT.Helpers
         public static string GetKiloFormatter(double num)
         {
             if (num < 500)
-                return num.ToString();
+                return num.ToString("N2");
             if (num < 10000)
                 return num.ToString("N0");
 

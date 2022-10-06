@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Reflection;
@@ -19,6 +20,7 @@ namespace VisualHFT.Extensions
     public class ObservableCollectionEx<T> : ObservableCollection<T>
     {
         private Comparison<T> _comparison; //= new Comparison<T>((bd1, bd2) => { return DateTime.Compare(bd1.StartDate, bd2.StartDate); });
+        protected object LOCK = new object();
 
         public Comparison<T> Comparison { get => _comparison; set => _comparison = value; }
 
@@ -40,7 +42,8 @@ namespace VisualHFT.Extensions
 
         public new void Add(T item)
         {
-            InternalInsert(item);
+            lock(LOCK)
+                InternalInsert(item);
         }
 
         private void InternalInsert(T item)
@@ -77,26 +80,34 @@ namespace VisualHFT.Extensions
 
         public void Sort()
         {
-            var sortableList = this.ToList();
-            sortableList.Sort(_comparison);
-            bool isSortDone = false;
 
-            while (!isSortDone)
+            lock (LOCK)
             {
-                isSortDone = true;
-                for (int i = 0; i < sortableList.Count; i++)
+                var sortableList = this.ToList();
+                sortableList.Sort(_comparison);
+                bool isSortDone = false;
+
+                for (int i = 0; i < sortableList.Count(); i++)
+                    base.Move(base.IndexOf(sortableList[i]), i);
+
+                /*
+                while (!isSortDone)
                 {
-                    if (base.IndexOf(sortableList[i]) != i)
+                    isSortDone = true;
+                    for (int i = 0; i < sortableList.Count; i++)
                     {
-                        var replacedItem = base[i];
-                        base.Move(base.IndexOf(sortableList[i]), i);
-                        if (base.IndexOf(sortableList[i]) < i-1)
+                        if (base.IndexOf(sortableList[i]) != i)
                         {
-                            isSortDone=false;
-                            break;
+                            base.Move(base.IndexOf(sortableList[i]), i);
+                            if (base.IndexOf(sortableList[i]) < i - 1)
+                            {
+                                isSortDone = false;
+                                break;
+                            }
                         }
                     }
                 }
+                */
             }
 
         }

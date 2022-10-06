@@ -11,6 +11,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.UI.WebControls;
 using System.Windows;
+using Telerik.Windows.Controls.GridView;
+using VisualHFT.Model;
 
 namespace VisualHFT.ViewModel
 {
@@ -21,8 +23,11 @@ namespace VisualHFT.ViewModel
         private string _selectedSymbol;
         private string _selectedLayer;
         private string _selectedStrategy;
-        ucStrategyOverview _strategyOverview;
-        protected vmStrategyParameterFirmMM vmStrategyParamsFirmMM;
+        
+        protected vmStrategyParameterFirmMM _vmStrategyParamsFirmMM;
+        protected vmPosition _vmPosition;
+        protected vmOrderBook _vmOrderBook;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public vmDashboard(Dictionary<string, Func<string, string, bool>> dialogs)
@@ -37,15 +42,25 @@ namespace VisualHFT.ViewModel
             dispatcherTimer.Start();
 
             
-            _strategyOverview = new ucStrategyOverview();
-            this.StrategyParamsFirmMM = new vmStrategyParameterFirmMM(Helpers.HelperCommon.GLOBAL_DIALOGS, _strategyOverview);            
+            this.StrategyParamsFirmMM = new vmStrategyParameterFirmMM(Helpers.HelperCommon.GLOBAL_DIALOGS);
+            this.Positions = new vmPosition(Helpers.HelperCommon.GLOBAL_DIALOGS);
+            this.OrderBook = new vmOrderBook(Helpers.HelperCommon.GLOBAL_DIALOGS);
         }
         public vmStrategyParameterFirmMM StrategyParamsFirmMM
         {
-            get { return vmStrategyParamsFirmMM;  }
-            set { vmStrategyParamsFirmMM = value; RaisePropertyChanged("StrategyParamsFirmMM"); }
+            get { return _vmStrategyParamsFirmMM;  }
+            set { _vmStrategyParamsFirmMM = value; RaisePropertyChanged("StrategyParamsFirmMM"); }
         }
-
+        public vmPosition Positions
+        {
+            get { return _vmPosition;  }
+            set { _vmPosition = value; RaisePropertyChanged("Positions"); }
+        }
+        public vmOrderBook OrderBook
+        {
+            get { return _vmOrderBook; }
+            set { _vmOrderBook = value; RaisePropertyChanged("OrderBook"); }
+        }
 
         public RelayCommand cmdAbort { get; set; }
         protected void RaisePropertyChanged(string propertyName)
@@ -142,7 +157,8 @@ namespace VisualHFT.ViewModel
 				if (value != "")
 				{
                     _selectedSymbol = "-- All symbols --";
-                    vmStrategyParamsFirmMM.SelectedStrategy = value;
+                    _vmStrategyParamsFirmMM.SelectedStrategy = value;
+                    _vmPosition.SelectedStrategy = value;
 
                     RaisePropertyChanged("SelectedStrategy");                    
 					RaisePropertyChanged("SelectedSymbol");
@@ -158,7 +174,10 @@ namespace VisualHFT.ViewModel
 				if (_selectedSymbol != value)
 				{
 					_selectedSymbol = value;
-                    vmStrategyParamsFirmMM.SelectedSymbol = value;
+                    _vmStrategyParamsFirmMM.SelectedSymbol = value;
+                    _vmPosition.SelectedSymbol = value;
+                    _vmOrderBook.SelectedSymbol = value;
+
                     RaisePropertyChanged("SelectedSymbol");
 				}
             }
@@ -171,6 +190,8 @@ namespace VisualHFT.ViewModel
 				if (_selectedLayer != value)
 				{
 					_selectedLayer = value;
+                    _vmOrderBook.SelectedLayer = value;
+
 					RaisePropertyChanged("SelectedLayer");
 				}
             }

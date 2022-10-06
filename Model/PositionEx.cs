@@ -10,17 +10,8 @@ using VisualHFT.Helpers;
 
 namespace VisualHFT.Model
 {
-    public class ExecutionVM: OpenExecution, INotifyPropertyChanged
+    public class ExecutionVM: OpenExecution
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
 
         public ExecutionVM(OpenExecution exec, string symbol)
         {
@@ -58,16 +49,7 @@ namespace VisualHFT.Model
             this.Status = (ePOSITIONSTATUS)exec.Status;
             this.Symbol = symbol;
         }
-        public string ProviderName
-        {
-            get
-            {
-                if (HelperCommon.PROVIDERS.ContainsKey(this.ProviderID))
-                    return HelperCommon.PROVIDERS[this.ProviderID].ProviderName;
-                else
-                    return "";
-            }
-        }
+        public string ProviderName { get; set; }
         public string Symbol { get; set; }
         public double LatencyInMiliseconds
         {
@@ -95,8 +77,8 @@ namespace VisualHFT.Model
         }
         public PositionEx(Position p)
         {
-            this.CloseExecutions = p.CloseExecutions;
-            this.OpenExecutions = p.OpenExecutions;
+            this.CloseExecutions = p.CloseExecutions.Select(x => new ExecutionVM(x, p.Symbol)).ToList();
+            this.OpenExecutions = p.OpenExecutions.Select(x => new ExecutionVM(x, p.Symbol)).ToList();
 
 
             this.AttemptsToClose = p.AttemptsToClose;
@@ -150,48 +132,32 @@ namespace VisualHFT.Model
         }
         ~PositionEx()
         {
-            this.CloseExecutions.Clear();
+            if (this.CloseExecutions != null)
+                this.CloseExecutions.Clear();
             this.CloseExecutions = null;
 
-            this.OpenExecutions.Clear();
+            if (this.OpenExecutions != null)
+                this.OpenExecutions.Clear();
             this.OpenExecutions = null;
         }
-        public string OpenProviderName
-        {
-            get
-            {
-                if (HelperCommon.PROVIDERS.ContainsKey(this.OpenProviderId))
-                    return HelperCommon.PROVIDERS[this.OpenProviderId].ProviderName;
-                else
-                    return "** not found";
-            }
-        }
-        public string CloseProviderName
-        {
-            get
-            {
-                try
-                {
-                    if (HelperCommon.PROVIDERS.ContainsKey(this.CloseProviderId))
-                        return HelperCommon.PROVIDERS[this.CloseProviderId].ProviderName;
-                    else
-                        return "** not found";
-                }
-                catch { }
-                return "";
-            }
-        }
-        public ICollection<ExecutionVM> AllExecutions {
+        public string OpenProviderName { get; set; }
+        public string CloseProviderName { get; set; }
+
+        public new List<ExecutionVM> OpenExecutions {get; set;}
+        public new List<ExecutionVM> CloseExecutions { get; set; }
+
+        public List<ExecutionVM> AllExecutions {
             get {
                 var _ret = new List<ExecutionVM>();
                 if (this.OpenExecutions != null && this.OpenExecutions.Any())
-                    _ret.AddRange(this.OpenExecutions.Select(x => new ExecutionVM(x, this.Symbol)));
+                    _ret.AddRange(this.OpenExecutions);
                 
                 if (this.CloseExecutions != null && this.CloseExecutions.Any())
-                    _ret.AddRange(this.CloseExecutions.Select(x => new ExecutionVM(x, this.Symbol)));
-                return _ret.OrderBy(x => x.ServerTimeStamp).ToList();
+                    _ret.AddRange(this.CloseExecutions);
+                return _ret/*.OrderBy(x => x.ServerTimeStamp)*/.ToList();
             }
         }
+        
         public new ePOSITIONSIDE Side
         {
             get { return (ePOSITIONSIDE)base.Side; }

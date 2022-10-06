@@ -92,6 +92,13 @@
           <Property Name="CloseFireSignalTimestamp" Type="datetime2" Precision="7" />
           <Property Name="PipsPnLInCurrency" Type="decimal" Precision="18" Scale="2" />
         </EntityType>
+        <EntityType Name="Providers">
+          <Key>
+            <PropertyRef Name="ProviderCode" />
+          </Key>
+          <Property Name="ProviderCode" Type="int" Nullable="false" />
+          <Property Name="ProviderName" Type="varchar" MaxLength="501" Nullable="false" />
+        </EntityType>
         <EntityType Name="STRATEGY_PARAMETERS_BBOOK">
           <Key>
             <PropertyRef Name="StrategyParamID" />
@@ -217,6 +224,7 @@
           <EntitySet Name="CloseExecutions" EntityType="Self.CloseExecutions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OpenExecutions" EntityType="Self.OpenExecutions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Positions" EntityType="Self.Positions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Providers" EntityType="Self.Providers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="STRATEGY_PARAMETERS_BBOOK" EntityType="Self.STRATEGY_PARAMETERS_BBOOK" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="STRATEGY_PARAMETERS_FIRMBB" EntityType="Self.STRATEGY_PARAMETERS_FIRMBB" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="STRATEGY_PARAMETERS_FIRMMM" EntityType="Self.STRATEGY_PARAMETERS_FIRMMM" Schema="dbo" store:Type="Tables" />
@@ -252,6 +260,7 @@
           <EntitySet Name="STRATEGY_PARAMETERS_HFTACCEPTOR" EntityType="HFTModel.STRATEGY_PARAMETERS_HFTACCEPTOR" />
           <EntitySet Name="STRATEGY_PARAMETERS_BBOOK" EntityType="HFTModel.STRATEGY_PARAMETERS_BBOOK" />
           <EntitySet Name="STRATEGY_PARAMETERS_FIRMMM" EntityType="HFTModel.STRATEGY_PARAMETERS_FIRMMM" />
+          <EntitySet Name="Providers" EntityType="HFTModel.Provider" />
           </EntityContainer>
         <EntityType Name="StrategyParameter">
           <Key>
@@ -465,6 +474,13 @@
           <Property Name="BollingerStdDev" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
           <Property Name="PricingType" Type="Int32" Nullable="false" />
         </EntityType>
+        <EntityType Name="Provider">
+          <Key>
+            <PropertyRef Name="ProviderCode" />
+          </Key>
+          <Property Name="ProviderCode" Type="Int32" Nullable="false" />
+          <Property Name="ProviderName" Type="String" Nullable="false" MaxLength="501" FixedLength="false" Unicode="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -660,6 +676,14 @@
                 <ScalarProperty Name="LayerName" ColumnName="LayerName" />
                 <ScalarProperty Name="Symbol" ColumnName="Symbol" />
                 <ScalarProperty Name="StrategyParamID" ColumnName="StrategyParamID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Providers">
+            <EntityTypeMapping TypeName="HFTModel.Provider">
+              <MappingFragment StoreEntitySet="Providers">
+                <ScalarProperty Name="ProviderName" ColumnName="ProviderName" />
+                <ScalarProperty Name="ProviderCode" ColumnName="ProviderCode" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

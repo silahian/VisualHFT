@@ -45,7 +45,7 @@ namespace VisualHFT.View
         public ucStrategyParameterFirmBB()
         {
             InitializeComponent();
-            this.DataContext = new VisualHFT.ViewModel.vmStrategyParameterFirmBB(Helpers.HelperCommon.GLOBAL_DIALOGS, ucStrategyOverview1);
+            this.DataContext = new VisualHFT.ViewModel.vmStrategyParameterFirmBB(Helpers.HelperCommon.GLOBAL_DIALOGS);
             ((VisualHFT.ViewModel.vmStrategyParameterFirmBB)this.DataContext).IsActive = Visibility.Hidden;
         }
 

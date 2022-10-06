@@ -12,6 +12,7 @@ using System.IO;
 using VisualHFT.Model;
 using System.Windows.Data;
 using System.Runtime.CompilerServices;
+using System.Windows.Threading;
 
 namespace VisualHFT.ViewModel
 {
@@ -26,12 +27,14 @@ namespace VisualHFT.ViewModel
 
         private string _selectedSymbol;
         private string _selectedStrategy;
+        private DateTime _selectedDate;
         private Dictionary<string, Func<string, string, bool>> _dialogs;
         System.ComponentModel.BackgroundWorker bwLoadPositions = new System.ComponentModel.BackgroundWorker();
         ObservableCollection<Exposure> _exposures;
         ObservableCollection<PositionEx> _positions;
         ObservableCollection<ExecutionVM> _executions;
         ObservableCollection<OrderVM> _activeOrders;
+        object _lockActiveOrders = new object();
 
         public vmPosition(Dictionary<string, Func<string, string, bool>> dialogs)
         {
@@ -45,22 +48,54 @@ namespace VisualHFT.ViewModel
             RaisePropertyChanged("ActiveOrders");
 
 
-            HelperCommon.CLOSEDPOSITIONS.Positions.CollectionChanged += ClosedPositions_CollectionChanged;
+            HelperCommon.CLOSEDPOSITIONS.OnDataReceived += CLOSEDPOSITIONS_OnDataReceived;
 			HelperCommon.CLOSEDPOSITIONS.OnInitialLoad += CLOSEDPOSITIONS_OnInitialLoad;
-            //HelperCommon.OPENPOSITIONS.Positions.CollectionChanged += OpenedPositions_CollectionChanged;
+            
+
             HelperCommon.EXPOSURES.OnDataReceived += EXPOSURES_OnDataReceived;
             HelperCommon.ACTIVEORDERS.OnDataReceived += ACTIVEORDERS_OnDataReceived;
             HelperCommon.ACTIVEORDERS.OnDataRemoved += ACTIVEORDERS_OnDataRemoved;
+            this.SelectedDate = DateTime.Now;
         }
+
 
         private void ACTIVEORDERS_OnDataRemoved(object sender, OrderVM e)
         {
-            _activeOrders.Remove(e);
+            if (e == null || string.IsNullOrEmpty(_selectedStrategy))
+                return;
+            var existingItem = _activeOrders.Where(x => x.ClOrdId == e.ClOrdId).FirstOrDefault();
+            if (existingItem != null)
+            {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() => {
+                    lock (_lockActiveOrders)
+                        _activeOrders.Remove(existingItem);
+                }));                
+            }
         }
 
         private void ACTIVEORDERS_OnDataReceived(object sender, OrderVM e)
         {
-            _activeOrders.Add(e);
+            if (e == null || string.IsNullOrEmpty(_selectedStrategy))
+                return;
+            if (e != null)
+            {
+                lock (_lockActiveOrders)
+                {
+                    var existingItem = _activeOrders.Where(x => x.ClOrdId == e.ClOrdId).FirstOrDefault();
+                    if (existingItem == null)
+                    {
+                        Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+                        {
+                            _activeOrders.Add(e);
+                        }));
+
+                    }
+                    else
+                    {
+                        existingItem.Update(e);
+                    }
+                }
+            }
         }
 
         private void EXPOSURES_OnDataReceived(object sender, Exposure e)
@@ -85,27 +120,21 @@ namespace VisualHFT.ViewModel
             ReloadPositions(_selectedSymbol, _selectedStrategy);
         }
 
-        private void ClosedPositions_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-		{
-			if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-			{
-				foreach (var pos in e.NewItems as List<PositionEx>)
-				{
-					if ((string.IsNullOrEmpty(_selectedSymbol) || pos.Symbol == _selectedSymbol) && (string.IsNullOrEmpty(_selectedStrategy) || pos.StrategyCode == _selectedStrategy))
-					{
-						if (_positions == null)
-							_positions = new ObservableCollection<PositionEx>();
-						_positions.Add(pos);
-						foreach (var exec in pos.AllExecutions.Where(x => x.Status == ePOSITIONSTATUS.FILLED || x.Status == ePOSITIONSTATUS.PARTIALFILLED))
-							_executions.Add(exec);
-					}
-				}
-				RaisePropertyChanged("Positions");
-				RaisePropertyChanged("Executions");
-			}
+        private void CLOSEDPOSITIONS_OnDataReceived(object sender, IEnumerable<PositionEx> e)
+        {
+            foreach(var pos in e)
+            {
+                if ((string.IsNullOrEmpty(_selectedSymbol) || pos.Symbol == _selectedSymbol) && (string.IsNullOrEmpty(_selectedStrategy) || pos.StrategyCode == _selectedStrategy))
+                {
+                    if (_positions == null)
+                        _positions = new ObservableCollection<PositionEx>();
+                    _positions.Insert(0, pos);
+                    foreach (var exec in pos.AllExecutions.Where(x => x.Status == ePOSITIONSTATUS.FILLED || x.Status == ePOSITIONSTATUS.PARTIALFILLED))
+                        _executions.Insert(0, exec);
+                }                
+            }
 		}
 
-        public DateTime CurrentSession { get; set; }
         public ObservableCollection<Exposure> Exposures
         {
             get
@@ -161,6 +190,22 @@ namespace VisualHFT.ViewModel
                 }
             }
         }
+        public DateTime SelectedDate
+        {
+            get { return _selectedDate; }
+            set { 
+                if (_selectedDate != value)
+                {
+                    _selectedDate = value.Date;
+                    
+                    HelperCommon.CLOSEDPOSITIONS.SessionDate = _selectedDate;
+                    RaisePropertyChanged("SelectedDate");
+                }
+            }
+                
+        }
+
+
         private void ReloadPositions(string symbol, string strategyCode)
         {
             if (!bwLoadPositions.WorkerSupportsCancellation)
@@ -172,15 +217,18 @@ namespace VisualHFT.ViewModel
                     {
                         if (symbol == "-- All symbols --")
                             symbol = "";
-                        var closedPositions = HelperCommon.CLOSEDPOSITIONS.Positions.Where(x => (string.IsNullOrEmpty(_selectedSymbol) || x.Symbol == _selectedSymbol) && (string.IsNullOrEmpty(_selectedStrategy) || x.StrategyCode == _selectedStrategy)).ToList();
-                        var openPositions = HelperCommon.OPENPOSITIONS.Positions.Where(x => (string.IsNullOrEmpty(_selectedSymbol) || x.Symbol == _selectedSymbol) && (string.IsNullOrEmpty(_selectedStrategy) || x.StrategyCode == _selectedStrategy));
-                        if (openPositions != null && openPositions.Any())
-                            closedPositions.AddRange(openPositions);
+                        var closedPositions = HelperCommon.CLOSEDPOSITIONS.Positions
+                            .Where(x =>
+                                    (string.IsNullOrEmpty(_selectedSymbol) || x.Symbol == _selectedSymbol)
+                                    &&
+                                    (string.IsNullOrEmpty(_selectedStrategy) || x.StrategyCode == _selectedStrategy)
+                                    && x.CreationTimeStamp.Date == _selectedDate.Date
+                             ).ToList();                        
                         _positions = new ObservableCollection<PositionEx>(closedPositions.OrderByDescending(x => x.CloseTimeStamp));
                         //EXECUTIONS
                         #region Executions
-                        var open = _positions.SelectMany(x => x.OpenExecutions).Where(x => (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.FILLED || (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.PARTIALFILLED).Select(x => new ExecutionVM(x, _selectedSymbol));
-                        var close = _positions.SelectMany(x => x.CloseExecutions).Where(x => (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.FILLED || (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.PARTIALFILLED).Select(x => new ExecutionVM(x, _selectedSymbol));
+                        var open = _positions.SelectMany(x => x.OpenExecutions).Where(x => (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.FILLED || (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.PARTIALFILLED);
+                        var close = _positions.SelectMany(x => x.CloseExecutions).Where(x => (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.FILLED || (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.PARTIALFILLED);
                         List<ExecutionVM> allExecution = new List<ExecutionVM>();
                         allExecution.AddRange(open);
                         allExecution.AddRange(close);

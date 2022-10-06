@@ -126,7 +126,7 @@ namespace VisualHFT.View
 
 			//fill providers
 			var allProviders = HelperCommon.PROVIDERS.Select(x => x.Value).ToList();
-			allProviders.Insert(0, new Model.Provider() { ProviderID = 0, ProviderName = "ALL" });
+			allProviders.Insert(0, new Model.ProviderVM() { ProviderID = 0, ProviderName = "ALL" });
 			lstProviders.ItemsSource = allProviders;
 
 		}

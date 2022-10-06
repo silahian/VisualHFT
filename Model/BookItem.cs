@@ -55,6 +55,21 @@ namespace VisualHFT.Model
         private bool _IsBid;
         private int _DecimalPlaces;
         private double? _ActiveSize;
+
+        public void Update(BookItem b)
+        {
+            this.Symbol = b.Symbol;
+            this.ProviderID = b.ProviderID; 
+            this.EntryID = b.EntryID;
+            this.LayerName = b.LayerName;
+            this.LocalTimeStamp = b.LocalTimeStamp;
+            this.ServerTimeStamp = b.ServerTimeStamp;
+            this.Price = b.Price;
+            this.Size = b.Size;
+            this.IsBid = b.IsBid;
+            this.DecimalPlaces = b.DecimalPlaces;
+            this.ActiveSize = b.ActiveSize;
+        }
         public int DecimalPlaces { get => _DecimalPlaces; set => _DecimalPlaces = value; }
         public string Symbol
         {

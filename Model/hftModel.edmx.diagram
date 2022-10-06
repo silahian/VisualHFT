@@ -15,6 +15,7 @@
         <EntityTypeShape EntityType="HFTModel.STRATEGY_PARAMETERS_HFTACCEPTOR" Width="1.5" PointX="6.375" PointY="10.75" />
         <EntityTypeShape EntityType="HFTModel.STRATEGY_PARAMETERS_BBOOK" Width="1.5" PointX="11.375" PointY="0.75" />
         <EntityTypeShape EntityType="HFTModel.STRATEGY_PARAMETERS_FIRMMM" Width="1.5" PointX="11.375" PointY="5.75" />
+        <EntityTypeShape EntityType="HFTModel.Provider" Width="1.5" PointX="0.75" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

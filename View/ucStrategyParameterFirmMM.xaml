@@ -8,7 +8,7 @@
              xmlns:local="clr-namespace:VisualHFT.View"
              xmlns:ViewModel="clr-namespace:VisualHFT.ViewModel"
              mc:Ignorable="d" 
-             
+             xmlns:Formatters="clr-namespace:VisualHFT.Converters"
             xmlns:materialDesign="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
             xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -33,6 +33,11 @@
 
     
     <Grid Visibility="{Binding IsActive}">
+        <Grid.Resources>
+            <Formatters:ConverterEnum x:Key="enumConverter"/>
+            <Formatters:KiloFormatter x:Key="KiloFormatter"/>
+        </Grid.Resources>
+
         <GroupBox Header="Strategy: Firm Market Making" Margin="5" Padding="5" Style="{DynamicResource MaterialDesignDataGroupBox}" >
             <Grid>
                 <Grid.RowDefinitions>
@@ -61,8 +66,8 @@
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
 
-                        <StatisticsView:ucStrategyOverview x:Name="ucStrategyOverview1" DataContext="{Binding UcStrategyOverview}" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" />
-                        <!-- CARD Total Hits -->
+                        <StatisticsView:ucStrategyOverview x:Name="ucStrategyOverview1" DataContext="{Binding vmStrategyOverview}" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" />
+                        <!-- CARD Volume -->
                         <Grid Grid.Row="1" Grid.Column="0">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="40" />
@@ -79,7 +84,7 @@
                                 <Label Content="(total volume traded)" Style="{StaticResource CardItemsBig}" FontSize="9" />
                             </StackPanel>
                         </Grid>
-                        <!-- CARD Total Rejections -->
+                        <!-- CARD Latencies -->
                         <Grid Grid.Row="1" Grid.Column="1">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="40" />
@@ -87,16 +92,21 @@
                             </Grid.RowDefinitions>
                             <!--TITLE-->
                             <StackPanel Grid.Row="0">
-                                <Label Content="Execution" Grid.Row="0" Style="{StaticResource CardTitles}" />
+                                <Label Content="Latencies" Grid.Row="0" Style="{StaticResource CardTitles}" />
                                 <Border Style="{StaticResource CardTitleUnderline}"  />
                             </StackPanel>
                             <!--VALUES-->
                             <StackPanel Grid.Row="1">
+                                <Label Content="{Binding AckLatencyLastHour}" Style="{StaticResource CardItemsBig}" />
+                                <Label Content="Ack Latency" Style="{StaticResource CardItemsBig}" FontSize="12" />
+                                
                                 <Label Content="{Binding ExecutionLatencyLastHour}" Style="{StaticResource CardItemsBig}" />
-                                <Label Content="(avg in last hour)" Style="{StaticResource CardItemsBig}" FontSize="9" />
+                                <Label Content="Execution Latency" Style="{StaticResource CardItemsBig}" FontSize="12" />
+                                
+                                <Label Content="--avg last hour--" Style="{StaticResource CardItemsBig}" FontSize="9" Margin="0 15 0 0" />
                             </StackPanel>
                         </Grid>
-                        <!-- CARD Fill RATIO -->
+                        <!-- CARD Orders FILL -->
                         <Grid Grid.Row="1" Grid.Column="2">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="40" />

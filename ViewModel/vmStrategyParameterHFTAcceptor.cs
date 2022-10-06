@@ -19,7 +19,7 @@ namespace VisualHFT.ViewModel
 	{
 		
 
-        public vmStrategyParameterHFTAcceptor(Dictionary<string, Func<string, string, bool>> dialogs, ucStrategyOverview uc): base(dialogs, uc)
+        public vmStrategyParameterHFTAcceptor(Dictionary<string, Func<string, string, bool>> dialogs): base(dialogs)
         {			
 			_strategyNameForThisControl = "HFTAcceptorStrategy";            
         }
