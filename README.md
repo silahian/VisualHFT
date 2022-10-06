@@ -11,7 +11,6 @@ For this example we had the following:
 - light green/red bubbles are our orders (market making)
 - bottom chart in blue, is the spread
 
-Description automatically generated](Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.001.png)
 
 ## Long Description
 Enterprise level trading systems run in collocated server with no human interaction. With VisualHFT, we can have a look at what’s going on with the markets, risk, exposures, and many other analytics.
