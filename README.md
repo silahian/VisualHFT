@@ -24,13 +24,13 @@ If you want to learn more about what I’ve been doing, checkout my blog at <htt
 
 **How to Install and Run the project**: the server app must send the following websocket messages: 
 
-- Active Orders [GitHub Pages](https://github.com/silahian/VisualHFT/blob/master/WS_input_json/ActiveOrders.json)
-- Exposures [link]
-- Heartbeat  [link]
-- Market  [link]
-- Strategies  [link]
+- [Active Orders](https://github.com/silahian/VisualHFT/blob/master/WS_input_json/ActiveOrders.json)
+- [Exposures](https://github.com/silahian/VisualHFT/blob/master/WS_input_json/Exposures.json)
+- [Heartbeat](https://github.com/silahian/VisualHFT/blob/master/WS_input_json/HeartBeat.json)
+- [Market](https://github.com/silahian/VisualHFT/blob/master/WS_input_json/Market.json)
+- [Strategies](https://github.com/silahian/VisualHFT/blob/master/WS_input_json/Strategies.json)
 
-Also, you will need to create a SQL Server database with the following script  [link]
+Also, you will need to create a SQL Server database with the following [script](https://github.com/silahian/VisualHFT/blob/master/SQL%20scripts/table%20creation.sql)
 
 The system needs to be fed with the defined collection of JSON data. Also, for positions and executions, the information must be read from the database (MS Sql Server database). Also, this system will send some commands back to the core system via REST (start/stop trading, params change, etc)
 
