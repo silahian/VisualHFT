@@ -38,27 +38,16 @@ Core Trading System: this is the system that will feed VisualHFT. Currently is n
 
 The overall configuration is that the core trading system (again, not included in this repo) will also be a websocket server sending the data, and also persisting the position data into the database so VisualHFT can read from there.
 
-![Diagram
-
-Description automatically generated](Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.002.png)
+![Architecture Diagram](/docImages/Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.002.png)
 
 **Screenshots**
 
-![Graphical user interface
-
-Description automatically generated](Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.003.png)![A screenshot of a video game
-
-Description automatically generated](Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.004.png)
-
-![Text
-
-Description automatically generated with medium confidence](Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.005.png)![Chart
-
-Description automatically generated with medium confidence](Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.006.png)![Graphical user interface, chart, histogram
-
-Description automatically generated](Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.007.png)![Graphical user interface
-
-Description automatically generated](Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.008.png)
+![Trading Statistics](/docImages/Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.003.png)
+![Depth LOB](/docImages/Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.004.png)
+![Analytics](/docImages/Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.005.png)
+![Charts](/docImages/Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.006.png)
+![Limit Order Book](/docImages/Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.007.png)
+![Stats](/docImages/Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.008.png)
 
 **Why I decided to open the project and the motivations**: too much work for one person. Besides, my focus has always been on the server side, designing high-frequency trading software. Not that much for the UI. Besides, there is no open-source project that provides market microstructure visualization and analysis. That’s why the goal of this project is to be able to display specialized data around microstructures.
 
