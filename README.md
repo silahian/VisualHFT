@@ -6,7 +6,8 @@ GUI for enterprise level high frequency trading systems, making focus on visuali
 
 Description automatically generated](Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.001.png)
 
-**Long Description**: enterprise level trading systems run in collocated server with no human interaction. With VisualHFT, we can have a look at what’s going on with the markets, risk, exposures, and many other analytics.
+## Long Description
+Enterprise level trading systems run in collocated server with no human interaction. With VisualHFT, we can have a look at what’s going on with the markets, risk, exposures, and many other analytics.
 
 The main focus is to have a dashboard showing market microstructure information. That means that we can see L2 prices, from different venues and the aggregation of it. Also, we can see Limit Order Book dynamic and its resting orders.
 
@@ -16,13 +17,16 @@ Technologies used are C# and WPF, and ideally, we will be updating to support ot
 
 Lot of things need to be improved, so please be patience. And if you have the skills to code, and ideas, happy to include contributions.
 
-**About me**: I’ve been building high-frequency trading software for the past 10 years. Primarily using C++, for the core system, which always runs in a collocated server next to the exchange.
+## About me
+I’ve been building high-frequency trading software for the past 10 years. Primarily using C++, for the core system, which always runs in a collocated server next to the exchange.
 
 If you want to learn more about what I’ve been doing, checkout my blog at <https://medium.com/@ariel-silahian> or follow me in twitter @sisSoftware
 
-**History**: I created this visualization dashboard to allow us to visualize what was going on the main HFT system, residing in a collocated software, and with no human interaction. The goal was to have a quick peek on what was happening, how many orders were being sent and how, how the market was and control some of the strategy parameters.
+## History
+I created this visualization dashboard to allow us to visualize what was going on the main HFT system, residing in a collocated software, and with no human interaction. The goal was to have a quick peek on what was happening, how many orders were being sent and how, how the market was and control some of the strategy parameters.
 
-**How to Install and Run the project**: the server app must send the following websocket messages: 
+## How to Install and Run the project
+The server app must send the following websocket messages: 
 
 - [Active Orders](https://github.com/silahian/VisualHFT/blob/master/WS_input_json/ActiveOrders.json)
 - [Exposures](https://github.com/silahian/VisualHFT/blob/master/WS_input_json/Exposures.json)
@@ -40,7 +44,7 @@ The overall configuration is that the core trading system (again, not included i
 
 ![Architecture Diagram](/docImages/Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.002.png)
 
-**Screenshots**
+## Screenshots
 
 ![Trading Statistics](/docImages/Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.003.png)
 ![Depth LOB](/docImages/Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.004.png)
@@ -49,12 +53,12 @@ The overall configuration is that the core trading system (again, not included i
 ![Limit Order Book](/docImages/Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.007.png)
 ![Stats](/docImages/Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.008.png)
 
-**Why I decided to open the project and the motivations**: too much work for one person. Besides, my focus has always been on the server side, designing high-frequency trading software. Not that much for the UI. Besides, there is no open-source project that provides market microstructure visualization and analysis. That’s why the goal of this project is to be able to display specialized data around microstructures.
+## Why I decided to open the project and the motivations
+The focus has always been on the server side, designing high-frequency trading software. Not that much for the UI. Besides, there is no open-source project that provides market microstructure visualization and analysis. That’s why the goal of this project is to be able to display specialized data around microstructures.
 
 If we can build up a community around this product, it could help to improve the current architecture, make it much more scalable and be able to add nice new features. Ideally, adding more advanced real-time risk metrics, analytics, and TCA (trade cost analysis).
 
-**Things to improve**:
-
+## Things to improve
 - currently using Telerik Charts. Replace them with some good opensource WPF charts.
 - documentation and wiki page.
 - code architecture.
@@ -70,15 +74,14 @@ If we can build up a community around this product, it could help to improve the
 - Ability to have a FIX network sniffer as input data (as alternative to websockets)
 - Security: even though these kinds of applications run inside a private network, there is no security at all involved.
 
-**How to contribute**: follow the guidelines to contribute
-
+## How to contribute**
+### follow the guidelines to contribute
 [Setting guidelines for repository contributors - GitHub Docs](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/setting-guidelines-for-repository-contributors)
 
-*Important: We **will not accept** any changes to any of the existing input json message format. This is fixed and cannot be changed. The main reason for this is that we can break all existing installations of this system. Unless there is a “very strong” case that needs to be addressed, and all the community agrees upon that.*
+> Important: We **will not accept** any changes to any of the existing input json message format. This is fixed and cannot be changed. The main reason for this is that we can break all existing installations of this system. Unless there is a “very strong” case that needs to be addressed, and all the community agrees upon that. However, we could accept having new json messages, to be parsed and processed accordingly, without breaking any of the existing ones.*
 
-*However, we could accept having new json messages, to be parsed and processed accordingly, without breaking any of the existing ones.*
 
-**How to contact me**: for project questions use repository’s forums or through any of my social media profiles.
-
+## How to contact me
+For project questions use repository’s forums or through any of my social media profiles.
 [Twitter](https://twitter.com/sisSoftware) | [LinkedIn](https://www.linkedin.com/in/silahian/) | Forums
 
