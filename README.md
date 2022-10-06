@@ -2,7 +2,7 @@
 
 GUI for enterprise level high frequency trading systems, making focus on visualizing market microstructure analytics, such Limit Order Book dynamic, latencies, execution quality, and other analytics.
 
-![Limit Order Book Visualization](http://url/to/img.png)
+![Limit Order Book Visualization](https://github.com/silahian/VisualHFT/blob/master/docImages/LOB_fulldepth.gif)
 
 Description automatically generated](Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.001.png)
 
