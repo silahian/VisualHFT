@@ -3,6 +3,13 @@
 GUI for enterprise level high frequency trading systems, making focus on visualizing market microstructure analytics, such Limit Order Book dynamic, latencies, execution quality, and other analytics.
 
 ![Limit Order Book Visualization](https://github.com/silahian/VisualHFT/blob/master/docImages/LOB_fulldepth.gif)
+For this example we had the following:
+- built with #wpf (desktop app)
+- 5 levels of depth on each side
+- market data is coming from Binance (btc/usd)
+- red/green bubbles are selling/buying orders on the LOB
+- light green/red bubbles are our orders (market making)
+- bottom chart in blue, is the spread
 
 Description automatically generated](Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.001.png)
 
