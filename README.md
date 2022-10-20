@@ -44,7 +44,7 @@ Also, you will need to create a SQL Server database with the following [script](
 
 The system needs to be fed with the defined collection of JSON data. Also, for positions and executions, the information must be read from the database (MS Sql Server database). Also, this system will send some commands back to the core system via REST (start/stop trading, params change, etc)
 
-Core Trading System: this is the system that will feed VisualHFT. Currently is not included in this repository, however, we have plans to include a small system as an example. It will need to have the following: REST and Websocket server, and persist positions into the database.
+Core Trading System: this is the system that will feed VisualHFT. It is located in "demoTradingCore" folder. It will need to have the following: REST and Websocket server, and persist positions into the database. This console app, is still in progress.
 
 The overall configuration is that the core trading system (again, not included in this repo) will also be a websocket server sending the data, and also persisting the position data into the database so VisualHFT can read from there.
 
