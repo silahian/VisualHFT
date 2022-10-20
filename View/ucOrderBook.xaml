@@ -284,7 +284,7 @@
                 <telerik:RadCartesianChart Grid.Row="0" x:Name="chtPrice">
                     <!--AXIS-->
                     <telerik:RadCartesianChart.HorizontalAxis>
-                        <telerik:DateTimeContinuousAxis FontSize="7" FontFamily ="Verdana" MajorStepUnit="Millisecond" MajorStep="1000" LabelFormat="H:mm:ss" >
+                        <telerik:DateTimeContinuousAxis FontSize="7" FontFamily ="Verdana" MajorStepUnit="Second" MajorStep="1" LabelFormat="H:mm:ss" >
                             <telerik:DateTimeContinuousAxis.LabelStyle>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="TextAlignment" Value="Right" />

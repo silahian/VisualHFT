@@ -61,12 +61,14 @@ namespace VisualHFT.Model
                 _rest = "";
                 _size = "";
             }
+        }
+        public void RaiseUIThread()
+        {
             RaisePropertyChanged("LastDecimal");
             RaisePropertyChanged("NextTwoDecimals");
             RaisePropertyChanged("Rest");
             RaisePropertyChanged("Size");
         }
-
         public string LastDecimal
         {
             get

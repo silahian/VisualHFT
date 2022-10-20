@@ -36,7 +36,6 @@ namespace VisualHFT.View
         public ucOrderBook()
         {
             InitializeComponent();
-            this.DataContext = new VisualHFT.ViewModel.vmOrderBook(Helpers.HelperCommon.GLOBAL_DIALOGS);
         }
         public string SelectedSymbol
         {

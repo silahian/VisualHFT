@@ -161,7 +161,7 @@ namespace VisualHFT.Helpers
                         {
                             if (_QUEUE.Count > 100)
                             {
-                                Console.WriteLine("QUEUE is way behind");
+                                Console.WriteLine("WS QUEUE is way behind: " + _QUEUE.Count);
                             }
                             dataReceived = Newtonsoft.Json.JsonConvert.DeserializeObject<HelperWebsocketData>(message);
                             if (dataReceived != null && !string.IsNullOrEmpty(dataReceived.data))

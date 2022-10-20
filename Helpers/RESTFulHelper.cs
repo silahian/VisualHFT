@@ -28,6 +28,9 @@ namespace VisualHFT.Helpers
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
+            //scenario: "2022.10.19-14.49.58.808384"            -- OK
+            //scenario: "2022-10-19T14:40:49.2291586-04:00"     -- NOT WORKING
+
             string rawDate = (string)reader.Value;
             if (string.IsNullOrEmpty(rawDate))
                 return null;

@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Telerik.Windows.Controls.ChartView;
 using System.Diagnostics;
+using Telerik.Charting;
 
 namespace VisualHFT.ViewModel
 {
@@ -27,7 +28,9 @@ namespace VisualHFT.ViewModel
         }
         private OrderBook _OrderBook;
         private Dictionary<string, Func<string, string, bool>> _dialogs;
-        private int REALTIME_ITEM_POINTS = 100;
+        //private int REALTIME_ITEM_POINTS = 1000;
+        private int REALTIME_ITEM_POINTS_IN_SEC = 30; //last x seconds
+
         private ObservableCollection<PlotInfoPriceChart> _realTimePrices;
         ObservableCollection<PlotInfoPriceChart> _realTimeSpread;
         ObservableCollection<OrderBookLevel> _realTimeOrderBookBids;
@@ -49,6 +52,10 @@ namespace VisualHFT.ViewModel
         private BookItemPriceSplit _BidTOB_SPLIT = null;
         private BookItemPriceSplit _AskTOB_SPLIT = null;
         private double _PercentageWidth = 1;
+
+        private DateTime _LAST_UI_UPDATED = DateTime.Now;
+        private int _PERIOD_TO_UPDATE_UI_IN_MS = 300;
+
 
         public vmOrderBook(Dictionary<string, Func<string, string, bool>> dialogs)
         {
@@ -169,14 +176,17 @@ namespace VisualHFT.ViewModel
                     RaisePropertyChanged("BidTOB_SPLIT");
                 }
                 _OrderBook.LoadData(e.Asks.ToList(), e.Bids.ToList());
-                RaisePropertyChanged("Bids");
-                RaisePropertyChanged("Asks");
 
-                RaisePropertyChanged("ChartMaximumValue_Y");
-                //RaisePropertyChanged("ChartMinimumValue_Y");                
-                RaisePropertyChanged("AskCummulative");
-                RaisePropertyChanged("BidCummulative");
+                if (DateTime.Now.Subtract(_LAST_UI_UPDATED).TotalMilliseconds > _PERIOD_TO_UPDATE_UI_IN_MS)
+                {
+                    RaisePropertyChanged("Bids");
+                    RaisePropertyChanged("Asks");
 
+                    RaisePropertyChanged("ChartMaximumValue_Y");
+                    //RaisePropertyChanged("ChartMinimumValue_Y");                
+                    RaisePropertyChanged("AskCummulative");
+                    RaisePropertyChanged("BidCummulative");
+                }
 
                 #region Calculate TOB values
                 var tobBid = _OrderBook.GetTOB(true);
@@ -194,25 +204,19 @@ namespace VisualHFT.ViewModel
                 }
                 if (tobAsk != null && tobBid != null)
                 {
-                    this.MidPoint = (tobAsk.Price + tobBid.Price) / 2;
-                    this.Spread = (tobAsk.Price - tobBid.Price) * _OrderBook.SymbolMultiplier;
+                    if (DateTime.Now.Subtract(_LAST_UI_UPDATED).TotalMilliseconds > _PERIOD_TO_UPDATE_UI_IN_MS)
+                    {
+                        this.MidPoint = (tobAsk.Price + tobBid.Price) / 2;
+                        this.Spread = (tobAsk.Price - tobBid.Price) * _OrderBook.SymbolMultiplier;
+                        _BidTOB_SPLIT.RaiseUIThread();
+                        _AskTOB_SPLIT.RaiseUIThread();
+                    }
                 }
                 #endregion
 
 
                 #region REAL TIME PRICES
-                if (_realTimePrices.Count > REALTIME_ITEM_POINTS)
-                {
-                    var minDate = _realTimePrices[0].Date;
-                    var colToDeleteBids = _realTimeOrderBookBids.Where(x => x.Date <= minDate).ToList();
-                    var colToDeleteAsks = _realTimeOrderBookAsks.Where(x => x.Date <= minDate).ToList();
 
-                    _realTimePrices.RemoveAt(0);
-                    foreach (var toDelete in colToDeleteBids)
-                        _realTimeOrderBookBids.Remove(toDelete);
-                    foreach (var toDelete in colToDeleteAsks)
-                        _realTimeOrderBookAsks.Remove(toDelete);
-                }
                 if (AskTOB != null && BidTOB != null)
                 {
                     DateTime maxDate = Max(_realTimePrices.DefaultIfEmpty(new PlotInfoPriceChart()).Max(d => d.Date), Max(AskTOB.LocalTimeStamp, BidTOB.LocalTimeStamp));
@@ -249,11 +253,33 @@ namespace VisualHFT.ViewModel
                 }
                 #endregion
 
+                #region REMOVE OLD
+                if (_realTimePrices.Count > 0)
+                {
+                    var minDate = _realTimePrices.Last().Date.AddSeconds(-REALTIME_ITEM_POINTS_IN_SEC);// _realTimePrices[0].Date;
+                    var colToDeleteBids = _realTimeOrderBookBids.Where(x => x.Date < minDate).ToList();
+                    var colToDeleteAsks = _realTimeOrderBookAsks.Where(x => x.Date < minDate).ToList();
+                    var colToDelete = _realTimePrices.Where(x => x.Date < minDate).ToList();
+
+                    //_realTimePrices.RemoveAt(0);
+                    foreach (var toDelete in colToDelete)
+                        _realTimePrices.Remove(toDelete);
+                    foreach (var toDelete in colToDeleteBids)
+                        _realTimeOrderBookBids.Remove(toDelete);
+                    foreach (var toDelete in colToDeleteAsks)
+                        _realTimeOrderBookAsks.Remove(toDelete);
+                }
+                #endregion
+
+
 
                 #region REAL TIME SPREADS
-                if (_realTimeSpread.Count > REALTIME_ITEM_POINTS)
+                if (_realTimeSpread.Count > 0)
                 {
-                    _realTimeSpread.RemoveAt(0);
+                    var minDate = _realTimeSpread.Last().Date.AddSeconds(-REALTIME_ITEM_POINTS_IN_SEC);
+                    var colToDelete = _realTimeSpread.Where(x => x.Date <= minDate).ToList();
+                    foreach (var col in colToDelete)
+                        _realTimeSpread.Remove(col);
                 }
                 if (AskTOB != null && BidTOB != null)
                 {
@@ -262,7 +288,13 @@ namespace VisualHFT.ViewModel
                 }
                 #endregion
 
-                
+
+
+
+                if (DateTime.Now.Subtract(_LAST_UI_UPDATED).TotalMilliseconds > _PERIOD_TO_UPDATE_UI_IN_MS)
+                    _LAST_UI_UPDATED = DateTime.Now;
+
+
             }
         }
         private void PROVIDERS_OnDataReceived(object sender, ProviderVM e)
@@ -466,7 +498,7 @@ namespace VisualHFT.ViewModel
             get
             {
                 var ret = _OrderBook?.BidCummulative;
-                if (ret != null)
+                if (ret != null && ret.Any())
                 {
                     _ChartMaximumValue_Y = Math.Max(_ChartMaximumValue_Y, ret.Max(x => x.Size));
                 }

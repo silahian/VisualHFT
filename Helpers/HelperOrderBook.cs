@@ -12,6 +12,7 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using System.Collections;
 
 namespace VisualHFT.Helpers
 {
@@ -36,7 +37,9 @@ namespace VisualHFT.Helpers
         {
             List<OrderBook> data = new List<OrderBook>();
             if (_DataQueue.Count > 100)
-                return;
+            {
+                Console.WriteLine("HelperOrderBook QUEUE is way behind: " + _DataQueue.Count);
+            }
 
             while (_DataQueue.TryDequeue(out var ob))
                 data.Add(ob);
