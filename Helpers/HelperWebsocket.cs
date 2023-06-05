@@ -1,13 +1,9 @@
 ﻿using VisualHFT.Model;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using WebSocket4Net;
 using System.Windows.Threading;
 using System.Windows;

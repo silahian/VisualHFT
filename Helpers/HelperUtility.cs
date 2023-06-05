@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 
 namespace VisualHFT
 {
-	public class HelperUtility
+    public class HelperUtility
 	{
 		public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj)
 	   where T : DependencyObject

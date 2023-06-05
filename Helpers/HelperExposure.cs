@@ -1,15 +1,9 @@
 ﻿using VisualHFT.Model;
-using VisualHFT.ViewModel;
-using log4net.Util;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace VisualHFT.Helpers

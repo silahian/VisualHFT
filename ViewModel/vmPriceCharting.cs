@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Timers;
 using System.Collections;
@@ -7,7 +6,7 @@ using VisualHFT.Model;
 
 namespace VisualHFT.ViewModel
 {
-	public class vmPriceCharting
+    public class vmPriceCharting
 	{
 		private ObservableCollection<PlotInfo> asyncData;
 		private int maxItemsCount = 1500;

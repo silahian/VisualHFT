@@ -4,15 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using System.Configuration;
-using System.Windows.Media;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Threading.Tasks;
 using System.Data;
-using System.ComponentModel;
 using System.IO;
-using System.Diagnostics;
 using System.Windows.Data;
 using VisualHFT.Model;
 
