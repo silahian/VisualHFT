@@ -1,18 +1,8 @@
 ﻿using VisualHFT.Helpers;
-using VisualHFT.View;
-using VisualHFT.View.StatisticsView;
-using VisualHFT.ViewModel.StatisticsViewModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.UI.WebControls;
-using System.Windows;
-using Telerik.Windows.Controls.GridView;
-using VisualHFT.Model;
 
 namespace VisualHFT.ViewModel
 {

@@ -5,10 +5,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using Telerik.Windows.Controls.ChartView;
-using System.Data.Entity.Migrations.Model;
 
 namespace VisualHFT.ViewModel.StatisticsViewModel
 {

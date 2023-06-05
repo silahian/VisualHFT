@@ -6,12 +6,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Telerik.Windows.Controls.ChartView;
-using System.Diagnostics;
-using Telerik.Charting;
 
 namespace VisualHFT.ViewModel
 {

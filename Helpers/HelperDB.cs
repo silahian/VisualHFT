@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
-using System.Collections;
-using System.ComponentModel;
 using System.Collections.Generic;
-using System.Text;
 using System.Configuration;
 using System.Text.RegularExpressions;
 using System.IO;

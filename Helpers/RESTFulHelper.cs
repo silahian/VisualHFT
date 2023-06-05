@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Globalization;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using VisualHFT.Model;
 using System.Web;
-using VisualHFT.Extensions;
-using System.Collections.Concurrent;
 
 namespace VisualHFT.Helpers
 {
