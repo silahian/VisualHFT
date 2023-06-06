@@ -5,25 +5,18 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Prism.Mvvm;
 
 namespace VisualHFT.ViewModel.StatisticsViewModel
 {
 
-    public class vmStrategyOverview : INotifyPropertyChanged
+    public class vmStrategyOverview : BindableBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void RaisePropertyChanged([CallerMemberName] String propertyName = "")
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }
 
         private ObservableCollection<PositionEx> _positions;
-        private Dictionary<string, Func<string, string, bool>> _dialogs;
-        public vmStrategyOverview(Dictionary<string, Func<string, string, bool>> dialogs)
+        public vmStrategyOverview()
         {
             _positions = new ObservableCollection<PositionEx>();
-            _dialogs = dialogs;
             BlankFields();
         }
 
@@ -50,258 +43,93 @@ namespace VisualHFT.ViewModel.StatisticsViewModel
         List<ChartDateCategoryDataPoint> _equityChartPoints;
         public ObservableCollection<PlotInfo> WinningRateChartPoints
         {
-            get { return _winningRateChartPoints; }
-            set
-            {
-				if (_winningRateChartPoints != value)
-				{
-					_winningRateChartPoints = value;
-					RaisePropertyChanged();
-				}
-            }
+            get => _winningRateChartPoints;
+            set => SetProperty(ref _winningRateChartPoints, value);
+
         }
         public List<ChartDateCategoryDataPoint> EquityChartPoints
         {
-            get
-            {
-                return _equityChartPoints;
-            }
-
-            set
-            {
-				if (_equityChartPoints != value)
-				{
-					_equityChartPoints = value;
-				}				
-            }
+            get => _equityChartPoints;
+            set => SetProperty(ref _equityChartPoints, value);
         }
 
         public string WinnersPnL
         {
-            get
-            {
-                return _winnersPnL;
-            }
-
-            set
-            {
-                if (_winnersPnL != value)
-                {
-                    _winnersPnL = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _winnersPnL;
+            set => SetProperty(ref _winnersPnL, value);
         }
 
         public string WinnersAttempts
         {
-            get
-            {
-                return _winnersAttempts;
-            }
-
-            set
-            {
-                if (_winnersAttempts != value)
-                {
-                    _winnersAttempts = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _winnersAttempts; 
+            set => SetProperty(ref _winnersAttempts, value);
         }
 
         public string WinnersSpan
         {
-            get
-            {
-                return _winnersSpan;
-            }
-
-            set
-            {
-                if (_winnersSpan != value)
-                {
-                    _winnersSpan = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _winnersSpan;
+            set => SetProperty(ref _winnersSpan, value);
         }
 
         public string LosersPnL
         {
-            get
-            {
-                return _losersPnL;
-            }
-
-            set
-            {
-                if (_losersPnL != value)
-                {
-                    _losersPnL = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _losersPnL;
+            set => SetProperty(ref _losersPnL, value);
         }
 
         public string LosersAttempts
         {
-            get
-            {
-                return _losersAttempts;
-            }
-
-            set
-            {
-                if (LosersAttempts != value)
-                {
-                    _losersAttempts = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _losersAttempts;
+            set => SetProperty(ref _losersAttempts, value);
         }
 
         public string LosersSpan
         {
-            get
-            {
-                return _losersSpan;
-            }
-
-            set
-            {
-                if (_losersSpan != value)
-                {
-                    _losersSpan = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _losersSpan; 
+            set => SetProperty(ref _losersSpan, value);
         }
 
         public string AllPnL
         {
-            get
-            {
-                return _allPnL;
-            }
-
-            set
-            {
-                if (_allPnL != value)
-                {
-                    _allPnL = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _allPnL;
+            set => SetProperty(ref _allPnL, value);
         }
 
         public string AllAttempts
         {
-            get
-            {
-                return _allAttempts;
-            }
-
-            set
-            {
-                if (_allAttempts != value)
-                {
-                    _allAttempts = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _allAttempts;
+            set => SetProperty(ref _allAttempts, value);
         }
 
         public string AllSpan
         {
-            get
-            {
-                return _allSpan;
-            }
-
-            set
-            {
-                if (_allSpan != value)
-                {
-                    _allSpan = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _allSpan;
+            set => SetProperty(ref _allSpan, value);
         }
 
         public double PnLAmount
         {
-            get
-            {
-                return _pnLAmount;
-            }
-
-            set
-            {
-                if (_pnLAmount != value)
-                {
-                    _pnLAmount = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _pnLAmount;
+            set => SetProperty(ref _pnLAmount, value);
         }
 
         public double WinningRate
         {
-            get
-            {
-                return _winningRate;
-            }
-
-            set
-            {
-                if (_winningRate != value)
-                {
-                    _winningRate = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _winningRate;
+            set => SetProperty(ref _winningRate, value);
         }
         public int WinningCount
         {
-            get
-            {
-                return _winningCount;
-            }
-
-            set
-            {
-                if (_winningCount != value)
-                {
-                    _winningCount = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _winningCount;
+            set => SetProperty(ref _winningCount, value);
         }
 
         public int LoserCount
         {
-            get
-            {
-                return _loserCount;
-            }
-
-            set
-            {
-                if (_loserCount != value)
-                {
-                    _loserCount = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _loserCount;
+            set => SetProperty(ref _loserCount, value);
         }
-        public ObservableCollection<PositionEx> Positions
-        {
-            get
-            {
-                return _positions;
-            }
-        }
+        public ObservableCollection<PositionEx> Positions => _positions;
         public void AddNewPositions(IEnumerable<PositionEx> pos)
         {
             foreach (var position in pos)
@@ -334,9 +162,11 @@ namespace VisualHFT.ViewModel.StatisticsViewModel
             WinningRate = 0;
             WinningCount = 0;
             LoserCount = 0;
-            WinningRateChartPoints = new ObservableCollection<PlotInfo>();
-            WinningRateChartPoints.Add(new PlotInfo() { Value = 0 });
-            WinningRateChartPoints.Add(new PlotInfo() { Value = 0 });
+            WinningRateChartPoints = new ObservableCollection<PlotInfo>
+            {
+                new PlotInfo() { Value = 0 },
+                new PlotInfo() { Value = 0 }
+            };
             EquityChartPoints = new List<ChartDateCategoryDataPoint>();
         }
         void CalculatePositionStats()
@@ -414,7 +244,10 @@ namespace VisualHFT.ViewModel.StatisticsViewModel
                     RaisePropertyChanged("EquityChartPoints");
                 }
             }
-            catch (Exception ex){  }
+            catch (Exception ex)
+            {  
+                Console.WriteLine(ex.ToString());
+            }
         }
 
     }
