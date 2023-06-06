@@ -256,6 +256,7 @@
     <Compile Include="UserControls\LoadingAnimationSmall.xaml.cs">
       <DependentUpon>LoadingAnimationSmall.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\StatisticsViewModel\ChartDateCategoryDataPoint.cs" />
     <Compile Include="ViewModel\StatisticsViewModel\vmStrategyOverview.cs" />
     <Compile Include="ViewModel\vmDashboard.cs" />
     <Compile Include="ViewModel\vmPosition.cs" />

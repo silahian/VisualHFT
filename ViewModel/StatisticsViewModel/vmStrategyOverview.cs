@@ -8,37 +8,6 @@ using System.Runtime.CompilerServices;
 
 namespace VisualHFT.ViewModel.StatisticsViewModel
 {
-    public class ChartDateCategoryDataPoint
-    {
-        private DateTime _date;
-        private double _value;
-
-        public DateTime Date
-        {
-            get
-            {
-                return _date;
-            }
-
-            set
-            {
-                _date = value;
-            }
-        }
-
-        public double Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                _value = value;
-            }
-        }
-    }
 
     public class vmStrategyOverview : INotifyPropertyChanged
     {
