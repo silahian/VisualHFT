@@ -256,6 +256,7 @@
     <Compile Include="UserControls\LoadingAnimationSmall.xaml.cs">
       <DependentUpon>LoadingAnimationSmall.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\StatisticsViewModel\ChartDateCategoryDataPoint.cs" />
     <Compile Include="ViewModel\StatisticsViewModel\vmStrategyOverview.cs" />
     <Compile Include="ViewModel\vmDashboard.cs" />
     <Compile Include="ViewModel\vmPosition.cs" />
@@ -511,6 +512,9 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.2-beta2</Version>
+    </PackageReference>
+    <PackageReference Include="Prism.Wpf">
+      <Version>8.1.97</Version>
     </PackageReference>
     <PackageReference Include="System.Net.Security">
       <Version>4.3.2</Version>

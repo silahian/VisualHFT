@@ -6,27 +6,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Telerik.Windows.Controls.ChartView;
-using System.Diagnostics;
-using Telerik.Charting;
+using Prism.Mvvm;
 
 namespace VisualHFT.ViewModel
 {
-    public class vmOrderBook : INotifyPropertyChanged
+    public class vmOrderBook : BindableBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-        private OrderBook _OrderBook;
+        private OrderBook _orderBook;
         private Dictionary<string, Func<string, string, bool>> _dialogs;
         //private int REALTIME_ITEM_POINTS = 1000;
         private int REALTIME_ITEM_POINTS_IN_SEC = 30; //last x seconds
@@ -62,10 +48,10 @@ namespace VisualHFT.ViewModel
             this._dialogs = dialogs;
 
 
-            Helpers.HelperCommon.PROVIDERS.OnDataReceived += PROVIDERS_OnDataReceived;
-            Helpers.HelperCommon.LIMITORDERBOOK.OnDataReceived += LIMITORDERBOOK_OnDataReceived;
-            Helpers.HelperCommon.ACTIVEORDERS.OnDataReceived += ACTIVEORDERS_OnDataReceived;
-            Helpers.HelperCommon.ACTIVEORDERS.OnDataRemoved += ACTIVEORDERS_OnDataRemoved;
+            HelperCommon.PROVIDERS.OnDataReceived += PROVIDERS_OnDataReceived;
+            HelperCommon.LIMITORDERBOOK.OnDataReceived += LIMITORDERBOOK_OnDataReceived;
+            HelperCommon.ACTIVEORDERS.OnDataReceived += ACTIVEORDERS_OnDataReceived;
+            HelperCommon.ACTIVEORDERS.OnDataRemoved += ACTIVEORDERS_OnDataRemoved;
 
         }
 
@@ -86,14 +72,14 @@ namespace VisualHFT.ViewModel
             _realTimeOrderBookBids = null;
             _realTimeOrderBookAsks = null;
 
-            RaisePropertyChanged("RealTimeOrderBookAsks");
-            RaisePropertyChanged("RealTimeOrderBookBids");
-            RaisePropertyChanged("AskCummulative");
-            RaisePropertyChanged("BidCummulative");
-            RaisePropertyChanged("Asks");
-            RaisePropertyChanged("Bids");
-            RaisePropertyChanged("RealTimePrices");
-            RaisePropertyChanged("RealTimeSpread");
+            RaisePropertyChanged(nameof(RealTimeOrderBookAsks));
+            RaisePropertyChanged(nameof(RealTimeOrderBookBids));
+            RaisePropertyChanged(nameof(AskCummulative));
+            RaisePropertyChanged(nameof(BidCummulative));
+            RaisePropertyChanged(nameof(Asks));
+            RaisePropertyChanged(nameof(Bids));
+            RaisePropertyChanged(nameof(RealTimePrices));
+            RaisePropertyChanged(nameof(RealTimeSpread));
 
         }
         private void ACTIVEORDERS_OnDataRemoved(object sender, OrderVM e)
@@ -103,12 +89,12 @@ namespace VisualHFT.ViewModel
             if (string.IsNullOrEmpty(_selectedSymbol) || _selectedSymbol == "-- All symbols --")
                 return;
 
-            if (_OrderBook != null)
+            if (_orderBook != null)
             {
                 var comp = 1.0 / Math.Pow(10, e.SymbolDecimals);
-                var o = _OrderBook.Asks.Where(x => Math.Abs(x.Price - e.PricePlaced) < comp).FirstOrDefault();
+                var o = _orderBook.Asks.Where(x => Math.Abs(x.Price - e.PricePlaced) < comp).FirstOrDefault();
                 if (o == null)
-                    o = _OrderBook.Bids.Where(x => Math.Abs(x.Price - e.PricePlaced) < comp).FirstOrDefault();
+                    o = _orderBook.Bids.Where(x => Math.Abs(x.Price - e.PricePlaced) < comp).FirstOrDefault();
 
                 if (o!= null)
                 {
@@ -126,13 +112,13 @@ namespace VisualHFT.ViewModel
             if (string.IsNullOrEmpty(_selectedSymbol) || _selectedSymbol == "-- All symbols --")
                 return;
 
-            if (_OrderBook != null)
+            if (_orderBook != null)
             {
                 var comp = 1.0 / Math.Pow(10, e.SymbolDecimals);
 
-                var o = _OrderBook.Asks.Where(x => Math.Abs(x.Price - e.PricePlaced) < comp).FirstOrDefault();
+                var o = _orderBook.Asks.Where(x => Math.Abs(x.Price - e.PricePlaced) < comp).FirstOrDefault();
                 if (o == null)
-                    o = _OrderBook.Bids.Where(x => Math.Abs(x.Price - e.PricePlaced) < comp).FirstOrDefault();
+                    o = _orderBook.Bids.Where(x => Math.Abs(x.Price - e.PricePlaced) < comp).FirstOrDefault();
 
                 if (o != null)
                 {
@@ -154,10 +140,10 @@ namespace VisualHFT.ViewModel
             
             if (true)
             {
-                if (_OrderBook == null || _OrderBook.ProviderID != e.ProviderID || _OrderBook.Symbol != e.Symbol)
+                if (_orderBook == null || _orderBook.ProviderID != e.ProviderID || _orderBook.Symbol != e.Symbol)
                 {
                     _maxOrderSize = 0; //reset
-                    _OrderBook = e;
+                    _orderBook = e;
                     _realTimePrices = new ObservableCollection<PlotInfoPriceChart>();
                     _realTimeSpread = new ObservableCollection<PlotInfoPriceChart>();
 
@@ -168,46 +154,45 @@ namespace VisualHFT.ViewModel
                     _BidTOB_SPLIT = new BookItemPriceSplit();
                     
 
-                    RaisePropertyChanged("RealTimeSpread");
-                    RaisePropertyChanged("RealTimePrices");
-                    RaisePropertyChanged("RealTimeOrderBookBids");
-                    RaisePropertyChanged("RealTimeOrderBookAsks");
-                    RaisePropertyChanged("AskTOB_SPLIT");
-                    RaisePropertyChanged("BidTOB_SPLIT");
+                    RaisePropertyChanged(nameof(RealTimeSpread));
+                    RaisePropertyChanged(nameof(RealTimePrices));
+                    RaisePropertyChanged(nameof(RealTimeOrderBookBids));
+                    RaisePropertyChanged(nameof(RealTimeOrderBookAsks));
+                    RaisePropertyChanged(nameof(AskTOB_SPLIT));
+                    RaisePropertyChanged(nameof(BidTOB_SPLIT));
                 }
-                _OrderBook.LoadData(e.Asks.ToList(), e.Bids.ToList());
+                _orderBook.LoadData(e.Asks.ToList(), e.Bids.ToList());
 
                 if (DateTime.Now.Subtract(_LAST_UI_UPDATED).TotalMilliseconds > _PERIOD_TO_UPDATE_UI_IN_MS)
                 {
-                    RaisePropertyChanged("Bids");
-                    RaisePropertyChanged("Asks");
+                    RaisePropertyChanged(nameof(Bids));
+                    RaisePropertyChanged(nameof(Asks));
 
-                    RaisePropertyChanged("ChartMaximumValue_Y");
-                    //RaisePropertyChanged("ChartMinimumValue_Y");                
-                    RaisePropertyChanged("AskCummulative");
-                    RaisePropertyChanged("BidCummulative");
+                    RaisePropertyChanged(nameof(ChartMaximumValue_Y));                
+                    RaisePropertyChanged(nameof(AskCummulative));
+                    RaisePropertyChanged(nameof(BidCummulative));
                 }
 
                 #region Calculate TOB values
-                var tobBid = _OrderBook.GetTOB(true);
-                var tobAsk = _OrderBook.GetTOB(false);
+                var tobBid = _orderBook.GetTOB(true);
+                var tobAsk = _orderBook.GetTOB(false);
 
                 if (tobAsk != null && (tobAsk.Price != _AskTOB.Price || tobAsk.Size != _AskTOB.Size))
                 {
                     this.AskTOB = tobAsk;
-                    _AskTOB_SPLIT.SetNumber(tobAsk.Price, tobAsk.Size, _OrderBook.DecimalPlaces);
+                    _AskTOB_SPLIT.SetNumber(tobAsk.Price, tobAsk.Size, _orderBook.DecimalPlaces);
                 }
                 if (tobBid != null && (tobBid.Price != _BidTOB.Price || tobBid.Size != _BidTOB.Size))
                 {
                     this.BidTOB = tobBid;
-                    _BidTOB_SPLIT.SetNumber(tobBid.Price, tobBid.Size, _OrderBook.DecimalPlaces);
+                    _BidTOB_SPLIT.SetNumber(tobBid.Price, tobBid.Size, _orderBook.DecimalPlaces);
                 }
                 if (tobAsk != null && tobBid != null)
                 {
                     if (DateTime.Now.Subtract(_LAST_UI_UPDATED).TotalMilliseconds > _PERIOD_TO_UPDATE_UI_IN_MS)
                     {
                         this.MidPoint = (tobAsk.Price + tobBid.Price) / 2;
-                        this.Spread = (tobAsk.Price - tobBid.Price) * _OrderBook.SymbolMultiplier;
+                        this.Spread = (tobAsk.Price - tobBid.Price) * _orderBook.SymbolMultiplier;
                         _BidTOB_SPLIT.RaiseUIThread();
                         _AskTOB_SPLIT.RaiseUIThread();
                     }
@@ -233,20 +218,20 @@ namespace VisualHFT.ViewModel
 
 
                 #region RealTime OrderBook Sizes (or orders) [SCATTER BUBBLES]                
-                _maxOrderSize = _OrderBook.GetMaxOrderSize() * 2.0;
+                _maxOrderSize = _orderBook.GetMaxOrderSize() * 2.0;
                 double maxBubleSize = 30;
 
-                if (_OrderBook.Bids != null)
+                if (_orderBook.Bids != null)
                 {
-                    foreach (var b in _OrderBook.Bids)
+                    foreach (var b in _orderBook.Bids)
                     {
                         _realTimeOrderBookBids.Add(new OrderBookLevel() { Date = b.LocalTimeStamp, Price = b.Price, Size = maxBubleSize * (b.Size / _maxOrderSize) });
                     }
 
                 }
-                if (_OrderBook.Asks != null)
+                if (_orderBook.Asks != null)
                 {
-                    foreach (var b in _OrderBook.Asks)
+                    foreach (var b in _orderBook.Asks)
                     {
                         _realTimeOrderBookAsks.Add(new OrderBookLevel() { Date = b.LocalTimeStamp, Price = b.Price, Size = maxBubleSize * (b.Size / _maxOrderSize) });
                     }
@@ -302,7 +287,7 @@ namespace VisualHFT.ViewModel
             if (_providers == null)
             {
                 _providers = new ObservableCollection<ProviderVM>();
-                RaisePropertyChanged("Providers");
+                RaisePropertyChanged(nameof(Providers));
             }
             if (!_providers.Any(x => x.ProviderName == e.ProviderName))
             {
@@ -318,174 +303,81 @@ namespace VisualHFT.ViewModel
         }
         public OrderBook OrderBook
         {
-            get
-            {
-                return _OrderBook;
-            }
-            set
-            {
-                if (_OrderBook != value)
-                {
-                    _OrderBook = value;
-                    RaisePropertyChanged("OrderBook");
-                }
-            }
+            get => _orderBook;
+            set => SetProperty(ref _orderBook, value);
         }
         public string SelectedSymbol
         {
-            get
-            {
-                return _selectedSymbol;
-            }
-
-            set
-            {
-                if (_selectedSymbol != value)
-                {
-                    _selectedSymbol = value;
-                    Clear();
-                    RaisePropertyChanged("SelectedSymbol");
-                }
-            }
+            get => _selectedSymbol;
+            set => SetProperty(ref _selectedSymbol, value, onChanged: () => Clear());
+            
         }
         public ProviderVM SelectedProvider
         {
-            get
-            {
-                return _selectedProvider;
-            }
-
-            set
-            {
-                if (_selectedProvider != value)
-                {
-                    _selectedProvider = value;
-                    this.OrderBook = null;
-                    RaisePropertyChanged("SelectedProvider");
-                }
-            }
+            get => _selectedProvider;
+            set => SetProperty(ref _selectedProvider, value, onChanged: () => this.OrderBook = null);
         }
         public string SelectedLayer
         {
-            get { return _layerName; }
-            set
-            {
-                if (_layerName != value)
-                {
-                    _layerName = value;
-                    this.OrderBook = null;
-                    RaisePropertyChanged("SelectedLayer");
-                }
-            }
+            get => _layerName;
+            set => SetProperty(ref _layerName, value, onChanged: () => this.OrderBook = null);
         }
-        public ObservableCollection<PlotInfoPriceChart> RealTimePrices { get { return _realTimePrices; } }
-        public ObservableCollection<PlotInfoPriceChart> RealTimeSpread { get { return _realTimeSpread; } }
-        public ObservableCollection<OrderBookLevel> RealTimeOrderBookBids { get { return _realTimeOrderBookBids; } }
-        public ObservableCollection<OrderBookLevel> RealTimeOrderBookAsks { get { return _realTimeOrderBookAsks; } }
-        public ObservableCollection<ProviderVM> Providers { get { return _providers; } }
+        public ObservableCollection<PlotInfoPriceChart> RealTimePrices => _realTimePrices;
+        public ObservableCollection<PlotInfoPriceChart> RealTimeSpread => _realTimeSpread;
+        public ObservableCollection<OrderBookLevel> RealTimeOrderBookBids => _realTimeOrderBookBids;
+        public ObservableCollection<OrderBookLevel> RealTimeOrderBookAsks => _realTimeOrderBookAsks;
+        public ObservableCollection<ProviderVM> Providers => _providers;
 
         public BookItemPriceSplit BidTOB_SPLIT
         {
-            get { return _BidTOB_SPLIT; }
-            set { _BidTOB_SPLIT = value; RaisePropertyChanged("BidTOB_SPLIT"); }
+            get => _BidTOB_SPLIT;
+            set => SetProperty(ref _BidTOB_SPLIT, value);
         }
         public BookItemPriceSplit AskTOB_SPLIT
         {
-            get { return _AskTOB_SPLIT; }
-            set { _AskTOB_SPLIT = value; RaisePropertyChanged("AskTOB_SPLIT"); }
+            get => _AskTOB_SPLIT;
+            set => SetProperty(ref _AskTOB_SPLIT, value);
         }
         public double MidPoint
         {
             get => _MidPoint;
-            set
-            {
-                if (value != _MidPoint)
-                {
-                    _MidPoint = value;
-                    RaisePropertyChanged("MidPoint");
-                }
-            }
+            set => SetProperty(ref _MidPoint, value);
         }
         public BookItem AskTOB
         {
             get => _AskTOB;
-            set
-            {
-                if (_AskTOB == null || !_AskTOB.Equals(value))
-                {
-                    _AskTOB = value;
-                    RaisePropertyChanged("AskTOB");
-                }
-            }
+            set => SetProperty(ref _AskTOB, value);
         }
         public BookItem BidTOB
         {
             get => _BidTOB;
-            set
-            {
-                if (_BidTOB == null || !_BidTOB.Equals(value))
-                {
-                    _BidTOB = value;
-                    RaisePropertyChanged("BidTOB");
-                }
-            }
+            set => SetProperty(ref _BidTOB, value);
         }
         public double Spread
         {
             get => _Spread;
-            set
-            {
-                if (_Spread != value)
-                {
-                    _Spread = value;
-                    RaisePropertyChanged("Spread");
-                }
-            }
+            set => SetProperty(ref _Spread, value);
         }
         public double ChartPercentageWidth
         {
-            get
-            {
-                return _PercentageWidth;
-            }
-            set
-            {
-                if (_PercentageWidth != value)
-                {
-                    _PercentageWidth = value;
-                    RaisePropertyChanged("ChartPercentageWidth");
-                }
-            }
+            get => _PercentageWidth;
+            set => SetProperty(ref _PercentageWidth, value);
         }
         public double ChartMaximumValue_Y
         {
-            get { return _ChartMaximumValue_Y; }
-            set
-            {
-                if (_ChartMaximumValue_Y != value)
-                {
-                    _ChartMaximumValue_Y = value;
-                    RaisePropertyChanged("ChartMaximumValue_Y");
-                }
-            }
+            get => _ChartMaximumValue_Y;
+            set => SetProperty(ref _ChartMaximumValue_Y, value);
         }
         public double ChartMinimumValue_Y
         {
-            get { return _ChartMinimumValue_Y; }
-            set
-            {
-                if (_ChartMinimumValue_Y != value)
-                {
-                    _ChartMinimumValue_Y = value;
-                    RaisePropertyChanged("ChartMinimumValue_Y");
-                }
-            }
+            get => _ChartMinimumValue_Y;
+            set => SetProperty(ref _ChartMinimumValue_Y, value);
         }
         public ObservableCollectionEx<BookItem> AskCummulative
         {
             get
             {
-                var ret = _OrderBook?.AskCummulative;
+                var ret = _orderBook?.AskCummulative;
                 if (ret != null)
                 {
                     _ChartMaximumValue_Y = Math.Max(_ChartMaximumValue_Y, ret.DefaultIfEmpty(new BookItem()).Max(x => x.Size));
@@ -497,7 +389,7 @@ namespace VisualHFT.ViewModel
         {
             get
             {
-                var ret = _OrderBook?.BidCummulative;
+                var ret = _orderBook?.BidCummulative;
                 if (ret != null && ret.Any())
                 {
                     _ChartMaximumValue_Y = Math.Max(_ChartMaximumValue_Y, ret.Max(x => x.Size));
@@ -505,19 +397,7 @@ namespace VisualHFT.ViewModel
                 return ret;
             }
         }
-        public ObservableCollectionEx<BookItem> Asks
-        {
-            get
-            {
-                return _OrderBook?.Asks;
-            }
-        }
-        public ObservableCollectionEx<BookItem> Bids
-        {
-            get
-            {
-                return _OrderBook?.Bids;
-            }
-        }
+        public ObservableCollectionEx<BookItem> Asks => _orderBook?.Asks;
+        public ObservableCollectionEx<BookItem> Bids => _orderBook?.Bids;
     }
 }

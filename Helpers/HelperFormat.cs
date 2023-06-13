@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace VisualHFT.Helpers
 {
-	public class HelperFormat
+    public class HelperFormat
 	{
 		public static string FormatNumber(double number)
 		{

@@ -1,6 +1,5 @@
 ﻿using VisualHFT.Helpers;
 using VisualHFT.Model;
-using VisualHFT.View.StatisticsView;
 using VisualHFT.ViewModel.StatisticsViewModel;
 using System;
 using System.Collections.Generic;
@@ -8,15 +7,11 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using Telerik.Windows.Controls;
-using Newtonsoft.Json.Linq;
 
 namespace VisualHFT.ViewModel
 {
-	public class vmStrategyParametersBase<T> where T: INotifyPropertyChanged
+    public class vmStrategyParametersBase<T> where T: INotifyPropertyChanged
     {
 		protected string _layerName;
 		protected string _selectedSymbol;

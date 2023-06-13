@@ -1,14 +1,7 @@
 ﻿using VisualHFT.Extensions;
-using VisualHFT.Helpers;
-using Microsoft.Expression.Interactivity.Input;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Telerik.Windows.Controls.ChartView;
 
 namespace VisualHFT.Model
 {
