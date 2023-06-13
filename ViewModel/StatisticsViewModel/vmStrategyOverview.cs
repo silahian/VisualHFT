@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Prism.Mvvm;
+using Prism.Services.Dialogs;
 
 namespace VisualHFT.ViewModel.StatisticsViewModel
 {
@@ -17,6 +18,14 @@ namespace VisualHFT.ViewModel.StatisticsViewModel
         public vmStrategyOverview()
         {
             _positions = new ObservableCollection<PositionEx>();
+            BlankFields();
+        }
+
+        private Dictionary<string, Func<string, string, bool>> _dialogs;
+        public vmStrategyOverview(Dictionary<string, Func<string, string, bool>> dialogs)
+        {
+            _positions = new ObservableCollection<PositionEx>();
+            _dialogs = dialogs;
             BlankFields();
         }
 
