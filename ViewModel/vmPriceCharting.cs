@@ -31,15 +31,9 @@ namespace VisualHFT.ViewModel
 
 		}
 
-		public ObservableCollection<PlotInfo> AsyncData
-		{
-			get
-			{
-				return this.asyncData;
-			}
-		}
+        public ObservableCollection<PlotInfo> AsyncData => this.asyncData;
 
-		private void PopulateData()
+        private void PopulateData()
 		{
 			DateTime now = DateTime.Now;
 			for (int i = 0; i < this.maxItemsCount; i++)
