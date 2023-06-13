@@ -7,7 +7,9 @@ using System.Reactive;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Interop;
 using WatsonWebsocket;
+
 
 namespace demoTradingCore
 {
@@ -21,7 +23,7 @@ namespace demoTradingCore
         static List<string> _SYMBOLS = new List<string>() { "BTC-USD" };
         static Dictionary<string, string> _SYMBOLS_EXCH_TO_NORMALIZED = new Dictionary<string, string>();
         static WatsonWsServer _SERVER_WS;
-        static System.Timers.Timer _TIMER = new System.Timers.Timer();
+        static IEnumerable<string> allWSClients = null;
 
         static async Task Main(string[] args)
         {
@@ -29,33 +31,8 @@ namespace demoTradingCore
             await InitializeBinance();
             await InitializeCoinbase();
 
-            _TIMER.Elapsed += _TIMER_Elapsed;
-            _TIMER.Interval = 500;            
-            _TIMER.Enabled = true;
-
             Console.WriteLine("\n\nPress ENTER to shutdown.");
             Console.ReadLine();
-        }
-
-        private static void _TIMER_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            _TIMER.Stop();
-            //foreach symbol
-            //foreach provider
-            jsonMarkets toSend = new jsonMarkets();
-            toSend.type = "Market";
-            toSend.dataObj = new List<jsonMarket>();
-
-            foreach(var symbol in _SYMBOLS)
-            {
-                foreach(var exch in _EXCHANGES)
-                {
-                    toSend.dataObj.AddRange(exch.Value.GetSnapshots().dataObj);
-                }
-            }
-            SendMarketData_toWS(toSend);
-
-            _TIMER.Start();
         }
 
         static async Task InitializeWS()
@@ -88,7 +65,6 @@ namespace demoTradingCore
                     SnapshotUpdates(eEXCHANGE.BINANCE, book, 5);                 
                 }, 5, lstNormalized.ToArray());
             Console.WriteLine("OK");
-
         }
         static async Task InitializeCoinbase()
         {
@@ -117,27 +93,30 @@ namespace demoTradingCore
         {            
             if (!_EXCHANGES.ContainsKey(exchange))
                 _EXCHANGES.Add(exchange, new Exchange(exchange, depth));
-            _EXCHANGES[exchange].UpdateSnapshot(ob, depth);            
+            _EXCHANGES[exchange].UpdateSnapshot(ob, depth);
+
+            jsonMarkets toSend = new jsonMarkets();
+            toSend.type = "Market";
+            toSend.dataObj = _EXCHANGES[exchange].GetSnapshots().dataObj;
+            SendMarketData_toWS(toSend);
         }
 
         static void SendMarketData_toWS(jsonMarkets toSend)
-        {
-            string _json = Newtonsoft.Json.JsonConvert.SerializeObject(toSend);
-            foreach (var cli in _SERVER_WS.ListClients())
+        {            
+            if (allWSClients == null || !allWSClients.Any())
+                return;
+            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(toSend);
+            foreach (var cli in allWSClients)
             {
-                if (_SERVER_WS.IsClientConnected(cli))
-                {
-                    _SERVER_WS.SendAsync(cli, _json);
-                }                
+                bool result = _SERVER_WS.SendAsync(cli, msg).Result;
             }
         }
-
-
 
         #region webserver callbacks
         static void ClientConnected(object sender, ClientConnectedEventArgs args)
         {
             Console.WriteLine("Client connected: " + args.IpPort);
+            allWSClients = _SERVER_WS.ListClients();            
         }
 
         static void ClientDisconnected(object sender, ClientDisconnectedEventArgs args)

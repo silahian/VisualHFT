@@ -28,7 +28,7 @@ namespace demoTradingCore.Models
         {
             _lastSequenceId = ob.SequenceId;
             lock (_asks)
-                _asks = ob.Asks.Select(x => new KeyValuePair<decimal, Extension.ExchangeOrderPrice>(x.Key, new Extension.ExchangeOrderPrice()
+                _asks = ob.Asks.ToArray().Select(x => new KeyValuePair<decimal, Extension.ExchangeOrderPrice>(x.Key, new Extension.ExchangeOrderPrice()
                 {
                     Amount = x.Value.Amount,
                     LocalTimestamp = DateTime.Now,
@@ -36,7 +36,7 @@ namespace demoTradingCore.Models
                     ServerTimestamp = ob.LastUpdatedUtc.ToLocalTime(),
                 })).ToDictionary(x => x.Key, x => x.Value);
             lock(_bids)
-                _bids = ob.Bids.Select(x => new KeyValuePair<decimal, Extension.ExchangeOrderPrice>(x.Key, new Extension.ExchangeOrderPrice()
+                _bids = ob.Bids.ToArray().Select(x => new KeyValuePair<decimal, Extension.ExchangeOrderPrice>(x.Key, new Extension.ExchangeOrderPrice()
                 {
                     Amount = x.Value.Amount,
                     LocalTimestamp = DateTime.Now,
