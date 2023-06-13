@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using Prism.Mvvm;
 
 namespace VisualHFT.ViewModel
 {
-    public class vmProvider : INotifyPropertyChanged
+    public class vmProvider : BindableBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
         private ProviderVM _selectedItem;
         private ObservableCollection<ProviderVM> _providers;
         private RelayCommand _cmdUpdateStatus;
@@ -22,7 +22,7 @@ namespace VisualHFT.ViewModel
             _cmdUpdateStatus = new RelayCommand(DoUpdateStatus);
             
             _providers = new ObservableCollection<ProviderVM>();
-            RaisePropertyChanged("Providers");
+            RaisePropertyChanged(nameof(Providers));
 
             HelperCommon.PROVIDERS.OnDataReceived += PROVIDERS_OnDataReceived;
 
@@ -90,61 +90,22 @@ namespace VisualHFT.ViewModel
                 }
             }
         }
-
-        protected void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
         public ObservableCollection<ProviderVM> Providers
         {
-            get
-            {
-                return _providers;
-            }
-            set
-            {
-				if (_providers != value)
-				{
-					_providers = value;
-					RaisePropertyChanged("Providers");
-				}
-            }
+            get => _providers;
+            set => SetProperty(ref _providers, value); 
         }
 
         public RelayCommand CmdUpdateStatus
         {
-            get
-            {
-                return _cmdUpdateStatus;
-            }
-
-            set
-            {
-				if (_cmdUpdateStatus != value)
-				{
-					_cmdUpdateStatus = value;
-				}
-            }
+            get => _cmdUpdateStatus;
+            set => SetProperty(ref _cmdUpdateStatus, value);   
         }
 
         public ProviderVM SelectedItem
         {
-            get
-            {
-                return _selectedItem;
-            }
-
-            set
-            {
-				if (_selectedItem != value)
-				{
-					_selectedItem = value;
-				}
-            }
+            get => _selectedItem;
+            set => SetProperty(ref _selectedItem, value);
         }
 
     }
