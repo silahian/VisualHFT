@@ -20,6 +20,14 @@ namespace VisualHFT.ViewModel.StatisticsViewModel
             BlankFields();
         }
 
+        private Dictionary<string, Func<string, string, bool>> _dialogs;
+        public vmStrategyOverview(Dictionary<string, Func<string, string, bool>> dialogs)
+        {
+            _positions = new ObservableCollection<PositionEx>();
+            _dialogs = dialogs;
+            BlankFields();
+        }
+
         #region Fields
         //WINNERS
         string _winnersPnL;
