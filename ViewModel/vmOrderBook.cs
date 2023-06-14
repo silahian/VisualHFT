@@ -161,7 +161,8 @@ namespace VisualHFT.ViewModel
                     RaisePropertyChanged(nameof(AskTOB_SPLIT));
                     RaisePropertyChanged(nameof(BidTOB_SPLIT));
                 }
-                _orderBook.LoadData(e.Asks.ToList(), e.Bids.ToList());
+                if (!_orderBook.LoadData(e.Asks.ToList(), e.Bids.ToList()))
+                    return; //if nothing to update, then exit
 
                 if (DateTime.Now.Subtract(_LAST_UI_UPDATED).TotalMilliseconds > _PERIOD_TO_UPDATE_UI_IN_MS)
                 {

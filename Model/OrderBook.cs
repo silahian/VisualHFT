@@ -35,14 +35,23 @@ namespace VisualHFT.Model
         }
         private bool GetAddDeleteUpdate(ObservableCollectionEx<BookItem> inputExisting, List<BookItem> inputNew, out List<BookItem> outAdds, out List<BookItem> outUpdates, out List<BookItem> outRemoves)
         {
-            outRemoves = inputExisting.Where(e => !inputNew.Any(i => i.Price == e.Price && i.Size == e.Size && i.ProviderID == e.ProviderID && i.Symbol == e.Symbol)).ToList();
+            /*outRemoves = inputExisting.Where(e => !inputNew.Any(i => i.Price == e.Price && i.Size == e.Size && i.ProviderID == e.ProviderID && i.Symbol == e.Symbol)).ToList();
             outUpdates = inputNew.Where(e => inputExisting.Any(i => i.Size != e.Size && i.Price == e.Price && i.ProviderID == e.ProviderID && i.Symbol == e.Symbol)).ToList();
             outAdds = inputNew.Where(e => !inputExisting.Any(i => i.Price == e.Price && i.Size == e.Size && i.ProviderID == e.ProviderID && i.Symbol == e.Symbol)).ToList();
 
+            return true;*/
+            var existingSet = new HashSet<BookItem>(inputExisting);
+            var newSet = new HashSet<BookItem>(inputNew);
+
+            outRemoves = inputExisting.Where(e => !newSet.Contains(e)).ToList();
+            outUpdates = inputNew.Where(e => existingSet.Contains(e) && e.Size != existingSet.First(i => i.Equals(e)).Size).ToList();
+            outAdds = inputNew.Where(e => !existingSet.Contains(e)).ToList();
+
             return true;
         }
-        public void LoadData(List<BookItem> asks, List<BookItem> bids)
+        public bool LoadData(List<BookItem> asks, List<BookItem> bids)
         {
+            bool ret = false;
             #region Bids
             List<BookItem> addBids = new List<BookItem>();
             List<BookItem> delBids = new List<BookItem>();
@@ -51,6 +60,7 @@ namespace VisualHFT.Model
             {
                 GetAddDeleteUpdate(_Bids, bids, out addBids, out updBids, out delBids);
                 //_Bids = new ObservableCollectionEx<BookItem>(bids.OrderByDescending(x => x.Price).ToList(), _Bids.Comparison);
+                bool updateNeeded = addBids.Any() || updBids.Any() || delBids.Any();
                 foreach (var b in delBids)
                     _Bids.Remove(b);
                 foreach (var b in updBids)
@@ -61,16 +71,19 @@ namespace VisualHFT.Model
                 }
                 foreach (var b in addBids)
                     _Bids.Add(b);
-                _Bids.Sort();
-
-                lock (_Cummulative_Bids)
+                if (updateNeeded)
                 {
-                    _Cummulative_Bids.Clear();
-                    double cumSize = 0;
-                    foreach (var o in _Bids.OrderByDescending(x => x.Price))
+                    ret = true;
+                    _Bids.Sort();
+                    lock (_Cummulative_Bids)
                     {
-                        cumSize += o.Size;
-                        _Cummulative_Bids.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = true });
+                        _Cummulative_Bids.Clear();
+                        double cumSize = 0;
+                        foreach (var o in _Bids.OrderByDescending(x => x.Price))
+                        {
+                            cumSize += o.Size;
+                            _Cummulative_Bids.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = true });
+                        }
                     }
                 }
             }
@@ -87,6 +100,7 @@ namespace VisualHFT.Model
                 List<BookItem> updAsks = new List<BookItem>();
                 GetAddDeleteUpdate(_Asks, asks, out addAsks, out updAsks, out delAsks);
                 //_Asks = new ObservableCollectionEx<BookItem>(asks.OrderBy(x => x.Price).ToList(), _Asks.Comparison);
+                bool updateNeeded = addBids.Any() || updBids.Any() || delBids.Any();
                 foreach (var b in delAsks)
                     _Asks.Remove(b);
                 foreach (var b in updAsks)
@@ -97,23 +111,24 @@ namespace VisualHFT.Model
                 }
                 foreach (var b in addAsks)
                     _Asks.Add(b);
-                _Asks.Sort();
-
-
-
-                lock (_Cummulative_Asks)
+                if (updateNeeded)
                 {
-                    _Cummulative_Asks.Clear();
-                    double cumSize = 0;
-                    foreach (var o in _Asks.OrderBy(x => x.Price))
+                    ret = true;
+                    _Asks.Sort();
+                    lock (_Cummulative_Asks)
                     {
-                        cumSize += o.Size;
-                        _Cummulative_Asks.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = false });
+                        _Cummulative_Asks.Clear();
+                        double cumSize = 0;
+                        foreach (var o in _Asks.OrderBy(x => x.Price))
+                        {
+                            cumSize += o.Size;
+                            _Cummulative_Asks.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = false });
+                        }
                     }
                 }
             }
             #endregion
-
+            return ret;
         }
 
 
