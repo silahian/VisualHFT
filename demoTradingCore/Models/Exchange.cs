@@ -25,7 +25,16 @@ namespace demoTradingCore.Models
             }
 
         }
-
+        public IEnumerable<Extension.ExchangeOrderPrice> GetTopOfBook(string symbol)
+        {
+            lock (_orderBooksLCK)
+            {
+                if (_orderBooks.ContainsKey(symbol))
+                    return _orderBooks[symbol].GetTopOfBook();
+                else
+                    return null;
+            }
+        }
 
         public jsonMarkets GetSnapshots()
         {

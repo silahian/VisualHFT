@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication.ExtendedProtection;
 
 namespace demoTradingCore.Models
 {
@@ -49,6 +50,20 @@ namespace demoTradingCore.Models
         {
             lock (_bids)
                 return _bids.Values.ToList();
+        }
+        public IEnumerable<Extension.ExchangeOrderPrice> GetTopOfBook()
+        {
+            lock (_asks)
+            {
+                lock(_bids)
+                {
+                    var b = _bids.OrderBy(x => x.Value.Price).LastOrDefault().Value;
+                    var a = _asks.OrderBy(x => x.Value.Price).FirstOrDefault().Value;
+                    if (a == null || b == null)
+                        return null;
+                    return new List<Extension.ExchangeOrderPrice>() { b, a };
+                }
+            }
         }
     }
 }

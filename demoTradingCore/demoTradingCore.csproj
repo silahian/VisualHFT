@@ -124,10 +124,13 @@
     <Compile Include="Models\BookItem.cs" />
     <Compile Include="Models\enums.cs" />
     <Compile Include="Models\Exchange.cs" />
+    <Compile Include="Models\Json_Exposures.cs" />
     <Compile Include="Models\Json_Market.cs" />
+    <Compile Include="Models\Json_Strategy.cs" />
     <Compile Include="Models\OrderBook.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Strategy.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

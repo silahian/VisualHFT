@@ -22,12 +22,14 @@ namespace demoTradingCore
         static Dictionary<string, string> _SYMBOLS_EXCH_TO_NORMALIZED = new Dictionary<string, string>();
         static WatsonWsServer _SERVER_WS;
         static IEnumerable<string> allWSClients = null;
+        static Strategy _STRATEGY = null;
 
         static async Task Main(string[] args)
         {
             await InitializeWS();
             await InitializeBinance();
             await InitializeCoinbase();
+            await InitializeStrategy();
 
             Console.WriteLine("\n\nPress ENTER to shutdown.");
             Console.ReadLine();
@@ -85,6 +87,25 @@ namespace demoTradingCore
                 }, 5, lstNormalized.ToArray());
             Console.WriteLine("OK");
         }
+        static async Task InitializeStrategy()
+        {
+            Console.Write("Initializing Strategy...");
+            _STRATEGY = new Strategy(_EXCHANGES.Select(x => x.Value).ToList(), _SYMBOLS.First());
+            _STRATEGY.OnStrategyExposure += _STRATEGY_OnStrategyExposure; ;
+            Console.WriteLine("OK");
+        }
+
+        private static void _STRATEGY_OnStrategyExposure(object sender, StrategyExposureEventArgs e)
+        {
+            //send heart beat with all strategies:
+            // in this demo we only have one strategy running
+            Json_Exposure json_Exp = new Json_Exposure() { StrategyName = _STRATEGY.GetStrategyName(), SizeExposed = e.SizeExposed, Symbol = e.Symbol, UnrealizedPL = e.UnrealizedPL };
+            JsonExposures toSendExposure = new JsonExposures();
+            toSendExposure.dataObj = new List<Json_Exposure>() { json_Exp };
+
+            Send_toWS(toSendExposure);
+
+        }
 
 
         static void SnapshotUpdates(eEXCHANGE exchange, ExchangeOrderBook ob, int depth)
@@ -92,15 +113,33 @@ namespace demoTradingCore
             if (!_EXCHANGES.ContainsKey(exchange))
                 _EXCHANGES.Add(exchange, new Exchange(exchange, depth));
             _EXCHANGES[exchange].UpdateSnapshot(ob, depth);
+            _STRATEGY.UpdateSnapshot(ob);
 
             jsonMarkets toSend = new jsonMarkets();
             toSend.type = "Market";
             toSend.dataObj = _EXCHANGES[exchange].GetSnapshots().dataObj;
             SendMarketData_toWS(toSend);
+
+            //send heart beat with all strategies:
+            // in this demo we only have one strategy running
+            Json_Strategy json_Strategy = new Json_Strategy() { StrategyCode = _STRATEGY.GetStrategyName() };
+            jsonStrategies toSendStrategy = new jsonStrategies();
+            toSendStrategy.dataObj = new List<Json_Strategy>() { json_Strategy };
+            Send_toWS(toSendStrategy);
         }
 
         static void SendMarketData_toWS(jsonMarkets toSend)
         {            
+            if (allWSClients == null || !allWSClients.Any())
+                return;
+            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(toSend);
+            foreach (var cli in allWSClients)
+            {
+                bool result = _SERVER_WS.SendAsync(cli, msg).Result;
+            }
+        }
+        static void Send_toWS(Json_BaseData toSend)
+        {
             if (allWSClients == null || !allWSClients.Any())
                 return;
             var msg = Newtonsoft.Json.JsonConvert.SerializeObject(toSend);
