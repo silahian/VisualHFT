@@ -234,6 +234,8 @@ namespace VisualHFT.ViewModel
                 };
                 bwLoadPositions.RunWorkerCompleted += (s, args) =>
                 {
+                    RaisePropertyChanged("Exposures");
+                    RaisePropertyChanged("ActiveOrders");
                     RaisePropertyChanged("Positions");
                     RaisePropertyChanged("Executions");
                 };

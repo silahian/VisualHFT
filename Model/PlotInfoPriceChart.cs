@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
@@ -86,8 +87,11 @@ namespace VisualHFT.Model
 
 
 
+        public List<OrderBookLevel> BidOrders;
+        public List<OrderBookLevel> AskOrders;
 
-		public Brush StrokeAsk { get; set; }
+
+        public Brush StrokeAsk { get; set; }
 		public Brush StrokeMiddle { get; set; }
 		public Brush StrokeBid { get; set; }
 
