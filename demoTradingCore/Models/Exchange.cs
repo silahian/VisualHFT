@@ -103,5 +103,7 @@ namespace demoTradingCore.Models
 
             return 2; //default
         }
+        public string ExchangeName
+        { get { return _exchange.ToString(); } }
     }
 }

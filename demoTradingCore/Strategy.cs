@@ -50,7 +50,7 @@ namespace demoTradingCore
         }
         public void UpdateSnapshot(ExchangeOrderBook ob)
         {
-            lock(_EXCHANGES)
+            lock (_EXCHANGES)
             {
                 ExecuteStrategy();
             }
@@ -75,22 +75,30 @@ namespace demoTradingCore
                     var diffAsk = tob_Exch0.Last().Price - tob_Exch1.Last().Price;
                     var highestBid = (tob_Exch0.First().Price > tob_Exch1.First().Price ? tob_Exch0.First() : tob_Exch1.First());
                     var lowestAsk = (tob_Exch0.Last().Price < tob_Exch1.Last().Price ? tob_Exch0.Last() : tob_Exch1.Last());
-                    if (_QUEUE_DELTA_ASKS.Count > MAX_QUEUE_SIZE * 0.8 && _QUEUE_DELTA_BIDS.Count > MAX_QUEUE_SIZE*0.8)
+                    if (_QUEUE_DELTA_ASKS.Count > MAX_QUEUE_SIZE * 0.8 && _QUEUE_DELTA_BIDS.Count > MAX_QUEUE_SIZE * 0.8)
                     {
                         var avgAskDiff = CalculateAverage(_QUEUE_DELTA_ASKS);
                         var avgBidDiff = CalculateAverage(_QUEUE_DELTA_BIDS);
 
 
-                        if ((Math.Abs(diffBid) + CalculateStandardDeviation(_QUEUE_DELTA_BIDS)*3 > Math.Abs(avgBidDiff)
-                            || Math.Abs(diffAsk) + CalculateStandardDeviation(_QUEUE_DELTA_ASKS)*3 > Math.Abs(avgAskDiff))
+                        if ((Math.Abs(diffBid) + CalculateStandardDeviation(_QUEUE_DELTA_BIDS) * 3 > Math.Abs(avgBidDiff)
+                            || Math.Abs(diffAsk) + CalculateStandardDeviation(_QUEUE_DELTA_ASKS) * 3 > Math.Abs(avgAskDiff))
                             && highestBid.Price > lowestAsk.Price
                             )
                         {
                             //we want to sell on the higher bid 
                             // and sell on the lower ask
                             var profit = highestBid.Price - lowestAsk.Price;
-                            Console.WriteLine($"Profit: {profit.ToString("c2")}");
 
+
+                            string openExchange = (tob_Exch0.First().Price > tob_Exch1.First().Price ? _EXCHANGES[0].ExchangeName : _EXCHANGES[1].ExchangeName);
+                            string closeExchange = (tob_Exch0.Last().Price < tob_Exch1.Last().Price ? _EXCHANGES[0].ExchangeName : _EXCHANGES[1].ExchangeName);
+                            CreateNewPosition(openExchange, closeExchange, highestBid.Price, lowestAsk.Price);
+
+
+
+
+                            Console.WriteLine($"Profit: {profit.ToString("c2")}");
                             _UNREALIZEDPL += profit;
                             _EXPOSED_SIZE += 0; //since we are doing arb, we are always closing the position. Hence, no exposure.
 
@@ -174,5 +182,39 @@ namespace demoTradingCore
             return (decimal)standardDeviation;
         }
 
+
+        private void CreateNewPosition(string openExchange, string closingExchange, decimal openPrice, decimal closePrice)
+        {
+            int openingProviderID = openExchange.ToUpper() == "COINBASE" ? 14 : 23; //ID's took from the database
+            int closingProviderID = openExchange.ToUpper() == "COINBASE" ? 14 : 23; // This is hardcoded and for demostration only
+
+            /*using (var db = new VisualHFT.Model.HFTEntities())
+            {
+                db.Positions.Add(new VisualHFT.Model.Position()
+                {
+                    CreationTimeStamp = DateTime.Now,
+                    CloseTimeStamp = DateTime.Now,
+                    OpenClOrdId = Guid.NewGuid().ToString(),
+                    CloseClOrdId = Guid.NewGuid().ToString(),
+                    OpenProviderId = openingProviderID,
+                    CloseProviderId = closingProviderID,
+                    CloseStatus = 6,
+                    OrderQuantity = 1,
+                    GetCloseQuantity = 1,
+                    GetOpenQuantity = 1,
+                    GetOpenAvgPrice = openPrice,
+                    GetCloseAvgPrice = closePrice,
+
+                    IsCloseMM = false,
+                    IsOpenMM = false,
+                    Side = 1, //SELL
+                    StrategyCode = _STRATEGY_NAME,
+                    Symbol = _SYMBOL,
+                    SymbolDecimals = 2,
+                    SymbolMultiplier = 1
+                });
+                db.SaveChangesAsync();
+            }*/
+        }
     }
 }
