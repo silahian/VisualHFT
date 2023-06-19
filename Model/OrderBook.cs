@@ -14,10 +14,7 @@ namespace VisualHFT.Model
         private List<BookItem> _Cummulative_Bids;
         private List<BookItem> _Cummulative_Asks;
 
-        static object _bidLock = new object();
-        static object _askLock = new object();
-        static object _cumBidLock = new object();
-        static object _cumAskLock = new object();
+        static object LOCK_OBJECT = new object();
 
         private string _KEY;
         private string _Symbol;
@@ -62,14 +59,11 @@ namespace VisualHFT.Model
         public bool LoadData(List<BookItem> asks, List<BookItem> bids)
         {
             bool ret = true;
-            #region Bids
-            lock (_bidLock)
+            lock (LOCK_OBJECT)
             {
+                #region Bids
                 if (bids != null && bids.Any())
                     _Bids = new List<BookItem>(bids.OrderByDescending(x => x.Price).ToList());
-            }
-            lock (_cumBidLock)
-            {
                 _Cummulative_Bids.Clear();
                 double cumSize = 0;
                 foreach (var o in _Bids.Where(x => x.Price.HasValue && x.Size.HasValue).OrderByDescending(x => x.Price))
@@ -77,28 +71,22 @@ namespace VisualHFT.Model
                     cumSize += o.Size.Value;
                     _Cummulative_Bids.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = true });
                 }
-            }
-            #endregion
+                #endregion
 
-            #region Asks
-            lock (_askLock)
-            {
-                if (asks!= null && asks.Any())  
-                    _Asks = new List<BookItem>(asks.OrderBy(x => x.Price).ToList());                
-            }
-            lock (_cumAskLock)
-            {
+                #region Asks
+                if (asks != null && asks.Any())
+                    _Asks = new List<BookItem>(asks.OrderBy(x => x.Price).ToList());
                 _Cummulative_Asks.Clear();
-                double cumSize = 0;
+                cumSize = 0;
                 foreach (var o in _Asks.Where(x => x.Price.HasValue && x.Size.HasValue).OrderBy(x => x.Price))
                 {
                     cumSize += o.Size.Value;
                     _Cummulative_Asks.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = false });
                 }
-            }
-            #endregion
+                #endregion
 
-            MakeEqualLenght(); // to avoid grid flickering
+                MakeEqualLenght(); // to avoid grid flickering
+            }
             return ret;
         }
 
@@ -126,7 +114,7 @@ namespace VisualHFT.Model
         {
             get
             {
-                lock (_askLock)
+                lock (LOCK_OBJECT)
                     return _Asks;
             }
             set { _Asks = value; }
@@ -135,7 +123,7 @@ namespace VisualHFT.Model
         {
             get
             {
-                lock (_bidLock)
+                lock (LOCK_OBJECT)
                     return _Bids;                
             }
             set { _Bids = value; }
@@ -221,13 +209,13 @@ namespace VisualHFT.Model
         public BookItem GetTOB(bool isBid)
         {
             if (isBid)
-                lock (_bidLock)
+                lock (LOCK_OBJECT)
                 {
                     var item = _Bids.FirstOrDefault();
                     return item.Price.HasValue && item.Size.HasValue ? item : null;
                 }
             else
-                lock (_askLock)
+                lock (LOCK_OBJECT)
                 {
                     var item = _Asks.FirstOrDefault();
                     return item.Price.HasValue && item.Size.HasValue ? item : null;
@@ -237,12 +225,12 @@ namespace VisualHFT.Model
         {
             double _maxOrderSize = 0;
 
-            lock (_bidLock)
+            lock (LOCK_OBJECT)
             {
                 if (_Bids != null)
                     _maxOrderSize = _Bids.Where(x => x.Size.HasValue).DefaultIfEmpty(new BookItem()).Max(x => x.Size.Value);
             }
-            lock (_askLock)
+            lock (LOCK_OBJECT)
             {
                 if (_Asks != null)
                     _maxOrderSize = Math.Max(_maxOrderSize, _Asks.Where(x => x.Size.HasValue).DefaultIfEmpty(new BookItem()).Max(x => x.Size.Value));
@@ -252,11 +240,11 @@ namespace VisualHFT.Model
 
         public List<BookItem> BidCummulative
         {
-            get { lock (_cumBidLock) { return new List<BookItem>(_Cummulative_Bids); } }
+            get { lock (LOCK_OBJECT) { return new List<BookItem>(_Cummulative_Bids); } }
         }
         public List<BookItem> AskCummulative
         {
-            get { lock (_cumAskLock) { return new List<BookItem>(_Cummulative_Asks); } }
+            get { lock (LOCK_OBJECT) { return new List<BookItem>(_Cummulative_Asks); } }
         }
 
     }
