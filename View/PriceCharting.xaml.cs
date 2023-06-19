@@ -196,9 +196,9 @@ namespace VisualHFT.View
 								colPrices.RemoveAt(0);
 							}
 							double MidPoint = 0;
-							if (tobASK.Price > 0 && tobBID.Price > 0)
+							if (tobASK.Price.HasValue && tobBID.Price.HasValue)
 							{
-								MidPoint = (tobASK.Price + tobBID.Price) / 2;
+								MidPoint = (tobASK.Price.Value + tobBID.Price.Value) / 2;
 							}
 
 							DateTime maxDate = DateTime.Now;// Max(colPrices.DefaultIfEmpty(new PlotInfoPriceChart()).Max(d => d.Date), Max(tobASK.LocalTimeStamp, tobBID.LocalTimeStamp));
@@ -206,9 +206,9 @@ namespace VisualHFT.View
 							{
 								Date = maxDate,
 								MidPrice = MidPoint,
-								AskPrice = tobASK.Price,
-								BidPrice = tobBID.Price,
-								Volume = tobASK.Size + tobBID.Size,
+								AskPrice = tobASK.Price.Value,
+								BidPrice = tobBID.Price.Value,
+								Volume = tobASK.Size.Value + tobBID.Size.Value,
 								//StrokeAsk = GetNextBrush(provIndex),
 								//StrokeMiddle = GetNextBrush(provIndex),
 								//StrokeBid = GetNextBrush(provIndex)

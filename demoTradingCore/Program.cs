@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Interop;
 using WatsonWebsocket;
+
 
 namespace demoTradingCore
 {
@@ -19,41 +21,18 @@ namespace demoTradingCore
         static List<string> _SYMBOLS = new List<string>() { "BTC-USD" };
         static Dictionary<string, string> _SYMBOLS_EXCH_TO_NORMALIZED = new Dictionary<string, string>();
         static WatsonWsServer _SERVER_WS;
-        static System.Timers.Timer _TIMER = new System.Timers.Timer();
+        static IEnumerable<ClientMetadata> allWSClients = null;
+        static Strategy _STRATEGY = null;
 
         static async Task Main(string[] args)
         {
             await InitializeWS();
             await InitializeBinance();
             await InitializeCoinbase();
-
-            _TIMER.Elapsed += _TIMER_Elapsed;
-            _TIMER.Interval = 500;            
-            _TIMER.Enabled = true;
+            await InitializeStrategy();
 
             Console.WriteLine("\n\nPress ENTER to shutdown.");
             Console.ReadLine();
-        }
-
-        private static void _TIMER_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            _TIMER.Stop();
-            //foreach symbol
-            //foreach provider
-            jsonMarkets toSend = new jsonMarkets();
-            toSend.type = "Market";
-            toSend.dataObj = new List<jsonMarket>();
-
-            foreach(var symbol in _SYMBOLS)
-            {
-                foreach(var exch in _EXCHANGES)
-                {
-                    toSend.dataObj.AddRange(exch.Value.GetSnapshots().dataObj);
-                }
-            }
-            SendMarketData_toWS(toSend);
-
-            _TIMER.Start();
         }
 
         static async Task InitializeWS()
@@ -66,6 +45,8 @@ namespace demoTradingCore
             await _SERVER_WS.StartAsync();
             Console.WriteLine("OK");
         }
+
+
         static async Task InitializeBinance()
         {
             Console.Write("Initializing Binance...");
@@ -86,7 +67,6 @@ namespace demoTradingCore
                     SnapshotUpdates(eEXCHANGE.BINANCE, book, 5);                 
                 }, 5, lstNormalized.ToArray());
             Console.WriteLine("OK");
-
         }
         static async Task InitializeCoinbase()
         {
@@ -109,43 +89,82 @@ namespace demoTradingCore
                 }, 5, lstNormalized.ToArray());
             Console.WriteLine("OK");
         }
+        static async Task InitializeStrategy()
+        {
+            Console.Write("Initializing Strategy...");
+            _STRATEGY = new Strategy(_EXCHANGES.Select(x => x.Value).ToList(), _SYMBOLS.First());
+            _STRATEGY.OnStrategyExposure += _STRATEGY_OnStrategyExposure; ;
+            Console.WriteLine("OK");
+        }
+
+        private static void _STRATEGY_OnStrategyExposure(object sender, StrategyExposureEventArgs e)
+        {
+            //send heart beat with all strategies:
+            // in this demo we only have one strategy running
+            Json_Exposure json_Exp = new Json_Exposure() { StrategyName = _STRATEGY.GetStrategyName(), SizeExposed = e.SizeExposed, Symbol = e.Symbol, UnrealizedPL = e.UnrealizedPL };
+            JsonExposures toSendExposure = new JsonExposures();
+            toSendExposure.dataObj = new List<Json_Exposure>() { json_Exp };
+
+            Send_toWS(toSendExposure);
+
+        }
 
 
         static void SnapshotUpdates(eEXCHANGE exchange, ExchangeOrderBook ob, int depth)
         {            
             if (!_EXCHANGES.ContainsKey(exchange))
                 _EXCHANGES.Add(exchange, new Exchange(exchange, depth));
-            _EXCHANGES[exchange].UpdateSnapshot(ob, depth);            
+            _EXCHANGES[exchange].UpdateSnapshot(ob, depth);
+            _STRATEGY.UpdateSnapshot(ob);
+
+            jsonMarkets toSend = new jsonMarkets();
+            toSend.type = "Market";
+            toSend.dataObj = _EXCHANGES[exchange].GetSnapshots().dataObj;
+            SendMarketData_toWS(toSend);
+
+            //send heart beat with all strategies:
+            // in this demo we only have one strategy running
+            Json_Strategy json_Strategy = new Json_Strategy() { StrategyCode = _STRATEGY.GetStrategyName() };
+            jsonStrategies toSendStrategy = new jsonStrategies();
+            toSendStrategy.dataObj = new List<Json_Strategy>() { json_Strategy };
+            Send_toWS(toSendStrategy);
         }
 
         static void SendMarketData_toWS(jsonMarkets toSend)
-        {
-            string _json = Newtonsoft.Json.JsonConvert.SerializeObject(toSend);
-            foreach (var cli in _SERVER_WS.ListClients())
+        {            
+            if (allWSClients == null || !allWSClients.Any())
+                return;
+            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(toSend);
+            foreach (var cli in allWSClients)
             {
-                if (_SERVER_WS.IsClientConnected(cli))
-                {
-                    _SERVER_WS.SendAsync(cli, _json);
-                }                
+                bool result = _SERVER_WS.SendAsync(cli.Guid, msg).Result;
+            }
+        }
+        static void Send_toWS(Json_BaseData toSend)
+        {
+            if (allWSClients == null || !allWSClients.Any())
+                return;
+            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(toSend);
+            foreach (var cli in allWSClients)
+            {
+                bool result = _SERVER_WS.SendAsync(cli.Guid, msg).Result;
             }
         }
 
-
-
         #region webserver callbacks
-        static void ClientConnected(object sender, ClientConnectedEventArgs args)
+        static void ClientConnected(object sender, ConnectionEventArgs args)
         {
-            Console.WriteLine("Client connected: " + args.IpPort);
+            Console.WriteLine("Client connected: " + args.Client.IpPort);
+            allWSClients = _SERVER_WS.ListClients();
         }
-
-        static void ClientDisconnected(object sender, ClientDisconnectedEventArgs args)
+        static void ClientDisconnected(object sender, DisconnectionEventArgs args)
         {
-            Console.WriteLine("Client disconnected: " + args.IpPort);
+            Console.WriteLine("Client disconnected: " + args.Client.IpPort);
         }
 
         static void MessageReceived(object sender, MessageReceivedEventArgs args)
         {
-            Console.WriteLine("Message received from " + args.IpPort + ": " + Encoding.UTF8.GetString(args.Data.ToArray()));
+            Console.WriteLine("Message received from " + args.Client.IpPort + ": " + Encoding.UTF8.GetString(args.Data.ToArray()));
         }
         #endregion
     }

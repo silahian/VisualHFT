@@ -31,18 +31,6 @@
     <Grid>
         <Grid.Resources>
             <Formatters:KiloFormatter x:Key="KiloFormatter"/>
-
-            <CollectionViewSource x:Key="BidsSortedCummulative" Source="{Binding  BidCummulative,UpdateSourceTrigger=PropertyChanged}">
-                <CollectionViewSource.SortDescriptions>
-                    <scm:SortDescription PropertyName="Price" Direction="Descending"/>
-                </CollectionViewSource.SortDescriptions>
-            </CollectionViewSource>
-            <CollectionViewSource x:Key="AsksSortedCummulative" Source="{Binding  AskCummulative,UpdateSourceTrigger=PropertyChanged}">
-                <CollectionViewSource.SortDescriptions>
-                    <scm:SortDescription PropertyName="Price" Direction="Ascending"/>
-                </CollectionViewSource.SortDescriptions>
-            </CollectionViewSource>
-
         </Grid.Resources>
         <Grid VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
@@ -125,7 +113,7 @@
                                     </Style>
                                 </Grid.Resources>
                                 <Border BorderBrush="WhiteSmoke" BorderThickness="2" Height="25" Width="80" Background="#434D4C"  >
-                                    <TextBlock Text="{Binding Spread, StringFormat=N1}" />
+                                    <TextBlock Text="{Binding Spread, StringFormat=N2}" />
                                 </Border>
 
                             </Grid>
@@ -135,112 +123,110 @@
             </Grid>
             <!--LOB CUMULATIVER CHART-->
             <Grid Grid.Row="0" Grid.Column="1">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="600" />
-                            <ColumnDefinition Width="600" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="20"/>
+                </Grid.RowDefinitions>
                             
-                        <telerik:RadCartesianChart x:Name="chartOrderBookBids" Palette="Pastel" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="0" >
-                            <telerik:ScatterAreaSeries x:Name="Bids" ItemsSource="{Binding Source={StaticResource BidsSortedCummulative}}" XValueBinding="Price" YValueBinding="Size" ClipToPlotArea="True" Fill="DarkGreen" >
-                                <telerik:ScatterAreaSeries.AreaShapeStyle>
-                                    <Style TargetType="Path">
-                                        <Setter Property="StrokeThickness" Value="3"/>
-                                        <Setter Property="Stroke" Value="LightGreen"/>
-                                    </Style>
-                                </telerik:ScatterAreaSeries.AreaShapeStyle>
-                            </telerik:ScatterAreaSeries>
-                            <!--AXIS-->
-                            <telerik:RadCartesianChart.HorizontalAxis>
-                                <telerik:LinearAxis LabelFormat="" FontSize="8" FontFamily="Verdana" RangeExtendDirection="None" >
-                                    <telerik:LinearAxis.LabelStyle>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="TextAlignment" Value="Center" />
-                                        </Style>
-                                    </telerik:LinearAxis.LabelStyle>
-                                    <telerik:LinearAxis.LabelTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Converter={StaticResource KiloFormatter}}" Margin="0"/>
-                                        </DataTemplate>
-                                    </telerik:LinearAxis.LabelTemplate>
-                                </telerik:LinearAxis>
-                            </telerik:RadCartesianChart.HorizontalAxis>
-                            <telerik:RadCartesianChart.VerticalAxis>
-                                <telerik:LinearAxis HorizontalLocation="Left" FontSize="8" FontFamily="Verdana"   Maximum="{Binding ChartMaximumValue}" Minimum="{Binding xx.ChartMinimumValue}" >
-                                    <telerik:LinearAxis.LabelStyle>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="TextAlignment" Value="Left" />
-                                        </Style>
-                                    </telerik:LinearAxis.LabelStyle>
-                                    <telerik:LinearAxis.LabelTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Converter={StaticResource KiloFormatter}}" Margin="0"/>
-                                        </DataTemplate>
-                                    </telerik:LinearAxis.LabelTemplate>
-                                </telerik:LinearAxis>
-                            </telerik:RadCartesianChart.VerticalAxis>
-                            <!--END AXIS-->
+                <telerik:RadCartesianChart x:Name="chartOrderBookBids" Palette="Pastel" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="0" >
+                    <telerik:ScatterAreaSeries x:Name="Bids" ItemsSource="{Binding BidCummulative}" XValueBinding="Price" YValueBinding="Size" ClipToPlotArea="True" Fill="DarkGreen" >
+                        <telerik:ScatterAreaSeries.AreaShapeStyle>
+                            <Style TargetType="Path">
+                                <Setter Property="StrokeThickness" Value="3"/>
+                                <Setter Property="Stroke" Value="LightGreen"/>
+                            </Style>
+                        </telerik:ScatterAreaSeries.AreaShapeStyle>
+                    </telerik:ScatterAreaSeries>
+                    <!--AXIS-->
+                    <telerik:RadCartesianChart.HorizontalAxis>
+                        <telerik:LinearAxis LabelFormat="" FontSize="8" FontFamily="Verdana" RangeExtendDirection="None" >
+                            <telerik:LinearAxis.LabelStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextAlignment" Value="Center" />
+                                </Style>
+                            </telerik:LinearAxis.LabelStyle>
+                            <telerik:LinearAxis.LabelTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource KiloFormatter}}" Margin="0"/>
+                                </DataTemplate>
+                            </telerik:LinearAxis.LabelTemplate>
+                        </telerik:LinearAxis>
+                    </telerik:RadCartesianChart.HorizontalAxis>
+                    <telerik:RadCartesianChart.VerticalAxis>
+                        <telerik:LinearAxis HorizontalLocation="Left" FontSize="8" FontFamily="Verdana"   Maximum="{Binding ChartMaximumValue}" Minimum="{Binding xx.ChartMinimumValue}" >
+                            <telerik:LinearAxis.LabelStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextAlignment" Value="Left" />
+                                </Style>
+                            </telerik:LinearAxis.LabelStyle>
+                            <telerik:LinearAxis.LabelTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource KiloFormatter}}" Margin="0"/>
+                                </DataTemplate>
+                            </telerik:LinearAxis.LabelTemplate>
+                        </telerik:LinearAxis>
+                    </telerik:RadCartesianChart.VerticalAxis>
+                    <!--END AXIS-->
 
-                            <!--ANNOTATIONS-->
-                            <telerik:RadCartesianChart.Annotations>
-                                <telerik:CartesianGridLineAnnotation Axis="{Binding HorizontalAxis, ElementName=chartOrderBook}" Value="{Binding MidPoint}"  />
-                            </telerik:RadCartesianChart.Annotations>
-                            <!--END ANNOTATIONS-->
-                        </telerik:RadCartesianChart>
-                        <telerik:RadCartesianChart x:Name="chartOrderBookAsks" Palette="Pastel" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1">
-                            <telerik:ScatterAreaSeries x:Name="Asks" ItemsSource="{Binding Source={StaticResource AsksSortedCummulative}}" XValueBinding="Price" YValueBinding="Size" ClipToPlotArea="True" Fill="DarkRed" >
-                                <telerik:ScatterAreaSeries.AreaShapeStyle>
-                                    <Style TargetType="Path">
-                                        <Setter Property="StrokeThickness" Value="3"/>
-                                        <Setter Property="Stroke" Value="Pink"/>
-                                    </Style>
-                                </telerik:ScatterAreaSeries.AreaShapeStyle>
-                            </telerik:ScatterAreaSeries>
-                            <!--AXIS-->
-                            <telerik:RadCartesianChart.HorizontalAxis>
-                                <telerik:LinearAxis LabelFormat="" FontSize="8" FontFamily="Verdana" RangeExtendDirection="None" >
-                                    <telerik:LinearAxis.LabelStyle>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="TextAlignment" Value="Right" />
-                                        </Style>
-                                    </telerik:LinearAxis.LabelStyle>
-                                    <telerik:LinearAxis.LabelTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Converter={StaticResource KiloFormatter}}" Margin="0"/>
-                                        </DataTemplate>
-                                    </telerik:LinearAxis.LabelTemplate>
-                                </telerik:LinearAxis>
-                            </telerik:RadCartesianChart.HorizontalAxis>
-                            <telerik:RadCartesianChart.VerticalAxis>
-                                <telerik:LinearAxis HorizontalLocation="Right" FontSize="8" FontFamily="Verdana"   Maximum="{Binding ChartMaximumValue}" Minimum="{Binding xx.ChartMinimumValue}" >
-                                    <telerik:LinearAxis.LabelStyle>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="TextAlignment" Value="Right" />
-                                        </Style>
-                                    </telerik:LinearAxis.LabelStyle>
-                                    <telerik:LinearAxis.LabelTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Converter={StaticResource KiloFormatter}}" Margin="0"/>
-                                        </DataTemplate>
-                                    </telerik:LinearAxis.LabelTemplate>
-                                </telerik:LinearAxis>
-                            </telerik:RadCartesianChart.VerticalAxis>
-                            <!--END AXIS-->
+                    <!--ANNOTATIONS-->
+                    <telerik:RadCartesianChart.Annotations>
+                        <telerik:CartesianGridLineAnnotation Axis="{Binding HorizontalAxis, ElementName=chartOrderBook}" Value="{Binding MidPoint}"  />
+                    </telerik:RadCartesianChart.Annotations>
+                    <!--END ANNOTATIONS-->
+                </telerik:RadCartesianChart>
+                <telerik:RadCartesianChart x:Name="chartOrderBookAsks" Palette="Pastel" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1">
+                    <telerik:ScatterAreaSeries x:Name="Asks" ItemsSource="{Binding AskCummulative}" XValueBinding="Price" YValueBinding="Size" ClipToPlotArea="True" Fill="DarkRed" >
+                        <telerik:ScatterAreaSeries.AreaShapeStyle>
+                            <Style TargetType="Path">
+                                <Setter Property="StrokeThickness" Value="3"/>
+                                <Setter Property="Stroke" Value="Pink"/>
+                            </Style>
+                        </telerik:ScatterAreaSeries.AreaShapeStyle>
+                    </telerik:ScatterAreaSeries>
+                    <!--AXIS-->
+                    <telerik:RadCartesianChart.HorizontalAxis>
+                        <telerik:LinearAxis LabelFormat="" FontSize="8" FontFamily="Verdana" RangeExtendDirection="None" >
+                            <telerik:LinearAxis.LabelStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextAlignment" Value="Right" />
+                                </Style>
+                            </telerik:LinearAxis.LabelStyle>
+                            <telerik:LinearAxis.LabelTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource KiloFormatter}}" Margin="0"/>
+                                </DataTemplate>
+                            </telerik:LinearAxis.LabelTemplate>
+                        </telerik:LinearAxis>
+                    </telerik:RadCartesianChart.HorizontalAxis>
+                    <telerik:RadCartesianChart.VerticalAxis>
+                        <telerik:LinearAxis HorizontalLocation="Right" FontSize="8" FontFamily="Verdana"   Maximum="{Binding ChartMaximumValue}" Minimum="{Binding xx.ChartMinimumValue}" >
+                            <telerik:LinearAxis.LabelStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextAlignment" Value="Right" />
+                                </Style>
+                            </telerik:LinearAxis.LabelStyle>
+                            <telerik:LinearAxis.LabelTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource KiloFormatter}}" Margin="0"/>
+                                </DataTemplate>
+                            </telerik:LinearAxis.LabelTemplate>
+                        </telerik:LinearAxis>
+                    </telerik:RadCartesianChart.VerticalAxis>
+                    <!--END AXIS-->
 
-                            <!--ANNOTATIONS-->
-                            <telerik:RadCartesianChart.Annotations>
-                                <telerik:CartesianGridLineAnnotation Axis="{Binding HorizontalAxis, ElementName=chartOrderBook}" Value="{Binding MidPoint}"  />
-                            </telerik:RadCartesianChart.Annotations>
-                            <!--END ANNOTATIONS-->
-                        </telerik:RadCartesianChart>
+                    <!--ANNOTATIONS-->
+                    <telerik:RadCartesianChart.Annotations>
+                        <telerik:CartesianGridLineAnnotation Axis="{Binding HorizontalAxis, ElementName=chartOrderBook}" Value="{Binding MidPoint}"  />
+                    </telerik:RadCartesianChart.Annotations>
+                    <!--END ANNOTATIONS-->
+                </telerik:RadCartesianChart>
 
-                    </Grid>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0 0 0 -20" >
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.Row="1" Grid.ColumnSpan="2" >
+                    <TextBlock Text="(depth) " Margin="5,3,0,0"></TextBlock>
                     <TextBox FontFamily="Verdana" FontSize="12" Margin="0" Padding="0" Text="{Binding Path=ChartPercentageWidth, StringFormat=n2, Mode=TwoWay}" HorizontalContentAlignment="Right" />
                     <TextBlock Text="%" Margin="5,3,0,0"></TextBlock>
                 </StackPanel>
@@ -254,18 +240,48 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-
                 <!--BIDS-->
-                <DataGrid ItemsSource="{Binding Bids}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="0" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader" HeadersVisibility="Column" AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" IsHitTestVisible="False" EnableRowVirtualization="False" Padding="0">
+                <DataGrid ItemsSource="{Binding Bids}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="0" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader" HeadersVisibility="Column" AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" IsHitTestVisible="False" EnableRowVirtualization="True" EnableColumnVirtualization="False" Padding="0">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Height" Value="26" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="Margin" Value="0" />
+                            <Style.Triggers>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </Trigger>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                    <Setter Property="Background" Value="Black"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="*" Foreground="LightGreen" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
                         <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="*" Foreground="LightGreen" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
                         <DataGridTextColumn Header="A" Binding="{Binding ActiveSize, Converter={StaticResource KiloFormatter}, TargetNullValue={x:Static System:String.Empty}}" Width="50" Foreground="DarkGreen" FontWeight="Bold" />
                     </DataGrid.Columns>
                 </DataGrid>
+
                 <!--ENDS BIDS-->
                 <!--ASKS-->
                 <DataGrid ItemsSource="{Binding Asks}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="1" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" IsHitTestVisible="False" EnableRowVirtualization="False">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Height" Value="26" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="Margin" Value="0" />
+                            <Style.Triggers>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </Trigger>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                    <Setter Property="Background" Value="Black"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="A" Binding="{Binding ActiveSize, Converter={StaticResource KiloFormatter}, TargetNullValue={x:Static System:String.Empty}}" Width="50" Foreground="DarkRed" FontWeight="Bold"  />
                         <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="*"  Foreground="Pink" />
@@ -281,7 +297,7 @@
                     <RowDefinition Height="25*"/>
                 </Grid.RowDefinitions>
                 <!--PRICE CHART-->
-                <telerik:RadCartesianChart Grid.Row="0" x:Name="chtPrice">
+                <telerik:RadCartesianChart Grid.Row="0" x:Name="chtPrice" PlotAreaClipChanged="chtPrice_PlotAreaClipChanged">
                     <!--AXIS-->
                     <telerik:RadCartesianChart.HorizontalAxis>
                         <telerik:DateTimeContinuousAxis FontSize="7" FontFamily ="Verdana" MajorStepUnit="Second" MajorStep="1" LabelFormat="H:mm:ss" >
@@ -293,7 +309,7 @@
                         </telerik:DateTimeContinuousAxis>
                     </telerik:RadCartesianChart.HorizontalAxis>
                     <telerik:RadCartesianChart.VerticalAxis>
-                        <telerik:LinearAxis HorizontalLocation="Right" FontSize="8" FontFamily="Verdana" >
+                        <telerik:LinearAxis x:Name="MainAxis" HorizontalLocation="Right" FontSize="8" FontFamily="Verdana" >
                             <telerik:LinearAxis.LabelTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Converter={StaticResource KiloFormatter}}" />
@@ -301,7 +317,8 @@
                             </telerik:LinearAxis.LabelTemplate>
                         </telerik:LinearAxis>
                     </telerik:RadCartesianChart.VerticalAxis>
-                    <!--END AXIS-->
+
+                   <!--END AXIS-->
 
 
                     <telerik:LineSeries ItemsSource="{Binding RealTimePrices}" CategoryBinding="Date" ValueBinding="MidPrice" Stroke="Gray" StrokeThickness="0.5" />
@@ -317,7 +334,7 @@
                             </Style>
                         </telerik:PointSeries.DefaultVisualStyle>
                     </telerik:PointSeries>
-                    <telerik:PointSeries ItemsSource="{Binding RealTimePrices}" CategoryBinding="Date" ValueBinding="SellActiveOrder" PointSize="3,3" ZIndex="9999">
+                    <telerik:PointSeries ItemsSource="{Binding RealTimePrices}" CategoryBinding="Date" ValueBinding="SellActiveOrder" PointSize="3,3" ZIndex="9999" >
                         <telerik:PointSeries.DefaultVisualStyle>
                             <Style TargetType="Path">
                                 <Setter Property="Fill" Value="Red"/>
@@ -328,14 +345,14 @@
                     </telerik:PointSeries>
 
 
-                    <telerik:BubbleSeries ItemsSource="{Binding RealTimeOrderBookBids}" CategoryBinding="Date" ValueBinding="Price" BubbleSizeBinding="Size" >
+                    <telerik:BubbleSeries ClipToPlotArea="True" ItemsSource="{Binding RealTimeOrderLevelsBid}" CategoryBinding="Date" ValueBinding="Price" BubbleSizeBinding="Size" >
                         <telerik:BubbleSeries.PointTemplate>
                             <DataTemplate>
                                 <Ellipse Fill="Green" Stroke="Black" />
                             </DataTemplate>
                         </telerik:BubbleSeries.PointTemplate>
                     </telerik:BubbleSeries>
-                    <telerik:BubbleSeries ItemsSource="{Binding RealTimeOrderBookAsks}" CategoryBinding="Date" ValueBinding="Price"  BubbleSizeBinding="Size" >
+                    <telerik:BubbleSeries  ClipToPlotArea="True" ItemsSource="{Binding RealTimeOrderLevelsAsk}" CategoryBinding="Date" ValueBinding="Price"  BubbleSizeBinding="Size" >
                         <telerik:BubbleSeries.PointTemplate>
                             <DataTemplate>
                                 <Ellipse Fill="Red" Stroke="Black" />

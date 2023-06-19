@@ -18,6 +18,8 @@ namespace VisualHFT.Helpers
         {
             lock (_LOCK)
             {
+                if (Application.Current == null)
+                    return;
                 Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
                 {
                     foreach (StrategyVM vm in data)

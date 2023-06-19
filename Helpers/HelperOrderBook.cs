@@ -10,7 +10,7 @@ namespace VisualHFT.Helpers
 {
     public class HelperOrderBook: ConcurrentDictionary<string, OrderBook>
     {
-        protected ConcurrentQueue<OrderBook> _DataQueue = new ConcurrentQueue<OrderBook>();
+        protected ConcurrentQueue<OrderBook> _DataQueue = new ConcurrentQueue<OrderBook>();        
         protected System.Timers.Timer _queueTimer;
 
         public event EventHandler<OrderBook> OnDataReceived;
@@ -47,10 +47,8 @@ namespace VisualHFT.Helpers
             EventHandler<OrderBook> _handler = OnDataReceived;
             if (_handler != null && Application.Current != null)
             {
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => {
-                    foreach (var ob in books)
-                        _handler(this, ob);
-				}));
+                foreach (var ob in books)
+                    _handler(this, ob);
             }
         }
 
@@ -84,7 +82,5 @@ namespace VisualHFT.Helpers
             }
             return false;
         }
-
-
     }
 }

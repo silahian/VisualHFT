@@ -141,7 +141,8 @@ namespace VisualHFT.Helpers
             JsonSerializerSettings settings = new JsonSerializerSettings
             {
                 Converters = new List<JsonConverter> { new CustomDateConverter() },
-                DateParseHandling = DateParseHandling.None
+                DateParseHandling = DateParseHandling.None,
+                DateFormatString = "yyyy.MM.dd-HH.mm.ss.ffffff"
             };
             string message = "";
             HelperWebsocketData dataReceived = null;
@@ -164,7 +165,7 @@ namespace VisualHFT.Helpers
                             {
                                 if (dataReceived.type == "Market")
                                 {
-                                    var orderBook = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Model.OrderBook>>(dataReceived.data, settings);
+                                    var orderBook = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<OrderBook>>(dataReceived.data, settings);
                                     if (orderBook != null && orderBook.Any())
                                     {
                                         var allProviders = orderBook.Select(x => new ProviderVM()

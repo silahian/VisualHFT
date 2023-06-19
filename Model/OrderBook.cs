@@ -2,21 +2,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections.ObjectModel;
 
 namespace VisualHFT.Model
 {
     public class OrderBook
     {
-        private ObservableCollectionEx<BookItem> _Bids;
-        private ObservableCollectionEx<BookItem> _Asks;
+        protected List<BookItem> _Bids;
+        protected List<BookItem> _Asks;
 
-        private ObservableCollectionEx<BookItem> _Cummulative_Bids;
-        private ObservableCollectionEx<BookItem> _Cummulative_Asks;
+        private List<BookItem> _Cummulative_Bids;
+        private List<BookItem> _Cummulative_Asks;
 
-        protected object _bidLock = new object();
-        protected object _askLock = new object();
-        protected object _cumBidLock = new object();
-        protected object _cumAskLock = new object();
+        static object LOCK_OBJECT = new object();
+
         private string _KEY;
         private string _Symbol;
         private int _DecimalPlaces;
@@ -35,127 +34,99 @@ namespace VisualHFT.Model
         }
         private bool GetAddDeleteUpdate(ObservableCollectionEx<BookItem> inputExisting, List<BookItem> inputNew, out List<BookItem> outAdds, out List<BookItem> outUpdates, out List<BookItem> outRemoves)
         {
-            outRemoves = inputExisting.Where(e => !inputNew.Any(i => i.Price == e.Price && i.Size == e.Size && i.ProviderID == e.ProviderID && i.Symbol == e.Symbol)).ToList();
+            /*outRemoves = inputExisting.Where(e => !inputNew.Any(i => i.Price == e.Price && i.Size == e.Size && i.ProviderID == e.ProviderID && i.Symbol == e.Symbol)).ToList();
             outUpdates = inputNew.Where(e => inputExisting.Any(i => i.Size != e.Size && i.Price == e.Price && i.ProviderID == e.ProviderID && i.Symbol == e.Symbol)).ToList();
             outAdds = inputNew.Where(e => !inputExisting.Any(i => i.Price == e.Price && i.Size == e.Size && i.ProviderID == e.ProviderID && i.Symbol == e.Symbol)).ToList();
 
+            return true;*/
+            var existingSet = new HashSet<BookItem>(inputExisting);
+            var newSet = new HashSet<BookItem>(inputNew);
+
+            outRemoves = inputExisting.Where(e => !newSet.Contains(e)).ToList();
+            outUpdates = inputNew.Where(e => existingSet.Contains(e) && e.Size != existingSet.First(i => i.Equals(e)).Size).ToList();
+            outAdds = inputNew.Where(e => !existingSet.Contains(e)).ToList();
+
             return true;
         }
-        public void LoadData(List<BookItem> asks, List<BookItem> bids)
+        private void MakeEqualLenght()
         {
-            #region Bids
-            List<BookItem> addBids = new List<BookItem>();
-            List<BookItem> delBids = new List<BookItem>();
-            List<BookItem> updBids = new List<BookItem>();
-            lock (_bidLock)
+            var largestLength = Math.Max(_Asks.Count, _Bids.Count);
+            while (_Asks.Count != largestLength)
+                _Asks.Add(new BookItem());
+            while (_Bids.Count != largestLength)
+                _Bids.Add(new BookItem());
+        }
+        public bool LoadData(List<BookItem> asks, List<BookItem> bids)
+        {
+            bool ret = true;
+            lock (LOCK_OBJECT)
             {
-                GetAddDeleteUpdate(_Bids, bids, out addBids, out updBids, out delBids);
-                //_Bids = new ObservableCollectionEx<BookItem>(bids.OrderByDescending(x => x.Price).ToList(), _Bids.Comparison);
-                foreach (var b in delBids)
-                    _Bids.Remove(b);
-                foreach (var b in updBids)
+                #region Bids
+                if (bids != null && bids.Any())
+                    _Bids = new List<BookItem>(bids.OrderByDescending(x => x.Price).ToList());
+                _Cummulative_Bids.Clear();
+                double cumSize = 0;
+                foreach (var o in _Bids.Where(x => x.Price.HasValue && x.Size.HasValue).OrderByDescending(x => x.Price))
                 {
-                    var toUpdate = _Bids.Where(x => x.ProviderID == b.ProviderID && x.Symbol == b.Symbol && x.Price == b.Price).FirstOrDefault();
-                    if (toUpdate != null)
-                        toUpdate.Update(b);
+                    cumSize += o.Size.Value;
+                    _Cummulative_Bids.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = true });
                 }
-                foreach (var b in addBids)
-                    _Bids.Add(b);
-                _Bids.Sort();
+                #endregion
 
-                lock (_Cummulative_Bids)
+                #region Asks
+                if (asks != null && asks.Any())
+                    _Asks = new List<BookItem>(asks.OrderBy(x => x.Price).ToList());
+                _Cummulative_Asks.Clear();
+                cumSize = 0;
+                foreach (var o in _Asks.Where(x => x.Price.HasValue && x.Size.HasValue).OrderBy(x => x.Price))
                 {
-                    _Cummulative_Bids.Clear();
-                    double cumSize = 0;
-                    foreach (var o in _Bids.OrderByDescending(x => x.Price))
-                    {
-                        cumSize += o.Size;
-                        _Cummulative_Bids.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = true });
-                    }
+                    cumSize += o.Size.Value;
+                    _Cummulative_Asks.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = false });
                 }
+                #endregion
+
+                MakeEqualLenght(); // to avoid grid flickering
             }
-            //System.Windows.Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() =>
-            //{
-            //}));
-            #endregion
-
-            #region Asks
-            lock (_askLock)
-            {
-                List<BookItem> addAsks = new List<BookItem>();
-                List<BookItem> delAsks = new List<BookItem>();
-                List<BookItem> updAsks = new List<BookItem>();
-                GetAddDeleteUpdate(_Asks, asks, out addAsks, out updAsks, out delAsks);
-                //_Asks = new ObservableCollectionEx<BookItem>(asks.OrderBy(x => x.Price).ToList(), _Asks.Comparison);
-                foreach (var b in delAsks)
-                    _Asks.Remove(b);
-                foreach (var b in updAsks)
-                {
-                    var toUpdate = _Asks.Where(x => x.ProviderID == b.ProviderID && x.Symbol == b.Symbol && x.Price == b.Price).FirstOrDefault();
-                    if (toUpdate != null)
-                        toUpdate.Update(b);
-                }
-                foreach (var b in addAsks)
-                    _Asks.Add(b);
-                _Asks.Sort();
-
-
-
-                lock (_Cummulative_Asks)
-                {
-                    _Cummulative_Asks.Clear();
-                    double cumSize = 0;
-                    foreach (var o in _Asks.OrderBy(x => x.Price))
-                    {
-                        cumSize += o.Size;
-                        _Cummulative_Asks.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = false });
-                    }
-                }
-            }
-            #endregion
-
+            return ret;
         }
 
 
         public OrderBook() //emtpy constructor for JSON deserialization
         {
-            var comparer = new Comparison<BookItem>((k1, k2) => k1.CompareTo(k2));
-            _Asks = new ObservableCollectionEx<BookItem>(new List<BookItem>(), comparer);
-            _Cummulative_Asks = new ObservableCollectionEx<BookItem>(new List<BookItem>(), comparer);
-
-            var comparer2 = new Comparison<BookItem>((k1, k2) => k2.CompareTo(k1));
-            _Bids = new ObservableCollectionEx<BookItem>(new List<BookItem>(), comparer2);
-            _Cummulative_Bids = new ObservableCollectionEx<BookItem>(new List<BookItem>(), comparer2);
+            _Cummulative_Bids = new List<BookItem>();
+            _Cummulative_Asks = new List<BookItem>();
         }
         public OrderBook(string symbol, int decimalPlaces)
         {
             _Symbol = symbol;
             _DecimalPlaces = decimalPlaces;
 
-            var comparer = new Comparison<BookItem>((k1, k2) => k1.CompareTo(k2));
+            /*var comparer = new Comparison<BookItem>((k1, k2) => k1.CompareTo(k2));
             _Asks = new ObservableCollectionEx<BookItem>(new List<BookItem>(), comparer);
             _Cummulative_Asks = new ObservableCollectionEx<BookItem>(new List<BookItem>(), comparer);
 
             var comparer2 = new Comparison<BookItem>((k1, k2) => k2.CompareTo(k1));
             _Bids = new ObservableCollectionEx<BookItem>(new List<BookItem>(), comparer2);
-            _Cummulative_Bids = new ObservableCollectionEx<BookItem>(new List<BookItem>(), comparer2);
+            _Cummulative_Bids = new ObservableCollectionEx<BookItem>(new List<BookItem>(), comparer2);*/
 
         }
-        public ObservableCollectionEx<BookItem> Asks
+        public List<BookItem> Asks
         {
             get
             {
-                lock (_askLock)
+                lock (LOCK_OBJECT)
                     return _Asks;
             }
+            set { _Asks = value; }
         }
-        public ObservableCollectionEx<BookItem> Bids
+        public List<BookItem> Bids
         {
             get
             {
-                lock (_bidLock)
+                lock (LOCK_OBJECT)
                     return _Bids;                
             }
+            set { _Bids = value; }
         }
         public string Symbol
         {
@@ -238,38 +209,42 @@ namespace VisualHFT.Model
         public BookItem GetTOB(bool isBid)
         {
             if (isBid)
-                lock(_bidLock)
-                    return _Bids.FirstOrDefault();
-            //return _Bids.OrderByDescending(x => x.Price).FirstOrDefault();
+                lock (LOCK_OBJECT)
+                {
+                    var item = _Bids.FirstOrDefault();
+                    return item.Price.HasValue && item.Size.HasValue ? item : null;
+                }
             else
-                lock(_askLock)
-                    return _Asks.FirstOrDefault();
-            //return _Asks.OrderBy(x => x.Price).FirstOrDefault();
+                lock (LOCK_OBJECT)
+                {
+                    var item = _Asks.FirstOrDefault();
+                    return item.Price.HasValue && item.Size.HasValue ? item : null;
+                }
         }
         public double GetMaxOrderSize()
         {
             double _maxOrderSize = 0;
 
-            lock (_bidLock)
+            lock (LOCK_OBJECT)
             {
                 if (_Bids != null)
-                    _maxOrderSize = _Bids.DefaultIfEmpty(new BookItem()).Max(x => x.Size);
+                    _maxOrderSize = _Bids.Where(x => x.Size.HasValue).DefaultIfEmpty(new BookItem()).Max(x => x.Size.Value);
             }
-            lock (_askLock)
+            lock (LOCK_OBJECT)
             {
                 if (_Asks != null)
-                    _maxOrderSize = Math.Max(_maxOrderSize, _Asks.DefaultIfEmpty(new BookItem()).Max(x => x.Size));
+                    _maxOrderSize = Math.Max(_maxOrderSize, _Asks.Where(x => x.Size.HasValue).DefaultIfEmpty(new BookItem()).Max(x => x.Size.Value));
             }
             return _maxOrderSize;
         }
 
-        public ObservableCollectionEx<BookItem> BidCummulative
+        public List<BookItem> BidCummulative
         {
-            get { lock (_cumBidLock) { return _Cummulative_Bids; } }
+            get { lock (LOCK_OBJECT) { return new List<BookItem>(_Cummulative_Bids); } }
         }
-        public ObservableCollectionEx<BookItem> AskCummulative
+        public List<BookItem> AskCummulative
         {
-            get { lock (_cumAskLock) { return _Cummulative_Asks; } }
+            get { lock (LOCK_OBJECT) { return new List<BookItem>(_Cummulative_Asks); } }
         }
 
     }

@@ -46,7 +46,15 @@ namespace VisualHFT.View
             ucSelf.SelectedLayer = (string)args.NewValue;
         }
 
+        private void chtPrice_PlotAreaClipChanged(object sender, System.EventArgs e)
+        {
+            /*var mainAxis = MainAxis.ActualRange;
+            
+            BubbleAxisAsk.Minimum = mainAxis.Minimum;
+            BubbleAxisAsk.Maximum = mainAxis.Maximum;
 
-
+            BubbleAxisBid.Minimum = mainAxis.Minimum;
+            BubbleAxisBid.Maximum = mainAxis.Maximum;*/
+        }
     }
 }

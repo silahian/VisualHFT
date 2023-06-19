@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace VisualHFT.Model
 {
-    public class BookItem : INotifyPropertyChanged, IComparable, IEquatable<BookItem>
+    public class BookItem : INotifyPropertyChanged, IEquatable<BookItem>
     {
         public BookItem()
         {
@@ -12,17 +12,13 @@ namespace VisualHFT.Model
         public event PropertyChangedEventHandler PropertyChanged;
         protected void RaisePropertyChanged(string propertyName)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
+            /*PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
             {
                 handler(this, new PropertyChangedEventArgs(propertyName));
-            }
+            }*/
         }
 
-        public int CompareTo(object obj)
-        {
-            return Price.CompareTo(((BookItem)obj).Price);
-        }
         public bool Equals(BookItem other)
         {
             if (other == null)
@@ -44,9 +40,9 @@ namespace VisualHFT.Model
         private string _EntryID;
         private string _LayerName;
         private DateTime _LocalTimeStamp;
-        private double _Price;
+        private double? _Price;
         private DateTime _ServerTimeStamp;
-        private double _Size;
+        private double? _Size;
         private bool _IsBid;
         private int _DecimalPlaces;
         private double? _ActiveSize;
@@ -146,7 +142,7 @@ namespace VisualHFT.Model
                 }
             }
         }
-        public double Price
+        public double? Price
         {
             get
             {
@@ -180,7 +176,7 @@ namespace VisualHFT.Model
                 }
             }
         }
-        public double Size
+        public double? Size
         {
             get
             {
@@ -218,14 +214,14 @@ namespace VisualHFT.Model
         {
             get
             {
-                return this.Price.ToString("N" + _DecimalPlaces);
+                return this.Price.HasValue? this.Price.Value.ToString("N" + _DecimalPlaces): "";
             }
         }
         public string FormattedSize
         {
             get
             {
-                return Helpers.HelperCommon.GetKiloFormatter(this.Size);
+                return this.Size.HasValue ? Helpers.HelperCommon.GetKiloFormatter(this.Size.Value): "";
                 //return this.Size.ToString("N0");
             }
         }

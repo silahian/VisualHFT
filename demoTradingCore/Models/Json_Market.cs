@@ -31,19 +31,30 @@ namespace demoTradingCore.Models
 
     public class jsonMarkets: Json_BaseData
     {
-        JsonSerializerSettings jsonSettings;
+        protected JsonSerializerSettings jsonSettings;
+        protected string _data;
+        protected List<jsonMarket> _dataObj;
+
         public jsonMarkets()
         {
             jsonSettings = new JsonSerializerSettings();
             jsonSettings.DateFormatString = "yyyy.MM.dd-hh.mm.ss.ffffff";
-
             this.type = "Market";
         }
         public string data 
         { 
-            get {return Newtonsoft.Json.JsonConvert.SerializeObject(dataObj, jsonSettings); } 
+            get { return _data; }
+            //get {return Newtonsoft.Json.JsonConvert.SerializeObject(dataObj, jsonSettings); } 
+
         }
 
-        public List<jsonMarket> dataObj { get; set; }
+        public List<jsonMarket> dataObj { 
+            get { return _dataObj; }
+            set 
+            { 
+                _dataObj = value;
+                _data = Newtonsoft.Json.JsonConvert.SerializeObject(_dataObj, jsonSettings);
+            }
+        }
     }
 }
