@@ -8,7 +8,7 @@ using VisualHFT.Model;
 
 namespace VisualHFT.ViewModel
 {
-    public class vmStrategyParameterFirmMM: vmStrategyParametersBase<StrategyParametersFirmMMVM>, INotifyPropertyChanged
+    public class vmStrategyParameterFirmMM: vmStrategyParametersBase<StrategyParametersFirmMMVM>
     {
 
         public vmStrategyParameterFirmMM(Dictionary<string, Func<string, string, bool>> dialogs): base(dialogs)
