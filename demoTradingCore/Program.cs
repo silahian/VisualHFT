@@ -21,7 +21,7 @@ namespace demoTradingCore
         static List<string> _SYMBOLS = new List<string>() { "BTC-USD" };
         static Dictionary<string, string> _SYMBOLS_EXCH_TO_NORMALIZED = new Dictionary<string, string>();
         static WatsonWsServer _SERVER_WS;
-        static IEnumerable<string> allWSClients = null;
+        static IEnumerable<ClientMetadata> allWSClients = null;
         static Strategy _STRATEGY = null;
 
         static async Task Main(string[] args)
@@ -45,6 +45,8 @@ namespace demoTradingCore
             await _SERVER_WS.StartAsync();
             Console.WriteLine("OK");
         }
+
+
         static async Task InitializeBinance()
         {
             Console.Write("Initializing Binance...");
@@ -135,7 +137,7 @@ namespace demoTradingCore
             var msg = Newtonsoft.Json.JsonConvert.SerializeObject(toSend);
             foreach (var cli in allWSClients)
             {
-                bool result = _SERVER_WS.SendAsync(cli, msg).Result;
+                bool result = _SERVER_WS.SendAsync(cli.Guid, msg).Result;
             }
         }
         static void Send_toWS(Json_BaseData toSend)
@@ -145,25 +147,24 @@ namespace demoTradingCore
             var msg = Newtonsoft.Json.JsonConvert.SerializeObject(toSend);
             foreach (var cli in allWSClients)
             {
-                bool result = _SERVER_WS.SendAsync(cli, msg).Result;
+                bool result = _SERVER_WS.SendAsync(cli.Guid, msg).Result;
             }
         }
 
         #region webserver callbacks
-        static void ClientConnected(object sender, ClientConnectedEventArgs args)
+        static void ClientConnected(object sender, ConnectionEventArgs args)
         {
-            Console.WriteLine("Client connected: " + args.IpPort);
-            allWSClients = _SERVER_WS.ListClients();            
+            Console.WriteLine("Client connected: " + args.Client.IpPort);
+            allWSClients = _SERVER_WS.ListClients();
         }
-
-        static void ClientDisconnected(object sender, ClientDisconnectedEventArgs args)
+        static void ClientDisconnected(object sender, DisconnectionEventArgs args)
         {
-            Console.WriteLine("Client disconnected: " + args.IpPort);
+            Console.WriteLine("Client disconnected: " + args.Client.IpPort);
         }
 
         static void MessageReceived(object sender, MessageReceivedEventArgs args)
         {
-            Console.WriteLine("Message received from " + args.IpPort + ": " + Encoding.UTF8.GetString(args.Data.ToArray()));
+            Console.WriteLine("Message received from " + args.Client.IpPort + ": " + Encoding.UTF8.GetString(args.Data.ToArray()));
         }
         #endregion
     }
