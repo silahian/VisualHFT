@@ -8,7 +8,7 @@ using VisualHFT.Model;
 
 namespace VisualHFT.ViewModel
 {
-    public class vmStrategyParameterHFTAcceptor : vmStrategyParametersBase<StrategyParametersHFTAcceptorVM>, INotifyPropertyChanged
+    public class vmStrategyParameterHFTAcceptor : vmStrategyParametersBase<StrategyParametersHFTAcceptorVM>
 	{
 		
 
