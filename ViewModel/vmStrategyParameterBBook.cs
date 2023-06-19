@@ -8,14 +8,13 @@ using VisualHFT.Model;
 
 namespace VisualHFT.ViewModel
 {
-    public class vmStrategyParameterBBook : vmStrategyParametersBase<StrategyParametersBBookVM>, INotifyPropertyChanged
-	{
-        
-        public vmStrategyParameterBBook(Dictionary<string, Func<string, string, bool>> dialogs) : base(dialogs)
-		{
-			_strategyNameForThisControl = "BBook";
-		}
+    public class vmStrategyParameterBBook : vmStrategyParametersBase<StrategyParametersBBookVM>
+    {
 
+        public vmStrategyParameterBBook(Dictionary<string, Func<string, string, bool>> dialogs) : base(dialogs)
+        {
+            _strategyNameForThisControl = "BBook";
+        }
 
         private void SetParameters()
         {
@@ -41,13 +40,14 @@ namespace VisualHFT.ViewModel
             if (!bwSetParameters.IsBusy)
                 bwSetParameters.RunWorkerAsync();
         }
-		public override void OnSaveSettingsToDB()
+
+        public override void OnSaveSettingsToDB()
         {
             if (modelItems == null)
                 return;
             using (var db = new HFTEntities())
             {
-                foreach(var setting in modelItems)
+                foreach (var setting in modelItems)
                 {
                     var existingItem = db.STRATEGY_PARAMETERS_BBOOK.Where(x => x.Symbol == setting.Symbol && x.LayerName == setting.LayerName).FirstOrDefault();
                     if (existingItem != null)
@@ -55,10 +55,10 @@ namespace VisualHFT.ViewModel
                         existingItem.PositionSize = setting.PositionSize;
                         existingItem.PipsArb = setting.PipsArb;
                         existingItem.MillisecondsToWaitBeofreClosing = setting.MillisecondsToWaitBeofreClosing;
-						existingItem.PNLoverallPositionToClose = setting.PNLoverallPositionToClose;
-						existingItem.ClosingWaitingBBook = setting.ClosingWaitingBBook;
-						existingItem.ClosingWaitingTime = setting.ClosingWaitingTime;
-						existingItem.AfterCloseWaitForMillisec = setting.AfterCloseWaitForMillisec;
+                        existingItem.PNLoverallPositionToClose = setting.PNLoverallPositionToClose;
+                        existingItem.ClosingWaitingBBook = setting.ClosingWaitingBBook;
+                        existingItem.ClosingWaitingTime = setting.ClosingWaitingTime;
+                        existingItem.AfterCloseWaitForMillisec = setting.AfterCloseWaitForMillisec;
 
                         existingItem.PipsHedgeStopLoss = setting.PipsHedgeStopLoss;
                         existingItem.PipsHedgeTakeProf = setting.PipsHedgeTakeProf;
@@ -76,7 +76,7 @@ namespace VisualHFT.ViewModel
             using (var db = new HFTEntities())
             {
                 modelItems.Clear();
-                foreach(var setting in db.STRATEGY_PARAMETERS_BBOOK.ToList())
+                foreach (var setting in db.STRATEGY_PARAMETERS_BBOOK.ToList())
                 {
                     modelItems.Add(new StrategyParametersBBookVM(setting));
                     bLoadedFromDB = true;
@@ -84,38 +84,38 @@ namespace VisualHFT.ViewModel
             }
             return bLoadedFromDB;
         }
-		public override void OnUpdateToAllModelsIfAllSymbolsIsSelected()
-		{
-			if (string.IsNullOrEmpty(_selectedSymbol) || _selectedSymbol == "-- All symbols --")
-			{
-				foreach (var m in modelItems)
-				{
-					if (_model.PositionSize > 0)
-						m.PositionSize = _model.PositionSize;
-					if (_model.PipsArb > 0)
-						m.PipsArb = _model.PipsArb;
-					if (_model.MillisecondsToWaitBeofreClosing > 0)
-						m.MillisecondsToWaitBeofreClosing = _model.MillisecondsToWaitBeofreClosing;
+        public override void OnUpdateToAllModelsIfAllSymbolsIsSelected()
+        {
+            if (string.IsNullOrEmpty(_selectedSymbol) || _selectedSymbol == "-- All symbols --")
+            {
+                foreach (var m in modelItems)
+                {
+                    if (_model.PositionSize > 0)
+                        m.PositionSize = _model.PositionSize;
+                    if (_model.PipsArb > 0)
+                        m.PipsArb = _model.PipsArb;
+                    if (_model.MillisecondsToWaitBeofreClosing > 0)
+                        m.MillisecondsToWaitBeofreClosing = _model.MillisecondsToWaitBeofreClosing;
 
-					if (_model.PNLoverallPositionToClose > 0)
-						m.PNLoverallPositionToClose = _model.PNLoverallPositionToClose;
-					if (_model.AfterCloseWaitForMillisec > 0)
-						m.AfterCloseWaitForMillisec = _model.AfterCloseWaitForMillisec;
+                    if (_model.PNLoverallPositionToClose > 0)
+                        m.PNLoverallPositionToClose = _model.PNLoverallPositionToClose;
+                    if (_model.AfterCloseWaitForMillisec > 0)
+                        m.AfterCloseWaitForMillisec = _model.AfterCloseWaitForMillisec;
 
-					m.ClosingWaitingTime = _model.ClosingWaitingTime;
-					m.ClosingWaitingBBook = _model.ClosingWaitingBBook;
+                    m.ClosingWaitingTime = _model.ClosingWaitingTime;
+                    m.ClosingWaitingBBook = _model.ClosingWaitingBBook;
 
-					if (_model.PipsHedgeStopLoss > 0)
-						m.PipsHedgeStopLoss = _model.PipsHedgeStopLoss;
-					if (_model.PipsHedgeTakeProf > 0)
-						m.PipsHedgeTakeProf = _model.PipsHedgeTakeProf;
-					if (_model.PipsHedgeTrailing > 0)
-						m.PipsHedgeTrailing = _model.PipsHedgeTrailing;
-					if (_model.PositionSize > 0)
-						m.PositionSize = _model.PositionSize;
-				}
-			}
-		}
+                    if (_model.PipsHedgeStopLoss > 0)
+                        m.PipsHedgeStopLoss = _model.PipsHedgeStopLoss;
+                    if (_model.PipsHedgeTakeProf > 0)
+                        m.PipsHedgeTakeProf = _model.PipsHedgeTakeProf;
+                    if (_model.PipsHedgeTrailing > 0)
+                        m.PipsHedgeTrailing = _model.PipsHedgeTrailing;
+                    if (_model.PositionSize > 0)
+                        m.PositionSize = _model.PositionSize;
+                }
+            }
+        }
 
-	}
+    }
 }

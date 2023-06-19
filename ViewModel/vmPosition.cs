@@ -8,23 +8,18 @@ using VisualHFT.Helpers;
 using VisualHFT.Model;
 using System.Runtime.CompilerServices;
 using System.Windows.Threading;
+using Prism.Mvvm;
 
 namespace VisualHFT.ViewModel
 {
-    public class vmPosition : INotifyPropertyChanged
+    public class vmPosition : BindableBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void RaisePropertyChanged([CallerMemberName] String propertyName = "")
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }
 
         private string _selectedSymbol;
         private string _selectedStrategy;
         private DateTime _selectedDate;
         private Dictionary<string, Func<string, string, bool>> _dialogs;
-        System.ComponentModel.BackgroundWorker bwLoadPositions = new System.ComponentModel.BackgroundWorker();
+        BackgroundWorker bwLoadPositions = new BackgroundWorker();
         ObservableCollection<Exposure> _exposures;
         ObservableCollection<PositionEx> _positions;
         ObservableCollection<ExecutionVM> _executions;
@@ -33,14 +28,15 @@ namespace VisualHFT.ViewModel
 
         public vmPosition(Dictionary<string, Func<string, string, bool>> dialogs)
         {
-            if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
                 return;
+
             this._dialogs = dialogs;
             _positions = new ObservableCollection<PositionEx>();
             _exposures = new ObservableCollection<Exposure>();
             _activeOrders = new ObservableCollection<OrderVM>();
-            RaisePropertyChanged("Exposures");
-            RaisePropertyChanged("ActiveOrders");
+            RaisePropertyChanged(nameof(Exposures));
+            RaisePropertyChanged(nameof(ActiveOrders));
 
 
             HelperCommon.CLOSEDPOSITIONS.OnDataReceived += CLOSEDPOSITIONS_OnDataReceived;
@@ -130,74 +126,26 @@ namespace VisualHFT.ViewModel
             }
 		}
 
-        public ObservableCollection<Exposure> Exposures
-        {
-            get
-            {
-                return _exposures;
-            }
-        }
-        public ObservableCollection<PositionEx> Positions
-        {
-            get
-            {                
-                return _positions;
-            }
-        }
-        public ObservableCollection<ExecutionVM> Executions
-        {
-            get
-            {
-                return _executions;
-            }
-        }
-        public ObservableCollection<OrderVM> ActiveOrders
-        {
-            get
-            {
-                return _activeOrders;
-            }
-        }
+        public ObservableCollection<Exposure> Exposures => _exposures;
+        public ObservableCollection<PositionEx> Positions => _positions;
+        public ObservableCollection<ExecutionVM> Executions => _executions;
+        public ObservableCollection<OrderVM> ActiveOrders => _activeOrders;
 
         public string SelectedSymbol
         {
-            get { return _selectedSymbol; }
-            set
-            {
-                if (_selectedSymbol != value)
-                {
-                    _selectedSymbol = value;                    
-                    RaisePropertyChanged("SelectedSymbol");
-                    ReloadPositions(_selectedSymbol, _selectedStrategy);
-                }
-            }
+            get => _selectedSymbol;
+            set => SetProperty(ref _selectedSymbol, value, onChanged: () => ReloadPositions(_selectedSymbol, _selectedStrategy));
+
         }
         public string SelectedStrategy
         {
-            get { return _selectedStrategy; }
-            set
-            {
-                if (_selectedStrategy != value)
-                {
-                    _selectedStrategy = value;                    
-                    RaisePropertyChanged("SelectedStrategy");
-                    ReloadPositions(_selectedSymbol, _selectedStrategy);
-                }
-            }
+            get => _selectedStrategy;
+            set => SetProperty(ref _selectedStrategy, value, onChanged: () => ReloadPositions(_selectedSymbol, _selectedStrategy));
         }
         public DateTime SelectedDate
-        {
-            get { return _selectedDate; }
-            set { 
-                if (_selectedDate != value)
-                {
-                    _selectedDate = value.Date;
-                    
-                    HelperCommon.CLOSEDPOSITIONS.SessionDate = _selectedDate;
-                    RaisePropertyChanged("SelectedDate");
-                }
-            }
-                
+        {            
+            get => _selectedDate;
+            set => SetProperty(ref _selectedDate, value, onChanged: () => HelperCommon.CLOSEDPOSITIONS.SessionDate = _selectedDate);
         }
 
 
@@ -230,14 +178,17 @@ namespace VisualHFT.ViewModel
                         _executions = new ObservableCollection<ExecutionVM>(allExecution.OrderByDescending(x => x.LocalTimeStamp));
                         #endregion
                     }
-                    catch (Exception ex) { }
+                    catch (Exception ex) 
+                    { 
+                        Console.Write(ex.ToString());
+                    }
                 };
                 bwLoadPositions.RunWorkerCompleted += (s, args) =>
                 {
-                    RaisePropertyChanged("Exposures");
-                    RaisePropertyChanged("ActiveOrders");
-                    RaisePropertyChanged("Positions");
-                    RaisePropertyChanged("Executions");
+                    RaisePropertyChanged(nameof(Exposures));
+                    RaisePropertyChanged(nameof(ActiveOrders));
+                    RaisePropertyChanged(nameof(Positions));
+                    RaisePropertyChanged(nameof(Executions));
                 };
             }
             if (!bwLoadPositions.IsBusy)
