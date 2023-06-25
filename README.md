@@ -22,15 +22,15 @@ To install and run the project, you need to:
 5. Run the core trading system located in the "demoTradingCore" folder.
 
 ## Long Description
-Enterprise-level trading systems run in collocated server with no human interaction. With VisualHFT, we can have a look at what’s going on with the markets, risk, exposures, and many other analytics.
+VisualHFT is a comprehensive graphical user interface (GUI) designed to provide real-time insights into the operations of high-frequency trading systems. Built with WPF and C#, it serves as a powerful tool for visualizing market microstructure analytics, including Limit Order Book dynamics, latencies, execution quality, and other key metrics.
 
-The main focus is to have a dashboard showing market microstructure information. That means that we can see L2 prices, from different venues and the aggregation of it. Also, we can see Limit Order Book dynamic and its resting orders.
+The primary function of VisualHFT is to offer a clear, real-time view of trading operations. It visualizes depth up to 5 levels on each side, displays real-time market data from many data sources, and provides a visualization of selling/buying orders on the Limit Order Book (LOB). It also shows the user's orders (market making) and provides a spread chart visualization.
 
-The initial intention of this project was to support a high-frequency trading operation (running with latencies under 2 microseconds), but this project could be used for any type of trading.
+VisualHFT operates by receiving a specific collection of JSON messages via WebSocket. These messages contain the real-time trading data that the GUI visualizes. The system requires a server application configured to send these messages, which include market data, order information, execution reports, position updates, and control messages.
 
-Technologies used are C# and WPF, and ideally, we will be updating to support other platforms too.
+The core trading system, located in the "demoTradingCore" folder, feeds data to VisualHFT. This system must have a REST and WebSocket server and be capable of persisting position data into the database. Please note that this console application is currently under development.
 
-Lot of things need to be improved, so please be patience. And if you have the skills to code, and ideas, happy to include contributions.
+VisualHFT was open-sourced with the aim of contributing to the broader trading community and fostering innovation in the field of high-frequency trading. By providing a clear, real-time view of trading operations, VisualHFT enables users to make informed decisions and maintain control over their trading strategies.
 
 ## Features
 - Market Depth visualization.
