@@ -56,7 +56,25 @@ namespace VisualHFT.ViewModel
             timerUI.Start();
 
         }
-
+        public vmOrderBook(vmOrderBook vm)
+        {
+            this._providers = vm._providers;
+            this._dialogs = vm._dialogs;
+            this._AskTOB = vm.AskTOB;
+            this._AskTOB_SPLIT = vm.AskTOB_SPLIT;
+            this._BidTOB = vm.BidTOB;
+            this._BidTOB_SPLIT = vm.BidTOB_SPLIT;
+            this._ChartMaximumValue_Y = vm.ChartMaximumValue_Y;
+            this._ChartMinimumValue_Y = vm.ChartMinimumValue_Y;
+            this._orderBook =  vm.OrderBook;
+            this._realTimePrices = vm.RealTimePrices;
+            this._realTimeSpread = vm.RealTimeSpread;
+            this._selectedSymbol = vm.SelectedSymbol;
+            this._selectedProvider = vm.SelectedProvider;
+            this._layerName = vm.SelectedLayer;
+            this._MidPoint = vm.MidPoint;
+            this._bidBubbleSeriesVerticalAxis = vm.BidBubbleSeriesVerticalAxis;
+        }
         private void TimerUI_Tick(object sender, EventArgs e)
         {
 

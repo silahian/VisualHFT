@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using VisualHFT.Helpers;
 
 namespace VisualHFT.View
 {
@@ -45,16 +46,25 @@ namespace VisualHFT.View
             ucOrderBook ucSelf = (ucOrderBook)property;
             ucSelf.SelectedLayer = (string)args.NewValue;
         }
-
-        private void chtPrice_PlotAreaClipChanged(object sender, System.EventArgs e)
+        private void butPopPriceChart_Click(object sender, RoutedEventArgs e)
         {
-            /*var mainAxis = MainAxis.ActualRange;
-            
-            BubbleAxisAsk.Minimum = mainAxis.Minimum;
-            BubbleAxisAsk.Maximum = mainAxis.Maximum;
+            //var newViewModel = new ViewModel.vmOrderBook((ViewModel.vmOrderBook)this.DataContext);
+            var newViewModel = (ViewModel.vmOrderBook)this.DataContext;
+            HelperCommon.CreateCommonPopUpWindow(chtPrice, (Button) sender, newViewModel);
+        }
 
-            BubbleAxisBid.Minimum = mainAxis.Minimum;
-            BubbleAxisBid.Maximum = mainAxis.Maximum;*/
+        private void butPopSpreadChart_Click(object sender, RoutedEventArgs e)
+        {
+            //var newViewModel = new ViewModel.vmOrderBook((ViewModel.vmOrderBook)this.DataContext);
+            var newViewModel = (ViewModel.vmOrderBook)this.DataContext;
+            HelperCommon.CreateCommonPopUpWindow(chtSpread, (Button)sender, newViewModel);
+        }
+
+        private void butPopSymbol_Click(object sender, RoutedEventArgs e)
+        {
+            //var newViewModel = new ViewModel.vmOrderBook((ViewModel.vmOrderBook)this.DataContext);
+            var newViewModel = (ViewModel.vmOrderBook)this.DataContext;
+            HelperCommon.CreateCommonPopUpWindow(grdSymbol, (Button)sender,  newViewModel, "Symbol", 450, 600);
         }
     }
 }

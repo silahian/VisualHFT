@@ -34,91 +34,159 @@
         </Grid.Resources>
         <Grid VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="500" />
+                <ColumnDefinition Width="450" />
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="300"/>
+                <RowDefinition Height="260"/>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="10" />
             </Grid.RowDefinitions>
 
             <!--PROVIDER & SYMBOL-->
-            <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <StackPanel Orientation="Vertical">
                     <!--SELECT PROVIDER-->
                     <GroupBox Style="{DynamicResource MaterialDesignCardGroupBox}" Header="Provider" BorderBrush="#DBD0C6" VerticalAlignment="Top">
                         <ComboBox ItemsSource="{Binding Path=Providers}" SelectedItem="{Binding SelectedProvider}" DisplayMemberPath="ProviderName" SelectedIndex="0" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
                     </GroupBox>
-                    <!--BID/ASK Prices BOX-->
-                    <GroupBox Style="{DynamicResource MaterialDesignCardGroupBox}" Header="{Binding SelectedSymbol}" BorderBrush="#DBD0C6" FontSize="26" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <Grid>
+                    <Grid>
+                        <Button x:Name="butPopSymbol" ToolTip="Open this section into a new popup-Window" Click="butPopSymbol_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="999" Margin="0" Padding="0" Height="20" Width="20">
+                            <Image Source="/Images/pop-up.png" />
+                        </Button>
+                        <Grid x:Name="grdSymbol">
                             <Grid.RowDefinitions>
-                                <RowDefinition />
+                                <RowDefinition Height="200"/>
+                                <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <!--BID-->
-                            <Grid Margin="5" Grid.Column="0" Background="#434D4C">
-                                <Grid.Resources>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#39AEDD"/>
-                                    </Style>
-                                </Grid.Resources>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition Height="60"  />
-                                    <RowDefinition Height="20" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="20" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding BidTOB_SPLIT.Rest}" FontFamily="Verdana" FontWeight="Bold" FontSize="25"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="5,0,0,0" />
-                                <TextBlock Text="{Binding BidTOB_SPLIT.NextTwoDecimals}" FontFamily="Verdana" FontWeight="Bold" FontSize="54" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
-                                <TextBlock Text="{Binding BidTOB_SPLIT.LastDecimal}"  FontFamily="Verdana" FontWeight="Bold" FontSize="26"  Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,3,8" />
-                                <TextBlock Text="{Binding BidTOB_SPLIT.Size}"  FontFamily="Verdana" FontWeight="Bold" FontSize="18"  Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom"  />
-                            </Grid>
-                            <!--ASK-->
-                            <Grid Margin="5" Grid.Column="1" Background="#434D4C">
-                                <Grid.Resources>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#39AEDD"/>
-                                    </Style>
-                                </Grid.Resources>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition Height="60" />
-                                    <RowDefinition Height="20" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="20" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding AskTOB_SPLIT.Rest}" FontFamily="Verdana" FontWeight="Bold" FontSize="25"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="5,0,0,0"/>
-                                <TextBlock Text="{Binding AskTOB_SPLIT.NextTwoDecimals}" FontFamily="Verdana" FontWeight="Bold" FontSize="54" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
-                                <TextBlock Text="{Binding AskTOB_SPLIT.LastDecimal}"  FontFamily="Verdana" FontWeight="Bold" FontSize="26"  Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,3,8" />
-                                <TextBlock Text="{Binding AskTOB_SPLIT.Size}" FontFamily="Verdana" FontWeight="Bold" FontSize="18"  Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom"  />
-                            </Grid>
-                            <Grid Grid.Column="0" Grid.ColumnSpan="2" Margin="0 0 0 0" VerticalAlignment="Bottom" >
-                                <Grid.Resources>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="White"/>
-                                        <Setter Property="FontFamily" Value="Verdana"/>
-                                        <Setter Property="FontWeight" Value="Bold" />
-                                        <Setter Property="FontSize" Value="16" />
-                                        <Setter Property="HorizontalAlignment" Value="Center" />
-                                    </Style>
-                                </Grid.Resources>
-                                <Border BorderBrush="WhiteSmoke" BorderThickness="2" Height="25" Width="80" Background="#434D4C"  >
-                                    <TextBlock Text="{Binding Spread, StringFormat=N2}" />
-                                </Border>
+                            <!--BID/ASK Prices BOX-->
+                            <GroupBox x:Name="grpSymbol" Grid.Row="0" Style="{DynamicResource MaterialDesignCardGroupBox}" Header="{Binding SelectedSymbol}" BorderBrush="#DBD0C6" FontSize="26" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid >
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <!--BID-->
+                                    <Grid Margin="5" Grid.Column="0" Background="#434D4C">
+                                        <Grid.Resources>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="#39AEDD"/>
+                                            </Style>
+                                        </Grid.Resources>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition Height="60"  />
+                                            <RowDefinition Height="20" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="20" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding BidTOB_SPLIT.Rest}" FontFamily="Verdana" FontWeight="Bold" FontSize="25"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="5,0,0,0" />
+                                        <TextBlock Text="{Binding BidTOB_SPLIT.NextTwoDecimals}" FontFamily="Verdana" FontWeight="Bold" FontSize="54" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+                                        <TextBlock Text="{Binding BidTOB_SPLIT.LastDecimal}"  FontFamily="Verdana" FontWeight="Bold" FontSize="26"  Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,3,8" />
+                                        <TextBlock Text="{Binding BidTOB_SPLIT.Size}"  FontFamily="Verdana" FontWeight="Bold" FontSize="18"  Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom"  />
+                                    </Grid>
+                                    <!--ASK-->
+                                    <Grid Margin="5" Grid.Column="1" Background="#434D4C">
+                                        <Grid.Resources>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="#39AEDD"/>
+                                            </Style>
+                                        </Grid.Resources>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition Height="60" />
+                                            <RowDefinition Height="20" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="20" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding AskTOB_SPLIT.Rest}" FontFamily="Verdana" FontWeight="Bold" FontSize="25"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="5,0,0,0"/>
+                                        <TextBlock Text="{Binding AskTOB_SPLIT.NextTwoDecimals}" FontFamily="Verdana" FontWeight="Bold" FontSize="54" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+                                        <TextBlock Text="{Binding AskTOB_SPLIT.LastDecimal}"  FontFamily="Verdana" FontWeight="Bold" FontSize="26"  Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,3,8" />
+                                        <TextBlock Text="{Binding AskTOB_SPLIT.Size}" FontFamily="Verdana" FontWeight="Bold" FontSize="18"  Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom"  />
+                                    </Grid>
+                                    <Grid Grid.Column="0" Grid.ColumnSpan="2" Margin="0 0 0 0" VerticalAlignment="Bottom" >
+                                        <Grid.Resources>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="White"/>
+                                                <Setter Property="FontFamily" Value="Verdana"/>
+                                                <Setter Property="FontWeight" Value="Bold" />
+                                                <Setter Property="FontSize" Value="16" />
+                                                <Setter Property="HorizontalAlignment" Value="Center" />
+                                            </Style>
+                                        </Grid.Resources>
+                                        <Border BorderBrush="WhiteSmoke" BorderThickness="2" Height="25" Width="80" Background="#434D4C"  >
+                                            <TextBlock Text="{Binding Spread, StringFormat=N2}" />
+                                        </Border>
 
+                                    </Grid>
+                                </Grid>
+                            </GroupBox>
+                            <!--DATAGRID BID/ASK-->
+                            <Grid Grid.Row="1" Grid.Column="0" VerticalAlignment="Stretch" >
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <!--BIDS-->
+                                <DataGrid ItemsSource="{Binding Bids}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="0" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader" HeadersVisibility="Column" AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" IsHitTestVisible="False" EnableRowVirtualization="True" EnableColumnVirtualization="False" Padding="0">
+                                    <DataGrid.RowStyle>
+                                        <Style TargetType="DataGridRow">
+                                            <Setter Property="Height" Value="26" />
+                                            <Setter Property="Padding" Value="0" />
+                                            <Setter Property="Margin" Value="0" />
+                                            <Style.Triggers>
+                                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                                    <Setter Property="Background" Value="Transparent"/>
+                                                </Trigger>
+                                                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                                    <Setter Property="Background" Value="Black"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.RowStyle>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="*" Foreground="LightGreen" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
+                                        <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="*" Foreground="LightGreen" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
+                                        <DataGridTextColumn Header="A" Binding="{Binding ActiveSize, Converter={StaticResource KiloFormatter}, TargetNullValue={x:Static System:String.Empty}}" Width="50" Foreground="DarkGreen" FontWeight="Bold" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <!--ENDS BIDS-->
+                                <!--ASKS-->
+                                <DataGrid ItemsSource="{Binding Asks}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="1" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" IsHitTestVisible="False" EnableRowVirtualization="False">
+                                    <DataGrid.RowStyle>
+                                        <Style TargetType="DataGridRow">
+                                            <Setter Property="Height" Value="26" />
+                                            <Setter Property="Padding" Value="0" />
+                                            <Setter Property="Margin" Value="0" />
+                                            <Style.Triggers>
+                                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                                    <Setter Property="Background" Value="Transparent"/>
+                                                </Trigger>
+                                                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                                    <Setter Property="Background" Value="Black"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.RowStyle>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="A" Binding="{Binding ActiveSize, Converter={StaticResource KiloFormatter}, TargetNullValue={x:Static System:String.Empty}}" Width="50" Foreground="DarkRed" FontWeight="Bold"  />
+                                        <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="*"  Foreground="Pink" />
+                                        <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="*" Foreground="Pink" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <!--ENDS ASKS-->
                             </Grid>
+                        
                         </Grid>
-                    </GroupBox>
+                    </Grid>
                 </StackPanel>
             </Grid>
             <!--LOB CUMULATIVER CHART-->
@@ -131,9 +199,9 @@
                     <RowDefinition />
                     <RowDefinition Height="20"/>
                 </Grid.RowDefinitions>
-                            
-                <telerik:RadCartesianChart x:Name="chartOrderBookBids" Palette="Pastel" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="0" >
-                    <telerik:ScatterAreaSeries x:Name="Bids" ItemsSource="{Binding BidCummulative}" XValueBinding="Price" YValueBinding="Size" ClipToPlotArea="True" Fill="DarkGreen" >
+
+                <telerik:RadCartesianChart x:Name="chartOrderBookBids" Palette="Pastel" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="0" IsEnabled="False" telerik:AnimationManager.IsAnimationEnabled="False" RenderOptions.BitmapScalingMode="LowQuality">
+                    <telerik:ScatterAreaSeries x:Name="Bids" ItemsSource="{Binding BidCummulative}" XValueBinding="Price" YValueBinding="Size" ClipToPlotArea="True" Fill="DarkGreen" IsEnabled="False" telerik:AnimationManager.IsAnimationEnabled="False" >
                         <telerik:ScatterAreaSeries.AreaShapeStyle>
                             <Style TargetType="Path">
                                 <Setter Property="StrokeThickness" Value="3"/>
@@ -177,9 +245,12 @@
                         <telerik:CartesianGridLineAnnotation Axis="{Binding HorizontalAxis, ElementName=chartOrderBook}" Value="{Binding MidPoint}"  />
                     </telerik:RadCartesianChart.Annotations>
                     <!--END ANNOTATIONS-->
+                    <telerik:RadCartesianChart.Behaviors>
+                        <telerik:ChartPanAndZoomBehavior ZoomMode="None" PanMode="None" />
+                    </telerik:RadCartesianChart.Behaviors>
                 </telerik:RadCartesianChart>
-                <telerik:RadCartesianChart x:Name="chartOrderBookAsks" Palette="Pastel" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1">
-                    <telerik:ScatterAreaSeries x:Name="Asks" ItemsSource="{Binding AskCummulative}" XValueBinding="Price" YValueBinding="Size" ClipToPlotArea="True" Fill="DarkRed" >
+                <telerik:RadCartesianChart x:Name="chartOrderBookAsks" Palette="Pastel" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" IsEnabled="False" telerik:AnimationManager.IsAnimationEnabled="False" RenderOptions.BitmapScalingMode="LowQuality">
+                    <telerik:ScatterAreaSeries  x:Name="Asks" ItemsSource="{Binding AskCummulative}" XValueBinding="Price" YValueBinding="Size" ClipToPlotArea="True" Fill="DarkRed" IsEnabled="False" telerik:AnimationManager.IsAnimationEnabled="False" >
                         <telerik:ScatterAreaSeries.AreaShapeStyle>
                             <Style TargetType="Path">
                                 <Setter Property="StrokeThickness" Value="3"/>
@@ -223,6 +294,9 @@
                         <telerik:CartesianGridLineAnnotation Axis="{Binding HorizontalAxis, ElementName=chartOrderBook}" Value="{Binding MidPoint}"  />
                     </telerik:RadCartesianChart.Annotations>
                     <!--END ANNOTATIONS-->
+                    <telerik:RadCartesianChart.Behaviors>
+                        <telerik:ChartPanAndZoomBehavior ZoomMode="None" PanMode="None" />
+                    </telerik:RadCartesianChart.Behaviors>
                 </telerik:RadCartesianChart>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.Row="1" Grid.ColumnSpan="2" >
@@ -231,167 +305,124 @@
                     <TextBlock Text="%" Margin="5,3,0,0"></TextBlock>
                 </StackPanel>
             </Grid>
-            <!--END LOB CUMULATIVER CHART-->
-
-            
-            <!--DATAGRID BID/ASK-->
-            <Grid Grid.Row="1" Grid.Column="0" VerticalAlignment="Stretch" >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <!--BIDS-->
-                <DataGrid ItemsSource="{Binding Bids}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="0" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader" HeadersVisibility="Column" AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" IsHitTestVisible="False" EnableRowVirtualization="True" EnableColumnVirtualization="False" Padding="0">
-                    <DataGrid.RowStyle>
-                        <Style TargetType="DataGridRow">
-                            <Setter Property="Height" Value="26" />
-                            <Setter Property="Padding" Value="0" />
-                            <Setter Property="Margin" Value="0" />
-                            <Style.Triggers>
-                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                </Trigger>
-                                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                    <Setter Property="Background" Value="Black"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGrid.RowStyle>
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="*" Foreground="LightGreen" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
-                        <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="*" Foreground="LightGreen" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
-                        <DataGridTextColumn Header="A" Binding="{Binding ActiveSize, Converter={StaticResource KiloFormatter}, TargetNullValue={x:Static System:String.Empty}}" Width="50" Foreground="DarkGreen" FontWeight="Bold" />
-                    </DataGrid.Columns>
-                </DataGrid>
-
-                <!--ENDS BIDS-->
-                <!--ASKS-->
-                <DataGrid ItemsSource="{Binding Asks}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="1" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" IsHitTestVisible="False" EnableRowVirtualization="False">
-                    <DataGrid.RowStyle>
-                        <Style TargetType="DataGridRow">
-                            <Setter Property="Height" Value="26" />
-                            <Setter Property="Padding" Value="0" />
-                            <Setter Property="Margin" Value="0" />
-                            <Style.Triggers>
-                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                </Trigger>
-                                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                    <Setter Property="Background" Value="Black"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGrid.RowStyle>
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="A" Binding="{Binding ActiveSize, Converter={StaticResource KiloFormatter}, TargetNullValue={x:Static System:String.Empty}}" Width="50" Foreground="DarkRed" FontWeight="Bold"  />
-                        <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="*"  Foreground="Pink" />
-                        <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="*" Foreground="Pink" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-                <!--ENDS ASKS-->
-            </Grid>
+            <!--END LOB CUMULATIVER CHART-->                        
             <!--CHARTS: Price and Spread-->
             <Grid Grid.Row="1" Grid.Column="1" VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="75*"/>
                     <RowDefinition Height="25*"/>
                 </Grid.RowDefinitions>
-                <!--PRICE CHART-->
-                <telerik:RadCartesianChart Grid.Row="0" x:Name="chtPrice" PlotAreaClipChanged="chtPrice_PlotAreaClipChanged">
-                    <!--AXIS-->
-                    <telerik:RadCartesianChart.HorizontalAxis>
-                        <telerik:DateTimeContinuousAxis FontSize="7" FontFamily ="Verdana" MajorStepUnit="Second" MajorStep="1" LabelFormat="H:mm:ss" >
-                            <telerik:DateTimeContinuousAxis.LabelStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="TextAlignment" Value="Right" />
+                <Grid Grid.Column="0" Grid.Row="0" >
+                    <Button x:Name="butPopPriceChart" ToolTip="Open this section into a new popup-Window" Click="butPopPriceChart_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="999" Margin="0,0,50,0" Padding="0" Height="20" Width="20">
+                        <Image Source="/Images/pop-up.png" />
+                    </Button>
+                    <!--PRICE CHART-->
+                    <telerik:RadCartesianChart Grid.Row="0" x:Name="chtPrice" IsEnabled="False" telerik:AnimationManager.IsAnimationEnabled="False" RenderOptions.BitmapScalingMode="LowQuality">
+                        <!--AXIS-->
+                        <telerik:RadCartesianChart.HorizontalAxis>
+                            <telerik:DateTimeContinuousAxis FontSize="7" FontFamily ="Verdana" MajorStepUnit="Second" MajorStep="1" LabelFormat="H:mm:ss" >
+                                <telerik:DateTimeContinuousAxis.LabelStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right" />
+                                    </Style>
+                                </telerik:DateTimeContinuousAxis.LabelStyle>
+                            </telerik:DateTimeContinuousAxis>
+                        </telerik:RadCartesianChart.HorizontalAxis>
+                        <telerik:RadCartesianChart.VerticalAxis>
+                            <telerik:LinearAxis x:Name="MainAxis" HorizontalLocation="Right" FontSize="8" FontFamily="Verdana" >
+                                <telerik:LinearAxis.LabelTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource KiloFormatter}}" />
+                                    </DataTemplate>
+                                </telerik:LinearAxis.LabelTemplate>
+                            </telerik:LinearAxis>
+                        </telerik:RadCartesianChart.VerticalAxis>
+
+                       <!--END AXIS-->
+
+
+                        <telerik:LineSeries ItemsSource="{Binding RealTimePrices}" CategoryBinding="Date" ValueBinding="MidPrice" Stroke="Gray" StrokeThickness="0.5" IsEnabled="False"  telerik:AnimationManager.IsAnimationEnabled="False" />
+                        <telerik:LineSeries ItemsSource="{Binding RealTimePrices}" CategoryBinding="Date" ValueBinding="AskPrice" Stroke="Red" StrokeThickness="1"  IsEnabled="False"  telerik:AnimationManager.IsAnimationEnabled="False" />
+                        <telerik:LineSeries ItemsSource="{Binding RealTimePrices}" CategoryBinding="Date" ValueBinding="BidPrice" Stroke="Green" StrokeThickness="1"  IsEnabled="False"  telerik:AnimationManager.IsAnimationEnabled="False" />
+
+                        <telerik:PointSeries ItemsSource="{Binding RealTimePrices}" CategoryBinding="Date" ValueBinding="BuyActiveOrder" PointSize="3,3" ZIndex="9999" IsEnabled="False" telerik:AnimationManager.IsAnimationEnabled="False" >
+                            <telerik:PointSeries.DefaultVisualStyle>
+                                <Style TargetType="Path">
+                                    <Setter Property="Fill" Value="Green"/>
+                                    <Setter Property="Stroke" Value="LightGreen"/>
+                                    <Setter Property="StrokeThickness" Value="1"/>
                                 </Style>
-                            </telerik:DateTimeContinuousAxis.LabelStyle>
-                        </telerik:DateTimeContinuousAxis>
-                    </telerik:RadCartesianChart.HorizontalAxis>
-                    <telerik:RadCartesianChart.VerticalAxis>
-                        <telerik:LinearAxis x:Name="MainAxis" HorizontalLocation="Right" FontSize="8" FontFamily="Verdana" >
-                            <telerik:LinearAxis.LabelTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Converter={StaticResource KiloFormatter}}" />
-                                </DataTemplate>
-                            </telerik:LinearAxis.LabelTemplate>
-                        </telerik:LinearAxis>
-                    </telerik:RadCartesianChart.VerticalAxis>
-
-                   <!--END AXIS-->
-
-
-                    <telerik:LineSeries ItemsSource="{Binding RealTimePrices}" CategoryBinding="Date" ValueBinding="MidPrice" Stroke="Gray" StrokeThickness="0.5" />
-                    <telerik:LineSeries ItemsSource="{Binding RealTimePrices}" CategoryBinding="Date" ValueBinding="AskPrice" Stroke="Red" StrokeThickness="1" />
-                    <telerik:LineSeries ItemsSource="{Binding RealTimePrices}" CategoryBinding="Date" ValueBinding="BidPrice" Stroke="Green" StrokeThickness="1" />
-
-                    <telerik:PointSeries ItemsSource="{Binding RealTimePrices}" CategoryBinding="Date" ValueBinding="BuyActiveOrder" PointSize="3,3" ZIndex="9999" >
-                        <telerik:PointSeries.DefaultVisualStyle>
-                            <Style TargetType="Path">
-                                <Setter Property="Fill" Value="Green"/>
-                                <Setter Property="Stroke" Value="LightGreen"/>
-                                <Setter Property="StrokeThickness" Value="1"/>
-                            </Style>
-                        </telerik:PointSeries.DefaultVisualStyle>
-                    </telerik:PointSeries>
-                    <telerik:PointSeries ItemsSource="{Binding RealTimePrices}" CategoryBinding="Date" ValueBinding="SellActiveOrder" PointSize="3,3" ZIndex="9999" >
-                        <telerik:PointSeries.DefaultVisualStyle>
-                            <Style TargetType="Path">
-                                <Setter Property="Fill" Value="Red"/>
-                                <Setter Property="Stroke" Value="Pink"/>
-                                <Setter Property="StrokeThickness" Value="1"/>
-                            </Style>
-                        </telerik:PointSeries.DefaultVisualStyle>
-                    </telerik:PointSeries>
-
-
-                    <telerik:BubbleSeries ClipToPlotArea="True" ItemsSource="{Binding RealTimeOrderLevelsBid}" CategoryBinding="Date" ValueBinding="Price" BubbleSizeBinding="Size" >
-                        <telerik:BubbleSeries.PointTemplate>
-                            <DataTemplate>
-                                <Ellipse Fill="Green" Stroke="Black" />
-                            </DataTemplate>
-                        </telerik:BubbleSeries.PointTemplate>
-                    </telerik:BubbleSeries>
-                    <telerik:BubbleSeries  ClipToPlotArea="True" ItemsSource="{Binding RealTimeOrderLevelsAsk}" CategoryBinding="Date" ValueBinding="Price"  BubbleSizeBinding="Size" >
-                        <telerik:BubbleSeries.PointTemplate>
-                            <DataTemplate>
-                                <Ellipse Fill="Red" Stroke="Black" />
-                            </DataTemplate>
-                        </telerik:BubbleSeries.PointTemplate>
-                    </telerik:BubbleSeries>
-
-
-                </telerik:RadCartesianChart>
-                <!--END PRICE CHART-->
-
-                <!--SPREAD CHART-->
-                <telerik:RadCartesianChart Grid.Row="1">
-                    <!--AXIS-->
-                    <telerik:RadCartesianChart.HorizontalAxis>
-                        <telerik:DateTimeContinuousAxis FontSize="7" FontFamily ="Verdana" MajorStepUnit="Minute" MajorStep="10" LabelFormat="H:mm" >
-                            <telerik:DateTimeContinuousAxis.LabelStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="TextAlignment" Value="Right" />
+                            </telerik:PointSeries.DefaultVisualStyle>
+                        </telerik:PointSeries>
+                        <telerik:PointSeries ItemsSource="{Binding RealTimePrices}" CategoryBinding="Date" ValueBinding="SellActiveOrder" PointSize="3,3" ZIndex="9999"  IsEnabled="False" telerik:AnimationManager.IsAnimationEnabled="False">
+                            <telerik:PointSeries.DefaultVisualStyle>
+                                <Style TargetType="Path">
+                                    <Setter Property="Fill" Value="Red"/>
+                                    <Setter Property="Stroke" Value="Pink"/>
+                                    <Setter Property="StrokeThickness" Value="1"/>
                                 </Style>
-                            </telerik:DateTimeContinuousAxis.LabelStyle>
-                        </telerik:DateTimeContinuousAxis>
-                    </telerik:RadCartesianChart.HorizontalAxis>
-                    <telerik:RadCartesianChart.VerticalAxis>
-                        <telerik:LinearAxis HorizontalLocation="Right" FontSize="8" FontFamily="Verdana">
-                            <telerik:LinearAxis.LabelTemplate>
+                            </telerik:PointSeries.DefaultVisualStyle>
+                        </telerik:PointSeries>
+
+
+                        <telerik:BubbleSeries ClipToPlotArea="True" ItemsSource="{Binding RealTimeOrderLevelsBid}" CategoryBinding="Date" ValueBinding="Price" BubbleSizeBinding="Size"  IsEnabled="False">
+                            <telerik:BubbleSeries.PointTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Converter={StaticResource KiloFormatter}}" Margin="1"/>
+                                    <Ellipse Fill="Green" Stroke="Black" />
                                 </DataTemplate>
-                            </telerik:LinearAxis.LabelTemplate>
-                        </telerik:LinearAxis>
-                    </telerik:RadCartesianChart.VerticalAxis>
-                    <!--END AXIS-->
+                            </telerik:BubbleSeries.PointTemplate>
+                        </telerik:BubbleSeries>
+                        <telerik:BubbleSeries  ClipToPlotArea="True" ItemsSource="{Binding RealTimeOrderLevelsAsk}" CategoryBinding="Date" ValueBinding="Price"  BubbleSizeBinding="Size"  IsEnabled="False">
+                            <telerik:BubbleSeries.PointTemplate>
+                                <DataTemplate>
+                                    <Ellipse Fill="Red" Stroke="Black" />
+                                </DataTemplate>
+                            </telerik:BubbleSeries.PointTemplate>
+                        </telerik:BubbleSeries>
 
-                    <telerik:LineSeries ItemsSource="{Binding RealTimeSpread}" CategoryBinding="Date" ValueBinding="MidPrice" Stroke="Blue" StrokeThickness="2" >
-                    </telerik:LineSeries>
+                        <telerik:RadCartesianChart.Behaviors>
+                            <telerik:ChartPanAndZoomBehavior ZoomMode="None" PanMode="None" />
+                        </telerik:RadCartesianChart.Behaviors>
 
-                </telerik:RadCartesianChart>
-                <!--END SPREAD CHART-->
+                    </telerik:RadCartesianChart>
+                    <!--END PRICE CHART-->
+                </Grid>
+                <Grid Grid.Column="0" Grid.Row="1" >
+                    <Button x:Name="butPopSpreadChart" ToolTip="Open this section into a new popup-Window" Click="butPopSpreadChart_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="999" Margin="0,0,50,0" Padding="0" Height="20" Width="20">
+                        <Image Source="/Images/pop-up.png" />
+                    </Button>
+                    <!--SPREAD CHART-->
+                    <telerik:RadCartesianChart x:Name="chtSpread" Grid.Row="1" IsEnabled="False" telerik:AnimationManager.IsAnimationEnabled="False" RenderOptions.BitmapScalingMode="LowQuality">
+                        <!--AXIS-->
+                        <telerik:RadCartesianChart.HorizontalAxis>
+                            <telerik:DateTimeContinuousAxis FontSize="7" FontFamily ="Verdana" MajorStepUnit="Minute" MajorStep="10" LabelFormat="H:mm" >
+                                <telerik:DateTimeContinuousAxis.LabelStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right" />
+                                    </Style>
+                                </telerik:DateTimeContinuousAxis.LabelStyle>
+                            </telerik:DateTimeContinuousAxis>
+                        </telerik:RadCartesianChart.HorizontalAxis>
+                        <telerik:RadCartesianChart.VerticalAxis>
+                            <telerik:LogarithmicAxis HorizontalLocation="Right" FontSize="8" FontFamily="Verdana">
+                                <telerik:LogarithmicAxis.LabelTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource KiloFormatter}}" Margin="1"/>
+                                    </DataTemplate>
+                                </telerik:LogarithmicAxis.LabelTemplate>
+                            </telerik:LogarithmicAxis>
+                        </telerik:RadCartesianChart.VerticalAxis>
+                        <!--END AXIS-->
+
+                        <telerik:LineSeries ItemsSource="{Binding RealTimeSpread}" CategoryBinding="Date" ValueBinding="MidPrice" Stroke="Blue" StrokeThickness="2" IsEnabled="False"  telerik:AnimationManager.IsAnimationEnabled="False" >
+                        </telerik:LineSeries>
+                        <telerik:RadCartesianChart.Behaviors>
+                            <telerik:ChartPanAndZoomBehavior ZoomMode="None" PanMode="None" />
+                        </telerik:RadCartesianChart.Behaviors>
+
+                    </telerik:RadCartesianChart>
+                    <!--END SPREAD CHART-->
+                </Grid>
             </Grid>
         </Grid>
 

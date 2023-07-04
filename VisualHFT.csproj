@@ -449,6 +449,8 @@
     <Resource Include="Images\refresh.png" />
     <Resource Include="Images\database.png" />
     <Resource Include="Images\sendingParam.png" />
+    <Resource Include="Images\new-window.png" />
+    <Resource Include="Images\pop-up.png" />
     <Content Include="Model\hftModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>hftModel.Context1.cs</LastGenOutput>
