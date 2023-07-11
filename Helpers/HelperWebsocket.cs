@@ -53,7 +53,7 @@ namespace VisualHFT.Helpers
                 while(true)
                 {
                     ProcessQueue();
-                    Thread.Sleep(5);
+                    Thread.Sleep(100);
                 }
             }).Start();
         }

@@ -1,0 +1,570 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="hftModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="BlotterExecutions">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Symbol" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ClOrdId" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ExecID" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="LocalTimeStamp" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="ServerTimeStamp" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="Price" Type="decimal" Precision="18" Scale="6" />
+          <Property Name="ProviderID" Type="int" Nullable="false" />
+          <Property Name="QtyFilled" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="Side" Type="int" />
+          <Property Name="Status" Type="int" />
+        </EntityType>
+        <EntityType Name="CloseExecutions">
+          <Key>
+            <PropertyRef Name="ExecutionID" />
+          </Key>
+          <Property Name="ExecutionID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PositionID" Type="bigint" Nullable="false" />
+          <Property Name="ClOrdId" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ExecID" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="LocalTimeStamp" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="ServerTimeStamp" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="Price" Type="decimal" Precision="18" Scale="6" />
+          <Property Name="ProviderID" Type="int" Nullable="false" />
+          <Property Name="QtyFilled" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="Side" Type="int" />
+          <Property Name="Status" Type="int" />
+          <Property Name="IsOpen" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OpenExecutions">
+          <Key>
+            <PropertyRef Name="ExecutionID" />
+          </Key>
+          <Property Name="ExecutionID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PositionID" Type="bigint" Nullable="false" />
+          <Property Name="ClOrdId" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ExecID" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="LocalTimeStamp" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="ServerTimeStamp" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="Price" Type="decimal" Precision="18" Scale="6" />
+          <Property Name="ProviderID" Type="int" Nullable="false" />
+          <Property Name="QtyFilled" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="Side" Type="int" />
+          <Property Name="Status" Type="int" />
+          <Property Name="IsOpen" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Positions">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PositionID" Type="bigint" Nullable="false" />
+          <Property Name="AttemptsToClose" Type="int" Nullable="false" />
+          <Property Name="CloseClOrdId" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="CloseProviderId" Type="int" Nullable="false" />
+          <Property Name="CloseQuoteId" Type="int" />
+          <Property Name="CloseQuoteLocalTimeStamp" Type="datetime2" Precision="7" />
+          <Property Name="CloseQuoteServerTimeStamp" Type="datetime2" Precision="7" />
+          <Property Name="CloseStatus" Type="int" Nullable="false" />
+          <Property Name="CloseTimeStamp" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="CreationTimeStamp" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="Currency" Type="varchar" MaxLength="10" />
+          <Property Name="FreeText" Type="varchar(max)" />
+          <Property Name="FutSettDate" Type="date" />
+          <Property Name="GetCloseAvgPrice" Type="decimal" Precision="18" Scale="6" Nullable="false" />
+          <Property Name="GetCloseQuantity" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="GetOpenAvgPrice" Type="decimal" Precision="18" Scale="6" Nullable="false" />
+          <Property Name="GetOpenQuantity" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="GetPipsPnL" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="IsCloseMM" Type="bit" Nullable="false" />
+          <Property Name="IsOpenMM" Type="bit" Nullable="false" />
+          <Property Name="MaxDrowdown" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="OpenClOrdId" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="OpenProviderId" Type="int" Nullable="false" />
+          <Property Name="OpenQuoteId" Type="int" />
+          <Property Name="OpenQuoteLocalTimeStamp" Type="datetime2" Precision="7" />
+          <Property Name="OpenQuoteServerTimeStamp" Type="datetime2" Precision="7" />
+          <Property Name="OpenStatus" Type="int" Nullable="false" />
+          <Property Name="OrderQuantity" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PipsTrail" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Side" Type="int" Nullable="false" />
+          <Property Name="StopLoss" Type="decimal" Precision="18" Scale="6" Nullable="false" />
+          <Property Name="StrategyCode" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Symbol" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="SymbolDecimals" Type="int" Nullable="false" />
+          <Property Name="SymbolMultiplier" Type="int" Nullable="false" />
+          <Property Name="TakeProfit" Type="decimal" Precision="18" Scale="6" Nullable="false" />
+          <Property Name="UnrealizedPnL" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="OpenBestBid" Type="decimal" Precision="18" Scale="6" />
+          <Property Name="OpenBestAsk" Type="decimal" Precision="18" Scale="6" />
+          <Property Name="CloseBestBid" Type="decimal" Precision="18" Scale="6" />
+          <Property Name="CloseBestAsk" Type="decimal" Precision="18" Scale="6" />
+          <Property Name="OpenOriginPartyID" Type="varchar" MaxLength="50" />
+          <Property Name="CloseOriginPartyID" Type="varchar" MaxLength="50" />
+          <Property Name="LayerName" Type="varchar" MaxLength="50" />
+          <Property Name="OpenFireSignalTimestamp" Type="datetime2" Precision="7" />
+          <Property Name="CloseFireSignalTimestamp" Type="datetime2" Precision="7" />
+          <Property Name="PipsPnLInCurrency" Type="decimal" Precision="18" Scale="2" />
+        </EntityType>
+        <EntityType Name="Providers">
+          <Key>
+            <PropertyRef Name="ProviderCode" />
+          </Key>
+          <Property Name="ProviderCode" Type="int" Nullable="false" />
+          <Property Name="ProviderName" Type="varchar" MaxLength="501" Nullable="false" />
+        </EntityType>
+        <EntityType Name="STRATEGY_PARAMETERS_FIRMMM">
+          <Key>
+            <PropertyRef Name="StrategyParamID" />
+          </Key>
+          <Property Name="StrategyParamID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Symbol" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="LayerName" Type="varchar" MaxLength="50" />
+          <Property Name="PositionSize" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="MaximumExposure" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="LookUpBookForSize" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PipsMarkupBid" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PipsMarkupAsk" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="MinPipsDiffToUpdatePrice" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="MinSpread" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PipsSlippage" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="AggressingToHedge" Type="bit" Nullable="false" />
+          <Property Name="PipsSlippageToHedge" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PipsHedgeTakeProf" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PipsHedgeStopLoss" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PipsHedgeTrailing" Type="bit" Nullable="false" />
+          <Property Name="TickSample" Type="int" Nullable="false" />
+          <Property Name="BollingerPeriod" Type="int" Nullable="false" />
+          <Property Name="BollingerStdDev" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PricingType" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="StrategyParameters">
+          <Key>
+            <PropertyRef Name="StrategyParamID" />
+          </Key>
+          <Property Name="StrategyParamID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="StrategyName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Key" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Value" Type="varchar" MaxLength="500" Nullable="false" />
+          <Property Name="Type" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_CloseExecutions_Positions">
+          <End Role="Positions" Type="Self.Positions" Multiplicity="1" />
+          <End Role="CloseExecutions" Type="Self.CloseExecutions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Positions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="CloseExecutions">
+              <PropertyRef Name="PositionID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OpenExecutions_Positions">
+          <End Role="Positions" Type="Self.Positions" Multiplicity="1" />
+          <End Role="OpenExecutions" Type="Self.OpenExecutions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Positions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="OpenExecutions">
+              <PropertyRef Name="PositionID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="hftModelStoreContainer">
+          <EntitySet Name="BlotterExecutions" EntityType="Self.BlotterExecutions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CloseExecutions" EntityType="Self.CloseExecutions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OpenExecutions" EntityType="Self.OpenExecutions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Positions" EntityType="Self.Positions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Providers" EntityType="Self.Providers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="STRATEGY_PARAMETERS_FIRMMM" EntityType="Self.STRATEGY_PARAMETERS_FIRMMM" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="StrategyParameters" EntityType="Self.StrategyParameters" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_CloseExecutions_Positions" Association="Self.FK_CloseExecutions_Positions">
+            <End Role="Positions" EntitySet="Positions" />
+            <End Role="CloseExecutions" EntitySet="CloseExecutions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OpenExecutions_Positions" Association="Self.FK_OpenExecutions_Positions">
+            <End Role="Positions" EntitySet="Positions" />
+            <End Role="OpenExecutions" EntitySet="OpenExecutions" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="hftModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="BlotterExecution">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Symbol" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="ClOrdId" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="ExecID" Type="String" MaxLength="150" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="LocalTimeStamp" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="ServerTimeStamp" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="Price" Type="Decimal" Precision="18" Scale="6" />
+          <Property Name="ProviderID" Type="Int32" Nullable="false" />
+          <Property Name="QtyFilled" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Side" Type="Int32" />
+          <Property Name="Status" Type="Int32" />
+        </EntityType>
+        <EntityType Name="CloseExecution">
+          <Key>
+            <PropertyRef Name="ExecutionID" />
+          </Key>
+          <Property Name="ExecutionID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PositionID" Type="Int64" Nullable="false" />
+          <Property Name="ClOrdId" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="ExecID" Type="String" MaxLength="150" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="LocalTimeStamp" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="ServerTimeStamp" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="Price" Type="Decimal" Precision="18" Scale="6" />
+          <Property Name="ProviderID" Type="Int32" Nullable="false" />
+          <Property Name="QtyFilled" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Side" Type="Int32" />
+          <Property Name="Status" Type="Int32" />
+          <Property Name="IsOpen" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Position" Relationship="Self.FK_CloseExecutions_Positions" FromRole="CloseExecutions" ToRole="Positions" />
+        </EntityType>
+        <EntityType Name="OpenExecution">
+          <Key>
+            <PropertyRef Name="ExecutionID" />
+          </Key>
+          <Property Name="ExecutionID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PositionID" Type="Int64" Nullable="false" />
+          <Property Name="ClOrdId" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="ExecID" Type="String" MaxLength="150" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="LocalTimeStamp" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="ServerTimeStamp" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="Price" Type="Decimal" Precision="18" Scale="6" />
+          <Property Name="ProviderID" Type="Int32" Nullable="false" />
+          <Property Name="QtyFilled" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Side" Type="Int32" />
+          <Property Name="Status" Type="Int32" />
+          <Property Name="IsOpen" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Position" Relationship="Self.FK_OpenExecutions_Positions" FromRole="OpenExecutions" ToRole="Positions" />
+        </EntityType>
+        <EntityType Name="Position">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PositionID" Type="Int64" Nullable="false" />
+          <Property Name="AttemptsToClose" Type="Int32" Nullable="false" />
+          <Property Name="CloseClOrdId" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CloseProviderId" Type="Int32" Nullable="false" />
+          <Property Name="CloseQuoteId" Type="Int32" />
+          <Property Name="CloseQuoteLocalTimeStamp" Type="DateTime" Precision="7" />
+          <Property Name="CloseQuoteServerTimeStamp" Type="DateTime" Precision="7" />
+          <Property Name="CloseStatus" Type="Int32" Nullable="false" />
+          <Property Name="CloseTimeStamp" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="CreationTimeStamp" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="Currency" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="FreeText" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="FutSettDate" Type="DateTime" Precision="0" />
+          <Property Name="GetCloseAvgPrice" Type="Decimal" Precision="18" Scale="6" Nullable="false" />
+          <Property Name="GetCloseQuantity" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="GetOpenAvgPrice" Type="Decimal" Precision="18" Scale="6" Nullable="false" />
+          <Property Name="GetOpenQuantity" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="GetPipsPnL" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="IsCloseMM" Type="Boolean" Nullable="false" />
+          <Property Name="IsOpenMM" Type="Boolean" Nullable="false" />
+          <Property Name="MaxDrowdown" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="OpenClOrdId" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="OpenProviderId" Type="Int32" Nullable="false" />
+          <Property Name="OpenQuoteId" Type="Int32" />
+          <Property Name="OpenQuoteLocalTimeStamp" Type="DateTime" Precision="7" />
+          <Property Name="OpenQuoteServerTimeStamp" Type="DateTime" Precision="7" />
+          <Property Name="OpenStatus" Type="Int32" Nullable="false" />
+          <Property Name="OrderQuantity" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PipsTrail" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Side" Type="Int32" Nullable="false" />
+          <Property Name="StopLoss" Type="Decimal" Precision="18" Scale="6" Nullable="false" />
+          <Property Name="StrategyCode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Symbol" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="SymbolDecimals" Type="Int32" Nullable="false" />
+          <Property Name="SymbolMultiplier" Type="Int32" Nullable="false" />
+          <Property Name="TakeProfit" Type="Decimal" Precision="18" Scale="6" Nullable="false" />
+          <Property Name="UnrealizedPnL" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="OpenBestBid" Type="Decimal" Precision="18" Scale="6" />
+          <Property Name="OpenBestAsk" Type="Decimal" Precision="18" Scale="6" />
+          <Property Name="CloseBestBid" Type="Decimal" Precision="18" Scale="6" />
+          <Property Name="CloseBestAsk" Type="Decimal" Precision="18" Scale="6" />
+          <Property Name="OpenOriginPartyID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CloseOriginPartyID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="LayerName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="OpenFireSignalTimestamp" Type="DateTime" Precision="7" />
+          <Property Name="CloseFireSignalTimestamp" Type="DateTime" Precision="7" />
+          <Property Name="PipsPnLInCurrency" Type="Decimal" Precision="18" Scale="2" />
+          <NavigationProperty Name="CloseExecutions" Relationship="Self.FK_CloseExecutions_Positions" FromRole="Positions" ToRole="CloseExecutions" />
+          <NavigationProperty Name="OpenExecutions" Relationship="Self.FK_OpenExecutions_Positions" FromRole="Positions" ToRole="OpenExecutions" />
+        </EntityType>
+        <EntityType Name="Provider">
+          <Key>
+            <PropertyRef Name="ProviderCode" />
+          </Key>
+          <Property Name="ProviderCode" Type="Int32" Nullable="false" />
+          <Property Name="ProviderName" Type="String" MaxLength="501" FixedLength="false" Unicode="false" Nullable="false" />
+        </EntityType>
+        <EntityType Name="STRATEGY_PARAMETERS_FIRMMM">
+          <Key>
+            <PropertyRef Name="StrategyParamID" />
+          </Key>
+          <Property Name="StrategyParamID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Symbol" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="LayerName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PositionSize" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="MaximumExposure" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="LookUpBookForSize" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PipsMarkupBid" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PipsMarkupAsk" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="MinPipsDiffToUpdatePrice" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="MinSpread" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PipsSlippage" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="AggressingToHedge" Type="Boolean" Nullable="false" />
+          <Property Name="PipsSlippageToHedge" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PipsHedgeTakeProf" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PipsHedgeStopLoss" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PipsHedgeTrailing" Type="Boolean" Nullable="false" />
+          <Property Name="TickSample" Type="Int32" Nullable="false" />
+          <Property Name="BollingerPeriod" Type="Int32" Nullable="false" />
+          <Property Name="BollingerStdDev" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PricingType" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="StrategyParameter">
+          <Key>
+            <PropertyRef Name="StrategyParamID" />
+          </Key>
+          <Property Name="StrategyParamID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="StrategyName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Key" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Value" Type="String" MaxLength="500" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Type" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_CloseExecutions_Positions">
+          <End Role="Positions" Type="Self.Position" Multiplicity="1" />
+          <End Role="CloseExecutions" Type="Self.CloseExecution" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Positions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="CloseExecutions">
+              <PropertyRef Name="PositionID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OpenExecutions_Positions">
+          <End Role="Positions" Type="Self.Position" Multiplicity="1" />
+          <End Role="OpenExecutions" Type="Self.OpenExecution" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Positions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="OpenExecutions">
+              <PropertyRef Name="PositionID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="dbEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="BlotterExecutions" EntityType="Self.BlotterExecution" />
+          <EntitySet Name="CloseExecutions" EntityType="Self.CloseExecution" />
+          <EntitySet Name="OpenExecutions" EntityType="Self.OpenExecution" />
+          <EntitySet Name="Positions" EntityType="Self.Position" />
+          <EntitySet Name="Providers" EntityType="Self.Provider" />
+          <EntitySet Name="STRATEGY_PARAMETERS_FIRMMM" EntityType="Self.STRATEGY_PARAMETERS_FIRMMM" />
+          <EntitySet Name="StrategyParameters" EntityType="Self.StrategyParameter" />
+          <AssociationSet Name="FK_CloseExecutions_Positions" Association="Self.FK_CloseExecutions_Positions">
+            <End Role="Positions" EntitySet="Positions" />
+            <End Role="CloseExecutions" EntitySet="CloseExecutions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OpenExecutions_Positions" Association="Self.FK_OpenExecutions_Positions">
+            <End Role="Positions" EntitySet="Positions" />
+            <End Role="OpenExecutions" EntitySet="OpenExecutions" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="hftModelStoreContainer" CdmEntityContainer="dbEntities">
+          <EntitySetMapping Name="BlotterExecutions">
+            <EntityTypeMapping TypeName="hftModel.BlotterExecution">
+              <MappingFragment StoreEntitySet="BlotterExecutions">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Symbol" ColumnName="Symbol" />
+                <ScalarProperty Name="ClOrdId" ColumnName="ClOrdId" />
+                <ScalarProperty Name="ExecID" ColumnName="ExecID" />
+                <ScalarProperty Name="LocalTimeStamp" ColumnName="LocalTimeStamp" />
+                <ScalarProperty Name="ServerTimeStamp" ColumnName="ServerTimeStamp" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="ProviderID" ColumnName="ProviderID" />
+                <ScalarProperty Name="QtyFilled" ColumnName="QtyFilled" />
+                <ScalarProperty Name="Side" ColumnName="Side" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CloseExecutions">
+            <EntityTypeMapping TypeName="hftModel.CloseExecution">
+              <MappingFragment StoreEntitySet="CloseExecutions">
+                <ScalarProperty Name="ExecutionID" ColumnName="ExecutionID" />
+                <ScalarProperty Name="PositionID" ColumnName="PositionID" />
+                <ScalarProperty Name="ClOrdId" ColumnName="ClOrdId" />
+                <ScalarProperty Name="ExecID" ColumnName="ExecID" />
+                <ScalarProperty Name="LocalTimeStamp" ColumnName="LocalTimeStamp" />
+                <ScalarProperty Name="ServerTimeStamp" ColumnName="ServerTimeStamp" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="ProviderID" ColumnName="ProviderID" />
+                <ScalarProperty Name="QtyFilled" ColumnName="QtyFilled" />
+                <ScalarProperty Name="Side" ColumnName="Side" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="IsOpen" ColumnName="IsOpen" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OpenExecutions">
+            <EntityTypeMapping TypeName="hftModel.OpenExecution">
+              <MappingFragment StoreEntitySet="OpenExecutions">
+                <ScalarProperty Name="ExecutionID" ColumnName="ExecutionID" />
+                <ScalarProperty Name="PositionID" ColumnName="PositionID" />
+                <ScalarProperty Name="ClOrdId" ColumnName="ClOrdId" />
+                <ScalarProperty Name="ExecID" ColumnName="ExecID" />
+                <ScalarProperty Name="LocalTimeStamp" ColumnName="LocalTimeStamp" />
+                <ScalarProperty Name="ServerTimeStamp" ColumnName="ServerTimeStamp" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="ProviderID" ColumnName="ProviderID" />
+                <ScalarProperty Name="QtyFilled" ColumnName="QtyFilled" />
+                <ScalarProperty Name="Side" ColumnName="Side" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="IsOpen" ColumnName="IsOpen" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Positions">
+            <EntityTypeMapping TypeName="hftModel.Position">
+              <MappingFragment StoreEntitySet="Positions">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="PositionID" ColumnName="PositionID" />
+                <ScalarProperty Name="AttemptsToClose" ColumnName="AttemptsToClose" />
+                <ScalarProperty Name="CloseClOrdId" ColumnName="CloseClOrdId" />
+                <ScalarProperty Name="CloseProviderId" ColumnName="CloseProviderId" />
+                <ScalarProperty Name="CloseQuoteId" ColumnName="CloseQuoteId" />
+                <ScalarProperty Name="CloseQuoteLocalTimeStamp" ColumnName="CloseQuoteLocalTimeStamp" />
+                <ScalarProperty Name="CloseQuoteServerTimeStamp" ColumnName="CloseQuoteServerTimeStamp" />
+                <ScalarProperty Name="CloseStatus" ColumnName="CloseStatus" />
+                <ScalarProperty Name="CloseTimeStamp" ColumnName="CloseTimeStamp" />
+                <ScalarProperty Name="CreationTimeStamp" ColumnName="CreationTimeStamp" />
+                <ScalarProperty Name="Currency" ColumnName="Currency" />
+                <ScalarProperty Name="FreeText" ColumnName="FreeText" />
+                <ScalarProperty Name="FutSettDate" ColumnName="FutSettDate" />
+                <ScalarProperty Name="GetCloseAvgPrice" ColumnName="GetCloseAvgPrice" />
+                <ScalarProperty Name="GetCloseQuantity" ColumnName="GetCloseQuantity" />
+                <ScalarProperty Name="GetOpenAvgPrice" ColumnName="GetOpenAvgPrice" />
+                <ScalarProperty Name="GetOpenQuantity" ColumnName="GetOpenQuantity" />
+                <ScalarProperty Name="GetPipsPnL" ColumnName="GetPipsPnL" />
+                <ScalarProperty Name="IsCloseMM" ColumnName="IsCloseMM" />
+                <ScalarProperty Name="IsOpenMM" ColumnName="IsOpenMM" />
+                <ScalarProperty Name="MaxDrowdown" ColumnName="MaxDrowdown" />
+                <ScalarProperty Name="OpenClOrdId" ColumnName="OpenClOrdId" />
+                <ScalarProperty Name="OpenProviderId" ColumnName="OpenProviderId" />
+                <ScalarProperty Name="OpenQuoteId" ColumnName="OpenQuoteId" />
+                <ScalarProperty Name="OpenQuoteLocalTimeStamp" ColumnName="OpenQuoteLocalTimeStamp" />
+                <ScalarProperty Name="OpenQuoteServerTimeStamp" ColumnName="OpenQuoteServerTimeStamp" />
+                <ScalarProperty Name="OpenStatus" ColumnName="OpenStatus" />
+                <ScalarProperty Name="OrderQuantity" ColumnName="OrderQuantity" />
+                <ScalarProperty Name="PipsTrail" ColumnName="PipsTrail" />
+                <ScalarProperty Name="Side" ColumnName="Side" />
+                <ScalarProperty Name="StopLoss" ColumnName="StopLoss" />
+                <ScalarProperty Name="StrategyCode" ColumnName="StrategyCode" />
+                <ScalarProperty Name="Symbol" ColumnName="Symbol" />
+                <ScalarProperty Name="SymbolDecimals" ColumnName="SymbolDecimals" />
+                <ScalarProperty Name="SymbolMultiplier" ColumnName="SymbolMultiplier" />
+                <ScalarProperty Name="TakeProfit" ColumnName="TakeProfit" />
+                <ScalarProperty Name="UnrealizedPnL" ColumnName="UnrealizedPnL" />
+                <ScalarProperty Name="OpenBestBid" ColumnName="OpenBestBid" />
+                <ScalarProperty Name="OpenBestAsk" ColumnName="OpenBestAsk" />
+                <ScalarProperty Name="CloseBestBid" ColumnName="CloseBestBid" />
+                <ScalarProperty Name="CloseBestAsk" ColumnName="CloseBestAsk" />
+                <ScalarProperty Name="OpenOriginPartyID" ColumnName="OpenOriginPartyID" />
+                <ScalarProperty Name="CloseOriginPartyID" ColumnName="CloseOriginPartyID" />
+                <ScalarProperty Name="LayerName" ColumnName="LayerName" />
+                <ScalarProperty Name="OpenFireSignalTimestamp" ColumnName="OpenFireSignalTimestamp" />
+                <ScalarProperty Name="CloseFireSignalTimestamp" ColumnName="CloseFireSignalTimestamp" />
+                <ScalarProperty Name="PipsPnLInCurrency" ColumnName="PipsPnLInCurrency" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Providers">
+            <EntityTypeMapping TypeName="hftModel.Provider">
+              <MappingFragment StoreEntitySet="Providers">
+                <ScalarProperty Name="ProviderCode" ColumnName="ProviderCode" />
+                <ScalarProperty Name="ProviderName" ColumnName="ProviderName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="STRATEGY_PARAMETERS_FIRMMM">
+            <EntityTypeMapping TypeName="hftModel.STRATEGY_PARAMETERS_FIRMMM">
+              <MappingFragment StoreEntitySet="STRATEGY_PARAMETERS_FIRMMM">
+                <ScalarProperty Name="StrategyParamID" ColumnName="StrategyParamID" />
+                <ScalarProperty Name="Symbol" ColumnName="Symbol" />
+                <ScalarProperty Name="LayerName" ColumnName="LayerName" />
+                <ScalarProperty Name="PositionSize" ColumnName="PositionSize" />
+                <ScalarProperty Name="MaximumExposure" ColumnName="MaximumExposure" />
+                <ScalarProperty Name="LookUpBookForSize" ColumnName="LookUpBookForSize" />
+                <ScalarProperty Name="PipsMarkupBid" ColumnName="PipsMarkupBid" />
+                <ScalarProperty Name="PipsMarkupAsk" ColumnName="PipsMarkupAsk" />
+                <ScalarProperty Name="MinPipsDiffToUpdatePrice" ColumnName="MinPipsDiffToUpdatePrice" />
+                <ScalarProperty Name="MinSpread" ColumnName="MinSpread" />
+                <ScalarProperty Name="PipsSlippage" ColumnName="PipsSlippage" />
+                <ScalarProperty Name="AggressingToHedge" ColumnName="AggressingToHedge" />
+                <ScalarProperty Name="PipsSlippageToHedge" ColumnName="PipsSlippageToHedge" />
+                <ScalarProperty Name="PipsHedgeTakeProf" ColumnName="PipsHedgeTakeProf" />
+                <ScalarProperty Name="PipsHedgeStopLoss" ColumnName="PipsHedgeStopLoss" />
+                <ScalarProperty Name="PipsHedgeTrailing" ColumnName="PipsHedgeTrailing" />
+                <ScalarProperty Name="TickSample" ColumnName="TickSample" />
+                <ScalarProperty Name="BollingerPeriod" ColumnName="BollingerPeriod" />
+                <ScalarProperty Name="BollingerStdDev" ColumnName="BollingerStdDev" />
+                <ScalarProperty Name="PricingType" ColumnName="PricingType" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="StrategyParameters">
+            <EntityTypeMapping TypeName="hftModel.StrategyParameter">
+              <MappingFragment StoreEntitySet="StrategyParameters">
+                <ScalarProperty Name="StrategyParamID" ColumnName="StrategyParamID" />
+                <ScalarProperty Name="StrategyName" ColumnName="StrategyName" />
+                <ScalarProperty Name="Key" ColumnName="Key" />
+                <ScalarProperty Name="Value" ColumnName="Value" />
+                <ScalarProperty Name="Type" ColumnName="Type" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

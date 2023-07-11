@@ -1,9 +1,11 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace VisualHFT.Model
 {
-    public class BookItemPriceSplit : INotifyPropertyChanged
+    public class BookItemPriceSplit : INotifyPropertyChanged, ICloneable
     {
         public event PropertyChangedEventHandler PropertyChanged;
         protected void RaisePropertyChanged(string propertyName)
@@ -19,9 +21,11 @@ namespace VisualHFT.Model
         private string _nextTwoDecimals = "";
         private string _rest = "";
         private string _size = "";
+        private double _price = 0;
+
         public void SetNumber(double price, double size, int symbolDecimalPlaces)
         {
-
+            _price = price;
             if (price != 0)
             {
                 try
@@ -65,6 +69,12 @@ namespace VisualHFT.Model
             RaisePropertyChanged("Rest");
             RaisePropertyChanged("Size");
         }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
         public string LastDecimal
         {
             get
@@ -98,7 +108,6 @@ namespace VisualHFT.Model
                 }
             }
         }
-
         public string Rest
         {
             get
@@ -115,7 +124,6 @@ namespace VisualHFT.Model
                 }
             }
         }
-
         public string Size
         {
             get
@@ -132,5 +140,6 @@ namespace VisualHFT.Model
                 }
             }
         }
+        public double Price { get { return _price; } }
     }
 }

@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Threading;
+using System.Timers;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace VisualHFT.Helpers
 {
@@ -17,7 +20,7 @@ namespace VisualHFT.Helpers
         protected long? _LAST_POSITION_ID = null;
         protected List<PositionEx> _positions;
 
-        System.Windows.Threading.DispatcherTimer dispatcherTimer;
+        System.Timers.Timer _timer;
         public event EventHandler<IEnumerable<PositionEx>> OnInitialLoad;
         public event EventHandler<IEnumerable<PositionEx>> OnDataReceived;
 
@@ -25,21 +28,13 @@ namespace VisualHFT.Helpers
         {
             EventHandler<IEnumerable<PositionEx>> _handler = OnInitialLoad;
             if (_handler != null)
-            {
-				Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-					_handler(this, pos);
-				}));
-			}
+                _handler(this, pos);
 		}
         protected virtual void RaiseOnDataReceived(IEnumerable<PositionEx> pos)
         {
             EventHandler<IEnumerable<PositionEx>> _handler = OnDataReceived;
             if (_handler != null)
-            {
-                Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                    _handler(this, pos);
-                }));
-            }
+                _handler(this, pos);
         }
 
 
@@ -50,68 +45,26 @@ namespace VisualHFT.Helpers
             this.LoadingType = loadingType;
             if (loadingType == ePOSITION_LOADING_TYPE.DATABASE)
             {
-                dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-                dispatcherTimer.Tick += dispatcherTimer_Tick;
-                dispatcherTimer.Interval = new TimeSpan(0, 0, 5);
-                dispatcherTimer.Start();
-                dispatcherTimer_Tick(null, null);
+                _timer = new System.Timers.Timer();
+                _timer.Interval = 5000;
+                _timer.Elapsed += _timer_Elapsed;
+                _timer.Start();
+                _timer_Elapsed(null, null);
             }
         }
 
-
-        
-        public List<PositionEx> Positions 
-        { 
-            get { return _positions; }
-        }
-        public ePOSITION_LOADING_TYPE LoadingType { get; set; }
-        public DateTime? SessionDate { get; set; }
-
-        private IEnumerable<PositionEx> GetPositions()
+        private void _timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (!SessionDate.HasValue)
-                return null;
+            IEnumerable<PositionEx> res = new List<PositionEx>();
 
 
-            try
+            // Call an async method
+            Task.Run(async () =>
             {
-                using (var db = new HFTEntities())
-                {
-                    db.Database.CommandTimeout = 6000;
-                    db.Configuration.ValidateOnSaveEnabled = false;
-                    db.Configuration.AutoDetectChangesEnabled = false;
-                    db.Configuration.LazyLoadingEnabled = false;
-                    var allProviders = db.Providers.ToList();
-					var result = db.Positions/*.AsNoTracking()*/.Include("OpenExecutions").Include("CloseExecutions").Where(x => x.CreationTimeStamp > SessionDate.Value && (!_LAST_POSITION_ID.HasValue || x.ID > _LAST_POSITION_ID.Value)).ToList();
+                res = await GetPositions();
+            });
 
-                    if (result.Any())
-                    {
-                        _LAST_POSITION_ID = result.Max(x => x.ID);
-
-                        var ret = result.Select(x => new PositionEx(x)).ToList(); //convert to our model
-                                                                                  //find provider's name
-                        ret.ForEach(x =>
-                        {
-                            x.CloseProviderName = allProviders.Where(p => p.ProviderCode == x.CloseProviderId).DefaultIfEmpty(new Provider()).FirstOrDefault().ProviderName;
-                            x.OpenProviderName = allProviders.Where(p => p.ProviderCode == x.OpenProviderId).DefaultIfEmpty(new Provider()).FirstOrDefault().ProviderName;
-
-                            x.CloseExecutions.ForEach(ex => ex.ProviderName = x.CloseProviderName);
-                            x.OpenExecutions.ForEach(ex => ex.ProviderName = x.OpenProviderName);
-                        });
-                        return ret;
-                    }
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-            return null;
-        }
-        private void dispatcherTimer_Tick(object sender, EventArgs e)
-        {
-            var res = GetPositions();
+            
             if (res != null && res.Any())
             {
                 foreach (var p in res)
@@ -142,6 +95,56 @@ namespace VisualHFT.Helpers
                 }
             }
 
+        }
+
+        public List<PositionEx> Positions 
+        { 
+            get { return _positions; }
+        }
+        public ePOSITION_LOADING_TYPE LoadingType { get; set; }
+        public DateTime? SessionDate { get; set; }
+
+        private async Task<IEnumerable<PositionEx>> GetPositions()
+        {
+            if (!SessionDate.HasValue)
+                return null;
+
+
+            try
+            {
+                using (var db = new HFTEntities())
+                {
+                    db.Database.CommandTimeout = 6000;
+                    db.Configuration.ValidateOnSaveEnabled = false;
+                    db.Configuration.AutoDetectChangesEnabled = false;
+                    db.Configuration.LazyLoadingEnabled = false;
+                    var allProviders = db.Providers.ToList();
+					var result = await db.Positions/*.AsNoTracking()*/.Include("OpenExecutions").Include("CloseExecutions").Where(x => x.CreationTimeStamp > SessionDate.Value && (!_LAST_POSITION_ID.HasValue || x.ID > _LAST_POSITION_ID.Value)).ToListAsync();
+
+                    if (result.Any())
+                    {
+                        _LAST_POSITION_ID = result.Max(x => x.ID);
+
+                        var ret = result.Select(x => new PositionEx(x)).ToList(); //convert to our model
+                                                                                  //find provider's name
+                        ret.ForEach(x =>
+                        {
+                            x.CloseProviderName = allProviders.Where(p => p.ProviderCode == x.CloseProviderId).DefaultIfEmpty(new Provider()).FirstOrDefault().ProviderName;
+                            x.OpenProviderName = allProviders.Where(p => p.ProviderCode == x.OpenProviderId).DefaultIfEmpty(new Provider()).FirstOrDefault().ProviderName;
+
+                            x.CloseExecutions.ForEach(ex => ex.ProviderName = x.CloseProviderName);
+                            x.OpenExecutions.ForEach(ex => ex.ProviderName = x.OpenProviderName);
+                        });
+                        return ret;
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            return null;
         }
         public void LoadNewPositions(IEnumerable<PositionEx> positions)
         {

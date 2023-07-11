@@ -17,8 +17,8 @@ namespace VisualHFT.ViewModel
         protected object MTX_ORDERBOOK = new object();
         private Dictionary<string, Func<string, string, bool>> _dialogs;
 
-        private ObservableCollection<PlotInfoPriceChart> _realTimePrices;
-        ObservableCollection<PlotInfoPriceChart> _realTimeSpread;
+        private List<PlotInfoPriceChart> _realTimePrices;
+        private List<PlotInfoPriceChart> _realTimeSpread;
 
         private ObservableCollection<ProviderVM> _providers;
         private string _selectedSymbol;
@@ -40,6 +40,16 @@ namespace VisualHFT.ViewModel
 
 
         private DispatcherTimer timerUI = new DispatcherTimer();
+        private BookItemPriceSplit TRACK_BidTOB_SPLIT = new BookItemPriceSplit();
+        private BookItemPriceSplit TRACK_AskTOB_SPLIT = new BookItemPriceSplit();
+        private List<BookItem> TRACK_Bids = new List<BookItem>();
+        private List<BookItem> TRACK_Asks = new List<BookItem>();
+        private List<BookItem> TRACK_BidCummulative = new List<BookItem>();
+        private List<BookItem> TRACK_AskCummulative = new List<BookItem>();
+        private List<PlotInfoPriceChart> TRACK_RealTimePrices = new List<PlotInfoPriceChart>();
+        private List<OrderBookLevel> TRACK_RealTimeOrderLevelsAsk = new List<OrderBookLevel>();
+        private List<OrderBookLevel> TRACK_RealTimeOrderLevelsBid = new List<OrderBookLevel>();
+        private List<PlotInfoPriceChart> TRACK_RealTimeSpread = new List<PlotInfoPriceChart>();
 
         public vmOrderBook(Dictionary<string, Func<string, string, bool>> dialogs)
         {
@@ -77,21 +87,66 @@ namespace VisualHFT.ViewModel
         }
         private void TimerUI_Tick(object sender, EventArgs e)
         {
+            
+            if (_BidTOB_SPLIT != null && TRACK_BidTOB_SPLIT.Price != _BidTOB_SPLIT.Price)
+            {
+                _BidTOB_SPLIT?.RaiseUIThread();
+                TRACK_BidTOB_SPLIT = (BookItemPriceSplit)_BidTOB_SPLIT.Clone();
+            }
+            if (_AskTOB_SPLIT != null && TRACK_AskTOB_SPLIT.Price != _AskTOB_SPLIT.Price)
+            {
+                _AskTOB_SPLIT?.RaiseUIThread();
+                TRACK_AskTOB_SPLIT = (BookItemPriceSplit)_AskTOB_SPLIT.Clone();
+            }
 
-            _BidTOB_SPLIT?.RaiseUIThread();
-            _AskTOB_SPLIT?.RaiseUIThread();
+            if (Bids != null && !TRACK_Bids.SequenceEqual(Bids))
+            {
+                RaisePropertyChanged(nameof(Bids));
+                TRACK_Bids = Bids.ToList();
+            }
+            if (Asks != null && !TRACK_Asks.SequenceEqual(Asks))
+            {
+                RaisePropertyChanged(nameof(Asks));
+                TRACK_Asks = Asks.ToList();
+            }
 
-            RaisePropertyChanged(nameof(Bids));
-            RaisePropertyChanged(nameof(Asks));
+
+            if (AskCummulative != null && !TRACK_AskCummulative.SequenceEqual(AskCummulative))
+            {
+                RaisePropertyChanged(nameof(AskCummulative));
+                TRACK_AskCummulative = AskCummulative.ToList();
+            }
+            if (BidCummulative != null && !TRACK_BidCummulative.SequenceEqual(BidCummulative))
+            {
+                RaisePropertyChanged(nameof(BidCummulative));
+                TRACK_BidCummulative = BidCummulative.ToList();
+            }
+
+            if (RealTimePrices != null && !TRACK_RealTimePrices.SequenceEqual(RealTimePrices))
+            {
+                RaisePropertyChanged(nameof(RealTimePrices));
+                TRACK_RealTimePrices = RealTimePrices.ToList();
+            }
+
+
+            if (RealTimeOrderLevelsAsk != null && !TRACK_RealTimeOrderLevelsAsk.SequenceEqual(RealTimeOrderLevelsAsk))
+            {
+                RaisePropertyChanged(nameof(RealTimeOrderLevelsAsk));
+                TRACK_RealTimeOrderLevelsAsk = RealTimeOrderLevelsAsk.ToList();
+            }
+            if (RealTimeOrderLevelsBid != null && !TRACK_RealTimeOrderLevelsBid.SequenceEqual(RealTimeOrderLevelsBid))
+            {
+                RaisePropertyChanged(nameof(RealTimeOrderLevelsBid));
+                TRACK_RealTimeOrderLevelsBid = RealTimeOrderLevelsBid.ToList();
+            }
+
+            if (RealTimeSpread != null && !TRACK_RealTimeSpread.SequenceEqual(RealTimeSpread))
+            {
+                RaisePropertyChanged(nameof(RealTimeSpread));
+                TRACK_RealTimeSpread = RealTimeSpread.ToList();
+            }
+
             RaisePropertyChanged(nameof(ChartMaximumValue_Y));
-
-
-            RaisePropertyChanged(nameof(AskCummulative));
-            RaisePropertyChanged(nameof(BidCummulative));
-            RaisePropertyChanged(nameof(RealTimePrices));
-            RaisePropertyChanged(nameof(RealTimeOrderLevelsAsk));
-            RaisePropertyChanged(nameof(RealTimeOrderLevelsBid));
-            RaisePropertyChanged(nameof(RealTimeSpread));
         }
 
         private void Clear()
@@ -179,10 +234,10 @@ namespace VisualHFT.ViewModel
                 {
                     _maxOrderSize = 0; //reset
                     _orderBook = e;
-                    _realTimePrices = new ObservableCollection<PlotInfoPriceChart>();
+                    _realTimePrices = new List<PlotInfoPriceChart>();
                     //_realTimePrices.CollectionChanged += (sender2, e2) => UpdateBubbleAxisRange();
 
-                    _realTimeSpread = new ObservableCollection<PlotInfoPriceChart>();
+                    _realTimeSpread = new List<PlotInfoPriceChart>();
 
                     _AskTOB_SPLIT = new BookItemPriceSplit();
                     _BidTOB_SPLIT = new BookItemPriceSplit();
@@ -341,17 +396,17 @@ namespace VisualHFT.ViewModel
             get => _layerName;
             set => SetProperty(ref _layerName, value, onChanged: () => this.OrderBook = null);
         }
-        public ObservableCollection<PlotInfoPriceChart> RealTimePrices
+        public List<PlotInfoPriceChart> RealTimePrices
         {
             get
             {
                 if (_realTimePrices == null)
                     return null;
                 lock (_realTimePrices) 
-                    return new ObservableCollection<PlotInfoPriceChart>(_realTimePrices);
+                    return _realTimePrices.ToList();
             }
         } 
-        public ObservableCollection<OrderBookLevel> RealTimeOrderLevelsAsk
+        public List<OrderBookLevel> RealTimeOrderLevelsAsk
         {
             get
             {
@@ -359,11 +414,11 @@ namespace VisualHFT.ViewModel
                     return null;
                 lock (_realTimePrices)
                 {                    
-                    return new ObservableCollection<OrderBookLevel>(_realTimePrices.SelectMany(x => x.AskOrders));
+                    return _realTimePrices.SelectMany(x => x.AskOrders).ToList();
                 }
             }
         }
-        public ObservableCollection<OrderBookLevel> RealTimeOrderLevelsBid
+        public List<OrderBookLevel> RealTimeOrderLevelsBid
         {
             get
             {
@@ -371,18 +426,18 @@ namespace VisualHFT.ViewModel
                     return null;
                 lock (_realTimePrices)
                 {
-                    return new ObservableCollection<OrderBookLevel>(_realTimePrices.SelectMany(x => x.BidOrders));
+                    return _realTimePrices.SelectMany(x => x.BidOrders).ToList();
                 }
             }
         }
-        public ObservableCollection<PlotInfoPriceChart> RealTimeSpread
+        public List<PlotInfoPriceChart> RealTimeSpread
         {
             get
             {
                 if (_realTimeSpread == null)
                     return null;
                 lock(_realTimeSpread)
-                    return new ObservableCollection<PlotInfoPriceChart>(_realTimeSpread);
+                    return _realTimeSpread.ToList();
             }
         } 
         public ObservableCollection<ProviderVM> Providers => _providers;

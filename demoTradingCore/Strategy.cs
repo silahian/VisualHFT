@@ -187,34 +187,48 @@ namespace demoTradingCore
         {
             int openingProviderID = openExchange.ToUpper() == "COINBASE" ? 14 : 23; //ID's took from the database
             int closingProviderID = openExchange.ToUpper() == "COINBASE" ? 14 : 23; // This is hardcoded and for demostration only
+            
+            
 
-            /*using (var db = new VisualHFT.Model.HFTEntities())
+            using (var db = new Models.dbEntities())
             {
-                db.Positions.Add(new VisualHFT.Model.Position()
+                var openP = new OpenExecution() { ExecID = Guid.NewGuid().ToString(), ClOrdId = Guid.NewGuid().ToString(), IsOpen = true, LocalTimeStamp = DateTime.Now, Price = openPrice, ProviderID = openingProviderID, QtyFilled = 1, ServerTimeStamp = DateTime.Now, Side = 1, Status = 6 };
+                var closeP = new CloseExecution() { ExecID = Guid.NewGuid().ToString(), ClOrdId = Guid.NewGuid().ToString(), IsOpen = false, LocalTimeStamp = DateTime.Now, Price = closePrice, ProviderID = closingProviderID, QtyFilled = 1, ServerTimeStamp = DateTime.Now, Side = 0, Status = 6 };
+
+
+
+                var newPos = db.Positions.Add(new Position()
                 {
-                    CreationTimeStamp = DateTime.Now,
-                    CloseTimeStamp = DateTime.Now,
-                    OpenClOrdId = Guid.NewGuid().ToString(),
-                    CloseClOrdId = Guid.NewGuid().ToString(),
-                    OpenProviderId = openingProviderID,
-                    CloseProviderId = closingProviderID,
-                    CloseStatus = 6,
-                    OrderQuantity = 1,
-                    GetCloseQuantity = 1,
-                    GetOpenQuantity = 1,
-                    GetOpenAvgPrice = openPrice,
-                    GetCloseAvgPrice = closePrice,
+                    CreationTimeStamp = openP.LocalTimeStamp,
+                    CloseTimeStamp = closeP.LocalTimeStamp,
+                    OpenClOrdId = openP.ClOrdId,
+                    CloseClOrdId = closeP.ClOrdId,
+                    OpenProviderId = openP.ProviderID,
+                    CloseProviderId = closeP.ProviderID,
+                    CloseStatus = closeP.Status.Value,
+                    OrderQuantity = openP.QtyFilled.Value,
+                    GetCloseQuantity = closeP.QtyFilled.Value,
+                    GetOpenQuantity = openP.QtyFilled.Value,
+                    GetOpenAvgPrice = openP.Price.Value,
+                    GetCloseAvgPrice = closeP.Price.Value,
 
                     IsCloseMM = false,
                     IsOpenMM = false,
-                    Side = 1, //SELL
+                    Side = openP.Side.Value, //SELL
                     StrategyCode = _STRATEGY_NAME,
                     Symbol = _SYMBOL,
                     SymbolDecimals = 2,
                     SymbolMultiplier = 1
                 });
-                db.SaveChangesAsync();
-            }*/
+                db.SaveChanges();
+                openP.PositionID = newPos.ID;
+                closeP.PositionID = newPos.ID;
+                
+
+                db.OpenExecutions.Add(openP);
+                db.CloseExecutions.Add(closeP);
+                db.SaveChanges();
+            }
         }
     }
 }
