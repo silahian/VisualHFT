@@ -1,6 +1,9 @@
-﻿using System.Windows;
+﻿using OxyPlot.Axes;
+using OxyPlot;
+using System.Windows;
 using System.Windows.Controls;
 using VisualHFT.Helpers;
+using System.Windows.Media;
 
 namespace VisualHFT.View
 {
@@ -25,7 +28,34 @@ namespace VisualHFT.View
         public ucOrderBook()
         {
             InitializeComponent();
+            //StyleOxyPlot();
         }
+
+
+        /*private void StyleOxyPlot()
+        {
+
+            // Get the brush resources from your Material Design theme
+            var backgroundBrush = (SolidColorBrush)FindResource("MaterialDesignPaper");
+            var textBrush = (SolidColorBrush)FindResource("MaterialDesignBody");
+            var axisBrush = (SolidColorBrush)FindResource("MaterialDesignBody");
+
+            // Get the color values from the brushes
+            var backgroundColor = backgroundBrush.Color;
+            var textColor = textBrush.Color;
+            var axisColor = axisBrush.Color;
+
+            // Create a new PlotModel
+            var plotModel = plotCummBid.Model;
+            plotModel.Background = OxyColor.FromArgb(backgroundColor.A, backgroundColor.R, backgroundColor.G, backgroundColor.B);
+            plotModel.TextColor = OxyColor.FromArgb(textColor.A, textColor.R, textColor.G, textColor.B);
+
+            foreach (var axe in plotModel.Axes)
+            {
+                axe.AxislineColor = OxyColor.FromArgb(axisColor.A, axisColor.R, axisColor.G, axisColor.B);
+                axe.TicklineColor = OxyColor.FromArgb(axisColor.A, axisColor.R, axisColor.G, axisColor.B);
+            }
+        }*/
         public string SelectedSymbol
         {
             get { return (string)GetValue(ucOrderBookSymbolProperty); }

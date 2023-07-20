@@ -3,7 +3,9 @@
                     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
                     xmlns:local="clr-namespace:VisualHFT"
                     xmlns:c="clr-namespace:VisualHFT.Converters"
-					xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+					xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+
+                    >
 
     <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
     <c:ConverterValuesToColorIfNotEqualZero x:Key="ConverterValuesToColorIfNotEqualZero" />
