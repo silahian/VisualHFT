@@ -210,6 +210,7 @@
     </Compile>
     <Compile Include="Model\OrderBook.cs" />
     <Compile Include="Model\OrderBookLevel.cs" />
+    <Compile Include="Model\OrderFlowAnalysis.cs" />
     <Compile Include="Model\OrderVM.cs" />
     <Compile Include="Model\PlotInfoPriceChart.cs" />
     <Compile Include="Model\PlotInfo.cs" />
@@ -259,6 +260,7 @@
     <Compile Include="ViewModel\StatisticsViewModel\ChartDateCategoryDataPoint.cs" />
     <Compile Include="ViewModel\StatisticsViewModel\vmStrategyOverview.cs" />
     <Compile Include="ViewModel\vmDashboard.cs" />
+    <Compile Include="ViewModel\vmOrderBookFlowAnalysis.cs" />
     <Compile Include="ViewModel\vmPosition.cs" />
     <Compile Include="ViewModel\vmOrderBook.cs" />
     <Compile Include="ViewModel\vmPriceCharting.cs" />
