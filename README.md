@@ -21,6 +21,8 @@ To install and run the project, you need to:
 4. Read positions and executions information from the database.
 5. Run the core trading system located in the "demoTradingCore" folder.
 
+Also, you can follow the detailed steps listed in [here](https://github.com/silahian/VisualHFT/issues/3)
+
 ## Long Description
 VisualHFT is a comprehensive graphical user interface (GUI) designed to provide real-time insights into the operations of high-frequency trading systems. Built with WPF and C#, it serves as a powerful tool for visualizing market microstructure analytics, including Limit Order Book dynamics, latencies, execution quality, and other key metrics.
 
