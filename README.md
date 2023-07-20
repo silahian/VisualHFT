@@ -20,6 +20,7 @@ To install and run the project, you need to:
 3. Feed the system with the defined collection of JSON data.
 4. Read positions and executions information from the database.
 5. Run the core trading system located in the "demoTradingCore" folder.
+
 Also, you can follow the detailed steps listed in [here](https://github.com/silahian/VisualHFT/issues/3)
 
 ## Long Description
