@@ -150,6 +150,7 @@
       <DependentUpon>ucStrategyHeader.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\ConverterEnum.cs" />
+    <Compile Include="Converters\ConverterValueToWidth.cs" />
     <Compile Include="Converters\DispatchedObservableCollectionConverter.cs" />
     <Compile Include="Extensions\ObservableCollectionEx.cs" />
     <Compile Include="Formatters\FormatterKilo.cs" />

@@ -23,6 +23,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../GlobalStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <Formatters:ConverterValueToWidth x:Key="ValueToWidthConverter" />
         </ResourceDictionary>
         
     </UserControl.Resources>
@@ -55,6 +56,7 @@
                         <Grid x:Name="grdSymbol">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="200"/>
+                                <RowDefinition Height="10" />
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <!--BID/ASK Prices BOX-->
@@ -126,12 +128,40 @@
                                     </Grid>
                                 </Grid>
                             </GroupBox>
+                            <!--LOB IMBALANCE-->
+                            <Grid Grid.Row="1" x:Name="GaugeGrid" ToolTip="Limit Order Book Imbalance&#x0a;This metric measures the difference between the number of buy and sell orders in the market.&#x0a;It can provide insights into the supply and demand dynamics in the market.&#x0a;&#x0a;A positive order imbalance (more buy orders than sell orders) can indicate upward pressure on prices, while a negative order imbalance (more sell orders than buy orders) can indicate downward pressure on prices.">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="6*" />
+                                    <ColumnDefinition Width="2*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="Red" Offset="0.0" />
+                                        <GradientStop Color="White" Offset="0.2" />
+                                        <GradientStop Color="White" Offset="0.8" />
+                                        <GradientStop Color="Red" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Grid.Background>
+                                <Canvas Grid.Column="1">
+                                    <Path Fill="Black" Data="M 0 10 L 5 0 L 10 10 Z">
+                                        <Canvas.Left>
+                                            <MultiBinding Converter="{StaticResource ValueToWidthConverter}">
+                                                <Binding Path="LOBImbalanceValue" />
+                                                <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=Canvas}" />
+                                            </MultiBinding>
+                                        </Canvas.Left>
+                                    </Path>
+                                </Canvas>
+                            </Grid>
                             <!--DATAGRID BID/ASK-->
-                            <Grid Grid.Row="1" Grid.Column="0" VerticalAlignment="Stretch" >
+                            <Grid Grid.Row="2" Grid.Column="0" VerticalAlignment="Stretch" >
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
+                                
+                                
                                 <!--BIDS-->
                                 <DataGrid ItemsSource="{Binding Bids}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="0" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader" HeadersVisibility="Column" AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" IsHitTestVisible="False" EnableRowVirtualization="True" EnableColumnVirtualization="False" Padding="0">
                                     <DataGrid.RowStyle>
@@ -155,7 +185,6 @@
                                         <DataGridTextColumn Header="A" Binding="{Binding ActiveSize, Converter={StaticResource KiloFormatter}, TargetNullValue={x:Static System:String.Empty}}" Width="50" Foreground="DarkGreen" FontWeight="Bold" />
                                     </DataGrid.Columns>
                                 </DataGrid>
-
                                 <!--ENDS BIDS-->
                                 <!--ASKS-->
                                 <DataGrid ItemsSource="{Binding Asks}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="1" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" IsHitTestVisible="False" EnableRowVirtualization="False">

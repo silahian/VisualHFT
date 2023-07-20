@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using Prism.Mvvm;
 using System.Windows.Threading;
+using System.Windows.Navigation;
 
 namespace VisualHFT.ViewModel
 {
@@ -147,6 +148,7 @@ namespace VisualHFT.ViewModel
             }
 
             RaisePropertyChanged(nameof(ChartMaximumValue_Y));
+            RaisePropertyChanged(nameof(LOBImbalanceValue));
         }
 
         private void Clear()
@@ -243,8 +245,6 @@ namespace VisualHFT.ViewModel
                     _BidTOB_SPLIT = new BookItemPriceSplit();
                     RaisePropertyChanged(nameof(BidTOB_SPLIT));
                     RaisePropertyChanged(nameof(AskTOB_SPLIT));
-
-
                 }
                 if (!_orderBook.LoadData(e.Asks?.ToList(), e.Bids?.ToList()))
                     return; //if nothing to update, then exit
@@ -457,6 +457,7 @@ namespace VisualHFT.ViewModel
             get => _MidPoint;
             set => SetProperty(ref _MidPoint, value);
         }
+        public double LOBImbalanceValue => _orderBook?.ImbalanceValue ?? 0;
         public BookItem AskTOB
         {
             get => _AskTOB;

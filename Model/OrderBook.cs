@@ -56,6 +56,12 @@ namespace VisualHFT.Model
             while (_Bids.Count != largestLength)
                 _Bids.Add(new BookItem());
         }
+        private void CalculateMetrics()
+        {
+            var lobMetrics = new OrderFlowAnalysis();
+            lobMetrics.LoadData(_Asks.Where(x => x != null).ToList(), _Bids.Where(x => x != null).ToList());
+            this.ImbalanceValue = lobMetrics.Calculate_OrderImbalance(); 
+        }
         public bool LoadData(List<BookItem> asks, List<BookItem> bids)
         {
             bool ret = true;
@@ -86,6 +92,7 @@ namespace VisualHFT.Model
                 #endregion
 
                 MakeEqualLenght(); // to avoid grid flickering
+                CalculateMetrics();
             }
             return ret;
         }
@@ -246,6 +253,8 @@ namespace VisualHFT.Model
         {
             get { lock (LOCK_OBJECT) { return new List<BookItem>(_Cummulative_Asks); } }
         }
+        public double ImbalanceValue { get; set; }
+       
 
     }
 }

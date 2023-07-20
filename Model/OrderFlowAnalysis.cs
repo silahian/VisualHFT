@@ -17,15 +17,6 @@ namespace VisualHFT.Model
             bids = pBids.ToList();
         }
 
-        private double Calculate_OrderImbalance()
-        {
-            /*
-              This metric measures the difference between the number of buy and sell orders in the market. It can provide insights into the supply and demand dynamics in the market. A positive order imbalance (more buy orders than sell orders) can indicate upward pressure on prices, while a negative order imbalance (more sell orders than buy orders) can indicate downward pressure on prices.
-            */
-            double totalAskSize = asks.Sum(a => a.Size.Value);
-            double totalBidSize = bids.Sum(b => b.Size.Value);
-            return (totalBidSize - totalAskSize) / (totalBidSize + totalAskSize);
-        }
         private void Calculate_TradeImbalance() {
             /*
              Similar to order imbalance, trade imbalance measures the difference between the number of executed buy and sell trades. It can provide insights into the actual trading activity in the market.
@@ -89,6 +80,18 @@ namespace VisualHFT.Model
 
             // Return the average slope
             return (bidSlope + askSlope) / 2;
+        }
+
+        public double Calculate_OrderImbalance()
+        {
+            /*
+            This metric measures the difference between the number of buy and sell orders in the market.
+            It can provide insights into the supply and demand dynamics in the market. 
+            A positive order imbalance (more buy orders than sell orders) can indicate upward pressure on prices, while a negative order imbalance (more sell orders than buy orders) can indicate downward pressure on prices.
+            */
+            double totalAskSize = asks.Where(a => a.Size.HasValue).Sum(a => a.Size.Value);
+            double totalBidSize = bids.Where(b => b.Size.HasValue).Sum(b => b.Size.Value);
+            return (totalBidSize - totalAskSize) / (totalBidSize + totalAskSize);
         }
         public double CalculateOrderBookKurtosis()
         {
