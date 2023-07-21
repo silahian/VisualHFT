@@ -127,9 +127,10 @@ Moreover, I believe that innovation thrives in a collaborative environment. By m
 - Ability to have a FIX network sniffer as input data (as an alternative to websockets)
 - Security: even though these kinds of applications run inside a private network, there is no security at all involved.
 
-## How to contribute**
-### follow the guidelines to contribute
-[Setting guidelines for repository contributors - GitHub Docs](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/setting-guidelines-for-repository-contributors)
+
+## Contributing
+
+If you are interested in reporting/fixing issues and contributing directly to the code base, please see [CONTRIBUTING.md](CONTRIBUTING.md) for more information on what we're looking for and how to get started.
 
 > Important: We **will not accept** any changes to any of the existing input json message format. This is fixed and cannot be changed. The main reason for this is that we can break all existing installations of this system. Unless there is a “very strong” case that needs to be addressed, and all the community agrees upon that. However, we could accept having new json messages, to be parsed and processed accordingly, without breaking any of the existing ones.*
 
