@@ -7,13 +7,13 @@ The following is a set of guidelines for contributing to VisualHFT.
 These are just guidelines, not rules, use your best judgment and feel free to
 propose changes to this document in a pull request.
 
-## [Issues](https://github.com/silahian/VisualHFT/issues)
+## Issues
 
-Issues are created [here](https://github.com/silahian/VisualHFT/issues/new).
+Issues are created [here](https://github.com/silahian/VisualHFT/issues/).
 
 
 
-## [Pull Requests](https://VisualHFTjs.org/docs/development/pull-requests)
+## Pull Requests
 
 Pull Requests are the way concrete changes are made to the code, documentation,
 dependencies, and tools contained in the `silahian/VisualHFT` repository.
@@ -29,7 +29,7 @@ git remote add upstream https://github.com/silahian/VisualHFT.git
 git fetch upstream
 ```
   #### Step 2: Build
-  Open up the `VisualHFT.sln` file with Visual Studio Community 2022. Press `F6` to build or from the menu `Build/ Build Solution` 
+  Open up the `VisualHFT.sln` file with [Visual Studio Community 2022](https://visualstudio.microsoft.com/vs/community/). Press `F6` to build or from the menu `Build/ Build Solution` 
   #### Step 3: Branch
 To keep your development environment organized, create local branches to hold your work. These should be branched directly off of the main branch.
 ```
