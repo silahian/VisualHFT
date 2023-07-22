@@ -1,24 +1,10 @@
-﻿using System;
-using System.ComponentModel;
+﻿using Prism.Mvvm;
+using System;
 
 namespace VisualHFT.Model
 {
-    public class BookItem : INotifyPropertyChanged, IEquatable<BookItem>
+    public class BookItem : BindableBase, IEquatable<BookItem>
     {
-        public BookItem()
-        {
-
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void RaisePropertyChanged(string propertyName)
-        {
-            /*PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }*/
-        }
-
         public bool Equals(BookItem other)
         {
             if (other == null)
@@ -44,13 +30,12 @@ namespace VisualHFT.Model
         private DateTime _ServerTimeStamp;
         private double? _Size;
         private bool _IsBid;
-        private int _DecimalPlaces;
         private double? _ActiveSize;
 
         public void Update(BookItem b)
         {
             this.Symbol = b.Symbol;
-            this.ProviderID = b.ProviderID; 
+            this.ProviderID = b.ProviderID;
             this.EntryID = b.EntryID;
             this.LayerName = b.LayerName;
             this.LocalTimeStamp = b.LocalTimeStamp;
@@ -61,186 +46,60 @@ namespace VisualHFT.Model
             this.DecimalPlaces = b.DecimalPlaces;
             this.ActiveSize = b.ActiveSize;
         }
-        public int DecimalPlaces { get => _DecimalPlaces; set => _DecimalPlaces = value; }
+        public int DecimalPlaces { get; set; }
         public string Symbol
         {
-            get
-            {
-                return _Symbol;
-            }
-
-            set
-            {
-                if (_Symbol != value)
-                {
-                    _Symbol = value;
-                    RaisePropertyChanged("Symbol");
-                }
-            }
+            get => _Symbol;
+            set => SetProperty(ref _Symbol, value);
         }
         public int ProviderID
         {
-            get
-            {
-                return _ProviderID;
-            }
-
-            set
-            {
-                if (_ProviderID != value)
-                {
-                    _ProviderID = value;
-                    RaisePropertyChanged("ProviderID");
-                }
-            }
+            get => _ProviderID;
+            set => SetProperty(ref _ProviderID, value);
         }
         public string EntryID
         {
-            get
-            {
-                return _EntryID;
-            }
-
-            set
-            {
-                if (_EntryID != value)
-                {
-                    _EntryID = value;
-                    RaisePropertyChanged("EntryID");
-                }
-            }
+            get => _EntryID;
+            set => SetProperty(ref _EntryID, value);
         }
         public string LayerName
         {
-            get
-            {
-                return _LayerName;
-            }
-
-            set
-            {
-                if (_LayerName != value)
-                {
-                    _LayerName = value;
-                    RaisePropertyChanged("LayerName");
-                }
-            }
+            get => _LayerName;
+            set => SetProperty(ref _LayerName, value);
         }
         public DateTime LocalTimeStamp
         {
-            get
-            {
-                return _LocalTimeStamp;
-            }
-
-            set
-            {
-                if (_LocalTimeStamp != value)
-                {
-                    _LocalTimeStamp = value;
-                    RaisePropertyChanged("LocalTimeStamp");
-                }
-            }
+            get => _LocalTimeStamp;
+            set => SetProperty(ref _LocalTimeStamp, value);
         }
         public double? Price
         {
-            get
-            {
-                return _Price;
-            }
-
-            set
-            {
-                if (_Price != value)
-                {
-                    _Price = value;
-                    RaisePropertyChanged("Price");
-                    RaisePropertyChanged("FormattedPrice");
-                }
-            }
+            get => _Price;
+            set => SetProperty(ref _Price, value, onChanged: () => { RaisePropertyChanged(nameof(Price)); RaisePropertyChanged(nameof(FormattedPrice)); });            
         }
 
         public DateTime ServerTimeStamp
         {
-            get
-            {
-                return _ServerTimeStamp;
-            }
-
-            set
-            {
-                if (_ServerTimeStamp != value)
-                {
-                    _ServerTimeStamp = value;
-                    RaisePropertyChanged("ServerTimeStamp");
-                }
-            }
+            get => _ServerTimeStamp;
+            set => SetProperty(ref _ServerTimeStamp, value);
         }
         public double? Size
         {
-            get
-            {
-                return _Size;
-            }
-
-            set
-            {
-                if (_Size != value)
-                {
-                    _Size = value;
-                    RaisePropertyChanged("Size");
-                    RaisePropertyChanged("FormattedSize");
-                }
-            }
+            get => _Size;
+            set => SetProperty(ref _Price, value, onChanged: () => { RaisePropertyChanged(nameof(Size)); RaisePropertyChanged(nameof(FormattedPrice)); });           
         }
         public bool IsBid
         {
-            get
-            {
-                return _IsBid;
-            }
-
-            set
-            {
-                if (_IsBid != value)
-                {
-                    _IsBid = value;
-                    RaisePropertyChanged("IsBid");
-                }
-            }
+            get => _IsBid;
+            set => SetProperty(ref _IsBid, value);
         }
-
-        public string FormattedPrice
-        {
-            get
-            {
-                return this.Price.HasValue? this.Price.Value.ToString("N" + _DecimalPlaces): "";
-            }
-        }
-        public string FormattedSize
-        {
-            get
-            {
-                return this.Size.HasValue ? Helpers.HelperCommon.GetKiloFormatter(this.Size.Value): "";
-                //return this.Size.ToString("N0");
-            }
-        }
+        public string FormattedPrice => this.Price.HasValue ? this.Price.Value.ToString("N" + DecimalPlaces) : "";
+        public string FormattedSize => this.Size.HasValue ? Helpers.HelperCommon.GetKiloFormatter(this.Size.Value) : "";
 
         public double? ActiveSize
         {
-            get
-            {
-                return _ActiveSize;
-            }
-
-            set
-            {
-                if (_ActiveSize != value)
-                {
-                    _ActiveSize = value;
-                    RaisePropertyChanged("ActiveSize");
-                }
-            }
+            get => _ActiveSize;
+            set => SetProperty(ref _ActiveSize, value);
         }
     }
 }
