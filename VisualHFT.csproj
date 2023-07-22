@@ -183,6 +183,7 @@
     <Compile Include="Model\BookItemPriceSplit.cs" />
     <Compile Include="Model\BookItem.cs" />
     <Compile Include="Model\cBalance.cs" />
+    <Compile Include="Model\cDrawDown.cs" />
     <Compile Include="Model\cEquity.cs" />
     <Compile Include="Model\CloseExecution.cs">
       <DependentUpon>hftModel.tt</DependentUpon>
