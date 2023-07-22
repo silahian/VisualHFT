@@ -1,0 +1,63 @@
+﻿<Window x:Class="VisualHFT.View.GenericHistoricalLineChart"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VisualHFT.View"
+		xmlns:uc="clr-namespace:VisualHFT.UserControls"
+		xmlns:Formatters="clr-namespace:VisualHFT.Converters"
+		mc:Ignorable="d"
+		
+        xmlns:materialDesign="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
+        xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" xmlns:contrib="http://oxyplot.org/wpf/contrib"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="15"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"        
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{StaticResource MaterialDesignFont}"                      
+        Closing="Window_Closing"
+        Title="Generic Historical" Height="450" Width="800">
+	
+	<Window.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="../GlobalStyle.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</Window.Resources>
+
+    <!--CHARTS: Price and Spread-->
+    <Grid VerticalAlignment="Stretch">
+
+        <!--CHART-->
+        <contrib:Plot x:Name="chtChart" Title="Spread" TitleColor="White" TitleFontSize="10" PlotAreaBorderThickness="0" TextColor="White" DefaultFontSize="8" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" IsEnabled="False"  >
+            <contrib:Plot.Resources>
+                <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
+                <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
+                <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
+                <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
+            </contrib:Plot.Resources>
+            <contrib:Plot.Background>
+                <StaticResource ResourceKey="PlotBackgroundBrush" />
+            </contrib:Plot.Background>
+            <contrib:Plot.Axes>
+                <contrib:LinearAxis Position="Left"  />
+                <contrib:DateTimeAxis Position="Bottom" StringFormat="HH:mm:ss.fff" />
+            </contrib:Plot.Axes>
+            <contrib:Plot.Annotations>
+                <contrib:RectangleAnnotation MinimumY="0.8" MaximumY="1" Fill="#10FF0000" Opacity="0.1" />
+                <contrib:RectangleAnnotation MinimumY="-1" MaximumY="-0.8" Fill="#10FF0000" Opacity="0.5" />
+            </contrib:Plot.Annotations>
+            <contrib:Plot.Series>
+                <contrib:LineSeries DataFieldX="Date" DataFieldY="MidPrice" ItemsSource="{Binding RealTimeData}" StrokeThickness="2" LineStyle="Solid" Color="Blue" LabelMargin="5" IsEnabled="False" />
+            </contrib:Plot.Series>
+        </contrib:Plot>
+        <!--END CHART-->
+
+
+
+    </Grid>
+    
+</Window>

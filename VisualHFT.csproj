@@ -271,6 +271,9 @@
     <Compile Include="ViewModel\vmStrategyParameterHFTAcceptor.cs" />
     <Compile Include="ViewModel\vmStrategyParameterFirmMM.cs" />
     <Compile Include="ViewModel\vmStrategyParametersBase.cs" />
+    <Compile Include="View\GenericHistoricalLineChart.xaml.cs">
+      <DependentUpon>GenericHistoricalLineChart.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\PriceCharting.xaml.cs">
       <DependentUpon>PriceCharting.xaml</DependentUpon>
     </Compile>
@@ -363,6 +366,10 @@
       <DependentUpon>Dashboard.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="View\GenericHistoricalLineChart.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="View\PriceCharting.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
