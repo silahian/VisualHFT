@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Prism.Mvvm;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -6,94 +7,49 @@ using System.Windows.Media;
 
 namespace VisualHFT.Model
 {
-    public class PlotInfoPriceChart : INotifyPropertyChanged
+    public class PlotInfoPriceChart : BindableBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void RaisePropertyChanged([CallerMemberName] String propertyName = "")
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }        
         public DateTime Date { get; set; }
         public double Volume { get; set; }
 
         double _midPrice;
         public double MidPrice
         {
-            get { return _midPrice; }
-            set
-            {
-                if (_midPrice != value)
-                {
-                    _midPrice = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _midPrice;
+            set => SetProperty(ref _midPrice, value);
         }
         double _bidPrice;
         public double BidPrice
         {
-            get { return _bidPrice; }
-            set
-            {
-                if (_bidPrice != value)
-                {
-                    _bidPrice = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _bidPrice;
+            set => SetProperty(ref _bidPrice, value);
         }
 
         double _askPrice;
         public double AskPrice
         {
-            get { return _askPrice; }
-            set
-            {
-                if (_askPrice != value)
-                {
-                    _askPrice = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _askPrice;
+            set => SetProperty(ref _askPrice, value);
         }
 
-		double? _buyActiveOrder;
-		double? _sellActiveOrder;
-		public double? BuyActiveOrder
-		{
-			get { return _buyActiveOrder; }
-			set
-			{
-				if (_buyActiveOrder != value)
-				{
-					_buyActiveOrder = value;
-					RaisePropertyChanged();
-				}
-			}
-		}
-		public double? SellActiveOrder
-		{
-			get { return _sellActiveOrder; }
-			set
-			{
-				if (_sellActiveOrder != value)
-				{
-					_sellActiveOrder = value;
-					RaisePropertyChanged();
-				}
-			}
-		}
+        double? _buyActiveOrder;
+        double? _sellActiveOrder;
+        public double? BuyActiveOrder
+        {
+            get => _buyActiveOrder;
+            set => SetProperty(ref _buyActiveOrder, value);
+        }
+        public double? SellActiveOrder
+        {
+            get => _sellActiveOrder;
+            set => SetProperty(ref _sellActiveOrder, value);
+        }
 
-
-
-        public List<OrderBookLevel> BidOrders;
-        public List<OrderBookLevel> AskOrders;
-
-
+        public List<OrderBookLevel> BidOrders { get; set; }
+        public List<OrderBookLevel> AskOrders { get; set; }
         public Brush StrokeAsk { get; set; }
-		public Brush StrokeMiddle { get; set; }
-		public Brush StrokeBid { get; set; }
+        public Brush StrokeMiddle { get; set; }
+        public Brush StrokeBid { get; set; }
 
-	}
+    }
 }
