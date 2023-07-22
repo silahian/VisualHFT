@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace VisualHFT.Model
 {
@@ -254,7 +255,23 @@ namespace VisualHFT.Model
             get { lock (LOCK_OBJECT) { return new List<BookItem>(_Cummulative_Asks); } }
         }
         public double ImbalanceValue { get; set; }
-       
+        public double MidPrice
+        {
+            get
+            {
+                double _ret = 0;
+                lock (LOCK_OBJECT)
+                {
+                    var _bid = _Bids.FirstOrDefault();
+                    var _ask = _Asks.FirstOrDefault();
+                    if (_bid != null && _bid.Price.HasValue && _ask != null && _ask.Price.HasValue)
+                    {
+                        _ret = (_bid.Price.Value + _ask.Price.Value) / 2;
+                    }
+                }
+                return _ret;
+            }
+        }
 
     }
 }

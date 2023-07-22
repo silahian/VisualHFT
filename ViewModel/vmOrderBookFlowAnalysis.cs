@@ -86,7 +86,7 @@ namespace VisualHFT.ViewModel
                 {
                     //Imbalance
                     var objWithHigherDate = _realTimeData.OrderBy(x => x.Date).LastOrDefault();
-                    var objToAdd = new PlotInfoPriceChart() { Date = DateTime.Now, MidPrice = _orderBook.ImbalanceValue };
+                    var objToAdd = new PlotInfoPriceChart() { Date = DateTime.Now, Volume = _orderBook.ImbalanceValue, MidPrice = _orderBook.MidPrice };
                     if (objWithHigherDate == null || objToAdd.Date.Subtract(objWithHigherDate.Date).TotalMilliseconds > 10)
                     {
                         _realTimeData.Add(objToAdd);

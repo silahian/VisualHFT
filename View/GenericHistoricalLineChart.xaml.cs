@@ -27,11 +27,12 @@ namespace VisualHFT.View
         {
             //instead of adding the lineseries dynamically, we use the one already in xaml
             // The reason is we couldn't make it work => so we update the values with the existing instead ( so we can use it for other general purposes later on)
-
-
             //chtChart.Series.Clear();            
             //chtChart.Series.Add(_lineSeries);
-            var existingSerie = chtChart.Series[0] as OxyPlot.Wpf.LineSeries;
+
+
+
+            var existingSerie = chtChart.Series.Select(x =>  x as OxyPlot.Wpf.LineSeries).Where(x => x.DataFieldY == "Volume").FirstOrDefault();
             if (existingSerie != null)
             {
                 existingSerie.DataFieldX = _lineSeries.DataFieldX;

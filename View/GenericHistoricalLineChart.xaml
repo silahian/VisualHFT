@@ -43,7 +43,8 @@
                 <StaticResource ResourceKey="PlotBackgroundBrush" />
             </contrib:Plot.Background>
             <contrib:Plot.Axes>
-                <contrib:LinearAxis Position="Left"  />
+                <contrib:LinearAxis Position="Left" Key="VolumeAxis" />
+                <contrib:LinearAxis Position="Right" Key="MidPriceAxis" />
                 <contrib:DateTimeAxis Position="Bottom" StringFormat="HH:mm:ss.fff" />
             </contrib:Plot.Axes>
             <contrib:Plot.Annotations>
@@ -51,7 +52,8 @@
                 <contrib:RectangleAnnotation MinimumY="-1" MaximumY="-0.8" Fill="#10FF0000" Opacity="0.5" />
             </contrib:Plot.Annotations>
             <contrib:Plot.Series>
-                <contrib:LineSeries DataFieldX="Date" DataFieldY="MidPrice" ItemsSource="{Binding RealTimeData}" StrokeThickness="2" LineStyle="Solid" Color="Blue" LabelMargin="5" IsEnabled="False" />
+                <contrib:LineSeries DataFieldX="Date" DataFieldY="Volume" ItemsSource="{Binding RealTimeData}" StrokeThickness="2" LineStyle="Solid" Color="Blue" LabelMargin="5" IsEnabled="False" YAxisKey="VolumeAxis" />
+                <contrib:LineSeries DataFieldX="Date" DataFieldY="MidPrice" ItemsSource="{Binding RealTimeData}" StrokeThickness="5" LineStyle="Solid" Color="White" LabelMargin="5" IsEnabled="False" YAxisKey="MidPriceAxis" />
             </contrib:Plot.Series>
         </contrib:Plot>
         <!--END CHART-->

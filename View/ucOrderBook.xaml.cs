@@ -114,7 +114,7 @@ namespace VisualHFT.View
             var lineSeries = new OxyPlot.Wpf.LineSeries
             {
                 DataFieldX = "Date",
-                DataFieldY = "MidPrice",
+                DataFieldY = "Volume",
                 StrokeThickness = 2,
                 LineStyle = LineStyle.Solid,
                 LineJoin = LineJoin.Round,
@@ -131,7 +131,7 @@ namespace VisualHFT.View
 
 
             var newForm = new VisualHFT.View.GenericHistoricalLineChart(newViewModel, lineSeries);
-            newForm.Title = "LOB Imbalance " + newViewModel.SelectedSymbol;
+            newForm.Title = "LOB Imbalance (vs mid-price): " + newViewModel.SelectedSymbol;
             newForm.chtChart.Title = "";
             newForm.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             var axeY = newForm.chtChart.Axes.Where(x => x.Position == AxisPosition.Left).First();
