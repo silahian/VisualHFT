@@ -1,4 +1,5 @@
-﻿using Prism.Mvvm;
+﻿using Newtonsoft.Json;
+using Prism.Mvvm;
 using System;
 
 namespace VisualHFT.Model
@@ -9,13 +10,13 @@ namespace VisualHFT.Model
         {
             if (other == null)
                 return false;
-            if (this.IsBid != other.IsBid)
+            if (IsBid != other.IsBid)
                 return false;
-            if (this.EntryID != other.EntryID)
+            if (EntryID != other.EntryID)
                 return false;
-            if (this.Price != other.Price)
+            if (Price != other.Price)
                 return false;
-            if (this.Size != other.Size)
+            if (Size != other.Size)
                 return false;
             return true;
 
@@ -34,48 +35,57 @@ namespace VisualHFT.Model
 
         public void Update(BookItem b)
         {
-            this.Symbol = b.Symbol;
-            this.ProviderID = b.ProviderID;
-            this.EntryID = b.EntryID;
-            this.LayerName = b.LayerName;
-            this.LocalTimeStamp = b.LocalTimeStamp;
-            this.ServerTimeStamp = b.ServerTimeStamp;
-            this.Price = b.Price;
-            this.Size = b.Size;
-            this.IsBid = b.IsBid;
-            this.DecimalPlaces = b.DecimalPlaces;
-            this.ActiveSize = b.ActiveSize;
+            Symbol = b.Symbol;
+            ProviderID = b.ProviderID;
+            EntryID = b.EntryID;
+            LayerName = b.LayerName;
+            LocalTimeStamp = b.LocalTimeStamp;
+            ServerTimeStamp = b.ServerTimeStamp;
+            Price = b.Price;
+            Size = b.Size;
+            IsBid = b.IsBid;
+            DecimalPlaces = b.DecimalPlaces;
+            ActiveSize = b.ActiveSize;
         }
+
+
         public int DecimalPlaces { get; set; }
+
+
         public string Symbol
         {
             get => _Symbol;
             set => SetProperty(ref _Symbol, value);
         }
+
         public int ProviderID
         {
             get => _ProviderID;
             set => SetProperty(ref _ProviderID, value);
         }
+
         public string EntryID
         {
             get => _EntryID;
             set => SetProperty(ref _EntryID, value);
         }
+
         public string LayerName
         {
             get => _LayerName;
             set => SetProperty(ref _LayerName, value);
         }
+
         public DateTime LocalTimeStamp
         {
             get => _LocalTimeStamp;
             set => SetProperty(ref _LocalTimeStamp, value);
         }
+
         public double? Price
         {
             get => _Price;
-            set => SetProperty(ref _Price, value, onChanged: () => { RaisePropertyChanged(nameof(Price)); RaisePropertyChanged(nameof(FormattedPrice)); });            
+            set => SetProperty(ref _Price, value, onChanged: () => RaisePropertyChanged(nameof(FormattedPrice)));
         }
 
         public DateTime ServerTimeStamp
@@ -83,11 +93,13 @@ namespace VisualHFT.Model
             get => _ServerTimeStamp;
             set => SetProperty(ref _ServerTimeStamp, value);
         }
+
         public double? Size
         {
             get => _Size;
-            set => SetProperty(ref _Price, value, onChanged: () => { RaisePropertyChanged(nameof(Size)); RaisePropertyChanged(nameof(FormattedPrice)); });           
+            set => SetProperty(ref _Size, value, onChanged: () => RaisePropertyChanged(nameof(FormattedPrice)));
         }
+
         public bool IsBid
         {
             get => _IsBid;
