@@ -19,6 +19,7 @@ namespace VisualHFT.Helpers
     {
         protected long? _LAST_POSITION_ID = null;
         protected List<PositionEx> _positions;
+        protected DateTime? _sessionDate = null;
 
         System.Timers.Timer _timer;
         public event EventHandler<IEnumerable<PositionEx>> OnInitialLoad;
@@ -62,38 +63,42 @@ namespace VisualHFT.Helpers
             Task.Run(async () =>
             {
                 res = await GetPositions();
+
+                if (res != null && res.Any())
+                {
+                    foreach (var p in res)
+                    {
+                        if (!p.PipsPnLInCurrency.HasValue || p.PipsPnLInCurrency == 0)
+                        {
+                            p.PipsPnLInCurrency = (p.GetCloseQuantity * p.GetCloseAvgPrice) - (p.GetOpenQuantity * p.GetOpenAvgPrice);
+                            if (p.Side == ePOSITIONSIDE.Sell)
+                            {
+                                p.PipsPnLInCurrency *= -1;
+                            }
+                        }
+                        if (!HelperCommon.ALLSYMBOLS.Contains(p.Symbol))
+                        {
+                            HelperCommon.ALLSYMBOLS.Add(p.Symbol);
+                        }
+                    }
+                    if (this.Positions == null || !this.Positions.Any())
+                    {
+                        _positions = new List<PositionEx>(res);
+                        RaiseOnInitialLoad(this.Positions);
+                    }
+                    else
+                    {
+                        foreach (var p in res)
+                            _positions.Insert(0, p);
+                        RaiseOnDataReceived(res);
+                    }
+                }
+
+
             });
 
             
-            if (res != null && res.Any())
-            {
-                foreach (var p in res)
-                {
-                    if (!p.PipsPnLInCurrency.HasValue || p.PipsPnLInCurrency == 0)
-                    {
-                        p.PipsPnLInCurrency = (p.GetCloseQuantity * p.GetCloseAvgPrice) - (p.GetOpenQuantity * p.GetOpenAvgPrice);
-                        if (p.Side == ePOSITIONSIDE.Sell)
-                        {
-                            p.PipsPnLInCurrency *= -1;
-                        }
-                    }
-                    if (!HelperCommon.ALLSYMBOLS.Contains(p.Symbol))
-                    {
-                        HelperCommon.ALLSYMBOLS.Add(p.Symbol);
-                    }
-                }
-                if (this.Positions == null || !this.Positions.Any())
-                {
-                    _positions = new List<PositionEx>(res);
-                    RaiseOnInitialLoad(this.Positions);
-                }
-                else
-                {
-                    foreach (var p in res)
-                        _positions.Insert(0, p);
-                    RaiseOnDataReceived(res);
-                }
-            }
+
 
         }
 
@@ -102,7 +107,19 @@ namespace VisualHFT.Helpers
             get { return _positions; }
         }
         public ePOSITION_LOADING_TYPE LoadingType { get; set; }
-        public DateTime? SessionDate { get; set; }
+        public DateTime? SessionDate {
+            get { return _sessionDate; }
+            set
+            {
+                if (value != _sessionDate)
+                {
+                    _sessionDate = value;
+                    this.Positions.Clear();
+                    _LAST_POSITION_ID = null;
+                    _timer_Elapsed(null, null);
+                }
+            }
+        }
 
         private async Task<IEnumerable<PositionEx>> GetPositions()
         {
