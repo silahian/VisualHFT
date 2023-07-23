@@ -1,19 +1,12 @@
 ﻿<Window x:Class="VisualHFT.View.PriceCharting"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:VisualHFT.View"
-		xmlns:uc="clr-namespace:VisualHFT.UserControls"
-		xmlns:Formatters="clr-namespace:VisualHFT.Converters"
-        xmlns:chart="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Chart"
-        xmlns:chartView="clr-namespace:Telerik.Windows.Controls.ChartView;assembly=Telerik.Windows.Controls.Chart"
-		xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
-		mc:Ignorable="d"
-		
-            xmlns:materialDesign="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
-            xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-            TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        xmlns:Formatters="clr-namespace:VisualHFT.Converters"
+        xmlns:uc="clr-namespace:VisualHFT.UserControls"
+        mc:Ignorable="d"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
             TextElement.FontWeight="Regular"
             TextElement.FontSize="15"
             TextOptions.TextFormattingMode="Ideal" 
@@ -79,8 +72,8 @@
 			<uc:DispatchedCollection Grid.Row="0" DataContext="{Binding PriceChartingDataContext}" />
 
 			
-			<telerik:RadCartesianChart Grid.Row="0" x:Name="chart" Palette="{StaticResource customPalette}" Visibility="Hidden">
-				<!--AXIS-->
+			<!--<telerik:RadCartesianChart Grid.Row="0" x:Name="chart" Palette="{StaticResource customPalette}" Visibility="Hidden">
+				--><!--AXIS--><!--
 				<telerik:RadCartesianChart.HorizontalAxis>
 					<telerik:DateTimeContinuousAxis FontSize="10" FontFamily ="Verdana" MajorStepUnit="Minute" MajorStep="10" LabelFormat="H:mm" >
 						<telerik:DateTimeContinuousAxis.LabelStyle>
@@ -99,13 +92,13 @@
 						</telerik:LinearAxis.LabelTemplate>
 					</telerik:LinearAxis>
 				</telerik:RadCartesianChart.VerticalAxis>
-				<!--END AXIS-->
+				--><!--END AXIS--><!--
 
 				<telerik:RadCartesianChart.SeriesProvider>
 					<telerik:ChartSeriesProvider Source="{Binding RealTimePrices}" >
 						<telerik:ChartSeriesProvider.SeriesDescriptors>
 
-							<!--ASK-->
+							--><!--ASK--><!--
 							<telerik:CategoricalSeriesDescriptor CategoryPath="Date" ValuePath="AskPrice" ItemsSourcePath="Items" TypePath="SeriesType" >
 								<telerik:CategoricalSeriesDescriptor.Style>
 									<Style TargetType="telerik:LineSeries">
@@ -114,7 +107,7 @@
 									</Style>
 								</telerik:CategoricalSeriesDescriptor.Style>
 							</telerik:CategoricalSeriesDescriptor>
-							<!--BID-->
+							--><!--BID--><!--
 							<telerik:CategoricalSeriesDescriptor CategoryPath="Date" ValuePath="BidPrice" ItemsSourcePath="Items"  TypePath="SeriesType">
 								<telerik:CategoricalSeriesDescriptor.Style>
 									<Style TargetType="telerik:LineSeries">
@@ -123,7 +116,7 @@
 									</Style>
 								</telerik:CategoricalSeriesDescriptor.Style>
 							</telerik:CategoricalSeriesDescriptor>
-							<!--MID PONIT-->
+							--><!--MID PONIT--><!--
 							<telerik:CategoricalSeriesDescriptor CategoryPath="Date" ValuePath="MidPrice" ItemsSourcePath="Items"  TypePath="SeriesType">
 								<telerik:CategoricalSeriesDescriptor.Style>
 									<Style TargetType="telerik:LineSeries">
@@ -145,12 +138,12 @@
                            HorizontalAlignment="Right"  
                            VerticalAlignment="Bottom" 
 							   >
-			</telerik:RadLegend>
+			</telerik:RadLegend>-->
 			<!--END PRICE CHART-->
 
 			<!--SPREAD CHART-->
-			<telerik:RadCartesianChart Grid.Row="1" Visibility="Hidden">
-				<!--AXIS-->
+			<!--<telerik:RadCartesianChart Grid.Row="1" Visibility="Hidden">
+				--><!--AXIS--><!--
 				<telerik:RadCartesianChart.HorizontalAxis>
 					<telerik:DateTimeContinuousAxis FontSize="7" FontFamily ="Verdana" MajorStepUnit="Minute" MajorStep="10" LabelFormat="H:mm" >
 						<telerik:DateTimeContinuousAxis.LabelStyle>
@@ -169,12 +162,12 @@
 						</telerik:LinearAxis.LabelTemplate>
 					</telerik:LinearAxis>
 				</telerik:RadCartesianChart.VerticalAxis>
-				<!--END AXIS-->
+				--><!--END AXIS--><!--
 
 				<telerik:LineSeries ItemsSource="{Binding RealTimeSpread}" CategoryBinding="Date" ValueBinding="MidPrice" Stroke="Blue" StrokeThickness="2" >
 				</telerik:LineSeries>
 
-			</telerik:RadCartesianChart>
+			</telerik:RadCartesianChart>-->
 			<!--END SPREAD CHART-->
 		</Grid>
 

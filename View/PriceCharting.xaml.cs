@@ -240,7 +240,8 @@ namespace VisualHFT.View
 
 		private Brush GetNextBrush(int index)
 		{
-			return chart.Palette.SeriesEntries[index].First().Fill;
-		}
+            //return chart.Palette.SeriesEntries[index].First().Fill;
+            throw new NotImplementedException();
+        }
 	}
 }
