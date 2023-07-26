@@ -97,7 +97,7 @@ namespace VisualHFT.Model
         public double? Size
         {
             get => _Size;
-            set => SetProperty(ref _Size, value, onChanged: () => RaisePropertyChanged(nameof(FormattedPrice)));
+            set => SetProperty(ref _Size, value, onChanged: () => RaisePropertyChanged(nameof(FormattedSize)));
         }
 
         public bool IsBid
