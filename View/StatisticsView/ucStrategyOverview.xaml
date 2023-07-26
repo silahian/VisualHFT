@@ -1,15 +1,11 @@
 ﻿<UserControl
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:VisualHFT.View.StatisticsView"
-             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation" 
-             x:Class="VisualHFT.View.StatisticsView.ucStrategyOverview"
-    
-            xmlns:materialDesign="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
-            xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-            TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:contrib="clr-namespace:OxyPlot.Wpf;assembly=OxyPlot.Contrib.Wpf"
+    x:Class="VisualHFT.View.StatisticsView.ucStrategyOverview"
+    TextElement.Foreground="{DynamicResource MaterialDesignBody}"
             TextElement.FontWeight="Regular"
             TextElement.FontSize="15"
             TextOptions.TextFormattingMode="Ideal" 
@@ -111,96 +107,51 @@
             </StackPanel>
         </Grid>
         <!--CHART WINNING RATE-->
-        <Grid Grid.Row="0" Grid.Column="4" VerticalAlignment="Top" >
+        <Grid Grid.Row="0" Grid.Column="4" VerticalAlignment="Stretch" >
             <StackPanel Orientation="Vertical" Panel.ZIndex="9999"  HorizontalAlignment="Center" VerticalAlignment="Center" >
                 <TextBlock  TextWrapping="NoWrap" TextAlignment="Center" FontSize="35" Text="{Binding WinningRate, StringFormat=P0}" />
                 <TextBlock Text="Winning rate" TextWrapping="Wrap" TextAlignment="Center" FontSize="9" />
             </StackPanel>
-            
-            <telerik:RadPieChart HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HoverMode="FadeOtherItems" EmptyContent="">
-                <telerik:RadPieChart.Series>
-                    <telerik:DoughnutSeries ItemsSource="{Binding WinningRateChartPoints}" ValueBinding="Value" ShowLabels="False" Margin="0,0,0,0" InnerRadiusFactor="0.8" RadiusFactor="1" >
-                        <telerik:DoughnutSeries.SliceStyles>
-                            <Style TargetType="Path">
-                                <Setter Property="Fill" Value="YellowGreen"/>
-                            </Style>
-                            <Style TargetType="Path">
-                                <Setter Property="Fill" Value="Gray"/>
-                            </Style>
-                        </telerik:DoughnutSeries.SliceStyles>
-                        <!--
-                        <telerik:DoughnutSeries.DataPoints>
-                            <telerik:PieDataPoint Label="" Value="77" />
-                            <telerik:PieDataPoint Label="" Value="23"/>
-                        </telerik:DoughnutSeries.DataPoints>
-                        -->
-                    </telerik:DoughnutSeries>
-                </telerik:RadPieChart.Series>
-            </telerik:RadPieChart>
+
+            <contrib:Plot HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <contrib:Plot.Resources>
+                    <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
+                    <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
+                    <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
+                    <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
+                </contrib:Plot.Resources>
+                <contrib:Plot.Background>
+                    <StaticResource ResourceKey="PlotBackgroundBrush" />
+                </contrib:Plot.Background>
+                <contrib:PieSeries
+                    InnerDiameter="0.8"
+                    Diameter="1"
+                    ExplodedDistance="0"
+                    Stroke="Black" StrokeThickness="1"
+                    StartAngle="0" AngleSpan="360"
+                    ItemsSource="{Binding WinningRateChartPoints}"
+                    ValueField="Value" IsExplodedField="IsExploded"  Margin="0,0,0,0" />
+            </contrib:Plot>
         </Grid>
 
         <!--CHART-->
-
-        <telerik:RadCartesianChart Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Background="#010F00" >
-            
-            <telerik:RadCartesianChart.HorizontalAxis>
-                <telerik:DateTimeContinuousAxis FontSize="9" MajorStepUnit="Minute" MajorStep="60" LabelFormat="HH" >
-                    <telerik:DateTimeContinuousAxis.LabelStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Foreground" Value="Gray" />
-                            <Setter Property="FontSize" Value="7" />
-                        </Style>
-                    </telerik:DateTimeContinuousAxis.LabelStyle>
-                </telerik:DateTimeContinuousAxis>
-            </telerik:RadCartesianChart.HorizontalAxis>
-            <telerik:RadCartesianChart.VerticalAxis>
-                <telerik:LinearAxis FontSize="7" LabelFormat="C0" LineThickness="0">
-                    <telerik:LinearAxis.LabelStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Foreground" Value="Gray" />
-                            <Setter Property="FontSize" Value="7" />
-                        </Style>
-                    </telerik:LinearAxis.LabelStyle>    
-                </telerik:LinearAxis>
-            </telerik:RadCartesianChart.VerticalAxis>
-
-            <telerik:RadCartesianChart.Series>
-                <telerik:SplineSeries StrokeThickness="3" Stroke="#12F40D" ItemsSource="{Binding EquityChartPoints, Mode=TwoWay}" CategoryBinding="Date" ValueBinding="Value" >
-
-                    <!--
-                    <telerik:SplineSeries.DataPoints>
-                        <telerik:CategoricalDataPoint Value="20000" Category="1/1/2016 9:00"/>
-                        <telerik:CategoricalDataPoint Value="40000" Category="1/2/2016 10:00" />
-                        <telerik:CategoricalDataPoint Value="35000" Category="1/3/2016 11:00"/>
-                        <telerik:CategoricalDataPoint Value="40000" Category="1/4/2016 15:00"/>
-                        <telerik:CategoricalDataPoint Value="50000" Category="1/5/2016 16:00"/>
-                        <telerik:CategoricalDataPoint Value="80000" Category="1/6/2016 18:00"/>
-                    </telerik:SplineSeries.DataPoints>
-                    -->
-                </telerik:SplineSeries>
-            </telerik:RadCartesianChart.Series>
-
-            
-
-            <telerik:RadCartesianChart.Grid>
-                <telerik:CartesianChartGrid MajorLinesVisibility="XY" >
-                    <telerik:CartesianChartGrid.MajorXLineStyle>
-                        <Style TargetType="Line">
-                            <Setter Property="Stroke" Value="#0F3D01"/>
-                        </Style>
-                    </telerik:CartesianChartGrid.MajorXLineStyle>
-                    <telerik:CartesianChartGrid.MajorYLineStyle>
-                        <Style TargetType="Line">
-                            <Setter Property="Stroke" Value="#0F3D01"/>
-                        </Style>
-                    </telerik:CartesianChartGrid.MajorYLineStyle>
-                </telerik:CartesianChartGrid>
-            </telerik:RadCartesianChart.Grid>
-        </telerik:RadCartesianChart>
-        
-        
-        
-        
-        
+        <contrib:Plot Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" >
+            <contrib:Plot.Resources>
+                <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
+                <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
+                <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
+                <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
+            </contrib:Plot.Resources>
+            <contrib:Plot.Background>
+                <StaticResource ResourceKey="PlotBackgroundBrush" />
+            </contrib:Plot.Background>
+            <contrib:Plot.Annotations>
+                <contrib:LineAnnotation Type="Horizontal" Y="0"></contrib:LineAnnotation>
+            </contrib:Plot.Annotations>
+            <contrib:Plot.Axes>
+                <contrib:DateTimeAxis IntervalType="Hours" IntervalLength="50"/>
+            </contrib:Plot.Axes>
+            <contrib:LinearBarSeries ItemsSource="{Binding EquityChartPoints, Mode=TwoWay}" DataFieldX="Date" DataFieldY="Value" FillColor="#454CAF50" StrokeColor="#4CAF50" StrokeThickness="1" BarWidth="5"/>
+        </contrib:Plot>
     </Grid>
 </UserControl>
