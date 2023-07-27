@@ -4,51 +4,47 @@ namespace VisualHFT.Model
 {
     public class Execution
     {
-        public Execution()
+        public Execution(OpenExecution execution)
         {
-
+            ExecutionID = execution.ExecutionID;
+            PositionID = execution.PositionID;
+            ClOrdId = execution.ClOrdId;
+            ExecID = execution.ExecID;
+            LocalTimeStamp = execution.LocalTimeStamp;
+            ServerTimeStamp = execution.ServerTimeStamp;
+            Price = execution.Price;
+            ProviderID = execution.ProviderID;
+            QtyFilled = execution.QtyFilled;
+            Side = execution.Side;
+            Status = execution.Status;
+            IsOpen = execution.IsOpen;
         }
-        public Execution(OpenExecution ex)
+        public Execution(CloseExecution execution)
         {
-            this.ExecutionID = ex.ExecutionID;
-            this.PositionID = ex.PositionID;
-            this.ClOrdId = ex.ClOrdId;
-            this.ExecID = ex.ExecID;
-            this.LocalTimeStamp = ex.LocalTimeStamp;
-            this.ServerTimeStamp = ex.ServerTimeStamp;
-            this.Price = ex.Price;
-            this.ProviderID = ex.ProviderID;
-            this.QtyFilled = ex.QtyFilled;
-            this.Side = ex.Side;
-            this.Status = ex.Status;
-            this.IsOpen = ex.IsOpen;
-        }
-        public Execution(CloseExecution ex)
-        {
-            this.ExecutionID = ex.ExecutionID;
-            this.PositionID = ex.PositionID;
-            this.ClOrdId = ex.ClOrdId;
-            this.ExecID = ex.ExecID;
-            this.LocalTimeStamp = ex.LocalTimeStamp;
-            this.ServerTimeStamp = ex.ServerTimeStamp;
-            this.Price = ex.Price;
-            this.ProviderID = ex.ProviderID;
-            this.QtyFilled = ex.QtyFilled;
-            this.Side = ex.Side;
-            this.Status = ex.Status;
-            this.IsOpen = ex.IsOpen;
+            ExecutionID = execution.ExecutionID;
+            PositionID = execution.PositionID;
+            ClOrdId = execution.ClOrdId;
+            ExecID = execution.ExecID;
+            LocalTimeStamp = execution.LocalTimeStamp;
+            ServerTimeStamp = execution.ServerTimeStamp;
+            Price = execution.Price;
+            ProviderID = execution.ProviderID;
+            QtyFilled = execution.QtyFilled;
+            Side = execution.Side;
+            Status = execution.Status;
+            IsOpen = execution.IsOpen;
         }
         public int ExecutionID { get; set; }
         public long PositionID { get; set; }
         public string ClOrdId { get; set; }
         public string ExecID { get; set; }
-        public System.DateTime LocalTimeStamp { get; set; }
-        public System.DateTime ServerTimeStamp { get; set; }
-        public Nullable<decimal> Price { get; set; }
+        public DateTime LocalTimeStamp { get; set; }
+        public DateTime ServerTimeStamp { get; set; }
+        public decimal? Price { get; set; }
         public int ProviderID { get; set; }
-        public Nullable<decimal> QtyFilled { get; set; }
-        public Nullable<int> Side { get; set; }
-        public Nullable<int> Status { get; set; }
+        public decimal? QtyFilled { get; set; }
+        public int? Side { get; set; }
+        public int? Status { get; set; }
         public bool IsOpen { get; set; }
     }
 }

@@ -1,70 +1,36 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using Prism.Mvvm;
+using System;
 
 namespace VisualHFT.Model
 {
-    public class OrderBookLevel : INotifyPropertyChanged
+    public class OrderBookLevel : BindableBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void RaisePropertyChanged([CallerMemberName] String propertyName = "")
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }
         private DateTime _date;
         public DateTime Date
         {
-            get { return _date; }
-            set
-            {
-                if (_date != value)
-                {
-                    _date = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _date;
+            set => SetProperty(ref _date, value);
         }
 
         private double _dateIndex;
         public double DateIndex
         {
-            get { return _dateIndex; }
-            set {
-                if (_dateIndex != value)
-                {
-                    _dateIndex = value;
-                    RaisePropertyChanged();
-                }
-            }
+            get => _dateIndex;
+            set => SetProperty(ref _dateIndex, value);
         }
 
         private double _price;
         public double Price
         {
-            get { return _price ; }
-            set {
-                if (_price != value)
-                {
-                    _price = value;
-                    RaisePropertyChanged();
-                }
-
-            }
+            get => _price;
+            set => SetProperty(ref _price, value);
         }
 
         private double _size;
         public double Size
         {
-            get { return _size; }
-            set {
-                if (_size != value)
-                {
-                    _size = value;
-                    RaisePropertyChanged();
-                }
-
-            }
+            get => _size;
+            set => SetProperty(ref _size, value);
         }
     }
 }

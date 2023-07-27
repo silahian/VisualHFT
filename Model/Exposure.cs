@@ -1,100 +1,60 @@
-﻿using System.ComponentModel;
+﻿using Prism.Mvvm;
 
 namespace VisualHFT.Model
 {
 
-    public class Exposure : INotifyPropertyChanged
+    public class Exposure : BindableBase
     {
+        private string _symbol;
+        private string _strategyName;
+        private double _sizeExposed;
+        private double _unrealizedPL;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-        string _symbol;
-        string _strategyName;
-        double _sizeExposed;
-        double _UnrealizedPL;
-        string _exposureRowColor;
-        public Exposure()
-        {
-
-        }
         public Exposure(Exposure p)
         {
-            _symbol = p._symbol;
-            _strategyName = p._strategyName;
-            _sizeExposed = p._sizeExposed;
-            _UnrealizedPL = p._UnrealizedPL;
+            Symbol = p.Symbol;
+            StrategyName = p.StrategyName;
+            SizeExposed = p.SizeExposed;
+            UnrealizedPL = p.UnrealizedPL;
         }
         public string Symbol
         {
-            get
-            {
-                return _symbol;
-            }
-
-            set
-            {
-                _symbol = value;
-                RaisePropertyChanged("Symbol");
-            }
+            get => _symbol;
+            set => SetProperty(ref _symbol, value);
         }
         public string StrategyName
         {
-            get
-            {
-                return _strategyName;
-            }
-
-            set
-            {
-                _strategyName = value;
-                RaisePropertyChanged("StrategyName");
-            }
+            get => _strategyName;
+            set => SetProperty(ref _strategyName, value);
         }
         public double SizeExposed
         {
-            get
-            {
-                return _sizeExposed;
-            }
-
-            set
-            {
-                _sizeExposed = value;
-
-                RaisePropertyChanged("SizeExposed");
-            }
+            get => _sizeExposed;
+            set => SetProperty(ref _sizeExposed, value);
         }
         public double UnrealizedPL
         {
-            get
-            {
-                return _UnrealizedPL;
-            }
-            set
-            {
-                _UnrealizedPL = value;
-                if (value == 0)
-                    _exposureRowColor = "White";
-                else if (value < 0 )
-                    _exposureRowColor = "Red";
-                else
-                    _exposureRowColor = "Green";
-                RaisePropertyChanged("UnrealizedPL");
-                RaisePropertyChanged("ExposureRowColor");
-            }
+            get => _unrealizedPL;
+            set => SetProperty(ref _unrealizedPL, value, onChanged: () => SetExposureRowColor(value));
+        }
 
-        }
-        public string ExposureRowColor
+        private void SetExposureRowColor(double value)
         {
-            get { return _exposureRowColor; }
+            if (value == 0)
+            {
+                ExposureRowColor = "White";
+            }
+            else if (value < 0)
+            {
+                ExposureRowColor = "Red";
+            }
+            else
+            {
+                ExposureRowColor = "Green";
+            }
         }
+
+        public string ExposureRowColor { get; private set; }
 
     }
 }

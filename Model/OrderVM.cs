@@ -1,158 +1,316 @@
-﻿using System;
+﻿using Prism.Mvvm;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace VisualHFT.Model
 {
-    public class OrderVM: INotifyPropertyChanged
+    public class OrderVM : BindableBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged(string propertyName)
+        /// <summary>
+        /// This override will fire PostedSecondsAgo property change when any other property fires
+        /// </summary>
+        /// <param name="args"></param>
+        protected override void OnPropertyChanged(PropertyChangedEventArgs args)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+            base.OnPropertyChanged(args);
+            if (args.PropertyName != nameof(PostedSecondsAgo))
+            {
+                RaisePropertyChanged(nameof(PostedSecondsAgo));
+            }
         }
-        protected bool SetField<T>(ref T field, T value, string propertyName)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-            field = value;
-            OnPropertyChanged(propertyName);
-            OnPropertyChanged("PostedSecondsAgo");
-            return true;
-        }
+
         #region private fields
-        protected string _ProviderName;
-        protected long _OrderID;
-        protected string _StrategyCode;
-        protected string _Symbol ;
-        protected int _ProviderId ;
-        protected string _ClOrdId ;
-        protected eORDERSIDE _Side ;
-        protected eORDERTYPE _OrderType ;
-        protected eORDERTIMEINFORCE _TimeInForce ;
-        protected eORDERSTATUS _Status ;
-        protected double _Quantity ;
-        protected double _MinQuantity ;
-        protected double _FilledQuantity ;
-        protected double _PricePlaced ;
-        protected string _Currency ;
-        protected string _FutSettDate ;
-        protected bool _IsMM ;
-        protected bool _IsEmpty ;
-        protected string _LayerName ;
-        protected int _AttemptsToClose ;
-        protected int _SymbolMultiplier ;
-        protected int _SymbolDecimals ;
-        protected string _FreeText ;
-        protected string _OriginPartyID ;
-        protected IEnumerable<OpenExecution> _Executions;
-        protected int _QuoteID ;
-        protected DateTime _QuoteServerTimeStamp ;
-        protected DateTime _QuoteLocalTimeStamp ;
-        protected DateTime _CreationTimeStamp ;
-        protected DateTime _ExecutedTimeStamp ;
-        protected DateTime _FireSignalTimestamp ;
-        protected double _StopLoss ;
-        protected double _TakeProfit ;
-        protected bool _PipsTrail ;
-        protected double _UnrealizedPnL ;
-        protected double _MaxDrowdown ;
-        protected double _BestBid ;
-        protected double _BestAsk ;
-        protected double _GetAvgPrice;
-        protected double _GetQuantity ;
+        private string _providerName;
+        private long _orderID;
+        private string _strategyCode;
+        private string _symbol;
+        private int _providerId;
+        private string _clOrdId;
+        private eORDERSIDE _side;
+        private eORDERTYPE _orderType;
+        private eORDERTIMEINFORCE _timeInForce;
+        private eORDERSTATUS _status;
+        private double _quantity;
+        private double _minQuantity;
+        private double _filledQuantity;
+        private double _pricePlaced;
+        private string _currency;
+        private string _futSettDate;
+        private bool _isMM;
+        private bool _isEmpty;
+        private string _layerName;
+        private int _attemptsToClose;
+        private int _symbolMultiplier;
+        private int _symbolDecimals;
+        private string _freeText;
+        private string _originPartyID;
+        private IEnumerable<OpenExecution> _executions;
+        private int _quoteID;
+        private DateTime _quoteServerTimeStamp;
+        private DateTime _quoteLocalTimeStamp;
+        private DateTime _creationTimeStamp;
+        private DateTime _executedTimeStamp;
+        private DateTime _fireSignalTimestamp;
+        private double _stopLoss;
+        private double _takeProfit;
+        private bool _pipsTrail;
+        private double _unrealizedPnL;
+        private double _maxDrowdown;
+        private double _bestBid;
+        private double _bestAsk;
+        private double _getAvgPrice;
+        private double _getQuantity;
         #endregion
 
         public OrderVM()
         {
-            this.IsEmpty = true;
+            IsEmpty = true;
         }
-        public void Update(OrderVM o)
+        public void Update(OrderVM order)
         {
-            this.ProviderName = o.ProviderName;
-            this.OrderID = o.OrderID;
-            this.StrategyCode = o.StrategyCode;
-            this.Symbol = o.Symbol;
-            this.ProviderId = o.ProviderId;
-            this.ClOrdId = o.ClOrdId;
-            this.Side = o.Side;
-            this.OrderType = o.OrderType;
-            this.TimeInForce = o.TimeInForce;
-            this.Status = o.Status;
-            this.Quantity = o.Quantity; 
-            this.MinQuantity = o.MinQuantity;
-            this.FilledQuantity = o.FilledQuantity;
-            this.PricePlaced = o.PricePlaced; 
-            this.Currency = o.Currency;
-            this.FutSettDate = o.FutSettDate;
-            this.IsMM = o.IsMM;
-            this.IsEmpty = o.IsEmpty;
-            this.LayerName = o.LayerName;
-            this.AttemptsToClose = o.AttemptsToClose;
-            this.SymbolMultiplier = o.SymbolMultiplier;
-            this.SymbolDecimals = o.SymbolDecimals;
-            this.FreeText = o.FreeText; 
-            this.OriginPartyID = o.OriginPartyID;
-            this.Executions = o.Executions;
-            this.QuoteID = o.QuoteID;
-            this.QuoteServerTimeStamp = o.QuoteServerTimeStamp;
-            this.QuoteLocalTimeStamp = o.QuoteLocalTimeStamp;
-            this.CreationTimeStamp = o.CreationTimeStamp;
-            this.FireSignalTimestamp = o.FireSignalTimestamp;
-            this.StopLoss = o.StopLoss;
-            this.TakeProfit = o.TakeProfit;
-            this.PipsTrail = o.PipsTrail; 
-            this.UnrealizedPnL = o.UnrealizedPnL;
-            this.MaxDrowdown = o.MaxDrowdown;
-            this.BestAsk = o.BestAsk;
-            this.BestBid = o.BestBid;
-            this.GetAvgPrice = o.GetAvgPrice;
-            this.GetQuantity = o.GetQuantity;
-            
+            ProviderName = order.ProviderName;
+            OrderID = order.OrderID;
+            StrategyCode = order.StrategyCode;
+            Symbol = order.Symbol;
+            ProviderId = order.ProviderId;
+            ClOrdId = order.ClOrdId;
+            Side = order.Side;
+            OrderType = order.OrderType;
+            TimeInForce = order.TimeInForce;
+            Status = order.Status;
+            Quantity = order.Quantity;
+            MinQuantity = order.MinQuantity;
+            FilledQuantity = order.FilledQuantity;
+            PricePlaced = order.PricePlaced;
+            Currency = order.Currency;
+            FutSettDate = order.FutSettDate;
+            IsMM = order.IsMM;
+            IsEmpty = order.IsEmpty;
+            LayerName = order.LayerName;
+            AttemptsToClose = order.AttemptsToClose;
+            SymbolMultiplier = order.SymbolMultiplier;
+            SymbolDecimals = order.SymbolDecimals;
+            FreeText = order.FreeText;
+            OriginPartyID = order.OriginPartyID;
+            Executions = order.Executions;
+            QuoteID = order.QuoteID;
+            QuoteServerTimeStamp = order.QuoteServerTimeStamp;
+            QuoteLocalTimeStamp = order.QuoteLocalTimeStamp;
+            CreationTimeStamp = order.CreationTimeStamp;
+            FireSignalTimestamp = order.FireSignalTimestamp;
+            StopLoss = order.StopLoss;
+            TakeProfit = order.TakeProfit;
+            PipsTrail = order.PipsTrail;
+            UnrealizedPnL = order.UnrealizedPnL;
+            MaxDrowdown = order.MaxDrowdown;
+            BestAsk = order.BestAsk;
+            BestBid = order.BestBid;
+            GetAvgPrice = order.GetAvgPrice;
+            GetQuantity = order.GetQuantity;
+
         }
-        public double PostedSecondsAgo { get { return DateTime.Now.Subtract(this.CreationTimeStamp).TotalSeconds; } }
-        public double PendingQuantity { get { return _Quantity - _FilledQuantity; } }
-
-
-        public string ProviderName { get { return _ProviderName; } set { SetField(ref _ProviderName, value, "ProviderName"); } }
-        public long OrderID{ get { return _OrderID; } set { SetField(ref _OrderID, value, "OrderID"); } }
-        public string StrategyCode{ get { return _StrategyCode; } set { SetField(ref _StrategyCode, value, "StrategyCode"); } }
-        public string Symbol{ get { return _Symbol; } set { SetField(ref _Symbol, value, "Symbol"); } }
-        public int ProviderId{ get { return _ProviderId; } set { SetField(ref _ProviderId, value, "ProviderId"); } }
-        public string ClOrdId{ get { return _ClOrdId; } set { SetField(ref _ClOrdId, value, "ClOrdId"); } }
-        public eORDERSIDE Side { get { return _Side; } set { SetField(ref _Side, value, "Side"); } }
-        public eORDERTYPE OrderType { get { return _OrderType; } set { SetField(ref _OrderType, value, "OrderType"); } }
-        public eORDERTIMEINFORCE TimeInForce { get { return _TimeInForce; } set { SetField(ref _TimeInForce, value, "TimeInForce"); } }
-        public eORDERSTATUS Status { get { return _Status; } set { SetField(ref _Status, value, "Status"); } }
-        public double Quantity{ get { return _Quantity; } set { SetField(ref _Quantity, value, "Quantity"); } }
-        public double MinQuantity{ get { return _MinQuantity; } set { SetField(ref _MinQuantity, value, "MinQuantity"); } }
-        public double FilledQuantity{ get { return _FilledQuantity; } set { SetField(ref _FilledQuantity, value, "FilledQuantity"); OnPropertyChanged("PendingQuantity"); } }
-        public double PricePlaced{ get { return _PricePlaced; } set { SetField(ref _PricePlaced, value, "PricePlaced"); } }
-        public string Currency{ get { return _Currency; } set { SetField(ref _Currency, value, "Currency"); } }
-        public string FutSettDate{ get { return _FutSettDate; } set { SetField(ref _FutSettDate, value, "FutSettDate"); } }
-        public bool IsMM{ get { return _IsMM; } set { SetField(ref _IsMM, value, "IsMM"); } }
-        public bool IsEmpty{ get { return _IsEmpty; } set { SetField(ref _IsEmpty, value, "IsEmpty"); } }
-        public string LayerName{ get { return _LayerName; } set { SetField(ref _LayerName, value, "LayerName"); } }
-        public int AttemptsToClose{ get { return _AttemptsToClose; } set { SetField(ref _AttemptsToClose, value, "AttemptsToClose"); } }
-        public int SymbolMultiplier{ get { return _SymbolMultiplier; } set { SetField(ref _SymbolMultiplier, value, "SymbolMultiplier"); } }
-        public int SymbolDecimals{ get { return _SymbolDecimals; } set { SetField(ref _SymbolDecimals, value, "SymbolDecimals"); } }
-        public string FreeText{ get { return _FreeText; } set { SetField(ref _FreeText, value, "FreeText"); } }
-        public string OriginPartyID{ get { return _OriginPartyID; } set { SetField(ref _OriginPartyID, value, "OriginPartyID"); } }
-        public IEnumerable<OpenExecution> Executions{ get { return _Executions; } set { SetField(ref _Executions, value, "Executions"); } }
-        public int QuoteID { get { return _QuoteID; } set { SetField(ref _QuoteID, value, "QuoteID"); } }
-        public DateTime QuoteServerTimeStamp{ get { return _QuoteServerTimeStamp; } set { SetField(ref _QuoteServerTimeStamp, value, "QuoteServerTimeStamp"); } }
-        public DateTime QuoteLocalTimeStamp{ get { return _QuoteLocalTimeStamp; } set { SetField(ref _QuoteLocalTimeStamp, value, "QuoteLocalTimeStamp"); } }
-        public DateTime CreationTimeStamp{ get { return _CreationTimeStamp; } set { SetField(ref _CreationTimeStamp, value, "CreationTimeStamp"); OnPropertyChanged("PostedSecondsAgo"); } } 
-        public DateTime ExecutedTimeStamp{ get { return _ExecutedTimeStamp; } set { SetField(ref _ExecutedTimeStamp, value, "ExecutedTimeStamp"); } }
-        public DateTime FireSignalTimestamp{ get { return _FireSignalTimestamp; } set { SetField(ref _FireSignalTimestamp, value, "FireSignalTimestamp"); } }
-        public double StopLoss{ get { return _StopLoss; } set { SetField(ref _StopLoss, value, "StopLoss"); } }
-        public double TakeProfit{ get { return _TakeProfit; } set { SetField(ref _TakeProfit, value, "TakeProfit"); } }
-        public bool PipsTrail{ get { return _PipsTrail; } set { SetField(ref _PipsTrail, value, "PipsTrail"); } }
-        public double UnrealizedPnL{ get { return _UnrealizedPnL; } set { SetField(ref _UnrealizedPnL, value, "UnrealizedPnL"); } }
-        public double MaxDrowdown{ get { return _MaxDrowdown; } set { SetField(ref _MaxDrowdown, value, "MaxDrowdown"); } }
-        public double BestBid{ get { return _BestBid; } set { SetField(ref _BestBid, value, "BestBid"); } }
-        public double BestAsk{ get { return _BestAsk; } set { SetField(ref _BestAsk, value, "BestAsk"); } }
-        public double GetAvgPrice { get { return _GetAvgPrice; } set { SetField(ref _GetAvgPrice, value, "GetAvgPrice"); } }
-        public double GetQuantity { get { return _GetQuantity; } set { SetField(ref _GetQuantity, value, "GetQuantity"); } }
+        public double PostedSecondsAgo => DateTime.Now.Subtract(CreationTimeStamp).TotalSeconds;
+        public double PendingQuantity => Quantity - FilledQuantity;
+        public string ProviderName
+        {
+            get => _providerName;
+            set => SetProperty(ref _providerName, value);
+        }
+        public long OrderID
+        {
+            get => _orderID;
+            set => SetProperty(ref _orderID, value);
+        }
+        public string StrategyCode
+        {
+            get => _strategyCode;
+            set => SetProperty(ref _strategyCode, value);
+        }
+        public string Symbol
+        {
+            get => _symbol;
+            set => SetProperty(ref _symbol, value);
+        }
+        public int ProviderId
+        {
+            get => _providerId;
+            set => SetProperty(ref _providerId, value);
+        }
+        public string ClOrdId
+        {
+            get => _clOrdId;
+            set => SetProperty(ref _clOrdId, value);
+        }
+        public eORDERSIDE Side
+        {
+            get => _side;
+            set => SetProperty(ref _side, value);
+        }
+        public eORDERTYPE OrderType
+        {
+            get => _orderType;
+            set => SetProperty(ref _orderType, value);
+        }
+        public eORDERTIMEINFORCE TimeInForce
+        {
+            get => _timeInForce;
+            set => SetProperty(ref _timeInForce, value);
+        }
+        public eORDERSTATUS Status
+        {
+            get => _status;
+            set => SetProperty(ref _status, value);
+        }
+        public double Quantity
+        {
+            get => _quantity;
+            set => SetProperty(ref _quantity, value);
+        }
+        public double MinQuantity
+        {
+            get => _minQuantity;
+            set => SetProperty(ref _minQuantity, value);
+        }
+        public double FilledQuantity
+        {
+            get => _filledQuantity;
+            set => SetProperty(ref _filledQuantity, value);
+        }
+        public double PricePlaced
+        {
+            get => _pricePlaced;
+            set => SetProperty(ref _pricePlaced, value);
+        }
+        public string Currency
+        {
+            get => _currency;
+            set => SetProperty(ref _currency, value);
+        }
+        public string FutSettDate
+        {
+            get => _futSettDate;
+            set => SetProperty(ref _futSettDate, value);
+        }
+        public bool IsMM
+        {
+            get => _isMM;
+            set => SetProperty(ref _isMM, value);
+        }
+        public bool IsEmpty
+        {
+            get => _isEmpty;
+            set => SetProperty(ref _isEmpty, value);
+        }
+        public string LayerName
+        {
+            get => _layerName;
+            set => SetProperty(ref _layerName, value);
+        }
+        public int AttemptsToClose
+        {
+            get => _attemptsToClose;
+            set => SetProperty(ref _attemptsToClose, value);
+        }
+        public int SymbolMultiplier
+        {
+            get => _symbolMultiplier;
+            set => SetProperty(ref _symbolMultiplier, value);
+        }
+        public int SymbolDecimals
+        {
+            get => _symbolDecimals;
+            set => SetProperty(ref _symbolDecimals, value);
+        }
+        public string FreeText
+        {
+            get => _freeText;
+            set => SetProperty(ref _freeText, value);
+        }
+        public string OriginPartyID
+        {
+            get => _originPartyID;
+            set => SetProperty(ref _originPartyID, value);
+        }
+        public IEnumerable<OpenExecution> Executions
+        {
+            get => _executions;
+            set => SetProperty(ref _executions, value);
+        }
+        public int QuoteID
+        {
+            get => _quoteID;
+            set => SetProperty(ref _quoteID, value);
+        }
+        public DateTime QuoteServerTimeStamp
+        {
+            get => _quoteServerTimeStamp;
+            set => SetProperty(ref _quoteServerTimeStamp, value);
+        }
+        public DateTime QuoteLocalTimeStamp
+        {
+            get => _quoteLocalTimeStamp;
+            set => SetProperty(ref _quoteLocalTimeStamp, value);
+        }
+        public DateTime CreationTimeStamp
+        {
+            get => _creationTimeStamp;
+            set => SetProperty(ref _creationTimeStamp, value, onChanged: () => RaisePropertyChanged(nameof(PostedSecondsAgo)));
+        }
+        public DateTime ExecutedTimeStamp
+        {
+            get => _executedTimeStamp;
+            set => SetProperty(ref _executedTimeStamp, value);
+        }
+        public DateTime FireSignalTimestamp
+        {
+            get => _fireSignalTimestamp;
+            set => SetProperty(ref _fireSignalTimestamp, value);
+        }
+        public double StopLoss
+        {
+            get => _stopLoss;
+            set => SetProperty(ref _stopLoss, value);
+        }
+        public double TakeProfit
+        {
+            get => _takeProfit;
+            set => SetProperty(ref _takeProfit, value);
+        }
+        public bool PipsTrail
+        {
+            get => _pipsTrail;
+            set => SetProperty(ref _pipsTrail, value);
+        }
+        public double UnrealizedPnL
+        {
+            get => _unrealizedPnL;
+            set => SetProperty(ref _unrealizedPnL, value);
+        }
+        public double MaxDrowdown
+        {
+            get => _maxDrowdown;
+            set => SetProperty(ref _maxDrowdown, value);
+        }
+        public double BestBid
+        {
+            get => _bestBid;
+            set => SetProperty(ref _bestBid, value);
+        }
+        public double BestAsk
+        {
+            get => _bestAsk;
+            set => SetProperty(ref _bestAsk, value);
+        }
+        public double GetAvgPrice
+        {
+            get => _getAvgPrice;
+            set => SetProperty(ref _getAvgPrice, value);
+        }
+        public double GetQuantity
+        {
+            get => _getQuantity;
+            set => SetProperty(ref _getQuantity, value);
+        }
     }
 }
