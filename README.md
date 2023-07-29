@@ -88,9 +88,10 @@ To ensure the correct operation of VisualHFT, your server application must be co
 
 VisualHFT requires a specific collection of JSON data to function correctly. This data, which includes positions and executions, must be read from a Microsoft SQL Server database. Additionally, VisualHFT communicates with the core trading system via REST, sending commands such as start/stop trading and parameter changes.
 
-The core trading system, which feeds data to VisualHFT, is located in the "demoTradingCore" folder. This system must have a REST and WebSocket server and be capable of persisting position data into the database. Please note that this console application is currently under development.
+The **demoTradingCore** is a crucial component of this project, serving as a demo trading engine. Its primary function is to feed data to the main system, **VisualHFT**. It's important to understand that **demoTradingCore** is not an actual trading system, but a tool designed to simulate and provide data for VisualHFT. This console application, which is currently under development, must be equipped with a REST and WebSocket server and should be capable of persisting position data into the database. 
+To use it, navigate to the **demoTradingCore** folder and run the system. It will then start generating and sending data to VisualHFT, enabling you to visualize and analyze real-time trading operations in the main system. 
+Remember, the spotlight of this project is on **VisualHFT** and its real-time analytics capabilities, with **demoTradingCore** serving as a supportive tool to feed it with necessary data."
 
-In the overall configuration, the core trading system, which is not included in this repository, functions as a WebSocket server. It sends data to VisualHFT and persists position data into the database, allowing VisualHFT to access and display this data.
 ![Architecture Diagram](/docImages/Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.002.png)
 
 ## Screenshots
