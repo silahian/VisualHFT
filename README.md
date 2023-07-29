@@ -85,8 +85,14 @@ To ensure the correct operation of VisualHFT, your server application must be co
 - Heartbeat Messages: These messages are sent at regular intervals to indicate that the trading system is running and connected. They typically don't contain any data but serve to confirm that the system is operational. [Heartbeat json](https://github.com/silahian/VisualHFT/blob/master/WS_input_json/HeartBeat.json)
 - Strategy Messages: These messages provide information about the current state of your trading strategies. [Strategies json](https://github.com/silahian/VisualHFT/blob/master/WS_input_json/Strategies.json)
 
+VisualHFT operates by receiving a specific collection of JSON messages via WebSocket for real-time data. This data includes market data messages, exposures, and active orders statuses. In addition to this real-time data, VisualHFT also requires access to positions and executions data, which are read from a Microsoft SQL Server database. 
 
-VisualHFT requires a specific collection of JSON data to function correctly. This data, which includes positions and executions, must be read from a Microsoft SQL Server database. Additionally, VisualHFT communicates with the core trading system via REST, sending commands such as start/stop trading and parameter changes.
+Together, these data sources allow VisualHFT to function correctly and provide a comprehensive view of trading operations."
+
+
+In addition to receiving data, VisualHFT also can communicate with the core trading system via REST. This allows VisualHFT to send specific commands back to the core system, enabling it to control various aspects of the trading operation. For instance, VisualHFT can instruct the core system to start or stop trading, or to modify parameters of active strategies. 
+
+This two-way communication ensures that VisualHFT not only visualizes trading operations but also has the ability to influence them based on user inputs or predefined conditions.
 
 The **demoTradingCore** is a crucial component of this project, serving as a demo trading engine. Its primary function is to feed data to the main system, **VisualHFT**. It's important to understand that **demoTradingCore** is not an actual trading system, but a tool designed to simulate and provide data for VisualHFT. This console application, which is currently under development, must be equipped with a REST and WebSocket server and should be capable of persisting position data into the database. 
 
