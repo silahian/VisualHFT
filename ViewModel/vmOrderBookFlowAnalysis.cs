@@ -19,9 +19,9 @@ namespace VisualHFT.ViewModel
         private Dictionary<string, Func<string, string, bool>> _dialogs;
 
 
-        private ObservableCollection<ProviderVM> _providers;
+        private ObservableCollection<Provider> _providers;
         private string _selectedSymbol;
-        private ProviderVM _selectedProvider = null;
+        private Provider _selectedProvider = null;
         private string _layerName;
 
         private DispatcherTimer timerUI = new DispatcherTimer();
@@ -67,7 +67,7 @@ namespace VisualHFT.ViewModel
         {
             if (e == null)
                 return;
-            if (_selectedProvider == null || string.IsNullOrEmpty(_selectedSymbol) || _selectedProvider.ProviderID != e.ProviderID)
+            if (_selectedProvider == null || string.IsNullOrEmpty(_selectedSymbol) || _selectedProvider.ProviderCode != e.ProviderID)
                 return;
             if (string.IsNullOrEmpty(_selectedSymbol) || _selectedSymbol == "-- All symbols --" || _selectedSymbol != e.Symbol)
                 return;
@@ -132,7 +132,7 @@ namespace VisualHFT.ViewModel
             set => SetProperty(ref _selectedSymbol, value, onChanged: () => Clear());
 
         }
-        public ProviderVM SelectedProvider
+        public Provider SelectedProvider
         {
             get => _selectedProvider;
             set => SetProperty(ref _selectedProvider, value, onChanged: () => this.OrderBook = null);
@@ -142,6 +142,6 @@ namespace VisualHFT.ViewModel
             get => _layerName;
             set => SetProperty(ref _layerName, value, onChanged: () => this.OrderBook = null);
         }
-        public ObservableCollection<ProviderVM> Providers => _providers;
+        public ObservableCollection<Provider> Providers => _providers;
     }
 }

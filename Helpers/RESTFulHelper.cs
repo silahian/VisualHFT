@@ -86,7 +86,7 @@ namespace VisualHFT.Helpers
             string variableName = "";
 			if (typeof(T) == typeof(List<Position>))
 				return default(T);
-			else if (typeof(T) == typeof(List<ProviderVM>))
+			else if (typeof(T) == typeof(List<Provider>))
 				return default(T);
 			//variableName = "ALLPROVIDERS";
 			else if (typeof(T) == typeof(List<StrategyParametersFirmMMVM>))
@@ -146,7 +146,7 @@ namespace VisualHFT.Helpers
             string variableName = "";
             if (typeof(T) == typeof(List<Position>))
                 variableName = "POSITIONS";
-            else if (typeof(T) == typeof(List<ProviderVM>))
+            else if (typeof(T) == typeof(List<Provider>))
                 variableName = "ALLPROVIDERS";
             else if (typeof(T) == typeof(List<StrategyParametersFirmMMVM>))
                 variableName = "STRATEGY_PARAMETERS_FIRMMM";

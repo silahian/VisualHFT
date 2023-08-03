@@ -6,47 +6,55 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using Prism.Mvvm;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace VisualHFT.ViewModel
 {
     public class vmProvider : BindableBase
     {
-        private ProviderVM _selectedItem;
-        private ObservableCollection<ProviderVM> _providers;
+        private ProviderEx _selectedItem;
+        private ObservableCollection<ProviderEx> _providers;
         private RelayCommand _cmdUpdateStatus;
         private Dictionary<string, Func<string, string, bool>> _dialogs;
+        private DateTime? _lastHeartBeatReceived = null;
+        private eSESSIONSTATUS _status;
 
         public vmProvider(Dictionary<string, Func<string, string, bool>> dialogs)
         {
             this._dialogs = dialogs;            
             _cmdUpdateStatus = new RelayCommand(DoUpdateStatus);
             
-            _providers = new ObservableCollection<ProviderVM>();
+            _providers = new ObservableCollection<ProviderEx>();
             RaisePropertyChanged(nameof(Providers));
 
             HelperCommon.PROVIDERS.OnDataReceived += PROVIDERS_OnDataReceived;
 
         }
 
-        private void PROVIDERS_OnDataReceived(object sender, ProviderVM e)
+        private void PROVIDERS_OnDataReceived(object sender, ProviderEx e)
         {
-            if (e == null || e.ProviderID == -1)
+            if (e == null || e.ProviderCode == -1)
                 return;
-            var existingProv = _providers.Where(x => x.ProviderID == e.ProviderID).FirstOrDefault();
+            var existingProv = _providers.Where(x => x.ProviderCode == e.ProviderCode).FirstOrDefault();
             if (existingProv != null)
             {
-                existingProv.Status = e.Status;
-                existingProv.LastUpdated = e.LastUpdated;
+                _status = e.Status;
+                _lastHeartBeatReceived = e.LastUpdated;
             }
             else
             {
-                _providers.Add(e);
+                //needs to be added in UI thread
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => {
+                    _providers.Add(e);
+                }));
+                
             }
         }
 
         private void DoUpdateStatus(object obj)
         {
-            _selectedItem = obj as ProviderVM;
+            _selectedItem = obj as ProviderEx;
             if (_selectedItem != null)
             {
                 eSESSIONSTATUS statusToSend;
@@ -63,7 +71,7 @@ namespace VisualHFT.ViewModel
                         try
                         {
                             _selectedItem.Status = statusToSend;
-                            args.Result = RESTFulHelper.SetVariable<List<ProviderVM>>(_providers.ToList());
+                            args.Result = RESTFulHelper.SetVariable<List<ProviderEx>>(_providers.ToList());
                         }
                         catch { /*System.Threading.Thread.Sleep(5000);*/ }
                     };
@@ -90,7 +98,7 @@ namespace VisualHFT.ViewModel
                 }
             }
         }
-        public ObservableCollection<ProviderVM> Providers
+        public ObservableCollection<ProviderEx> Providers
         {
             get => _providers;
             set => SetProperty(ref _providers, value); 
@@ -102,11 +110,12 @@ namespace VisualHFT.ViewModel
             set => SetProperty(ref _cmdUpdateStatus, value);   
         }
 
-        public ProviderVM SelectedItem
+        public ProviderEx SelectedItem
         {
             get => _selectedItem;
             set => SetProperty(ref _selectedItem, value);
         }
+
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ExchangeSharp;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,8 @@ namespace demoTradingCore.Models
         private Dictionary<string, OrderBook> _orderBooks { get; set; }
         private object _orderBooksLCK = new object();
         private eEXCHANGE _exchange;
+        private DateTime? _lastUpdated = DateTime.MinValue;
+
         public Exchange(eEXCHANGE exchange, int depth)
         {
             _exchange = exchange;
@@ -22,6 +25,7 @@ namespace demoTradingCore.Models
                 if (!_orderBooks.ContainsKey(ob.MarketSymbol))
                     _orderBooks.Add(ob.MarketSymbol, new OrderBook(depth));
                 _orderBooks[ob.MarketSymbol].UpdateSnapshot(ob);
+                _lastUpdated = DateTime.Now;
             }
 
         }
@@ -35,7 +39,6 @@ namespace demoTradingCore.Models
                     return null;
             }
         }
-
         public jsonMarkets GetSnapshots()
         {
             jsonMarkets ret = new jsonMarkets();
@@ -105,5 +108,6 @@ namespace demoTradingCore.Models
         }
         public string ExchangeName
         { get { return _exchange.ToString(); } }
+        public DateTime? LastUpdated { get { return _lastUpdated; } }
     }
 }

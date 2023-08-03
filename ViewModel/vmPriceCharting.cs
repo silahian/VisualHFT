@@ -26,7 +26,7 @@ namespace VisualHFT.ViewModel
 			this.timer.Elapsed += Timer_Elapsed;
 			this.timer.Start();
 		}
-		private void PROVIDERS_OnDataReceived(object sender, ProviderVM e)
+		private void PROVIDERS_OnDataReceived(object sender, Provider e)
 		{
 
 		}

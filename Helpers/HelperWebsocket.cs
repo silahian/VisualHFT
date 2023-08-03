@@ -176,16 +176,17 @@ namespace VisualHFT.Helpers
                                     var orderBook = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<OrderBook>>(dataReceived.data, settings);
                                     if (orderBook != null && orderBook.Any())
                                     {
-                                        var allProviders = orderBook.Select(x => new ProviderVM()
+                                        /*var allProviders = orderBook.Select((Func<OrderBook, ProviderEx>)(x => new ProviderEx()
                                         {
-                                            ProviderID = x.ProviderID,
+                                            ProviderCode = x.ProviderID,
                                             ProviderName = x.ProviderName,
-                                            Status = x.ProviderStatus
-                                        });
+                                            Status = x.ProviderStatus,
+                                            LastUpdated = DateTime.Now
+                                        }));*/
                                         var allSymbols = orderBook.Select(x => x.Symbol);
 
                                         ParseSymbols(allSymbols.Distinct());
-                                        ParseProviders(allProviders);
+                                        //ParseProviders(allProviders);
                                         ParseOrderBook(orderBook);
                                     }
 
@@ -207,7 +208,7 @@ namespace VisualHFT.Helpers
                                 }
                                 else if (dataReceived.type == "HeartBeats")
                                 {
-                                    var heartbeats = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ProviderVM>>(dataReceived.data, settings);
+                                    var heartbeats = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ProviderEx>>(dataReceived.data, settings);
                                     ParseHeartBeat(heartbeats);
                                 }
                                 else
@@ -247,7 +248,7 @@ namespace VisualHFT.Helpers
                 }));
             }
         }
-        private void ParseProviders(IEnumerable<ProviderVM> providers)
+        private void ParseProviders(IEnumerable<ProviderEx> providers)
         {
             HelperCommon.PROVIDERS.UpdateData(providers);
         }
@@ -277,7 +278,7 @@ namespace VisualHFT.Helpers
             HelperCommon.STRATEGYPARAMS.RaiseOnDataUpdateReceived(data);
 
         }
-        private void ParseHeartBeat(IEnumerable<ProviderVM> providers)
+        private void ParseHeartBeat(IEnumerable<ProviderEx> providers)
         {
             HelperCommon.PROVIDERS.UpdateData(providers.ToList());
         }

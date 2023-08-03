@@ -36,7 +36,7 @@
                             </Grid.ColumnDefinitions>
 
                             <Image Source="{Binding StatusImage}" ToolTip="{Binding Tooltip}" Width="16" Height="16" Grid.Row="0" Grid.Column="0" />
-                            <TextBlock Text="{Binding ProviderName}" Margin="5,0,0,0"  Grid.Row="0" Grid.Column="1" FontSize="28" HorizontalAlignment="Left" />
+                            <TextBlock Text="{Binding ProviderName}" ToolTip="{Binding Tooltip}" Margin="5,0,0,0"  Grid.Row="0" Grid.Column="1" FontSize="28" HorizontalAlignment="Left" />
                         </Grid>
                     </WrapPanel>
                 </DataTemplate>

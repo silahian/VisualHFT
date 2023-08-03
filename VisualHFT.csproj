@@ -224,7 +224,7 @@
     <Compile Include="Model\Provider.cs">
       <DependentUpon>hftModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Model\ProviderVM.cs" />
+    <Compile Include="Model\ProviderEx.cs" />
     <Compile Include="Model\StrategyParameter.cs">
       <DependentUpon>hftModel.tt</DependentUpon>
     </Compile>

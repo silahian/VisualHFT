@@ -72,8 +72,8 @@ namespace VisualHFT.Model
             lock (LOCK_OBJECT)
             {
                 #region Bids
-                if (bids != null && bids.Any())
-                    _Bids = new List<BookItem>(bids.OrderByDescending(x => x.Price).ToList());
+                if (bids != null)
+                    _Bids = new List<BookItem>(bids.Where(x => x.Price.HasValue).OrderByDescending(x => x.Price).ToList());
                 _Cummulative_Bids.Clear();
                 double cumSize = 0;
                 foreach (var o in _Bids.Where(x => x.Price.HasValue && x.Size.HasValue).OrderByDescending(x => x.Price))
@@ -84,8 +84,8 @@ namespace VisualHFT.Model
                 #endregion
 
                 #region Asks
-                if (asks != null && asks.Any())
-                    _Asks = new List<BookItem>(asks.OrderBy(x => x.Price).ToList());
+                if (asks != null)
+                    _Asks = new List<BookItem>(asks.Where(x => x.Price.HasValue).OrderBy(x => x.Price).ToList());
                 _Cummulative_Asks.Clear();
                 cumSize = 0;
                 foreach (var o in _Asks.Where(x => x.Price.HasValue && x.Size.HasValue).OrderBy(x => x.Price))

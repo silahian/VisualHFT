@@ -156,6 +156,7 @@
     <Compile Include="Models\Exchange.cs" />
     <Compile Include="Models\Json_Exposures.cs" />
     <Compile Include="Models\Json_Market.cs" />
+    <Compile Include="Models\Json_HeartBeat.cs" />
     <Compile Include="Models\Json_Strategy.cs" />
     <Compile Include="Models\OpenExecution.cs">
       <DependentUpon>dbModel.tt</DependentUpon>

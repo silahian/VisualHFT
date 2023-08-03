@@ -118,7 +118,7 @@ namespace VisualHFT.View
 
 			//fill providers
 			var allProviders = HelperCommon.PROVIDERS.Select(x => x.Value).ToList();
-			allProviders.Insert(0, new Model.ProviderVM() { ProviderID = 0, ProviderName = "ALL" });
+			allProviders.Insert(0, new Model.ProviderEx() { ProviderCode = 0, ProviderName = "ALL" });
 			lstProviders.ItemsSource = allProviders;
 
 		}
@@ -165,7 +165,7 @@ namespace VisualHFT.View
 					{
 						if (selectedProviders.Any(x => x == "ALL") || selectedProviders.Any(x => x == _prov.Value.ProviderName))
 						{
-							string _key = _prov.Value.ProviderID.ToString() + "_" + _selectedSymbol;
+							string _key = _prov.Value.ProviderCode.ToString() + "_" + _selectedSymbol;
 							OrderBook orderBook = new OrderBook();
 							
 							//DEPRECIATED method -> This module won't work
