@@ -19,7 +19,7 @@ namespace VisualHFT.ViewModel
         private string _selectedStrategy;
         private DateTime _selectedDate;
         private Dictionary<string, Func<string, string, bool>> _dialogs;
-        BackgroundWorker bwLoadPositions = new BackgroundWorker();
+
         ObservableCollection<Exposure> _exposures;
         ObservableCollection<PositionEx> _positions;
         ObservableCollection<ExecutionVM> _executions;
@@ -151,48 +151,32 @@ namespace VisualHFT.ViewModel
 
         private void ReloadPositions(string symbol, string strategyCode)
         {
-            if (!bwLoadPositions.WorkerSupportsCancellation)
-            {
-                bwLoadPositions.WorkerSupportsCancellation = true; //use it to know if it was already setup
-                bwLoadPositions.DoWork += (s, args) =>
-                {
-                    try
-                    {
-                        if (symbol == "-- All symbols --")
-                            symbol = "";
-                        var closedPositions = HelperCommon.CLOSEDPOSITIONS.Positions
-                            .Where(x =>
-                                    (string.IsNullOrEmpty(_selectedSymbol) || x.Symbol == _selectedSymbol)
-                                    &&
-                                    (string.IsNullOrEmpty(_selectedStrategy) || x.StrategyCode == _selectedStrategy)
-                                    && x.CreationTimeStamp.Date == _selectedDate.Date
-                             ).ToList();                        
-                        _positions = new ObservableCollection<PositionEx>(closedPositions.OrderByDescending(x => x.CloseTimeStamp));
-                        //EXECUTIONS
-                        #region Executions
-                        var open = _positions.SelectMany(x => x.OpenExecutions).Where(x => (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.FILLED || (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.PARTIALFILLED);
-                        var close = _positions.SelectMany(x => x.CloseExecutions).Where(x => (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.FILLED || (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.PARTIALFILLED);
-                        List<ExecutionVM> allExecution = new List<ExecutionVM>();
-                        allExecution.AddRange(open);
-                        allExecution.AddRange(close);
-                        _executions = new ObservableCollection<ExecutionVM>(allExecution.OrderByDescending(x => x.LocalTimeStamp));
-                        #endregion
-                    }
-                    catch (Exception ex) 
-                    { 
-                        Console.Write(ex.ToString());
-                    }
-                };
-                bwLoadPositions.RunWorkerCompleted += (s, args) =>
-                {
-                    RaisePropertyChanged(nameof(Exposures));
-                    RaisePropertyChanged(nameof(ActiveOrders));
-                    RaisePropertyChanged(nameof(Positions));
-                    RaisePropertyChanged(nameof(Executions));
-                };
-            }
-            if (!bwLoadPositions.IsBusy)
-                bwLoadPositions.RunWorkerAsync();
+            if (symbol == "-- All symbols --")
+                symbol = "";
+            var closedPositions = HelperCommon.CLOSEDPOSITIONS.Positions
+                .Where(x =>
+                        (string.IsNullOrEmpty(_selectedSymbol) || x.Symbol == _selectedSymbol)
+                        &&
+                        (string.IsNullOrEmpty(_selectedStrategy) || x.StrategyCode == _selectedStrategy)
+                        && x.CreationTimeStamp.Date == _selectedDate.Date
+                 ).ToList();
+            _positions = new ObservableCollection<PositionEx>(closedPositions.OrderByDescending(x => x.CloseTimeStamp));
+            //EXECUTIONS
+            #region Executions
+            var open = _positions.SelectMany(x => x.OpenExecutions).Where(x => (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.FILLED || (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.PARTIALFILLED);
+            var close = _positions.SelectMany(x => x.CloseExecutions).Where(x => (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.FILLED || (ePOSITIONSTATUS)x.Status == ePOSITIONSTATUS.PARTIALFILLED);
+            List<ExecutionVM> allExecution = new List<ExecutionVM>();
+            allExecution.AddRange(open);
+            allExecution.AddRange(close);
+            _executions = new ObservableCollection<ExecutionVM>(allExecution.OrderByDescending(x => x.LocalTimeStamp));
+            #endregion
+
+
+            RaisePropertyChanged(nameof(Exposures));
+            RaisePropertyChanged(nameof(ActiveOrders));
+            RaisePropertyChanged(nameof(Positions));
+            RaisePropertyChanged(nameof(Executions));
+
         }
     }
 }
