@@ -5,40 +5,49 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace VisualHFT.Helpers
 {
-    public class HelperOrderBook: ConcurrentDictionary<string, OrderBook>
+    public class HelperOrderBook
     {
-        protected ConcurrentQueue<OrderBook> _DataQueue = new ConcurrentQueue<OrderBook>();        
-        protected System.Timers.Timer _queueTimer;
+        protected ConcurrentQueue<OrderBook> _DataQueue = new ConcurrentQueue<OrderBook>();
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private readonly Task _processingTask;
 
         public event EventHandler<OrderBook> OnDataReceived;
 
         public HelperOrderBook()
         {
-            _queueTimer = new System.Timers.Timer(); //TimeSpan.FromMilliseconds(30), DispatcherPriority.Render, _queueTimer_Tick, );
-            _queueTimer.Interval = 30;
-            _queueTimer.Elapsed += _queueTimer_Tick;
-            _queueTimer.Start();
+            _processingTask = Task.Run(() => ProcessQueue(), _cancellationTokenSource.Token);
         }
         ~HelperOrderBook()
-        {}
-
-        private void _queueTimer_Tick(object sender, EventArgs e)
         {
-            List<OrderBook> data = new List<OrderBook>();
-            if (_DataQueue.Count > 100)
+            _cancellationTokenSource.Cancel();
+            _processingTask.Wait();
+        }
+
+        private void ProcessQueue()
+        {
+            Thread.CurrentThread.IsBackground = true;
+            while (!_cancellationTokenSource.Token.IsCancellationRequested)
             {
-                Console.WriteLine("HelperOrderBook QUEUE is way behind: " + _DataQueue.Count);
+                List<OrderBook> data = new List<OrderBook>();
+                if (_DataQueue.Count > 100)
+                {
+                    Console.WriteLine("HelperOrderBook QUEUE is way behind: " + _DataQueue.Count);
+                }
+
+                while (_DataQueue.TryDequeue(out var ob))
+                    data.Add(ob);
+
+                if (data.Any())
+                    RaiseOnDataReceived(data);
+
+                // Wait for the next iteration (equivalent to 30ms timer interval)
+                Thread.Sleep(5);
             }
-
-            while (_DataQueue.TryDequeue(out var ob))
-                data.Add(ob);
-
-            if (data.Any())
-                RaiseOnDataReceived(data);
-
         }
 
 
@@ -58,29 +67,10 @@ namespace VisualHFT.Helpers
         {
             foreach (var e in data)
             {
-                if (UpdateData(e))
-                {
-                    _DataQueue.Enqueue(e);
-                }
+                _DataQueue.Enqueue(e);
             }
 
         }
 
-        public bool UpdateData(OrderBook book)
-        {
-            if (book != null)
-            {
-                if (!this.ContainsKey(book.KEY))
-                {
-                    return this.TryAdd(book.KEY, book);
-                }
-                else
-                {
-                    this[book.KEY] = book;
-                    return true;
-                }
-            }
-            return false;
-        }
     }
 }

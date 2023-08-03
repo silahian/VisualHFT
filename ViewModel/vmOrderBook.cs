@@ -9,11 +9,13 @@ using System.Linq;
 using Prism.Mvvm;
 using System.Windows.Threading;
 using System.Windows.Navigation;
+using OxyPlot;
 
 namespace VisualHFT.ViewModel
 {
     public class vmOrderBook : BindableBase
     {
+        private int _MAX_CHART_POINTS = 100;
         private OrderBook _orderBook;
         protected object MTX_ORDERBOOK = new object();
         private Dictionary<string, Func<string, string, bool>> _dialogs;
@@ -62,7 +64,7 @@ namespace VisualHFT.ViewModel
             HelperCommon.ACTIVEORDERS.OnDataReceived += ACTIVEORDERS_OnDataReceived;
             HelperCommon.ACTIVEORDERS.OnDataRemoved += ACTIVEORDERS_OnDataRemoved;
 
-            timerUI.Interval = TimeSpan.FromMilliseconds(300);
+            timerUI.Interval = TimeSpan.FromMilliseconds(100);
             timerUI.Tick += TimerUI_Tick;
             timerUI.Start();
 
@@ -77,7 +79,7 @@ namespace VisualHFT.ViewModel
             this._BidTOB_SPLIT = vm.BidTOB_SPLIT;
             this._ChartMaximumValue_Y = vm.ChartMaximumValue_Y;
             this._ChartMinimumValue_Y = vm.ChartMinimumValue_Y;
-            this._orderBook =  vm.OrderBook;
+            this._orderBook = vm.OrderBook;
             this._realTimePrices = vm.RealTimePrices;
             this._realTimeSpread = vm.RealTimeSpread;
             this._selectedSymbol = vm.SelectedSymbol;
@@ -88,7 +90,7 @@ namespace VisualHFT.ViewModel
         }
         private void TimerUI_Tick(object sender, EventArgs e)
         {
-            
+
             if (_BidTOB_SPLIT != null && TRACK_BidTOB_SPLIT.Price != _BidTOB_SPLIT.Price)
             {
                 _BidTOB_SPLIT?.RaiseUIThread();
@@ -162,7 +164,8 @@ namespace VisualHFT.ViewModel
             this.ChartMinimumValue_Y = 0;
             this.BidTOB_SPLIT = null;
             this.AskTOB_SPLIT = null;
-            this.OrderBook = null;
+            lock (MTX_ORDERBOOK)
+                _orderBook = new OrderBook();
             _realTimePrices = null;
             _realTimeSpread = null;
 
@@ -181,19 +184,22 @@ namespace VisualHFT.ViewModel
             if (string.IsNullOrEmpty(_selectedSymbol) || _selectedSymbol == "-- All symbols --")
                 return;
 
-            if (_orderBook != null)
+            lock (MTX_ORDERBOOK)
             {
-                var comp = 1.0 / Math.Pow(10, e.SymbolDecimals);
-                var o = _orderBook.Asks.Where(x => x.Price.HasValue && Math.Abs(x.Price.Value - e.PricePlaced) < comp).FirstOrDefault();
-                if (o == null)
-                    o = _orderBook.Bids.Where(x => x.Price.HasValue && Math.Abs(x.Price.Value - e.PricePlaced) < comp).FirstOrDefault();
-
-                if (o != null)
+                if (_orderBook != null)
                 {
-                    if (o.ActiveSize != null && o.ActiveSize - e.Quantity > 0)
-                        o.ActiveSize -= e.Quantity;
-                    else
-                        o.ActiveSize = null;
+                    var comp = 1.0 / Math.Pow(10, e.SymbolDecimals);
+                    var o = _orderBook.Asks.Where(x => x.Price.HasValue && Math.Abs(x.Price.Value - e.PricePlaced) < comp).FirstOrDefault();
+                    if (o == null)
+                        o = _orderBook.Bids.Where(x => x.Price.HasValue && Math.Abs(x.Price.Value - e.PricePlaced) < comp).FirstOrDefault();
+
+                    if (o != null)
+                    {
+                        if (o.ActiveSize != null && o.ActiveSize - e.Quantity > 0)
+                            o.ActiveSize -= e.Quantity;
+                        else
+                            o.ActiveSize = null;
+                    }
                 }
             }
         }
@@ -203,21 +209,23 @@ namespace VisualHFT.ViewModel
                 return;
             if (string.IsNullOrEmpty(_selectedSymbol) || _selectedSymbol == "-- All symbols --")
                 return;
-
-            if (_orderBook != null)
+            lock (MTX_ORDERBOOK)
             {
-                var comp = 1.0 / Math.Pow(10, e.SymbolDecimals);
-
-                var o = _orderBook.Asks.Where(x => x.Price.HasValue && Math.Abs(x.Price.Value - e.PricePlaced) < comp).FirstOrDefault();
-                if (o == null)
-                    o = _orderBook.Bids.Where(x => x.Price.HasValue && Math.Abs(x.Price.Value - e.PricePlaced) < comp).FirstOrDefault();
-
-                if (o != null)
+                if (_orderBook != null)
                 {
-                    if (o.ActiveSize != null)
-                        o.ActiveSize += e.Quantity;
-                    else
-                        o.ActiveSize = e.Quantity;
+                    var comp = 1.0 / Math.Pow(10, e.SymbolDecimals);
+
+                    var o = _orderBook.Asks.Where(x => x.Price.HasValue && Math.Abs(x.Price.Value - e.PricePlaced) < comp).FirstOrDefault();
+                    if (o == null)
+                        o = _orderBook.Bids.Where(x => x.Price.HasValue && Math.Abs(x.Price.Value - e.PricePlaced) < comp).FirstOrDefault();
+
+                    if (o != null)
+                    {
+                        if (o.ActiveSize != null)
+                            o.ActiveSize += e.Quantity;
+                        else
+                            o.ActiveSize = e.Quantity;
+                    }
                 }
             }
         }
@@ -253,6 +261,8 @@ namespace VisualHFT.ViewModel
                 #region Calculate TOB values
                 var tobBid = _orderBook?.GetTOB(true);
                 var tobAsk = _orderBook?.GetTOB(false);
+                this.MidPoint = _orderBook != null ? _orderBook.MidPrice : 0;
+                this.Spread = _orderBook != null ? _orderBook.Spread : 0;
 
                 if (tobAsk != null && (tobAsk.Price != _AskTOB.Price || tobAsk.Size != _AskTOB.Size))
                 {
@@ -266,14 +276,6 @@ namespace VisualHFT.ViewModel
                     if (tobBid.Price.HasValue && tobBid.Size.HasValue)
                         _BidTOB_SPLIT.SetNumber(tobBid.Price.Value, tobBid.Size.Value, _orderBook.DecimalPlaces);
                 }
-                if (tobAsk != null && tobBid != null)
-                {
-                    if (tobBid.Price.HasValue && tobAsk.Price.HasValue)
-                    {
-                        this.MidPoint = (tobAsk.Price.Value + tobBid.Price.Value) / 2;
-                        this.Spread = (tobAsk.Price.Value - tobBid.Price.Value) * _orderBook.SymbolMultiplier;
-                    }
-                }
                 #endregion
 
 
@@ -285,7 +287,7 @@ namespace VisualHFT.ViewModel
                     {
                         DateTime maxDateIncoming = Max(tobAsk.LocalTimeStamp, tobBid.LocalTimeStamp);
                         var lastPoint = _realTimePrices.DefaultIfEmpty(new PlotInfoPriceChart()).LastOrDefault().Date;
-                        if (maxDateIncoming.Subtract(lastPoint).TotalMilliseconds > 100) //taking samples every 100ms
+                        if (maxDateIncoming.Subtract(lastPoint).TotalMilliseconds > 300) //taking samples every 100ms
                         {
                             var objToAdd = new PlotInfoPriceChart() { Date = maxDateIncoming, MidPrice = MidPoint, AskPrice = tobAsk.Price.Value, BidPrice = tobBid.Price.Value, Volume = tobAsk.Size.Value + tobBid.Size.Value };
                             objToAdd.BuyActiveOrder = HelperCommon.ACTIVEORDERS.Where(x => x.Value.Side == eORDERSIDE.Buy).Select(x => x.Value).DefaultIfEmpty(new OrderVM()).OrderByDescending(x => x.PricePlaced).FirstOrDefault().PricePlaced;
@@ -296,7 +298,7 @@ namespace VisualHFT.ViewModel
 
                             #region Resting Orders at different levels [SCATTER BUBBLES]
                             double maxBubleSize = 30;
-                            _maxOrderSize = _orderBook.GetMaxOrderSize() * 2.0;
+                            _maxOrderSize = Math.Max(_orderBook.GetMaxOrderSize(), _maxOrderSize);
                             if (_orderBook.Bids != null && _orderBook.Bids.Any())
                             {
                                 objToAdd.BidOrders = new List<OrderBookLevel>();
@@ -310,13 +312,9 @@ namespace VisualHFT.ViewModel
                                     objToAdd.AskOrders.Add(new OrderBookLevel() { Date = objToAdd.Date, Price = b.Price.Value, Size = maxBubleSize * (b.Size.Value / _maxOrderSize) });
                             }
 
-                            double percentageToCut = 0.10 / 100.0;
-                            objToAdd.BidOrders.RemoveAll(x => x.Price < objToAdd.MidPrice * (1.0 - percentageToCut));
-                            objToAdd.AskOrders.RemoveAll(x => x.Price > objToAdd.MidPrice * (1.0 + percentageToCut));
-
                             #endregion
                             _realTimePrices.Add(objToAdd);
-                            if (_realTimePrices.Count > 100) //max chart points = 100
+                            if (_realTimePrices.Count > _MAX_CHART_POINTS) //max chart points
                                 _realTimePrices.RemoveAt(0);
                         }
                     }
@@ -328,7 +326,7 @@ namespace VisualHFT.ViewModel
                 if (_realTimeSpread != null)
                 {
                     lock (_realTimeSpread)
-                    {
+                    {                        
                         var lastAddedFromPrice = _realTimePrices.LastOrDefault();
                         var lastSpread = _realTimeSpread.LastOrDefault();
                         if (AskTOB != null && BidTOB != null && lastAddedFromPrice != null)
@@ -336,7 +334,7 @@ namespace VisualHFT.ViewModel
                             if (lastSpread == null || lastSpread.Date != lastAddedFromPrice.Date)
                                 _realTimeSpread.Add(new PlotInfoPriceChart() { Date = lastAddedFromPrice.Date, MidPrice = Spread });
 
-                            if (_realTimeSpread.Count > 100) //max chart points = 100
+                            if (_realTimeSpread.Count > _MAX_CHART_POINTS) //max chart points
                                 _realTimeSpread.RemoveAt(0);
                         }
                     }
@@ -377,8 +375,10 @@ namespace VisualHFT.ViewModel
         }
         public OrderBook OrderBook
         {
-            get => _orderBook;
-            set => SetProperty(ref _orderBook, value);
+            get {
+                lock(MTX_ORDERBOOK)
+                    return _orderBook;
+            }
         }
         public string SelectedSymbol
         {
@@ -389,12 +389,12 @@ namespace VisualHFT.ViewModel
         public ProviderVM SelectedProvider
         {
             get => _selectedProvider;
-            set => SetProperty(ref _selectedProvider, value, onChanged: () => this.OrderBook = null);
+            set => SetProperty(ref _selectedProvider, value, onChanged: () => Clear());
         }
         public string SelectedLayer
         {
             get => _layerName;
-            set => SetProperty(ref _layerName, value, onChanged: () => this.OrderBook = null);
+            set => SetProperty(ref _layerName, value, onChanged: () => Clear());
         }
         public List<PlotInfoPriceChart> RealTimePrices
         {
@@ -402,10 +402,10 @@ namespace VisualHFT.ViewModel
             {
                 if (_realTimePrices == null)
                     return null;
-                lock (_realTimePrices) 
+                lock (_realTimePrices)
                     return _realTimePrices.ToList();
             }
-        } 
+        }
         public List<OrderBookLevel> RealTimeOrderLevelsAsk
         {
             get
@@ -413,7 +413,7 @@ namespace VisualHFT.ViewModel
                 if (_realTimePrices == null)
                     return null;
                 lock (_realTimePrices)
-                {                    
+                {
                     return _realTimePrices.SelectMany(x => x.AskOrders).ToList();
                 }
             }
@@ -436,10 +436,10 @@ namespace VisualHFT.ViewModel
             {
                 if (_realTimeSpread == null)
                     return null;
-                lock(_realTimeSpread)
+                lock (_realTimeSpread)
                     return _realTimeSpread.ToList();
             }
-        } 
+        }
         public ObservableCollection<ProviderVM> Providers => _providers;
 
         public BookItemPriceSplit BidTOB_SPLIT
@@ -457,7 +457,7 @@ namespace VisualHFT.ViewModel
             get => _MidPoint;
             set => SetProperty(ref _MidPoint, value);
         }
-        public double LOBImbalanceValue => _orderBook?.ImbalanceValue ?? 0;
+        public double LOBImbalanceValue => OrderBook?.ImbalanceValue ?? 0;
         public BookItem AskTOB
         {
             get => _AskTOB;
@@ -492,10 +492,10 @@ namespace VisualHFT.ViewModel
         {
             get
             {
-                var ret = _orderBook?.AskCummulative;
+                var ret = OrderBook?.AskCummulative?.ToList();
                 if (ret != null)
                 {
-                    _ChartMaximumValue_Y = Math.Max(_ChartMaximumValue_Y, ret.DefaultIfEmpty(new BookItem()).Max(x => x.Size.Value));
+                    _ChartMaximumValue_Y = Math.Max(_ChartMaximumValue_Y, ret.DefaultIfEmpty(new BookItem() { Size = 0 }).Max(x => x.Size.Value));
                 }
                 return ret;
             }
@@ -504,16 +504,16 @@ namespace VisualHFT.ViewModel
         {
             get
             {
-                var ret = _orderBook?.BidCummulative;
+                var ret = OrderBook?.BidCummulative?.ToList();
                 if (ret != null && ret.Any())
                 {
-                    _ChartMaximumValue_Y = Math.Max(_ChartMaximumValue_Y, ret.Max(x => x.Size.Value));
+                    _ChartMaximumValue_Y = Math.Max(_ChartMaximumValue_Y, ret.DefaultIfEmpty(new BookItem() { Size = 0 }).Max(x => x.Size.Value));
                 }
                 return ret;
             }
         }
-        public List<BookItem> Asks => _orderBook?.Asks;
-        public List<BookItem> Bids => _orderBook?.Bids;
+        public List<BookItem> Asks => OrderBook?.Asks?.ToList();
+        public List<BookItem> Bids => OrderBook?.Bids?.ToList();
         public Tuple<double, double> BidBubbleSeriesVerticalAxis { get => _bidBubbleSeriesVerticalAxis; }
 
     }

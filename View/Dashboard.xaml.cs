@@ -57,12 +57,6 @@ namespace VisualHFT
             oReport.Show();
 
         }
-
-		private void ButtonPriceCharting_Click(object sender, RoutedEventArgs e)
-		{
-			PriceCharting oForm = new PriceCharting();
-			oForm.Show();
-		}
 	}
 }
     

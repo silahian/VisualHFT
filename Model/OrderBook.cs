@@ -24,7 +24,10 @@ namespace VisualHFT.Model
         private int _ProviderID;
         private string _ProviderName;
         private eSESSIONSTATUS _providerStatus;
-
+        private double _MidPrice = 0;
+        private double _Spread = 0;
+        private BookItem _bidTOP = null;
+        private BookItem _askTOP = null;
 
         private void SetKey()
         {
@@ -91,6 +94,14 @@ namespace VisualHFT.Model
                     _Cummulative_Asks.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = false });
                 }
                 #endregion
+                
+                _bidTOP  = _Bids.FirstOrDefault();
+                _askTOP = _Asks.FirstOrDefault();
+                if (_bidTOP != null && _bidTOP.Price.HasValue && _askTOP != null && _askTOP.Price.HasValue)
+                {
+                    _MidPrice = (_bidTOP.Price.Value + _askTOP.Price.Value) / 2;
+                    _Spread = _askTOP.Price.Value - _bidTOP.Price.Value;
+                }
 
                 MakeEqualLenght(); // to avoid grid flickering
                 CalculateMetrics();
@@ -125,16 +136,16 @@ namespace VisualHFT.Model
                 lock (LOCK_OBJECT)
                     return _Asks;
             }
-            set { _Asks = value; }
+            set { lock (LOCK_OBJECT) _Asks = value; }
         }
         public List<BookItem> Bids
         {
             get
             {
                 lock (LOCK_OBJECT)
-                    return _Bids;                
+                    return _Bids;
             }
-            set { _Bids = value; }
+            set { lock (LOCK_OBJECT) _Bids = value; }
         }
         public string Symbol
         {
@@ -216,18 +227,13 @@ namespace VisualHFT.Model
 
         public BookItem GetTOB(bool isBid)
         {
-            if (isBid)
-                lock (LOCK_OBJECT)
-                {
-                    var item = _Bids.FirstOrDefault();
-                    return item.Price.HasValue && item.Size.HasValue ? item : null;
-                }
-            else
-                lock (LOCK_OBJECT)
-                {
-                    var item = _Asks.FirstOrDefault();
-                    return item.Price.HasValue && item.Size.HasValue ? item : null;
-                }
+            lock (LOCK_OBJECT)
+            {
+                if (isBid)
+                    return _bidTOP;
+                else
+                    return _askTOP;
+            }
         }
         public double GetMaxOrderSize()
         {
@@ -237,9 +243,6 @@ namespace VisualHFT.Model
             {
                 if (_Bids != null)
                     _maxOrderSize = _Bids.Where(x => x.Size.HasValue).DefaultIfEmpty(new BookItem()).Max(x => x.Size.Value);
-            }
-            lock (LOCK_OBJECT)
-            {
                 if (_Asks != null)
                     _maxOrderSize = Math.Max(_maxOrderSize, _Asks.Where(x => x.Size.HasValue).DefaultIfEmpty(new BookItem()).Max(x => x.Size.Value));
             }
@@ -255,23 +258,8 @@ namespace VisualHFT.Model
             get { lock (LOCK_OBJECT) { return new List<BookItem>(_Cummulative_Asks); } }
         }
         public double ImbalanceValue { get; set; }
-        public double MidPrice
-        {
-            get
-            {
-                double _ret = 0;
-                lock (LOCK_OBJECT)
-                {
-                    var _bid = _Bids.FirstOrDefault();
-                    var _ask = _Asks.FirstOrDefault();
-                    if (_bid != null && _bid.Price.HasValue && _ask != null && _ask.Price.HasValue)
-                    {
-                        _ret = (_bid.Price.Value + _ask.Price.Value) / 2;
-                    }
-                }
-                return _ret;
-            }
-        }
+        public double MidPrice { get => _MidPrice;  }
+        public double Spread { get => _Spread; }
 
     }
 }

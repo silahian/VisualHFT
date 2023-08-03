@@ -166,8 +166,10 @@ namespace VisualHFT.View
 						if (selectedProviders.Any(x => x == "ALL") || selectedProviders.Any(x => x == _prov.Value.ProviderName))
 						{
 							string _key = _prov.Value.ProviderID.ToString() + "_" + _selectedSymbol;
-							OrderBook orderBook;
-							HelperCommon.LIMITORDERBOOK.TryGetValue(_key, out orderBook);
+							OrderBook orderBook = new OrderBook();
+							
+							//DEPRECIATED method -> This module won't work
+							//HelperCommon.LIMITORDERBOOK.TryGetValue(_key, out orderBook);
 							if (orderBook == null)
 								continue;
 							

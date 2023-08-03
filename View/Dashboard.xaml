@@ -56,8 +56,7 @@
                 <ComboBox x:Name="cboSelectedSymbol" ItemsSource="{Binding SymbolList}" SelectedItem="{Binding SelectedSymbol}" HorizontalAlignment="Left" Margin="90,10,0,0" VerticalAlignment="Top" Width="203" FontSize="18" Grid.Column="1" />
 
                 <Button Content="Abort" ToolTip="Abort remote system (terminate it)" Command="{Binding cmdAbort}" HorizontalAlignment="Right" Grid.Column="2" Width="100" Margin="10"  />
-                <Button Content="Analytics" ToolTip="Analytics report" HorizontalAlignment="Right" Grid.Column="1" Width="100" Margin="0,10,120,10" Click="ButtonAnalyticsReport_Click" />
-				<Button Content="Charting" ToolTip="Price charting and comparisson" HorizontalAlignment="Right" Grid.Column="1" Width="100" Margin="0,10,230,10" Click="ButtonPriceCharting_Click" />
+                <Button Content="Positions Analytics" ToolTip="Analytics report" HorizontalAlignment="Right" Grid.Column="1" Width="150" Margin="0,10,120,10" Click="ButtonAnalyticsReport_Click" />
 			</Grid>
 
             <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" Margin="5" VerticalAlignment="Top">

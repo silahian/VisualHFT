@@ -7,6 +7,7 @@ using System.Threading;
 using WebSocket4Net;
 using System.Windows.Threading;
 using System.Windows;
+using System.Threading.Tasks;
 
 namespace VisualHFT.Helpers
 {
@@ -27,6 +28,11 @@ namespace VisualHFT.Helpers
                 _handler(this, orderBooks);
             }
         }
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private readonly Task _processingTask;
+
+        JsonSerializerSettings settings = null;
+        protected string message = "";
         protected WebSocket _clientWS;
         protected string _webSocketUrl = "";
         protected bool _isChannelOpen;
@@ -36,26 +42,36 @@ namespace VisualHFT.Helpers
         protected object LOCK_QUEUE = new object();
         protected object _LOCK_SYMBOLS = new object();
 
+
         ~HelperWebsocket()
         {
             Disconnect();
             if (_clientWS != null)
                 _clientWS.Dispose();
+            _cancellationTokenSource.Cancel();
+            _processingTask.Wait();
         }
         public HelperWebsocket()
         {
-            _webSocketUrl = System.Configuration.ConfigurationManager.AppSettings["WSorderBook"];
-            //launch processing QUEUE thread
-            new Thread(() =>
+            settings = new JsonSerializerSettings
             {
-                Thread.CurrentThread.IsBackground = true;
+                Converters = new List<JsonConverter> { new CustomDateConverter() },
+                DateParseHandling = DateParseHandling.None,
+                DateFormatString = "yyyy.MM.dd-HH.mm.ss.ffffff"
+            };
+            _webSocketUrl = System.Configuration.ConfigurationManager.AppSettings["WSorderBook"];
+            
+            
+            //launch processing QUEUE thread
+            _processingTask = Task.Run(() => {
 
-                while(true)
+                Thread.CurrentThread.IsBackground = true;
+                while (!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
                     ProcessQueue();
-                    Thread.Sleep(100);
+                    Thread.Sleep(5);
                 }
-            }).Start();
+            }, _cancellationTokenSource.Token);
         }
         public void Connect()
         {
@@ -75,7 +91,6 @@ namespace VisualHFT.Helpers
             }
             catch (Exception ex) {  }
         }
-
         protected void Disconnect()
         {
             if (_clientWS != null && !_isChannelOpen)
@@ -138,15 +153,8 @@ namespace VisualHFT.Helpers
         }
         private void ProcessQueue()
         {
-            JsonSerializerSettings settings = new JsonSerializerSettings
-            {
-                Converters = new List<JsonConverter> { new CustomDateConverter() },
-                DateParseHandling = DateParseHandling.None,
-                DateFormatString = "yyyy.MM.dd-HH.mm.ss.ffffff"
-            };
-            string message = "";
+            message = "";
             HelperWebsocketData dataReceived = null;
-
             lock (LOCK_QUEUE)
             {
                 while (_QUEUE.Any())
