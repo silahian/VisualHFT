@@ -119,15 +119,6 @@ namespace VisualHFT.Model
         {
             _Symbol = symbol;
             _DecimalPlaces = decimalPlaces;
-
-            /*var comparer = new Comparison<BookItem>((k1, k2) => k1.CompareTo(k2));
-            _Asks = new ObservableCollectionEx<BookItem>(new List<BookItem>(), comparer);
-            _Cummulative_Asks = new ObservableCollectionEx<BookItem>(new List<BookItem>(), comparer);
-
-            var comparer2 = new Comparison<BookItem>((k1, k2) => k2.CompareTo(k1));
-            _Bids = new ObservableCollectionEx<BookItem>(new List<BookItem>(), comparer2);
-            _Cummulative_Bids = new ObservableCollectionEx<BookItem>(new List<BookItem>(), comparer2);*/
-
         }
         public List<BookItem> Asks
         {
@@ -248,6 +239,30 @@ namespace VisualHFT.Model
             }
             return _maxOrderSize;
         }
+        public Tuple<double, double> GetMinMaxSizes()
+        {
+            List<BookItem> allOrders = new List<BookItem>();
+
+            lock (LOCK_OBJECT)
+            {
+                if (_Bids != null)
+                    allOrders.AddRange(_Bids.Where(x => x.Size.HasValue).ToList());
+                if (_Asks != null)  
+                    allOrders.AddRange(_Asks.Where(x => x.Size.HasValue).ToList());
+            }
+            //AVOID OUTLIERS IN SIZES (when data is invalid)
+            double firstQuantile = allOrders.Select(x => x.Size.Value).Quantile(0.25);
+            double thirdQuantile = allOrders.Select(x => x.Size.Value).Quantile(0.75);
+            double iqr = thirdQuantile - firstQuantile;
+            double lowerBand = firstQuantile - 1.5 * iqr;
+            double upperBound = thirdQuantile + 1.5 * iqr;
+
+            double minOrderSize = allOrders.Where(x => x.Size >= lowerBand).Min(x => x.Size.Value);
+            double maxOrderSize = allOrders.Where(x => x.Size <= upperBound).Max(x => x.Size.Value);
+
+            return Tuple.Create(minOrderSize, maxOrderSize);
+        }
+
 
         public List<BookItem> BidCummulative
         {

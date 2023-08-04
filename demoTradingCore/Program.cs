@@ -88,7 +88,7 @@ namespace demoTradingCore
             Console.Write("Initializing Coinbase...");
             _EXCHANGES.Add(eEXCHANGE.COINBASE, new Exchange(eEXCHANGE.COINBASE, 5));
 
-            var exchangeAPI = await ExchangeAPI.GetExchangeAPIAsync<ExchangeCoinbaseAPI>();
+            var exchangeAPI = await ExchangeAPI.GetExchangeAPIAsync<ExchangeCoinbaseAPI>();            
             var lstNormalized = new List<string>();
             foreach (var symbol in _SYMBOLS)
             {

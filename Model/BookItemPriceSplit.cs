@@ -7,6 +7,7 @@ namespace VisualHFT.Model
 {
     public class BookItemPriceSplit : BindableBase, ICloneable
     {
+        private double _price;
         private string _lastDecimal = "";
         private string _nextTwoDecimals = "";
         private string _rest = "";
@@ -14,7 +15,7 @@ namespace VisualHFT.Model
 
         public void SetNumber(double price, double size, int symbolDecimalPlaces)
         {
-            Price = price;
+            _price = price;
             if (price != 0)
             {
                 try
@@ -22,9 +23,13 @@ namespace VisualHFT.Model
                     string sPrice = string.Format("{0:N" + symbolDecimalPlaces + "}", price);
                     if (symbolDecimalPlaces > 0)
                     {
-                        LastDecimal = sPrice.Last().ToString();
+                        /*LastDecimal = sPrice.Last().ToString();
                         NextTwoDecimals = sPrice.Substring(sPrice.Length - 3, 2);
-                        Rest = sPrice.Substring(0, sPrice.Length - 3);
+                        Rest = sPrice.Substring(0, sPrice.Length - 3);*/
+
+                        Rest = sPrice.Split('.')[0];
+                        NextTwoDecimals = sPrice.Split('.')[1];
+                        LastDecimal = "";
                     }
                     else
                     {
@@ -82,6 +87,10 @@ namespace VisualHFT.Model
             get => _size;
             set => SetProperty(ref _size, value);
         }
-        public double Price { get; private set; }
+        public double Price
+        {
+            get => _price;
+            set => SetProperty(ref _price, value);
+        }
     }
 }

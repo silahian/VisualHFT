@@ -31,16 +31,16 @@
         </ResourceDictionary>
     </Window.Resources>
     
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible" VerticalContentAlignment="Stretch">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="530" />
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                    <RowDefinition Height="50" />
-                    <RowDefinition Height="600"  MinHeight="500" />
-                    <RowDefinition Height="*" MinHeight="600" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="600"  MinHeight="300" />
+                <RowDefinition Height="*" MinHeight="300" />
             </Grid.RowDefinitions>
 
             <Grid Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3">

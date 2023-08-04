@@ -152,10 +152,12 @@
     <Compile Include="Converters\ConverterEnum.cs" />
     <Compile Include="Converters\ConverterValueToWidth.cs" />
     <Compile Include="Converters\DispatchedObservableCollectionConverter.cs" />
+    <Compile Include="Extensions\IEnumerableExtensios.cs" />
     <Compile Include="Extensions\ObservableCollectionEx.cs" />
     <Compile Include="Formatters\FormatterKilo.cs" />
     <Compile Include="Helpers\DispatchedObservableCollection.cs" />
     <Compile Include="Helpers\DispatchedViewModelBase.cs" />
+    <Compile Include="Helpers\HelperAggregatedPlotCollection.cs" />
     <Compile Include="Helpers\HelperAnalytics.cs" />
     <Compile Include="Helpers\HelperFormat.cs" />
     <Compile Include="Helpers\HelperMath.cs" />

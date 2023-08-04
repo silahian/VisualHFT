@@ -99,8 +99,13 @@ namespace demoTradingCore.Models
         {
             if (_prices != null &&  _prices.Any())
             {
-                var strFirst = _prices.First().Price.ToString();
-                return strFirst.Length - strFirst.IndexOf('.') - 1;
+                var priceSample = _prices.FirstOrDefault();
+                if (priceSample != null)
+                {
+                    string strFirst = priceSample.Price.ToString();
+                    return strFirst.Length - strFirst.IndexOf('.') - 1;
+                }
+                
             }
 
 

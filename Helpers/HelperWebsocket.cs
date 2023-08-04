@@ -164,7 +164,7 @@ namespace VisualHFT.Helpers
                     {
                         if (!string.IsNullOrEmpty(message))
                         {
-                            if (_QUEUE.Count > 100)
+                            if (_QUEUE.Count > 500)
                             {
                                 Console.WriteLine("WS QUEUE is way behind: " + _QUEUE.Count);
                             }
@@ -176,17 +176,8 @@ namespace VisualHFT.Helpers
                                     var orderBook = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<OrderBook>>(dataReceived.data, settings);
                                     if (orderBook != null && orderBook.Any())
                                     {
-                                        /*var allProviders = orderBook.Select((Func<OrderBook, ProviderEx>)(x => new ProviderEx()
-                                        {
-                                            ProviderCode = x.ProviderID,
-                                            ProviderName = x.ProviderName,
-                                            Status = x.ProviderStatus,
-                                            LastUpdated = DateTime.Now
-                                        }));*/
-                                        var allSymbols = orderBook.Select(x => x.Symbol);
-
-                                        ParseSymbols(allSymbols.Distinct());
-                                        //ParseProviders(allProviders);
+                                        var allSymbols = orderBook.Select(x => x.Symbol).Distinct();
+                                        ParseSymbols(allSymbols);
                                         ParseOrderBook(orderBook);
                                     }
 

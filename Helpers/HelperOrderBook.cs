@@ -34,7 +34,7 @@ namespace VisualHFT.Helpers
             while (!_cancellationTokenSource.Token.IsCancellationRequested)
             {
                 List<OrderBook> data = new List<OrderBook>();
-                if (_DataQueue.Count > 100)
+                if (_DataQueue.Count > 500)
                 {
                     Console.WriteLine("HelperOrderBook QUEUE is way behind: " + _DataQueue.Count);
                 }
@@ -45,8 +45,8 @@ namespace VisualHFT.Helpers
                 if (data.Any())
                     RaiseOnDataReceived(data);
 
-                // Wait for the next iteration (equivalent to 30ms timer interval)
-                Thread.Sleep(5);
+                // Wait for the next iteration
+                Thread.Sleep(10);
             }
         }
 

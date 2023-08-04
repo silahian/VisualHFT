@@ -27,3 +27,15 @@ public enum eSESSIONSTATUS
     BOTH_DISCONNECTED
 };
 
+public enum AggregationLevel
+{
+    None,
+    Ms1,
+    Ms10,
+    Ms100,
+    Ms500,
+    S1,
+    S3,
+    S5,
+    Automatic
+}
