@@ -49,6 +49,8 @@ namespace VisualHFT.Helpers
         public static HelperActiveOrder ACTIVEORDERS = new HelperActiveOrder();
         public static HelperStrategy ACTIVESTRATEGIES = new HelperStrategy();
         public static HelperStrategyParams STRATEGYPARAMS = new HelperStrategyParams();
+        public static HelperTrade TRADES = new HelperTrade();
+
         public static Func<string, string, bool> GetPopup()
         {
             return (Func<string, string, bool>)((msg, capt) => MessageBox.Show(msg, capt, MessageBoxButton.OK, MessageBoxImage.Information) == MessageBoxResult.OK);

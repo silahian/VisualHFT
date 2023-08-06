@@ -99,16 +99,21 @@ namespace demoTradingCore.Models
         {
             if (_prices != null &&  _prices.Any())
             {
-                var priceSample = _prices.FirstOrDefault();
+                var priceSample = _prices
+                    .Where(x =>                     
+                                x.Price.ToString().IndexOf(".") > -1 //has decimal
+                                && Convert.ToInt32(x.Price.ToString().Split('.')[1]) > 0 // The decimal part must be > 0
+                    ) 
+                    .FirstOrDefault();
                 if (priceSample != null)
                 {
                     string strFirst = priceSample.Price.ToString();
-                    return strFirst.Length - strFirst.IndexOf('.') - 1;
+                    int decimalPlaces = strFirst.Length - strFirst.IndexOf('.') - 1;
+
+                    return Math.Max(decimalPlaces, 2);
                 }
                 
             }
-
-
             return 2; //default
         }
         public string ExchangeName

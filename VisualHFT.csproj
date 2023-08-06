@@ -150,6 +150,7 @@
       <DependentUpon>ucStrategyHeader.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\ConverterEnum.cs" />
+    <Compile Include="Converters\ConverterIsBuyToColor.cs" />
     <Compile Include="Converters\ConverterValueToWidth.cs" />
     <Compile Include="Converters\DispatchedObservableCollectionConverter.cs" />
     <Compile Include="Extensions\IEnumerableExtensios.cs" />
@@ -166,6 +167,7 @@
     <Compile Include="Helpers\HelperOrderBook.cs" />
     <Compile Include="Helpers\HelperExposure.cs" />
     <Compile Include="Helpers\HelperActiveOrders.cs" />
+    <Compile Include="Helpers\HelperTrade.cs" />
     <Compile Include="Helpers\HelperProvider.cs" />
     <Compile Include="Helpers\HelperStrategy.cs" />
     <Compile Include="Helpers\HelperStrategyParams.cs" />
@@ -226,6 +228,7 @@
     <Compile Include="Model\Provider.cs">
       <DependentUpon>hftModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Model\Trade.cs" />
     <Compile Include="Model\ProviderEx.cs" />
     <Compile Include="Model\StrategyParameter.cs">
       <DependentUpon>hftModel.tt</DependentUpon>

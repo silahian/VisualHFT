@@ -12,56 +12,63 @@ namespace VisualHFT.Model
         private string _nextTwoDecimals = "";
         private string _rest = "";
         private string _size = "";
+        private object _MTX_LOCK = new object();
 
         public void SetNumber(double price, double size, int symbolDecimalPlaces)
         {
-            _price = price;
-            if (price != 0)
+            lock (_MTX_LOCK)
             {
-                try
+                _price = price;
+                if (price != 0)
                 {
-                    string sPrice = string.Format("{0:N" + symbolDecimalPlaces + "}", price);
-                    if (symbolDecimalPlaces > 0)
+                    try
                     {
-                        /*LastDecimal = sPrice.Last().ToString();
-                        NextTwoDecimals = sPrice.Substring(sPrice.Length - 3, 2);
-                        Rest = sPrice.Substring(0, sPrice.Length - 3);*/
+                        string sPrice = string.Format("{0:N" + symbolDecimalPlaces + "}", price);
+                        if (symbolDecimalPlaces > 0)
+                        {
+                            /*LastDecimal = sPrice.Last().ToString();
+                            NextTwoDecimals = sPrice.Substring(sPrice.Length - 3, 2);
+                            Rest = sPrice.Substring(0, sPrice.Length - 3);*/
 
-                        Rest = sPrice.Split('.')[0];
-                        NextTwoDecimals = sPrice.Split('.')[1];
-                        LastDecimal = "";
+                            _rest = sPrice.Split('.')[0];
+                            _nextTwoDecimals = (sPrice.Split('.')[1] + "00").Substring(0, symbolDecimalPlaces);
+                            _lastDecimal = "";
+                        }
+                        else
+                        {
+                            _rest = sPrice.Split(',')[0];
+                            _nextTwoDecimals = sPrice.Split(',')[1];
+                        }
+                        _size = Helpers.HelperCommon.GetKiloFormatter(size);
                     }
-                    else
+                    catch
                     {
-                        Rest = sPrice.Split(',')[0];
-                        NextTwoDecimals = sPrice.Split(',')[1];
+                        _lastDecimal = "-";
+                        _nextTwoDecimals = "-";
+                        _rest = "-";
+                        _size = "-";
                     }
-                    Size = Helpers.HelperCommon.GetKiloFormatter(size);
                 }
-                catch
+
+
+                if (price == 0)
                 {
-                    LastDecimal = "-";
-                    NextTwoDecimals = "-";
-                    Rest = "-";
-                    Size = "-";
+                    _lastDecimal = "";
+                    _nextTwoDecimals = "";
+                    _rest = "";
+                    _size = "";
                 }
-            }
-
-
-            if (price == 0)
-            {
-                LastDecimal = "";
-                NextTwoDecimals = "";
-                Rest = "";
-                Size = "";
             }
         }
         public void RaiseUIThread()
         {
-            RaisePropertyChanged(nameof(LastDecimal));
-            RaisePropertyChanged(nameof(NextTwoDecimals));
-            RaisePropertyChanged(nameof(Rest));
-            RaisePropertyChanged(nameof(Size));
+            lock (_MTX_LOCK)
+            {
+                RaisePropertyChanged(nameof(LastDecimal));
+                RaisePropertyChanged(nameof(NextTwoDecimals));
+                RaisePropertyChanged(nameof(Rest));
+                RaisePropertyChanged(nameof(Size));
+            }
         }
 
         public object Clone() => MemberwiseClone();
@@ -69,28 +76,22 @@ namespace VisualHFT.Model
         public string LastDecimal
         {
             get => _lastDecimal;
-            set => SetProperty(ref _lastDecimal, value);
         }
-
         public string NextTwoDecimals
         {
             get => _nextTwoDecimals;
-            set => SetProperty(ref _nextTwoDecimals, value);
         }
         public string Rest
         {
             get => _rest;
-            set => SetProperty(ref _rest, value);
         }
         public string Size
         {
             get => _size;
-            set => SetProperty(ref _size, value);
         }
         public double Price
         {
             get => _price;
-            set => SetProperty(ref _price, value);
         }
     }
 }

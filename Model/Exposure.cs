@@ -37,7 +37,6 @@ namespace VisualHFT.Model
             get => _unrealizedPL;
             set => SetProperty(ref _unrealizedPL, value, onChanged: () => SetExposureRowColor(value));
         }
-
         private void SetExposureRowColor(double value)
         {
             if (value == 0)
@@ -53,7 +52,6 @@ namespace VisualHFT.Model
                 ExposureRowColor = "Green";
             }
         }
-
         public string ExposureRowColor { get; private set; }
 
     }

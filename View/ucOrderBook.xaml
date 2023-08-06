@@ -7,7 +7,7 @@
              xmlns:local="clr-namespace:VisualHFT.View"
              xmlns:Formatters="clr-namespace:VisualHFT.Converters"
              xmlns:ViewModel="clr-namespace:VisualHFT.ViewModel"
-             xmlns:contrib="http://oxyplot.org/wpf/contrib"
+             xmlns:contrib="http://oxyplot.org/wpf/contrib" xmlns:model="clr-namespace:VisualHFT.Model" d:DataContext="{d:DesignInstance Type=model:OrderBookLevel}"
              mc:Ignorable="d" 
     
             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -30,10 +30,12 @@
     <Grid VerticalAlignment="Top">
         <Grid.Resources>
             <Formatters:KiloFormatter x:Key="KiloFormatter"/>
+            <Formatters:ConverterIsBuyToColor x:Key="IsBuyConverter" />
         </Grid.Resources>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="450" />
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="270" />
         </Grid.ColumnDefinitions>
 
         <!--PROVIDER & SYMBOL-->
@@ -269,6 +271,15 @@
                             <contrib:TwoColorAreaSeries Title="Asks" DataFieldX="Price" DataFieldY="Size" ItemsSource="{Binding AskCummulative}" StrokeThickness="5" Fill="DarkRed" LineStyle="Solid" Color="Pink"/>
                         </contrib:Plot.Series>
                     </contrib:Plot>
+
+                    <Border Margin="0, 10, 0, 120" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" Background="#20FFFFFF" CornerRadius="10" >
+                        <StackPanel Orientation="Vertical"  >
+                            <Label Content="{Binding MidPoint, StringFormat=N}" FontSize="20" HorizontalContentAlignment="Center" />
+                            <Rectangle Height="1" Width="250" Fill="White" Margin="5,0" />
+                            <Label Content="Mid Price" FontSize="12"  HorizontalContentAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                    
                 </Grid>
                 <!--END LOB CUMULATIVER CHART-->
                 <!--CHARTS: Price and Spread-->
@@ -282,29 +293,46 @@
                             <Image Source="/Images/pop-up.png" />
                         </Button>
                         <!--PRICE CHART-->
-                        <contrib:Plot x:Name="chtPrice" Title="Price" TitleColor="White"  TitleFontSize="10" PlotAreaBorderColor="Gray" TextColor="White"  DefaultFontSize="8" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Column="1" IsEnabled="False" >
-                            <contrib:Plot.Resources>
-                                <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
-                                <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
-                                <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
-                                <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
-                            </contrib:Plot.Resources>
-                            <contrib:Plot.Background>
-                                <StaticResource ResourceKey="PlotBackgroundBrush" />
-                            </contrib:Plot.Background>
-                            <contrib:Plot.Axes>
-                                <contrib:LinearAxis Position="Left" Minimum="{Binding RealTimeYAxisMinimum}" Maximum="{Binding RealTimeYAxisMaximum}" />
-                                <contrib:DateTimeAxis Position="Bottom"/>
-                            </contrib:Plot.Axes>
-                            <contrib:Plot.Series>
-                                <contrib:ScatterSeries DataFieldX="Date" DataFieldY="Price" DataFieldValue="Price" DataFieldSize="Size" ItemsSource="{Binding RealTimeOrderLevelsBid}" Color="Green" MarkerType="Circle" MarkerStrokeThickness="1" MarkerFill="#8000FF00"/>
-                                <contrib:ScatterSeries DataFieldX="Date" DataFieldY="Price" DataFieldValue="Price" DataFieldSize="Size" ItemsSource="{Binding RealTimeOrderLevelsAsk}" Color="Red" MarkerType="Circle" MarkerStrokeThickness="1" MarkerFill="#80FF0000"/>
+                        <Grid Grid.Column="1" >
+                            <Grid.ToolTip>
+                                <ToolTip Placement="Mouse">
+                                    <StackPanel>
+                                        <TextBlock FontWeight="Bold" Text="Real-time prices"/>
+                                        <TextBlock Text="• Red Line = Best offer price."/>
+                                        <TextBlock Text="• Green Line = Best bid price."/>
+                                        <TextBlock Text="• Gray Line = Mid price."/>
+                                        <TextBlock Text="• Red dots: resting Sell orders."/>
+                                        <TextBlock Text="• Green dots: resting Buy orders."/>
+                                    </StackPanel>
+                                </ToolTip>
+                            </Grid.ToolTip>
+                            
+                            <contrib:Plot x:Name="chtPrice" 
+                                      Title="Price" TitleColor="White"  TitleFontSize="10" PlotAreaBorderColor="Gray" TextColor="White"  DefaultFontSize="8" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsEnabled="False" >
+                                <contrib:Plot.Resources>
+                                    <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
+                                    <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
+                                    <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
+                                    <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
+                                </contrib:Plot.Resources>
+                                <contrib:Plot.Background>
+                                    <StaticResource ResourceKey="PlotBackgroundBrush" />
+                                </contrib:Plot.Background>
+                                <contrib:Plot.Axes>
+                                    <contrib:LinearAxis Position="Left" Minimum="{Binding RealTimeYAxisMinimum}" Maximum="{Binding RealTimeYAxisMaximum}" />
+                                    <contrib:DateTimeAxis Position="Bottom"/>
+                                </contrib:Plot.Axes>
+                                <contrib:Plot.Series>
+                                    <contrib:ScatterSeries DataFieldX="Date" DataFieldY="Price" DataFieldValue="Price" DataFieldSize="Size" ItemsSource="{Binding RealTimeOrderLevelsBid}" Color="Green" MarkerType="Circle" MarkerStrokeThickness="1" MarkerFill="#8000FF00"/>
+                                    <contrib:ScatterSeries DataFieldX="Date" DataFieldY="Price" DataFieldValue="Price" DataFieldSize="Size" ItemsSource="{Binding RealTimeOrderLevelsAsk}" Color="Red" MarkerType="Circle" MarkerStrokeThickness="1" MarkerFill="#80FF0000"/>
 
-                                <contrib:LineSeries DataFieldX="Date" DataFieldY="MidPrice" ItemsSource="{Binding RealTimePrices}" StrokeThickness="0.5" LineStyle="Solid" Color="Gray" />
-                                <contrib:LineSeries DataFieldX="Date" DataFieldY="AskPrice" ItemsSource="{Binding RealTimePrices}" StrokeThickness="1" LineStyle="Solid" Color="Red"/>
-                                <contrib:LineSeries DataFieldX="Date" DataFieldY="BidPrice" ItemsSource="{Binding RealTimePrices}" StrokeThickness="1" LineStyle="Solid" Color="Green"/>
-                            </contrib:Plot.Series>
-                        </contrib:Plot>
+                                    <contrib:LineSeries DataFieldX="Date" DataFieldY="MidPrice" ItemsSource="{Binding RealTimePrices}" StrokeThickness="0.5" LineStyle="Solid" Color="Gray" />
+                                    <contrib:LineSeries DataFieldX="Date" DataFieldY="AskPrice" ItemsSource="{Binding RealTimePrices}" StrokeThickness="1" LineStyle="Solid" Color="Red"/>
+                                    <contrib:LineSeries DataFieldX="Date" DataFieldY="BidPrice" ItemsSource="{Binding RealTimePrices}" StrokeThickness="1" LineStyle="Solid" Color="Green"/>
+                                </contrib:Plot.Series>
+                            </contrib:Plot>
+
+                        </Grid>
                         <!--END PRICE CHART-->
                     </Grid>
                     <Grid Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch" >
@@ -337,8 +365,40 @@
 
             </Grid>
         </StackPanel>
-        
-        
+
+        <Grid Grid.Column="2">
+            <!--TRADES-->
+            <DataGrid MaxHeight="600" ItemsSource="{Binding Trades}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="0" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="FullRow" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader" HeadersVisibility="Column" AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" IsHitTestVisible="True" EnableRowVirtualization="True" EnableColumnVirtualization="False" Padding="0" VerticalAlignment="Top" >
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="Height" Value="26" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0" />
+                        <Style.Triggers>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Trigger>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                <Setter Property="Background" Value="Black"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat=N}" Width="*"   HeaderStyle="{DynamicResource RightAlignedHeader}" >
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{Binding IsBuy, Converter={StaticResource IsBuyConverter}}"/>
+                                <Setter Property="TextAlignment" Value="Right"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="*" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
+                    <DataGridTextColumn Header="Time" Binding="{Binding Timestamp, StringFormat='{}{0:HH:mm:ss}'}" Width="80" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <!--END TRADES-->
+        </Grid>
 
 
 

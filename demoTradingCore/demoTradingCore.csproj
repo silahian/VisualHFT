@@ -55,7 +55,7 @@
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.5.2.1\lib\net46\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.5.2.2\lib\net46\NLog.dll</HintPath>
     </Reference>
     <Reference Include="SocketIOClient, Version=3.0.8.0, Culture=neutral, PublicKeyToken=c9a3629195a82104, processorArchitecture=MSIL">
       <HintPath>..\packages\SocketIOClient.3.0.8\lib\net462\SocketIOClient.dll</HintPath>
@@ -155,6 +155,7 @@
     <Compile Include="Models\enums.cs" />
     <Compile Include="Models\Exchange.cs" />
     <Compile Include="Models\Json_Exposures.cs" />
+    <Compile Include="Models\Json_Trades.cs" />
     <Compile Include="Models\Json_Market.cs" />
     <Compile Include="Models\Json_HeartBeat.cs" />
     <Compile Include="Models\Json_Strategy.cs" />

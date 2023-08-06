@@ -24,6 +24,7 @@ namespace VisualHFT.ViewModel
         private Dictionary<string, Func<string, string, bool>> _dialogs;
 
         private HelperAggregatedPlotCollection _realTimePrices;
+        private ObservableCollection<Trade> _realTimeTrades;
         private List<PlotInfoPriceChart> _realTimeSpread;
 
         private ObservableCollection<Provider> _providers;
@@ -35,7 +36,7 @@ namespace VisualHFT.ViewModel
 
         private double _MidPoint;
         private BookItem _AskTOB = new BookItem();
-        private BookItem _BidTOB = new BookItem();
+        private BookItem _BidTOB = new BookItem();        
         private double _Spread;
 
         private BookItemPriceSplit _BidTOB_SPLIT = null;
@@ -43,11 +44,9 @@ namespace VisualHFT.ViewModel
         private double _PercentageWidth = 1;
         private double _realTimeYAxisMinimum = 0;
         private double _realTimeYAxisMaximum = 0;
-
+        
 
         private DispatcherTimer timerUI = new DispatcherTimer();
-        private BookItemPriceSplit TRACK_BidTOB_SPLIT = new BookItemPriceSplit();
-        private BookItemPriceSplit TRACK_AskTOB_SPLIT = new BookItemPriceSplit();
         private List<BookItem> TRACK_Bids = new List<BookItem>();
         private List<BookItem> TRACK_Asks = new List<BookItem>();
         private List<BookItem> TRACK_BidCummulative = new List<BookItem>();
@@ -56,7 +55,7 @@ namespace VisualHFT.ViewModel
         private List<OrderBookLevel> TRACK_RealTimeOrderLevelsAsk = new List<OrderBookLevel>();
         private List<OrderBookLevel> TRACK_RealTimeOrderLevelsBid = new List<OrderBookLevel>();
         private List<PlotInfoPriceChart> TRACK_RealTimeSpread = new List<PlotInfoPriceChart>();
-
+        
 
         public vmOrderBook(Dictionary<string, Func<string, string, bool>> dialogs)
         {
@@ -67,12 +66,12 @@ namespace VisualHFT.ViewModel
             HelperCommon.LIMITORDERBOOK.OnDataReceived += LIMITORDERBOOK_OnDataReceived;
             HelperCommon.ACTIVEORDERS.OnDataReceived += ACTIVEORDERS_OnDataReceived;
             HelperCommon.ACTIVEORDERS.OnDataRemoved += ACTIVEORDERS_OnDataRemoved;
-
+            HelperCommon.TRADES.OnDataReceived += TRADES_OnDataReceived;
             timerUI.Interval = TimeSpan.FromMilliseconds(100);
             timerUI.Tick += TimerUI_Tick;
             timerUI.Start();
-
         }
+
         public vmOrderBook(vmOrderBook vm)
         {
             this._providers = vm._providers;
@@ -83,26 +82,21 @@ namespace VisualHFT.ViewModel
             this._BidTOB_SPLIT = vm.BidTOB_SPLIT;
             this._orderBook = vm.OrderBook;
             this._realTimePrices = new HelperAggregatedPlotCollection(vm.RealTimePrices, _AGG_LEVEL_CHARTS, _MAX_CHART_POINTS);
+            this._realTimeTrades = new ObservableCollection<Trade>();
             this._realTimeSpread = vm.RealTimeSpread;
             this._selectedSymbol = vm.SelectedSymbol;
             this._selectedProvider = vm.SelectedProvider;
             this._layerName = vm.SelectedLayer;
-            this._MidPoint = vm.MidPoint;
+            this._MidPoint = vm.MidPoint;            
         }
         private void TimerUI_Tick(object sender, EventArgs e)
         {
             lock (MTX_ORDERBOOK)
             {
-                if (_BidTOB_SPLIT != null && TRACK_BidTOB_SPLIT.Price != _BidTOB_SPLIT.Price)
-                {
-                    _BidTOB_SPLIT?.RaiseUIThread();
-                    TRACK_BidTOB_SPLIT = (BookItemPriceSplit)_BidTOB_SPLIT.Clone();
-                }
-                if (_AskTOB_SPLIT != null && TRACK_AskTOB_SPLIT.Price != _AskTOB_SPLIT.Price)
-                {
-                    _AskTOB_SPLIT?.RaiseUIThread();
-                    TRACK_AskTOB_SPLIT = (BookItemPriceSplit)_AskTOB_SPLIT.Clone();
-                }
+                _AskTOB_SPLIT?.RaiseUIThread();
+                _BidTOB_SPLIT?.RaiseUIThread();
+
+
 
                 if (Bids != null && !TRACK_Bids.SequenceEqual(Bids))
                 {
@@ -151,9 +145,11 @@ namespace VisualHFT.ViewModel
                     TRACK_RealTimeSpread = RealTimeSpread.ToList();
                 }
 
+                
                 RaisePropertyChanged(nameof(LOBImbalanceValue));
                 RaisePropertyChanged(nameof(RealTimeYAxisMinimum));
                 RaisePropertyChanged(nameof(RealTimeYAxisMaximum));
+                
             }
         }
 
@@ -171,6 +167,7 @@ namespace VisualHFT.ViewModel
                 _orderBook = new OrderBook();
                 _realTimePrices = new HelperAggregatedPlotCollection(_AGG_LEVEL_CHARTS, _MAX_CHART_POINTS);
                 _realTimeSpread = new List<PlotInfoPriceChart>();
+                _realTimeTrades = new ObservableCollection<Trade>();
                 _maxOrderSize = 0; //reset
                 _minOrderSize = 0; //reset
                 _realTimeYAxisMaximum = 0;
@@ -185,7 +182,7 @@ namespace VisualHFT.ViewModel
             RaisePropertyChanged(nameof(Bids));
             RaisePropertyChanged(nameof(RealTimePrices));
             RaisePropertyChanged(nameof(RealTimeSpread));
-
+            RaisePropertyChanged(nameof(Trades));
         }
         private void ACTIVEORDERS_OnDataRemoved(object sender, OrderVM e)
         {
@@ -255,6 +252,9 @@ namespace VisualHFT.ViewModel
                     _maxOrderSize = 0; //reset
                     _minOrderSize = 0; //reset
                     _orderBook = e;
+                    _orderBook.DecimalPlaces = e.DecimalPlaces;
+                    _orderBook.SymbolMultiplier = e.SymbolMultiplier;
+
                     _realTimePrices = new HelperAggregatedPlotCollection(_AGG_LEVEL_CHARTS, _MAX_CHART_POINTS);
                     _realTimeSpread = new List<PlotInfoPriceChart>();
                     _AskTOB_SPLIT = new BookItemPriceSplit();
@@ -262,8 +262,6 @@ namespace VisualHFT.ViewModel
                     RaisePropertyChanged(nameof(BidTOB_SPLIT));
                     RaisePropertyChanged(nameof(AskTOB_SPLIT));
                 }
-                _orderBook.DecimalPlaces = e.DecimalPlaces;
-                _orderBook.SymbolMultiplier = e.SymbolMultiplier;
 
                 if (!_orderBook.LoadData(e.Asks?.ToList(), e.Bids?.ToList()))
                     return; //if nothing to update, then exit
@@ -359,6 +357,23 @@ namespace VisualHFT.ViewModel
                 #endregion
 
             }
+        }
+        private void TRADES_OnDataReceived(object sender, Trade e)
+        {
+            if (e == null)
+                return;
+            if (_selectedProvider == null || string.IsNullOrEmpty(_selectedSymbol) || _selectedProvider.ProviderCode != e.ProviderId)
+                return;
+            if (string.IsNullOrEmpty(_selectedSymbol) || _selectedSymbol == "-- All symbols --" || _selectedSymbol != e.Symbol)
+                return;
+
+            
+            if (_realTimeTrades != null)
+                App.Current.Dispatcher.Invoke(() => {
+                    _realTimeTrades.Insert(0, e);                    
+                    while (_realTimeTrades.Count > 100)
+                        _realTimeTrades.RemoveAt(_realTimeTrades.Count-1);
+                });
         }
 
         private void PROVIDERS_OnDataReceived(object sender, Provider e)
@@ -493,6 +508,11 @@ namespace VisualHFT.ViewModel
         }
         public List<BookItem> Asks => OrderBook?.Asks?.ToList();
         public List<BookItem> Bids => OrderBook?.Bids?.ToList();
+        public ObservableCollection<Trade> Trades
+        { 
+            get => _realTimeTrades;
+            set => SetProperty(ref _realTimeTrades, value);
+        }
         public double RealTimeYAxisMinimum
         {
             get => _realTimeYAxisMinimum;

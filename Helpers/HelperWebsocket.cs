@@ -202,6 +202,11 @@ namespace VisualHFT.Helpers
                                     var heartbeats = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ProviderEx>>(dataReceived.data, settings);
                                     ParseHeartBeat(heartbeats);
                                 }
+                                else if (dataReceived.type == "Trades")
+                                {
+                                    var trades = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Trade>>(dataReceived.data, settings);
+                                    ParseTrades(trades);
+                                }
                                 else
                                 {
                                     Console.WriteLine(dataReceived.type + " error: NOT RECOGNIZED.");
@@ -272,6 +277,10 @@ namespace VisualHFT.Helpers
         private void ParseHeartBeat(IEnumerable<ProviderEx> providers)
         {
             HelperCommon.PROVIDERS.UpdateData(providers.ToList());
+        }
+        private void ParseTrades(IEnumerable<Trade> trades)
+        {
+            HelperCommon.TRADES.UpdateData(trades.ToList()); 
         }
         #endregion
     }
