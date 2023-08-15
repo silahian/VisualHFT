@@ -1,13 +1,11 @@
-﻿using OxyPlot.Axes;
-using OxyPlot;
+﻿using OxyPlot;
+using OxyPlot.Axes;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using VisualHFT.Helpers;
-using System.Windows.Media;
-using VisualHFT.ViewModel;
-using Telerik.Windows.Controls.ChartView;
 using System.Windows.Data;
-using System.Linq;
+using System.Windows.Media;
+using VisualHFT.Helpers;
 
 namespace VisualHFT.View
 {
@@ -126,7 +124,7 @@ namespace VisualHFT.View
             // Create a new Binding
             var binding = new Binding("RealTimeData");
             // Set the Binding to the ItemsSource property of the LineSeries
-            BindingOperations.SetBinding(lineSeries, LineSeries.ItemsSourceProperty, binding);
+            //BindingOperations.SetBinding(lineSeries, LineSeries.ItemsSourceProperty, binding);
 
 
 

@@ -69,7 +69,7 @@
 				<RowDefinition Height="25*"/>
 			</Grid.RowDefinitions>
 			<!--PRICE CHART-->
-			<uc:DispatchedCollection Grid.Row="0" DataContext="{Binding PriceChartingDataContext}" />
+			<!--uc:DispatchedCollection Grid.Row="0" DataContext="{Binding PriceChartingDataContext}" /-->
 
 			
 			<!--<telerik:RadCartesianChart Grid.Row="0" x:Name="chart" Palette="{StaticResource customPalette}" Visibility="Hidden">

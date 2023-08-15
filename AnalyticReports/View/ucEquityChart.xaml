@@ -1,0 +1,106 @@
+﻿<UserControl x:Class="VisualHFT.AnalyticReports.View.ucEquityChart"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:contrib="http://oxyplot.org/wpf/contrib"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="800"
+             Style="{DynamicResource UserControlStyle}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../ReportDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>        
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="500" />
+            <RowDefinition Height="220" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <contrib:Plot x:Name="chartEquity" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="0" Grid.ColumnSpan="2" IsEnabled="True" Style="{StaticResource PlotStyle}">
+            <contrib:Plot.Resources>
+                <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
+                <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
+                <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
+                <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
+            </contrib:Plot.Resources>
+            <contrib:Plot.Background>
+                <StaticResource ResourceKey="PlotBackgroundBrush" />
+            </contrib:Plot.Background>
+            <contrib:Plot.Legends>
+                <contrib:Legend LegendPlacement="Outside" LegendPosition="BottomLeft" LegendOrientation="Vertical" />
+            </contrib:Plot.Legends>
+            <contrib:Plot.Axes>
+                <contrib:LinearAxis Position="Right" Title="Equity" Key="Equity"/>
+                <contrib:LinearAxis Position="Left" Title="VolumeQty" Key="VolumeQty"/>
+                <contrib:DateTimeAxis Title="Hour" Position="Bottom" StringFormat="MM.dd HH" IntervalType="Hours" MinimumPadding="0.1" MaximumPadding="0.1" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
+            </contrib:Plot.Axes>
+            <contrib:Plot.Series>
+                <contrib:LineSeries Title="Equity" ItemsSource="{Binding CandlesGrouped}" DataFieldX="Date" DataFieldY="Equity"  StrokeThickness="3" LineStyle="Solid" Color="Blue" YAxisKey="Equity"/>
+                <contrib:LinearBarSeries Title="VolumeQty" ItemsSource="{Binding CandlesGrouped}" DataFieldX="Date" DataFieldY="VolumeQty" FillColor="#454CAF50" StrokeColor="#4CAF50" Color="Green" StrokeThickness="3" BarWidth="100" YAxisKey="VolumeQty"/>
+            </contrib:Plot.Series>
+        </contrib:Plot>
+        <contrib:Plot x:Name="chartDrawDown" Title="DrawDowns" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1" Grid.ColumnSpan="2" IsEnabled="True" Style="{StaticResource PlotStyle}">
+            <contrib:Plot.Resources>
+                <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
+                <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
+                <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
+                <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
+            </contrib:Plot.Resources>
+            <contrib:Plot.Background>
+                <StaticResource ResourceKey="PlotBackgroundBrush" />
+            </contrib:Plot.Background>
+            <contrib:Plot.Legends>
+                <contrib:Legend LegendPlacement="Outside" LegendPosition="BottomLeft" LegendOrientation="Vertical" />
+            </contrib:Plot.Legends>
+            <contrib:Plot.Axes>
+                <contrib:CategoryAxis Title="Hours" Position="Left" ItemsSource="{Binding DrawDowns}" LabelField="DrawDownHours" MinimumPadding="0.1" MaximumPadding="0.1" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
+            </contrib:Plot.Axes>
+            <contrib:Plot.Series>
+                <contrib:BarSeries Title="Ammount" ItemsSource="{Binding DrawDowns}" ValueField="DrawDownAmmount" Color="Green"/>
+            </contrib:Plot.Series>
+        </contrib:Plot>
+        <StackPanel Grid.Row="2" Grid.Column="1" Width="770" HorizontalAlignment="Center" >
+            <Label Content="Monthly Performance" TextBlock.TextAlignment="Center" TextElement.FontWeight="Bold"></Label>
+            <DataGrid AutoGenerateColumns="False" Name="dataGrid1" ItemsSource="{Binding}" VerticalAlignment="Stretch" IsReadOnly="True" UseLayoutRounding="True" FontSize="11" 
+
+                  HorizontalScrollBarVisibility="Hidden"
+                  VerticalScrollBarVisibility="Hidden"
+                  IsHitTestVisible="False" SelectionUnit="FullRow" 
+                  BorderThickness="0"
+                  GridLinesVisibility="None"
+                  AlternationCount="2"
+                  AlternatingRowBackground="LightGray"
+                  >
+                <DataGrid.Columns>
+                    <!--Date-->
+                    <DataGridTextColumn TextBlock.FontWeight="Bold" TextBlock.TextAlignment="Center" Header="Date" Binding="{Binding Path=Year}" Width="80" />
+                    <!--Months-->
+                    <DataGridTextColumn TextBlock.TextAlignment="Center" Header="Jan"  Binding="{Binding Path=Jan}" Width="50" HeaderStyle="{StaticResource GridHeaderAligmentCenter}"/>
+                    <DataGridTextColumn TextBlock.TextAlignment="Center" Header="Feb"  Binding="{Binding Path=Feb}" Width="50" HeaderStyle="{StaticResource GridHeaderAligmentCenter}"/>
+                    <DataGridTextColumn TextBlock.TextAlignment="Center" Header="Mar"  Binding="{Binding Path=Mar}" Width="50" HeaderStyle="{StaticResource GridHeaderAligmentCenter}"/>
+                    <DataGridTextColumn TextBlock.TextAlignment="Center" Header="Apr"  Binding="{Binding Path=Apr}" Width="50" HeaderStyle="{StaticResource GridHeaderAligmentCenter}"/>
+                    <DataGridTextColumn TextBlock.TextAlignment="Center" Header="May"  Binding="{Binding Path=May}" Width="50" HeaderStyle="{StaticResource GridHeaderAligmentCenter}"/>
+                    <DataGridTextColumn TextBlock.TextAlignment="Center" Header="Jun"  Binding="{Binding Path=Jun}" Width="50" HeaderStyle="{StaticResource GridHeaderAligmentCenter}"/>
+                    <DataGridTextColumn TextBlock.TextAlignment="Center" Header="Jul"  Binding="{Binding Path=Jul}" Width="50" HeaderStyle="{StaticResource GridHeaderAligmentCenter}"/>
+                    <DataGridTextColumn TextBlock.TextAlignment="Center" Header="Aug"  Binding="{Binding Path=Aug}" Width="50" HeaderStyle="{StaticResource GridHeaderAligmentCenter}"/>
+                    <DataGridTextColumn TextBlock.TextAlignment="Center" Header="Sep"  Binding="{Binding Path=Sep}" Width="50" HeaderStyle="{StaticResource GridHeaderAligmentCenter}"/>
+                    <DataGridTextColumn TextBlock.TextAlignment="Center" Header="Oct"  Binding="{Binding Path=Oct}" Width="50" HeaderStyle="{StaticResource GridHeaderAligmentCenter}"/>
+                    <DataGridTextColumn TextBlock.TextAlignment="Center" Header="Nov"  Binding="{Binding Path=Nov}" Width="50" HeaderStyle="{StaticResource GridHeaderAligmentCenter}"/>
+                    <DataGridTextColumn TextBlock.TextAlignment="Center" Header="Dec"  Binding="{Binding Path=Dec}" Width="50" HeaderStyle="{StaticResource GridHeaderAligmentCenter}"/>
+                    <!--Year %-->
+                    <DataGridTextColumn CellStyle="{StaticResource GridColumnAligmentRight}"  HeaderStyle="{StaticResource GridHeaderAligmentRight}" TextBlock.TextAlignment="Right" Header="Year %" Binding="{Binding Path=YearPerc}" Width="80" TextBlock.FontWeight="Bold"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+    </Grid>
+</UserControl>

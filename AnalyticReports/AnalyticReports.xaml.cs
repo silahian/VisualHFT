@@ -5,9 +5,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Printing;
-using Telerik.Windows.Controls.ChartView;
 using VisualHFT.Model;
 using VisualHFT.Helpers;
+using VisualHFT.AnalyticReports.ViewModel;
+using VisualHFT.AnalyticReports.View;
 
 namespace VisualHFT.AnalyticReport
 {
@@ -35,8 +36,7 @@ namespace VisualHFT.AnalyticReport
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             LoadMM();
-            LoadPalettes();
-            //Load data will be loaded from cboPalette_SelectionChanged
+            LoadData();
         }
         private void LoadMM()
         {
@@ -46,29 +46,8 @@ namespace VisualHFT.AnalyticReport
             //cboMoneyManagement.DisplayMemberPath = "Key";
             //cboMoneyManagement.SelectedValuePath = "Value";
             //*************************************************************************************
-        }
-        private void LoadPalettes()
-        {
-            List<ChartPalette> palettes = new List<ChartPalette>();
-            palettes.Add(ChartPalettes.Arctic);
-            palettes.Add(ChartPalettes.Autumn);
-            palettes.Add(ChartPalettes.Cold);
-            palettes.Add(ChartPalettes.Flower);
-            palettes.Add(ChartPalettes.Forest);
-            palettes.Add(ChartPalettes.Grayscale);
-            palettes.Add(ChartPalettes.Ground);
-            palettes.Add(ChartPalettes.Lilac);
-            palettes.Add(ChartPalettes.Natural);
-            palettes.Add(ChartPalettes.Pastel);
-            palettes.Add(ChartPalettes.Rainbow);
-            palettes.Add(ChartPalettes.Spring);
-            palettes.Add(ChartPalettes.Summer);
-            palettes.Add(ChartPalettes.Warm);
-            palettes.Add(ChartPalettes.Windows8);
-            cboPalette.ItemsSource = palettes;
-            cboPalette.SelectedIndex = 14;
-        }
-        private void LoadData(ChartPalette selectedPallet)
+        }        
+        private void LoadData()
         {
             if (this.Signals != null)
                 this.Signals = this.Signals.OrderBy(x => x.CreationTimeStamp).ToList();
@@ -78,12 +57,12 @@ namespace VisualHFT.AnalyticReport
 
                 try
                 {
-                    ucStrategyHeader1.LoadData(this.Signals.ToList());
-                    ucOverview1.LoadData(this.Signals.ToList());
-                    ucEquityChart1.LoadData(this.Signals.ToList(), selectedPallet);
-                    ucStats1.LoadData(this.Signals.ToList());
-                    ucCharts1.LoadData(this.Signals.ToList(), selectedPallet);
-                    ucChartsStatistics1.LoadData(this.Signals.ToList(), selectedPallet);
+                    ((vmStrategyHeader)ucStrategyHeader1.DataContext).LoadData(this.Signals.ToList());
+                    ((vmOverview)ucOverview1.DataContext).LoadData(this.Signals.ToList());
+                    ((vmEquityChart)ucEquityChart1.DataContext).LoadData(this.Signals.ToList());
+                    ((vmStats)ucStats1.DataContext).LoadData(this.Signals.ToList());
+                    ((vmCharts)ucCharts1.DataContext).LoadData(this.Signals.ToList());
+                    ((vmChartsStatistics)ucChartsStatistics1.DataContext).LoadData(this.Signals.ToList());
                 }
                 catch (Exception ex)
                 {
@@ -102,7 +81,7 @@ namespace VisualHFT.AnalyticReport
         private void cboPalette_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (cboPalette.SelectedItem != null)
-                LoadData(cboPalette.SelectedItem as ChartPalette);
+                LoadData();
         }
 
         private void mnuPrint_Click(object sender, RoutedEventArgs e)
@@ -160,7 +139,7 @@ namespace VisualHFT.AnalyticReport
             //else
             //{
                 if (cboPalette.SelectedItem != null)
-                    LoadData(cboPalette.SelectedItem as ChartPalette);
+                    LoadData();
             //}
         }
 

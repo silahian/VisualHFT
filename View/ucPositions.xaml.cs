@@ -40,21 +40,21 @@ namespace VisualHFT.View
 
         }
 
-        private void SetFilter(Telerik.Windows.Controls.GridViewColumn col, string value)
-        {
-            Telerik.Windows.Controls.GridView.IColumnFilterDescriptor colFilter = col.ColumnFilterDescriptor;
-            // Suspend the notifications to avoid multiple data engine updates
-            colFilter.SuspendNotifications();
-            if (value == "-- All symbols --" || string.IsNullOrEmpty(value))
-                colFilter.FieldFilter.Clear();
-            else
-            {
-                colFilter.FieldFilter.Filter1.Operator = Telerik.Windows.Data.FilterOperator.IsEqualTo;
-                colFilter.FieldFilter.Filter1.Value = value;
-            }
-            // Resume the notifications to force the data engine to update the filter.
-            colFilter.ResumeNotifications();
-        }
+        //private void SetFilter(Telerik.Windows.Controls.GridViewColumn col, string value)
+        //{
+        //    Telerik.Windows.Controls.GridView.IColumnFilterDescriptor colFilter = col.ColumnFilterDescriptor;
+        //    // Suspend the notifications to avoid multiple data engine updates
+        //    colFilter.SuspendNotifications();
+        //    if (value == "-- All symbols --" || string.IsNullOrEmpty(value))
+        //        colFilter.FieldFilter.Clear();
+        //    else
+        //    {
+        //        colFilter.FieldFilter.Filter1.Operator = Telerik.Windows.Data.FilterOperator.IsEqualTo;
+        //        colFilter.FieldFilter.Filter1.Value = value;
+        //    }
+        //    // Resume the notifications to force the data engine to update the filter.
+        //    colFilter.ResumeNotifications();
+        //}
 
         public string SelectedSymbol
         {

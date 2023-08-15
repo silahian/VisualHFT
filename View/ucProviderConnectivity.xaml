@@ -10,11 +10,11 @@
     <Grid>
         <GroupBox Header="Providers' Status" Style="{DynamicResource MaterialDesignDataGroupBox}">
             <ListView x:Name="lstItem" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Providers}" >
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="MouseDoubleClick">
-                    <i:InvokeCommandAction Command="{Binding CmdUpdateStatus}" CommandParameter="{Binding SelectedItem, ElementName=lstItem}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDoubleClick">
+                        <i:InvokeCommandAction Command="{Binding CmdUpdateStatus}" CommandParameter="{Binding SelectedItem, ElementName=lstItem}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
             
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -39,9 +39,9 @@
                             <TextBlock Text="{Binding ProviderName}" ToolTip="{Binding Tooltip}" Margin="5,0,0,0"  Grid.Row="0" Grid.Column="1" FontSize="28" HorizontalAlignment="Left" />
                         </Grid>
                     </WrapPanel>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </GroupBox>
     </Grid>
 
