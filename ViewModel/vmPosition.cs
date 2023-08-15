@@ -46,7 +46,7 @@ namespace VisualHFT.ViewModel
             HelperCommon.EXPOSURES.OnDataReceived += EXPOSURES_OnDataReceived;
             HelperCommon.ACTIVEORDERS.OnDataReceived += ACTIVEORDERS_OnDataReceived;
             HelperCommon.ACTIVEORDERS.OnDataRemoved += ACTIVEORDERS_OnDataRemoved;
-            this.SelectedDate = new DateTime(2022, 10, 6); // DateTime.Now;
+            this.SelectedDate = DateTime.Now;
         }
 
 
