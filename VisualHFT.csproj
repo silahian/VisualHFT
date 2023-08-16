@@ -95,30 +95,6 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Xml" />
-    <Reference Include="Telerik.Windows.Controls, Version=2017.3.1018.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
-      <HintPath>..\hftNoLocks\hftVS2015\lib\RCWPF\2017.3.1018.45\Telerik.Windows.Controls.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Telerik.Windows.Controls.Chart, Version=2017.3.1018.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
-      <HintPath>..\hftNoLocks\hftVS2015\lib\RCWPF\2017.3.1018.45\Telerik.Windows.Controls.Chart.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Telerik.Windows.Controls.Data, Version=2017.3.1018.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
-      <HintPath>..\hftNoLocks\hftVS2015\lib\RCWPF\2017.3.1018.45\Telerik.Windows.Controls.Data.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Telerik.Windows.Controls.GridView, Version=2017.3.1018.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
-      <HintPath>..\hftNoLocks\hftVS2015\lib\RCWPF\2017.3.1018.45\Telerik.Windows.Controls.GridView.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Telerik.Windows.Controls.Input, Version=2017.3.1018.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
-      <HintPath>..\hftNoLocks\hftVS2015\lib\RCWPF\2017.3.1018.45\Telerik.Windows.Controls.Input.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Telerik.Windows.Data, Version=2017.3.1018.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
-      <HintPath>..\hftNoLocks\hftVS2015\lib\RCWPF\2017.3.1018.45\Telerik.Windows.Data.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -131,22 +107,33 @@
     <Compile Include="AnalyticReports\AnalyticReports.xaml.cs">
       <DependentUpon>AnalyticReports.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AnalyticReports\ucCharts.xaml.cs">
+    <Compile Include="Model\ScatterChartData.cs" />
+    <Compile Include="Model\cPLRangeDuration.cs" />
+    <Compile Include="Model\cListPLRanges.cs" />
+    <Compile Include="Model\cTop20.cs" />
+    <Compile Include="Model\cheldBars.cs" />
+    <Compile Include="AnalyticReports\ViewModel\vmCharts.cs" />
+    <Compile Include="AnalyticReports\ViewModel\vmChartsStatistics.cs" />
+    <Compile Include="AnalyticReports\ViewModel\vmEquityChart.cs" />
+    <Compile Include="AnalyticReports\ViewModel\vmOverview.cs" />
+    <Compile Include="AnalyticReports\ViewModel\vmStats.cs" />
+    <Compile Include="AnalyticReports\ViewModel\vmStrategyHeader.cs" />
+    <Compile Include="AnalyticReports\View\ucCharts.xaml.cs">
       <DependentUpon>ucCharts.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AnalyticReports\ucChartsStatistics.xaml.cs">
+    <Compile Include="AnalyticReports\View\ucChartsStatistics.xaml.cs">
       <DependentUpon>ucChartsStatistics.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AnalyticReports\ucEquityChart.xaml.cs">
+    <Compile Include="AnalyticReports\View\ucEquityChart.xaml.cs">
       <DependentUpon>ucEquityChart.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AnalyticReports\ucOverview.xaml.cs">
+    <Compile Include="AnalyticReports\View\ucOverview.xaml.cs">
       <DependentUpon>ucOverview.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AnalyticReports\ucStats.xaml.cs">
+    <Compile Include="AnalyticReports\View\ucStats.xaml.cs">
       <DependentUpon>ucStats.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AnalyticReports\ucStrategyHeader.xaml.cs">
+    <Compile Include="AnalyticReports\View\ucStrategyHeader.xaml.cs">
       <DependentUpon>ucStrategyHeader.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\ConverterEnum.cs" />
@@ -189,6 +176,7 @@
     <Compile Include="Model\cBalance.cs" />
     <Compile Include="Model\cDrawDown.cs" />
     <Compile Include="Model\cEquity.cs" />
+    <Compile Include="Model\cHourSerie.cs" />
     <Compile Include="Model\CloseExecution.cs">
       <DependentUpon>hftModel.tt</DependentUpon>
     </Compile>
@@ -255,9 +243,6 @@
     <Compile Include="UserControls\Block.xaml.cs">
       <DependentUpon>Block.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\DispatchedCollection.xaml.cs">
-      <DependentUpon>DispatchedCollection.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UserControls\LoadingAnimation.xaml.cs">
       <DependentUpon>LoadingAnimation.xaml</DependentUpon>
     </Compile>
@@ -315,29 +300,29 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="AnalyticReports\ucCharts.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="AnalyticReports\View\ucCharts.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AnalyticReports\ucChartsStatistics.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="AnalyticReports\View\ucChartsStatistics.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AnalyticReports\ucEquityChart.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="AnalyticReports\View\ucEquityChart.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AnalyticReports\ucOverview.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="AnalyticReports\View\ucOverview.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AnalyticReports\ucStats.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="AnalyticReports\View\ucStats.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AnalyticReports\ucStrategyHeader.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="AnalyticReports\View\ucStrategyHeader.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="GlobalStyle.xaml">
       <SubType>Designer</SubType>
@@ -346,10 +331,6 @@
     <Page Include="UserControls\Block.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UserControls\DispatchedCollection.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\LoadingAnimation.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -477,13 +458,6 @@
       <LastGenOutput>hftModel.cs</LastGenOutput>
       <DependentUpon>hftModel.edmx</DependentUpon>
     </Content>
-    <Content Include="Telerik\Telerik.Windows.Controls.Chart.dll" />
-    <Content Include="Telerik\Telerik.Windows.Controls.Charting.dll" />
-    <Content Include="Telerik\Telerik.Windows.Controls.Data.dll" />
-    <Content Include="Telerik\Telerik.Windows.Controls.dll" />
-    <Content Include="Telerik\Telerik.Windows.Controls.GridView.dll" />
-    <Content Include="Telerik\Telerik.Windows.Controls.Input.dll" />
-    <Content Include="Telerik\Telerik.Windows.Data.dll" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">
@@ -532,9 +506,6 @@
       <Version>13.0.3</Version>
     </PackageReference>
     <PackageReference Include="OxyPlot.Contrib.Wpf">
-      <Version>2.1.2</Version>
-    </PackageReference>
-    <PackageReference Include="OxyPlot.Wpf">
       <Version>2.1.2</Version>
     </PackageReference>
     <PackageReference Include="Prism.Wpf">

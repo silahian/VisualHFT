@@ -101,29 +101,4 @@
     </Style>
     <!--END STATISTICS VIEW-->
 
-
-
-	<telerik:ChartPalette x:Key="customPalette">
-		<telerik:ChartPalette.SeriesEntries>
-
-			<telerik:PaletteEntryCollection SeriesFamily="Pie">
-				<telerik:PaletteEntry Fill="#FF1FAFD3" Stroke="White"/>
-				<telerik:PaletteEntry Fill="#FFC32E0A" Stroke="White"/>
-				<telerik:PaletteEntry Fill="#FFFA6F5E" Stroke="White"/>
-			</telerik:PaletteEntryCollection>
-			<telerik:PaletteEntryCollection SeriesFamily="Bar">
-				<telerik:PaletteEntry Fill="#FF006968" Stroke="White"/>
-				<telerik:PaletteEntry Fill="#FF7A6CC4" Stroke="White"/>
-				<telerik:PaletteEntry Fill="#FF1FAFD3" Stroke="White"/>
-			</telerik:PaletteEntryCollection>
-		</telerik:ChartPalette.SeriesEntries>
-
-		<telerik:ChartPalette.GlobalEntries>
-			<telerik:PaletteEntry Fill="#FF21B573" Stroke="Red" />
-			<telerik:PaletteEntry Fill="#FF88CA2A" Stroke="Blue" />
-			<telerik:PaletteEntry Fill="#FFFF921E" Stroke="Green" />
-		</telerik:ChartPalette.GlobalEntries>
-
-	</telerik:ChartPalette>
-
 </ResourceDictionary>

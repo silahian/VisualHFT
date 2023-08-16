@@ -1,0 +1,92 @@
+﻿<UserControl x:Class="VisualHFT.AnalyticReports.View.ucOverview"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             Style="{DynamicResource UserControlStyle}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../ReportDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <!--Initial Deposit-->
+        <!--Trades Amount-->
+
+        <!-- Volume Traded-->
+        <Label HorizontalAlignment="Center" Content="Volume Traded" Grid.Column="0" Grid.Row="0" Style="{StaticResource DataTitleStyle}"/>
+        <Rectangle Height="1" StrokeThickness="1" Stroke="#4d4e3a" Margin="30,35,30,0" VerticalAlignment="Top" Grid.Column="0" Grid.Row="0" />
+        <Label HorizontalAlignment="Center" Name="lblVolumeTraded" Content="{Binding VolumeTraded}" VerticalAlignment="Top" Grid.Column="0" Grid.Row="1" Style="{StaticResource DataStyle}"/>
+        <!-- Num Trades -->
+        <Label HorizontalAlignment="Center" Name="Label2" Content="# Trades" Grid.Column="0" Grid.Row="2" Style="{StaticResource DataTitleStyle}"/>
+        <Rectangle Height="1" StrokeThickness="1" Stroke="#4d4e3a" Margin="30,35,30,0" VerticalAlignment="Top" Grid.Column="0" Grid.Row="2" />
+        <Label HorizontalAlignment="Center" Name="lblNumTrades" Content="{Binding NumTrades}" ToolTip="Total amount of trades made within testing." VerticalAlignment="Top" Grid.Column="0" Grid.Row="3" Style="{StaticResource DataStyle}"/>
+        <!--Sharpe Ratio-->
+        <Label HorizontalAlignment="Center" Name="Label3" Content="Sharpe Ratio" Grid.Column="1" Grid.Row="2" Style="{StaticResource DataTitleStyle}"/>
+        <Rectangle Height="1" StrokeThickness="1" Stroke="#4d4e3a" Margin="30,35,30,0" VerticalAlignment="Top" Grid.Column="1" Grid.Row="2" />
+        <Label HorizontalAlignment="Center" Name="lblSharpeRatio" Content="{Binding SharpeRatio}" ToolTip="The Sharpe ratio characterizes how well the return of an asset compensates the investor for the risk taken. When comparing two assets, the one with a higher Sharpe ratio provides better return for the same risk (or, equivalently, the same return for lower risk). The higher Sharpe ratio, the better." VerticalAlignment="Top" Grid.Column="1" Grid.Row="3" Style="{StaticResource DataStyle}"/>
+        <!--Profit Factor-->
+        <Label HorizontalAlignment="Center" Name="Label4" Content="Profit Factor" Grid.Column="2" Grid.Row="2" Style="{StaticResource DataTitleStyle}"/>
+        <Rectangle Height="1" StrokeThickness="1" Stroke="#4d4e3a" Margin="30,35,30,0" VerticalAlignment="Top" Grid.Column="2" Grid.Row="2" />
+        <Label HorizontalAlignment="Center" Name="lblProfitFactor" Content="{Binding ProfitFactor}" ToolTip="Profit factor, shows the ratio between gross profit and gross loss: ProfitFactor = GrossProfit / GrossLoss" VerticalAlignment="Top" Grid.Column="2" Grid.Row="3" Style="{StaticResource DataStyle}"/>
+        <!--Expectancy-->
+        <Label HorizontalAlignment="Center" Name="Label5" Content="Expectancy" Grid.Column="2" Grid.Row="4" Style="{StaticResource DataTitleStyle}"/>
+        <Rectangle Height="1" StrokeThickness="1" Stroke="#4d4e3a" Margin="30,35,30,0" VerticalAlignment="Top" Grid.Column="2" Grid.Row="4" />
+        <Label HorizontalAlignment="Center" Name="lblExpectancy" Content="{Binding Expectancy}" ToolTip="Expectancy tells you on average how much you expect to make per dollar at risk." VerticalAlignment="Top" Grid.Column="2" Grid.Row="5" Style="{StaticResource DataStyle}"/>
+        <!--Winning %-->
+        <Label HorizontalAlignment="Center" Name="Label6" Content="Winning %" Grid.Column="2" Grid.Row="0" Style="{StaticResource DataTitleStyle}"/>
+        <Rectangle Height="1" StrokeThickness="1" Stroke="#4d4e3a" Margin="30,35,30,0" VerticalAlignment="Top" Grid.Column="2" Grid.Row="0" />
+        <Label HorizontalAlignment="Center" Name="lblWinningPerc" Content="{Binding WinningPerc}" ToolTip="Percentage of winning trades." VerticalAlignment="Top" Grid.Column="2" Grid.Row="1" Style="{StaticResource DataStyle}"/>
+
+        <!--MAX DRAWDOWN %-->
+        <Label HorizontalAlignment="Center" Name="Label7" Content="DRAWDOWN (daily)" Grid.Column="0" Grid.Row="4" Style="{StaticResource DataTitleStyle}"/>
+        <Rectangle Height="1" StrokeThickness="1" Stroke="#4d4e3a" Margin="30,35,30,0" VerticalAlignment="Top" Grid.Column="0" Grid.Row="4" />
+        <Label HorizontalAlignment="Center" Name="lblMaxDrawDownPercDaily" Content="{Binding MaxDrawDownPercDaily}" ToolTip="Max Drawdown % is the highest difference between one of the local maximums and the subsequent minimum of the percentage of the equity chart. Drawdown tells you how big of equity has lost historically in the worst losing streak." VerticalAlignment="Top" Grid.Column="0" Grid.Row="5" Style="{StaticResource DataStyle}"/>
+        <!--Annualized Volatility-->
+        <Label HorizontalAlignment="Center" Name="Label8" Content="DRAWDOWN (intraday)" Grid.Column="1" Grid.Row="4" Style="{StaticResource DataTitleStyle}"/>
+        <Rectangle Height="1" StrokeThickness="1" Stroke="#4d4e3a" Margin="30,35,30,0" VerticalAlignment="Top" Grid.Column="1" Grid.Row="4" />
+        <Label HorizontalAlignment="Center" Name="lblMaxDrawDownPercIntraday" Content="{Binding MaxDrawDownPercIntraday}" ToolTip="" VerticalAlignment="Top" Grid.Column="1" Grid.Row="5" Style="{StaticResource DataStyle}"/>
+        <!--Daily Avg Profit-->
+        <Label HorizontalAlignment="Center" Name="Label9" Content="Daily Avg Profit / Volume" Grid.Column="0" Grid.Row="7" Style="{StaticResource DataTitleStyle}"/>
+        <Rectangle Height="1" StrokeThickness="1" Stroke="#4d4e3a" Margin="30,35,30,0" VerticalAlignment="Top" Grid.Column="0" Grid.Row="7" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="0" Grid.Row="8">
+            <Label Name="lblDailyAvgProfit" Content="{Binding DailyAvgProfit}"  Style="{StaticResource DataStyle}"/>
+            <Label Name="lblDailyAvgTrades" Content="{Binding lblDailyAvgTrades}" Style="{StaticResource DataStyle}" FontSize="18" VerticalAlignment="Center"/>
+        </StackPanel>
+        <!--Monthly Avg Profit-->
+        <Label HorizontalAlignment="Center" Name="Label10" Content="Hourly Avg Profit / Volume" Grid.Column="1" Grid.Row="7" Style="{StaticResource DataTitleStyle}"/>
+        <Rectangle Height="1" StrokeThickness="1" Stroke="#4d4e3a" Margin="30,35,30,0" VerticalAlignment="Top" Grid.Column="1" Grid.Row="7" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="1" Grid.Row="8">
+            <Label Name="lblHourlyAvgProfit" Content="{Binding HourlyAvgProfit}"  Style="{StaticResource DataStyle}"/>
+            <Label Name="lblHourlyAvgTrades" Content="{Binding HourlyAvgTrades}" Style="{StaticResource DataStyle}" FontSize="18" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <!--t-Test-->
+        <Label HorizontalAlignment="Center" Name="Label11" Content="t-Test" Grid.Column="2" Grid.Row="7" Style="{StaticResource DataTitleStyle}"/>
+        <Rectangle Height="1" StrokeThickness="1" Stroke="#4d4e3a" Margin="30,35,30,0" VerticalAlignment="Top" Grid.Column="2" Grid.Row="7" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="2" Grid.Row="8">
+            <Label Name="lbltTestValue" Content="{Binding tTestValue}" ToolTip="The t-Test is a statistical test used to gage how likely your trading system’s results occurred by chance alone. You would like to see a value greater than 1.6 which indicates the trading results are more likely to not be based on chance. Any other value below indicates the trading results might be based upon chance. The t-Test value should be calculated with no less than 30 trades. Below is the t-Test calculation." Style="{StaticResource DataStyle}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
