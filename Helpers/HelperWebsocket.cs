@@ -244,10 +244,6 @@ namespace VisualHFT.Helpers
                 }));
             }
         }
-        private void ParseProviders(IEnumerable<ProviderEx> providers)
-        {
-            HelperCommon.PROVIDERS.UpdateData(providers);
-        }
         private void ParseOrderBook(IEnumerable<OrderBook> orderBooks)
         {
             HelperCommon.LIMITORDERBOOK.UpdateData(orderBooks);

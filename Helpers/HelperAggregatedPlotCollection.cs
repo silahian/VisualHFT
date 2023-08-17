@@ -107,6 +107,21 @@ namespace VisualHFT.Helpers
             }
         }
 
+        public double GetMaxOfPrices()
+        {
+            lock (_lockObject)
+            {
+                return _aggregatedData.Max(x => x.AskPrice);
+            }
+        }
+        public double GetMinOfPrices()
+        {
+            lock (_lockObject)
+            {
+                return _aggregatedData.Min(x => x.BidPrice);
+            }
+        }
+
 
         public int Count()
         {

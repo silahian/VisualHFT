@@ -18,13 +18,13 @@ namespace demoTradingCore.Models
             _exchange = exchange;
             _orderBooks = new Dictionary<string, OrderBook>();
         }
-        public void UpdateSnapshot(ExchangeOrderBook ob, int depth)
+        public void UpdateSnapshot(string symbol, ExchangeOrderBook ob, int depth)
         {
             lock (_orderBooksLCK)
             {
-                if (!_orderBooks.ContainsKey(ob.MarketSymbol))
-                    _orderBooks.Add(ob.MarketSymbol, new OrderBook(depth));
-                _orderBooks[ob.MarketSymbol].UpdateSnapshot(ob);
+                if (!_orderBooks.ContainsKey(symbol))
+                    _orderBooks.Add(symbol, new OrderBook(depth));
+                _orderBooks[symbol].UpdateSnapshot(ob);
                 _lastUpdated = DateTime.Now;
             }
 

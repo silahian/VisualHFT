@@ -43,7 +43,7 @@
             <StackPanel Orientation="Vertical" Margin="0,0,0,277">
                 <!--SELECT PROVIDER-->
                 <GroupBox Style="{DynamicResource MaterialDesignCardGroupBox}" Header="Provider" BorderBrush="#DBD0C6" VerticalAlignment="Top">
-                    <ComboBox ItemsSource="{Binding Path=Providers}" SelectedItem="{Binding SelectedProvider}" DisplayMemberPath="ProviderName" SelectedIndex="0" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
+                    <ComboBox ItemsSource="{Binding Path=Providers}" SelectedItem="{Binding SelectedProvider}" DisplayMemberPath="ProviderName" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
                 </GroupBox>
                 <Grid>
                     <Button x:Name="butPopSymbol" ToolTip="Open this section into a new popup-Window" Click="butPopSymbol_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="999" Margin="0" Padding="0" Height="20" Width="20">
@@ -246,7 +246,7 @@
                             <StaticResource ResourceKey="PlotBackgroundBrush" />
                         </contrib:Plot.Background>
                         <contrib:Plot.Axes>
-                            <contrib:LinearAxis Position="Left" />
+                            <contrib:LinearAxis Position="Left" Maximum="{Binding DepthChartMaxY}" />
                             <contrib:LinearAxis Position="Bottom"/>
                         </contrib:Plot.Axes>
                         <contrib:Plot.Series>
@@ -264,7 +264,7 @@
                             <StaticResource ResourceKey="PlotBackgroundBrush" />
                         </contrib:Plot.Background>
                         <contrib:Plot.Axes>
-                            <contrib:LinearAxis Position="Right" />
+                            <contrib:LinearAxis Position="Right" Maximum="{Binding DepthChartMaxY}" />
                             <contrib:LinearAxis Position="Bottom"/>
                         </contrib:Plot.Axes>
                         <contrib:Plot.Series>
@@ -274,7 +274,7 @@
 
                     <Border Margin="0, 10, 0, 120" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" Background="#20FFFFFF" CornerRadius="10" >
                         <StackPanel Orientation="Vertical"  >
-                            <Label Content="{Binding MidPoint, StringFormat=N}" FontSize="20" HorizontalContentAlignment="Center" />
+                            <TextBlock Text="{Binding MidPoint, StringFormat={}{0:N}}" FontSize="20" HorizontalAlignment="Center" />
                             <Rectangle Height="1" Width="250" Fill="White" Margin="5,0" />
                             <Label Content="Mid Price" FontSize="12"  HorizontalContentAlignment="Center" />
                         </StackPanel>

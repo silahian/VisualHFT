@@ -27,9 +27,9 @@ namespace VisualHFT.ViewModel
         private ObservableCollection<Trade> _realTimeTrades;
         private List<PlotInfoPriceChart> _realTimeSpread;
 
-        private ObservableCollection<Provider> _providers;
+        private ObservableCollection<ProviderEx> _providers;
         private string _selectedSymbol;
-        private Provider _selectedProvider = null;
+        private ProviderEx _selectedProvider = null;
         private string _layerName;
         private double _maxOrderSize = 0;
         private double _minOrderSize = 0;
@@ -44,7 +44,8 @@ namespace VisualHFT.ViewModel
         private double _PercentageWidth = 1;
         private double _realTimeYAxisMinimum = 0;
         private double _realTimeYAxisMaximum = 0;
-        
+        private double _depthChartMaxY = 0;
+
 
         private DispatcherTimer timerUI = new DispatcherTimer();
         private List<BookItem> TRACK_Bids = new List<BookItem>();
@@ -95,7 +96,8 @@ namespace VisualHFT.ViewModel
             {
                 _AskTOB_SPLIT?.RaiseUIThread();
                 _BidTOB_SPLIT?.RaiseUIThread();
-
+                RaisePropertyChanged(nameof(MidPoint));
+                RaisePropertyChanged(nameof(Spread));
 
 
                 if (Bids != null && !TRACK_Bids.SequenceEqual(Bids))
@@ -120,6 +122,10 @@ namespace VisualHFT.ViewModel
                     RaisePropertyChanged(nameof(BidCummulative));
                     TRACK_BidCummulative = BidCummulative.ToList();
                 }
+                CalculateMaximumCummulativeSizeOnBothSides();
+                RaisePropertyChanged(nameof(DepthChartMaxY));
+
+
 
                 if (RealTimePrices != null && !TRACK_RealTimePrices.SequenceEqual(RealTimePrices))
                 {
@@ -172,6 +178,7 @@ namespace VisualHFT.ViewModel
                 _minOrderSize = 0; //reset
                 _realTimeYAxisMaximum = 0;
                 _realTimeYAxisMinimum = 0;
+                _depthChartMaxY = 0;
             }
 
             RaisePropertyChanged(nameof(BidTOB_SPLIT));
@@ -270,8 +277,8 @@ namespace VisualHFT.ViewModel
                 #region Calculate TOB values
                 var tobBid = _orderBook?.GetTOB(true);
                 var tobAsk = _orderBook?.GetTOB(false);
-                this.MidPoint = _orderBook != null ? _orderBook.MidPrice : 0;
-                this.Spread = _orderBook != null ? _orderBook.Spread : 0;
+                _MidPoint = _orderBook != null ? _orderBook.MidPrice : 0;
+                _Spread = _orderBook != null ? _orderBook.Spread : 0;
 
                 if (tobAsk != null && (tobAsk.Price != _AskTOB.Price || tobAsk.Size != _AskTOB.Size))
                 {
@@ -332,9 +339,9 @@ namespace VisualHFT.ViewModel
                         _realTimePrices.Add(objToAdd);
 
                         //calculate min/max axis
-                        var midPrice = _realTimePrices.GetAvgOfMidPrice();
-                        _realTimeYAxisMinimum = _realTimePrices.GetMinOfMidPrice() * 0.9999; // midPrice * 0.9; //-20%
-                        _realTimeYAxisMaximum = _realTimePrices.GetMaxOfMidPrice() * 1.0001; // midPrice * 1.1; //+20%
+                        //var midPrice = _realTimePrices.GetAvgOfMidPrice();
+                        _realTimeYAxisMinimum = _realTimePrices.GetMinOfPrices() * 0.9999; // midPrice * 0.9; //-20%
+                        _realTimeYAxisMaximum = _realTimePrices.GetMaxOfPrices() * 1.0001; // midPrice * 1.1; //+20%
 
                     }
                 }
@@ -376,19 +383,22 @@ namespace VisualHFT.ViewModel
                 });
         }
 
-        private void PROVIDERS_OnDataReceived(object sender, Provider e)
+        private void PROVIDERS_OnDataReceived(object sender, ProviderEx e)
         {
             if (_providers == null)
             {
-                _providers = new ObservableCollection<Provider>();
+                _providers = new ObservableCollection<ProviderEx>();
                 RaisePropertyChanged(nameof(Providers));
             }
             if (!_providers.Any(x => x.ProviderName == e.ProviderName))
             {
-                var cleanProvider = new Provider();
+                var cleanProvider = new ProviderEx();
                 cleanProvider.ProviderName = e.ProviderName;
                 cleanProvider.ProviderCode = e.ProviderCode;
                 _providers.Add(cleanProvider);
+                
+                if (_selectedProvider == null && e.Status == eSESSIONSTATUS.BOTH_CONNECTED) //default provider must be the first who's Active
+                    SelectedProvider = cleanProvider;
             }
         }
         private void PROVIDERS_OnHeartBeatFail(object sender, ProviderEx e)
@@ -411,7 +421,7 @@ namespace VisualHFT.ViewModel
             set => SetProperty(ref _selectedSymbol, value, onChanged: () => Clear());
 
         }
-        public Provider SelectedProvider
+        public ProviderEx SelectedProvider
         {
             get => _selectedProvider;
             set => SetProperty(ref _selectedProvider, value, onChanged: () => Clear());
@@ -452,7 +462,7 @@ namespace VisualHFT.ViewModel
                 return _realTimeSpread?.ToList();                    
             }
         }
-        public ObservableCollection<Provider> Providers => _providers;
+        public ObservableCollection<ProviderEx> Providers => _providers;
 
         public BookItemPriceSplit BidTOB_SPLIT
         {
@@ -490,6 +500,15 @@ namespace VisualHFT.ViewModel
             get => _PercentageWidth;
             set => SetProperty(ref _PercentageWidth, value);
         }
+        private void CalculateMaximumCummulativeSizeOnBothSides()
+        {
+            double? _maxValueAsks = OrderBook?.AskCummulative?.DefaultIfEmpty(new BookItem() { Size = 0 }).Max(x => x.Size.Value);
+            if (!_maxValueAsks.HasValue) _maxValueAsks = 0;
+            double? _maxValueBids = OrderBook?.BidCummulative?.DefaultIfEmpty(new BookItem() { Size = 0 }).Max(x => x.Size.Value);
+            if (!_maxValueBids.HasValue) _maxValueBids = 0;
+
+            _depthChartMaxY = Math.Max(_maxValueBids.Value, _maxValueAsks.Value);
+        }
         public List<BookItem> AskCummulative
         {
             get
@@ -520,6 +539,10 @@ namespace VisualHFT.ViewModel
         public double RealTimeYAxisMaximum
         {
             get => _realTimeYAxisMaximum;
+        }
+        public double DepthChartMaxY
+        {
+            get => _depthChartMaxY;
         }
 
     }
