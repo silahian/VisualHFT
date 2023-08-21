@@ -11,14 +11,6 @@ namespace VisualHFT.Model
         /// This override will fire PostedSecondsAgo property change when any other property fires
         /// </summary>
         /// <param name="args"></param>
-        protected override void OnPropertyChanged(PropertyChangedEventArgs args)
-        {
-            base.OnPropertyChanged(args);
-            if (args.PropertyName != nameof(PostedSecondsAgo))
-            {
-                RaisePropertyChanged(nameof(PostedSecondsAgo));
-            }
-        }
 
         #region private fields
         private string _providerName;
@@ -45,11 +37,12 @@ namespace VisualHFT.Model
         private int _symbolDecimals;
         private string _freeText;
         private string _originPartyID;
-        private IEnumerable<OpenExecution> _executions;
+        private IEnumerable<ExecutionVM> _executions;
         private int _quoteID;
         private DateTime _quoteServerTimeStamp;
         private DateTime _quoteLocalTimeStamp;
         private DateTime _creationTimeStamp;
+        private DateTime _lastUpdate;
         private DateTime _executedTimeStamp;
         private DateTime _fireSignalTimestamp;
         private double _stopLoss;
@@ -61,6 +54,7 @@ namespace VisualHFT.Model
         private double _bestAsk;
         private double _getAvgPrice;
         private double _getQuantity;
+        private double _filledPercentage;
         #endregion
 
         public OrderVM()
@@ -109,8 +103,10 @@ namespace VisualHFT.Model
             GetAvgPrice = order.GetAvgPrice;
             GetQuantity = order.GetQuantity;
 
+
+            LastUpdated = DateTime.Now;
         }
-        public double PostedSecondsAgo => DateTime.Now.Subtract(CreationTimeStamp).TotalSeconds;
+
         public double PendingQuantity => Quantity - FilledQuantity;
         public string ProviderName
         {
@@ -232,7 +228,7 @@ namespace VisualHFT.Model
             get => _originPartyID;
             set => SetProperty(ref _originPartyID, value);
         }
-        public IEnumerable<OpenExecution> Executions
+        public IEnumerable<ExecutionVM> Executions
         {
             get => _executions;
             set => SetProperty(ref _executions, value);
@@ -255,7 +251,12 @@ namespace VisualHFT.Model
         public DateTime CreationTimeStamp
         {
             get => _creationTimeStamp;
-            set => SetProperty(ref _creationTimeStamp, value, onChanged: () => RaisePropertyChanged(nameof(PostedSecondsAgo)));
+            set => SetProperty(ref _creationTimeStamp, value);
+        }
+        public DateTime LastUpdated
+        {
+            get => _lastUpdate;
+            set => SetProperty(ref _lastUpdate, value);
         }
         public DateTime ExecutedTimeStamp
         {
@@ -312,5 +313,11 @@ namespace VisualHFT.Model
             get => _getQuantity;
             set => SetProperty(ref _getQuantity, value);
         }
+        public double FilledPercentage
+        {
+            get => _filledPercentage;
+            set => SetProperty(ref _filledPercentage, value);
+        }
     }
+
 }

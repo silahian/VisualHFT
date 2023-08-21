@@ -32,7 +32,6 @@ namespace VisualHFT.View
             new UIPropertyMetadata(new ObservableCollection<Position>(), new PropertyChangedCallback(positionChangedCallBack))
             );
 
-
         public ucPositions()
         {
             InitializeComponent();
@@ -40,41 +39,24 @@ namespace VisualHFT.View
 
         }
 
-        //private void SetFilter(Telerik.Windows.Controls.GridViewColumn col, string value)
-        //{
-        //    Telerik.Windows.Controls.GridView.IColumnFilterDescriptor colFilter = col.ColumnFilterDescriptor;
-        //    // Suspend the notifications to avoid multiple data engine updates
-        //    colFilter.SuspendNotifications();
-        //    if (value == "-- All symbols --" || string.IsNullOrEmpty(value))
-        //        colFilter.FieldFilter.Clear();
-        //    else
-        //    {
-        //        colFilter.FieldFilter.Filter1.Operator = Telerik.Windows.Data.FilterOperator.IsEqualTo;
-        //        colFilter.FieldFilter.Filter1.Value = value;
-        //    }
-        //    // Resume the notifications to force the data engine to update the filter.
-        //    colFilter.ResumeNotifications();
-        //}
 
         public string SelectedSymbol
         {
             get { return (string)GetValue(ucPositionsSymbolProperty); }
-            set {
+            set
+            {
                 SetValue(ucPositionsSymbolProperty, value);
                 ((VisualHFT.ViewModel.vmPosition)this.DataContext).SelectedSymbol = value;
-
-                //SetFilter(grdPositions.Columns[5], value);
-                //SetFilter(grdTradeBottler.Columns[2], value);
             }
         }
         public string SelectedStrategy
         {
             get { return (string)GetValue(ucPositionsSelectedStrategyProperty); }
-            set {
+            set
+            {
                 SetValue(ucPositionsSelectedStrategyProperty, value);
                 ((VisualHFT.ViewModel.vmPosition)this.DataContext).SelectedStrategy = value;
 
-                //SetFilter(grdPositions.Columns[4], value);
             }
         }
         public ObservableCollection<Position> Positions
@@ -82,6 +64,7 @@ namespace VisualHFT.View
             get { return (ObservableCollection<Position>)GetValue(ucPositionsPositionProperty); }
             set { SetValue(ucPositionsPositionProperty, value); /*((VisualHFT.ViewModel.vmPosition)this.DataContext).Positions = value;*/ }
         }
+
 
 
 
@@ -100,6 +83,7 @@ namespace VisualHFT.View
             ucPositions ucSelf = (ucPositions)property;
             ucSelf.Positions = (ObservableCollection<Position>)args.NewValue;
         }
+
 
         private void butLoadFile_Click(object sender, RoutedEventArgs e)
         {
@@ -155,7 +139,7 @@ namespace VisualHFT.View
                     string filename = dlg.FileName;
                     if (filename != "")
                     {
-                        ObservableCollection<PositionEx> _positions = ((VisualHFT.ViewModel.vmPosition)this.DataContext).Positions;
+                        ObservableCollection<OrderVM> _positions = ((VisualHFT.ViewModel.vmPosition)this.DataContext).AllOrders;
                         if (_positions != null && _positions.Count > 0)
                         {
                             //serialize

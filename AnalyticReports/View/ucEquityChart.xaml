@@ -26,7 +26,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <contrib:Plot x:Name="chartEquity" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="0" Grid.ColumnSpan="2" IsEnabled="True" Style="{StaticResource PlotStyle}">
+        <contrib:Plot x:Name="chartEquity" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="0" Grid.ColumnSpan="2" IsEnabled="True" Style="{StaticResource PlotStyle}" >
             <contrib:Plot.Resources>
                 <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
                 <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
@@ -40,9 +40,9 @@
                 <contrib:Legend LegendPlacement="Outside" LegendPosition="BottomLeft" LegendOrientation="Vertical" />
             </contrib:Plot.Legends>
             <contrib:Plot.Axes>
-                <contrib:LinearAxis Position="Right" Title="Equity" Key="Equity"/>
-                <contrib:LinearAxis Position="Left" Title="VolumeQty" Key="VolumeQty"/>
-                <contrib:DateTimeAxis Title="Hour" Position="Bottom" StringFormat="MM.dd HH" IntervalType="Hours" MinimumPadding="0.1" MaximumPadding="0.1" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
+                <contrib:LinearAxis Position="Right" Title="Equity" Key="Equity" IsZoomEnabled="False"/>
+                <contrib:LinearAxis Position="Left" Title="VolumeQty" Key="VolumeQty" IsZoomEnabled="False"/>
+                <contrib:DateTimeAxis Title="Hour" Position="Bottom" StringFormat="MM.dd HH" IntervalType="Hours" MinimumPadding="0.1" MaximumPadding="0.1" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
             </contrib:Plot.Axes>
             <contrib:Plot.Series>
                 <contrib:LineSeries Title="Equity" ItemsSource="{Binding CandlesGrouped}" DataFieldX="Date" DataFieldY="Equity"  StrokeThickness="3" LineStyle="Solid" Color="Blue" YAxisKey="Equity"/>
@@ -63,10 +63,11 @@
                 <contrib:Legend LegendPlacement="Outside" LegendPosition="BottomLeft" LegendOrientation="Vertical" />
             </contrib:Plot.Legends>
             <contrib:Plot.Axes>
-                <contrib:CategoryAxis Title="Hours" Position="Left" ItemsSource="{Binding DrawDowns}" LabelField="DrawDownHours" MinimumPadding="0.1" MaximumPadding="0.1" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
+                <contrib:CategoryAxis Title="Hours" Position="Left" ItemsSource="{Binding DrawDowns}" LabelField="DrawDownHours" MinimumPadding="0.1" MaximumPadding="0.1" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
+                <contrib:LinearAxis IsZoomEnabled="False"/>
             </contrib:Plot.Axes>
             <contrib:Plot.Series>
-                <contrib:BarSeries Title="Ammount" ItemsSource="{Binding DrawDowns}" ValueField="DrawDownAmmount" Color="Green"/>
+                <contrib:BarSeries Title="Ammount" ItemsSource="{Binding DrawDowns}" ValueField="DrawDownAmmount" Color="Green" />
             </contrib:Plot.Series>
         </contrib:Plot>
         <StackPanel Grid.Row="2" Grid.Column="1" Width="770" HorizontalAlignment="Center" >

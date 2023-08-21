@@ -21,7 +21,9 @@ public static class StringExtender
         }
         public static int ToInt(this object obj)
         {
-            return ToInt(obj.ToString());
+            if (obj == null)
+                return ToInt(obj.ToString());
+            else return 0;
         }
         public static int ToInt(this string obj)
         {
@@ -31,7 +33,7 @@ public static class StringExtender
         }
         public static double ToDouble(this double obj)
         {
-            if (double.IsNaN(obj) || double.IsInfinity(obj) || obj == null)
+            if (obj == null || double.IsNaN(obj) || double.IsInfinity(obj))
                 return 0;
             else
                 return obj;
@@ -114,8 +116,10 @@ public static class StringExtender
 
         public static DateTime ToDateTime(this object obj)
         {
-            //string DatePositionFormat = "yyyy'.'MM'.'dd'-'HH'.'mm'.'ss'.'ffffff";
-            //DateTime.TryParseExact(rawDate, DatePositionFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date)
+        //string DatePositionFormat = "yyyy'.'MM'.'dd'-'HH'.'mm'.'ss'.'ffffff";
+        //DateTime.TryParseExact(rawDate, DatePositionFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date)
+            if (obj == null)
+                return DateTime.MinValue;
             return ToDateTime(obj.ToString());
         }
         public static DateTime ToDateTime(this string obj)

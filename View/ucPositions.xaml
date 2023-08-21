@@ -4,8 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:Formatters="clr-namespace:VisualHFT.Converters"
-    xmlns:my="clr-namespace:VisualHFT.Helpers"
+    xmlns:my="clr-namespace:VisualHFT.Helpers"     
     x:Class="VisualHFT.View.ucPositions"
     mc:Ignorable="d"
     TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -14,7 +15,7 @@
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{StaticResource MaterialDesignFont}"                      
+        FontFamily="{StaticResource MaterialDesignFont}"
 
     d:DesignHeight="300" d:DesignWidth="900">
     <UserControl.Resources>
@@ -24,160 +25,284 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
+
     <Grid>
         <Grid.Resources>
-            <my:PnLStyle x:Key="PnLStyle">
-                <my:PnLStyle.GreenBackColorStyle>
-                    <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
-                        <Setter Property="Background" Value="DarkGreen"/>
-                        <Setter Property="Foreground" Value="LightGray"/>
-                        <Setter Property="BorderThickness" Value="0"/>
-                    </Style>
-                </my:PnLStyle.GreenBackColorStyle>
-                <my:PnLStyle.RedBackColorStyle>
-                    <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
-                        <Setter Property="Background" Value="DarkRed" />
-                        <Setter Property="Foreground" Value="LightGray"/>
-                        <Setter Property="BorderThickness" Value="0"/>
-                    </Style>
-                </my:PnLStyle.RedBackColorStyle>
-                <my:PnLStyle.NullBackColorStyle>
-                    <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
-                        <Setter Property="Background" Value="White" />
-                        <Setter Property="Foreground" Value="DarkGray"/>
-                        <Setter Property="BorderThickness" Value="0"/>
-                    </Style>
-                </my:PnLStyle.NullBackColorStyle>
-            </my:PnLStyle>
-
-            
             <Formatters:ConverterEnum x:Key="enumConverter"/>
             <Formatters:KiloFormatter x:Key="KiloFormatter"/>
-            <CollectionViewSource Source="{Binding Positions}" x:Key="PositionsSorted">
-                <CollectionViewSource.SortDescriptions>
-                    <scm:SortDescription PropertyName="CloseTimeStamp" Direction="Descending"/>
-                </CollectionViewSource.SortDescriptions>
-            </CollectionViewSource>
-            <CollectionViewSource Source="{Binding Executions}" x:Key="ExecutionsSorted">
-                <CollectionViewSource.SortDescriptions>
-                    <scm:SortDescription PropertyName="LocalTimeStamp" Direction="Descending"/>
-                </CollectionViewSource.SortDescriptions>
-            </CollectionViewSource>
-            
+            <Formatters:StringEqualityConverter x:Key="StringEqualityConverter"/>
+            <Formatters:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter" />
+            <Formatters:LessThanZeroConverter x:Key="LessThanZeroConverter" />
+            <Formatters:IsNaNConverter x:Key="IsNaNConverter"/>
         </Grid.Resources>
 
-        <GroupBox Header="Positions" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5" Padding="5">
+        <GroupBox VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5" Padding="5">
             <Grid>
-                <TabControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-                    <TabItem Header="Executions" IsSelected="True">
+                <TabControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{DynamicResource MaterialDesignTabControl}" >
+                    <TabItem Header="POSITIONS" Style="{StaticResource MaterialDesignTabItem}" IsSelected="True" >
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="60*"/>
-                                <ColumnDefinition Width="40*"/>
-                            </Grid.ColumnDefinitions>                            
-                            <!--EXECUTIONS-->
-                            <DataGrid x:Name="grdExecutions" Style="{DynamicResource MaterialDesignDataGrid}" AutoGenerateColumns="False" ItemsSource="{Binding Source={StaticResource ExecutionsSorted}}" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  AlternatingRowBackground="Gray" RowBackground="LightGray" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserResizeRows="False" CanUserSortColumns="True" HorizontalScrollBarVisibility="Hidden" >
+                            <DataGrid Style="{DynamicResource MaterialDesignDataGrid}" AutoGenerateColumns="False" 
+                                          ItemsSource="{Binding PositionsManager}" 
+                                          CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserResizeRows="False" CanUserSortColumns="False"
+                                          EnableRowVirtualization="True"
+                                          EnableColumnVirtualization="True"
+                                          Grid.Row="1"
+                                          >
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <!-- Default background color -->
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <!-- DataTriggers to change background based on PLTot value -->
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding PLTot}" Value="0">
+                                                <!-- Default color when PLTot is 0 -->
+                                                <Setter Property="Background" Value="Transparent"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding PLTot, Converter={StaticResource IsNaNConverter}}" Value="True">
+                                                <!-- Default color when PLTot is NaN -->
+                                                <Setter Property="Background" Value="Transparent"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding PLTot, Converter={StaticResource GreaterThanZeroConverter}}" Value="True">
+                                                <!-- Green color when PLTot is greater than 0 -->
+                                                <Setter Property="Background" Value="Green"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding PLTot, Converter={StaticResource LessThanZeroConverter}}" Value="True">
+                                                <!-- Red color when PLTot is less than 0 -->
+                                                <Setter Property="Background" Value="Red"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGrid.RowStyle>
+
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Date" Binding="{Binding LocalTimeStamp, StringFormat='{}{0:HH:mm:ss.fff}'}" Width="120" SortDirection="Descending" SortMemberPath="LocalTimeStamp" />
+                                    <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="100"  />
+                                    <DataGridTextColumn Header="Tot Buy" Binding="{Binding TotBuy, Converter={StaticResource KiloFormatter}}" Width="100" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                    <DataGridTextColumn Header="Tot Sell" Binding="{Binding TotSell, Converter={StaticResource KiloFormatter}}" Width="100" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                    <DataGridTextColumn Header="Net Pos" Binding="{Binding NetPosition, StringFormat='{}{0:N}'}" Width="120" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                    <DataGridTextColumn Header="Exposure" Binding="{Binding Exposure, StringFormat='{}{0:N}'}" Width="120" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                    <DataGridTextColumn Header="Wrk Buy" Binding="{Binding WrkBuy, Converter={StaticResource KiloFormatter}}" Width="100" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                    <DataGridTextColumn Header="Wrk Sell" Binding="{Binding WrkSell, Converter={StaticResource KiloFormatter}}" Width="100" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+
+                                    <DataGridTextColumn Header="Tot P/L" Binding="{Binding PLTot, StringFormat='{}{0:N}'}" Width="120" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                    <DataGridTextColumn Header="Rlz P/L" Binding="{Binding PLRealized, StringFormat='{}{0:N}'}" Width="120" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                    <DataGridTextColumn Header="Opn P/L" Binding="{Binding PLOpen, StringFormat='{}{0:N}'}" Width="120"  HeaderStyle="{DynamicResource RightAlignedHeader}">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <!-- Default background color -->
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                <!-- Change background to green when PLOpen > 0 -->
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding PLOpen}" Value="0">
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding PLOpen}" Value="{x:Static sys:Double.NaN}">
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding PLOpen}" Value="0.0001">
+                                                        <Setter Property="Background" Value="Green"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding PLOpen}" Value="-0.0001">
+                                                        <Setter Property="Background" Value="Red"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+
+                                    <DataGridTextColumn Header="Last Update" Binding="{Binding LastUpdated, StringFormat='{}{0:HH:mm:ss.fff}'}" Width="120" SortDirection="Descending" SortMemberPath="LocalTimeStamp" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="ORDERS" Style="{StaticResource MaterialDesignTabItem}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="50" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <!--ORDERS-->
+                            <StackPanel Orientation="Horizontal" Grid.Row="0">
+                                <RadioButton Margin="0 0 20 0" Content="Working" GroupName="StatusFilter" 
+                                     Command="{Binding FilterCommand}" CommandParameter="Working" 
+                                     IsChecked="{Binding SelectedFilter, Converter={StaticResource StringEqualityConverter}, ConverterParameter=Working}"/>
+
+                                <RadioButton Margin="0 0 20 0" Content="Filled" GroupName="StatusFilter" 
+                                     Command="{Binding FilterCommand}" CommandParameter="Filled" 
+                                     IsChecked="{Binding SelectedFilter, Converter={StaticResource StringEqualityConverter}, ConverterParameter=Filled}"/>
+
+                                <RadioButton Margin="0 0 20 0" Content="Cancelled" GroupName="StatusFilter" 
+                                     Command="{Binding FilterCommand}" CommandParameter="Cancelled" 
+                                     IsChecked="{Binding SelectedFilter, Converter={StaticResource StringEqualityConverter}, ConverterParameter=Cancelled}"/>
+
+                                <RadioButton Margin="0 0 20 0" Content="ALL" GroupName="StatusFilter" 
+                                     Command="{Binding FilterCommand}" CommandParameter="All" 
+                                     IsChecked="{Binding SelectedFilter, Converter={StaticResource StringEqualityConverter}, ConverterParameter=All}"/>
+                            </StackPanel>
+                            <DataGrid Style="{DynamicResource MaterialDesignDataGrid}" AutoGenerateColumns="False" 
+                                          ItemsSource="{Binding AllOrders}" 
+                                          CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserResizeRows="False" CanUserSortColumns="False"
+                                          EnableRowVirtualization="True"
+                                          EnableColumnVirtualization="True"
+                                          Grid.Row="1"
+                                          >
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Created" Binding="{Binding CreationTimeStamp, StringFormat='{}{0:HH:mm:ss.fff}'}" Width="120" SortDirection="Descending" SortMemberPath="LocalTimeStamp" />
                                     <DataGridTextColumn Header="Provider" Binding="{Binding ProviderName}" Width="100"  />
                                     <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="100"  />
                                     <DataGridTextColumn Header="ClOrdId" Binding="{Binding ClOrdId}" Width="250"  />
-                                    <DataGridTextColumn Header="Execution ID" Binding="{Binding ExecId}" Width="80"  />
-                                    <DataGridTextColumn Header="Side" Binding="{Binding Side, Converter={StaticResource ResourceKey=enumConverter}}" Width="80"  />
-                                    <DataGridTextColumn Header="Status" Binding="{Binding Status, Converter={StaticResource ResourceKey=enumConverter}}" Width="80"  />
-                                    <DataGridTextColumn Header="QtyFilled" Binding="{Binding QtyFilled, Converter={StaticResource KiloFormatter}}" Width="100" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
-                                    <DataGridTextColumn Header="Price" Binding="{Binding Price}" Width="120" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
-                                    <DataGridTextColumn Header="Srv/Loc Latency(ms)" Binding="{Binding LatencyInMiliseconds, StringFormat=N2}" Width="*" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                    <DataGridTextColumn Header="Qty" Binding="{Binding Quantity, Converter={StaticResource KiloFormatter}}" Width="100" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                    <DataGridTextColumn Header="Price" Binding="{Binding PricePlaced, StringFormat='{}{0:N}'}" Width="120" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                    <DataGridTextColumn Header="Side" Binding="{Binding Side, Converter={StaticResource ResourceKey=enumConverter}}" Width="80" >
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <!-- Default background color -->
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="Padding" Value="10, 0, 10, 0"  />
+                                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                <!-- DataTriggers to change background based on Side value -->
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Side}" Value="Buy">
+                                                        <Setter Property="Background" Value="Blue"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Side}" Value="Sell">
+                                                        <Setter Property="Background" Value="Red"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+
+                                    <DataGridTemplateColumn Header="% Filled" Width="120">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <!-- ProgressBar to display the fill percentage -->
+                                                    <ProgressBar Value="{Binding FilledPercentage}" Maximum="100" Height="20" VerticalAlignment="Center">
+                                                        <ProgressBar.Style>
+                                                            <Style TargetType="ProgressBar">
+                                                                <!-- Default color -->
+                                                                <Setter Property="Foreground" Value="Yellow"/>
+                                                                <!-- DataTrigger to change color when 100% filled -->
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding FilledPercentage}" Value="100">
+                                                                        <Setter Property="Foreground" Value="Green"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </ProgressBar.Style>
+                                                        <!-- ToolTip to display the "Wrk Qty" and "Exec Qty" values -->
+                                                        <ProgressBar.ToolTip>
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding WrkQty}" FontWeight="Bold"/>
+                                                                <TextBlock Text="{Binding ExecQty}"/>
+                                                            </StackPanel>
+                                                        </ProgressBar.ToolTip>
+                                                    </ProgressBar>
+
+                                                    <!-- TextBlock to display the percentage label in the middle of the ProgressBar -->
+                                                    <TextBlock Text="{Binding FilledPercentage, StringFormat='{}{0}%'}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Black" FontWeight="Bold"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="Exec Qty" Binding="{Binding FilledQuantity, Converter={StaticResource KiloFormatter}}" Width="100" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+
+
+                                    <DataGridTextColumn Header="Avg Prc" Binding="{Binding GetAvgPrice, StringFormat='{}{0:N}'}" Width="120" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+
+                                    <DataGridTextColumn Header="TIF" Binding="{Binding TimeInForce, Converter={StaticResource ResourceKey=enumConverter}}" Width="80"  />
+                                    <DataGridTextColumn Header="Type" Binding="{Binding OrderType, Converter={StaticResource ResourceKey=enumConverter}}" Width="80"  />
+
+                                    <!--Visibility="{Binding IsAllFilterSelected, Converter={StaticResource BooleanToVisibilityConverter}}"-->
+                                    <DataGridTemplateColumn Header="Status" Width="160" >
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <!-- Button with visibility controlled by DataTriggers -->
+                                                    <Button Content="x" Width="20" >
+                                                        <Button.Style>
+                                                            <Style TargetType="Button">
+                                                                <!-- Default visibility -->
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <!-- DataTriggers to change visibility based on enum value -->
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="REPLACED">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="SENT">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="NEW">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="PARTIALFILLED">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
+                                                    </Button>
+                                                    <TextBlock Text="{Binding Status, Converter={StaticResource ResourceKey=enumConverter}}" Padding="10,2,10,0">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <!-- Default background color -->
+                                                                <Setter Property="Background" Value="White"/>
+                                                                <!-- DataTriggers to change background based on enum value -->
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="REPLACED">
+                                                                        <Setter Property="Background" Value="Gray"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="SENT">
+                                                                        <Setter Property="Background" Value="Gray"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="NEW">
+                                                                        <Setter Property="Background" Value="Gray"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="CANCELED">
+                                                                        <Setter Property="Background" Value="Red"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="REJECTED">
+                                                                        <Setter Property="Background" Value="Red"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="PARTIALFILLED">
+                                                                        <Setter Property="Background" Value="GreenYellow"/>
+                                                                        <Setter Property="Foreground" Value="Black"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="CANCELEDSENT">
+                                                                        <Setter Property="Background" Value="Gray"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="REPLACESENT">
+                                                                        <Setter Property="Background" Value="Gray"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="FILLED">
+                                                                        <Setter Property="Background" Value="Green"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <DataGridTextColumn Header="Best Bid" Binding="{Binding BestBid, StringFormat='{}{0:N}'}" Width="120" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+                                    <DataGridTextColumn Header="Best Ask" Binding="{Binding BestAsk, StringFormat='{}{0:N}'}" Width="120" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
+
+                                    <DataGridTextColumn Header="Last Update" Binding="{Binding LastUpdated, StringFormat='{}{0:HH:mm:ss.fff}'}" Width="120" SortDirection="Descending" SortMemberPath="LocalTimeStamp" />
+
                                 </DataGrid.Columns>
                             </DataGrid>
-                            <!--END EXECUTIONS-->
-                            <StackPanel Orientation="Vertical" Grid.Column="1" Margin="10 0 0 0">
-                                <!--EXPOSURES-->
-                                <GroupBox Header="Exposures" Height="245" Style="{DynamicResource MaterialDesignDataGroupBox}">
-                                    <Grid>
-                                        <DataGrid Style="{DynamicResource MaterialDesignDataGrid}" ItemsSource="{Binding Exposures}" MinRowHeight="40" FontSize="20" AutoGenerateColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  IsReadOnly="True" BorderThickness="0" CanUserResizeRows="False" CanUserSortColumns="True" >
-                                            <DataGrid.RowStyle>
-                                                <Style TargetType="DataGridRow">
-                                                    <Style.Triggers>
-                                                        <!--white-->
-                                                        <DataTrigger Binding="{Binding ExposureRowColor}" Value="White">
-                                                            <Setter Property="Background" Value="White" />
-                                                            <Setter Property="Foreground" Value="Black" />
-                                                        </DataTrigger>
-                                                        <!--red-->
-                                                        <DataTrigger Binding="{Binding ExposureRowColor}" Value="Red">
-                                                            <Setter Property="Background" Value="Red" />
-                                                        </DataTrigger>
-                                                        <!--white-->
-                                                        <DataTrigger Binding="{Binding ExposureRowColor}" Value="Green">
-                                                            <Setter Property="Background" Value="Green" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </DataGrid.RowStyle>
-                                            <DataGrid.Columns>
-                                                <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="*"  />
-                                                <DataGridTextColumn Header="Size" Binding="{Binding SizeExposed, Converter={StaticResource KiloFormatter}}" Width="90" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
-                                                <DataGridTextColumn Header="$ uPL" Binding="{Binding UnrealizedPL, StringFormat=N2}" Width="150" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
-                                            </DataGrid.Columns>
-                                        </DataGrid>
-                                    </Grid>
-                                </GroupBox>
-                                <!--END EXPOSURES-->
-
-                                <!--ACTIVE ORDERS-->
-                                <GroupBox Header="Pending Orders" Height="250" Style="{DynamicResource MaterialDesignDataGroupBox}">
-                                    <DataGrid Style="{DynamicResource MaterialDesignDataGrid}" ItemsSource="{Binding ActiveOrders}" AutoGenerateColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  IsReadOnly="True" BorderThickness="0" CanUserResizeRows="False" CanUserSortColumns="True" >
-                                        <DataGrid.Columns>
-                                            <DataGridTextColumn Header="Provider" Binding="{Binding ProviderName}" Width="*" SortDirection="Ascending" />
-                                            <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="100"  SortDirection="Ascending"/>
-                                            <DataGridTextColumn Header="Side" Binding="{Binding Side}" Width="60" SortDirection="Ascending" />
-                                            <DataGridTextColumn Header="Price" Binding="{Binding PricePlaced}" Width="100" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
-                                            <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity, Converter={StaticResource KiloFormatter}}" Width="90" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
-                                            <DataGridTextColumn Header="Filled" Binding="{Binding FilledQuantity, Converter={StaticResource KiloFormatter}}" Width="90" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
-                                            <DataGridTextColumn Header="Pending" Binding="{Binding PendingQuantity, Converter={StaticResource KiloFormatter}}" Width="90" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
-                                            <DataGridTextColumn Header="(sec ago)" Binding="{Binding PostedSecondsAgo, StringFormat=N0}" Width="90" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}" />
-                                        </DataGrid.Columns>
-                                    </DataGrid>
-                                </GroupBox>
-                                <!--END ACTIVE ORDERS-->
-                            </StackPanel>
+                            <!--END ORDERS-->
                         </Grid>
                     </TabItem>
-                    <TabItem Header="Positions PnL">
-                        <Grid>
-                            <!--POSITIONS-->
-                            <DataGrid x:Name="grdPositions" Grid.Column="0" ItemsSource="{Binding Source={StaticResource PositionsSorted}}" RowStyleSelector="{DynamicResource PnLStyle}" Style="{DynamicResource MaterialDesignDataGrid}" FontFamily="Arial" FontSize="11" RowHeight="30" AutoGenerateColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  IsReadOnly="True" BorderThickness="0" CanUserResizeRows="False" CanUserSortColumns="True" >
-                                <DataGrid.Resources>
-                                </DataGrid.Resources>
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding CreationTimeStamp, StringFormat='{}{0:HH:mm:ss.fff}'}" Header="Open" Width="100" />
-                                    <DataGridTextColumn Binding="{Binding CloseTimeStamp, StringFormat='{}{0:HH:mm:ss.fff}'}" Header="Close" Width="100" />
-                                    <DataGridTextColumn Binding="{Binding OpenProviderName}" Header="Open Provider" Width="120" />
-                                    <DataGridTextColumn Binding="{Binding CloseProviderName}" Header="Close Provider" Width="120" />
-                                    <DataGridTextColumn Binding="{Binding StrategyCode}" Header="Strategy" Width="100" />
-                                    <DataGridTextColumn Binding="{Binding Symbol}" Header="Symbol" Width="100" />
-                                    <DataGridTextColumn Binding="{Binding Side, Converter={StaticResource ResourceKey=enumConverter}}" Header="Side" Width="70"  />
-                                    <DataGridTextColumn Binding="{Binding OrderQuantity, Converter={StaticResource KiloFormatter}}" Header="Quantity" Width="100" ElementStyle="{DynamicResource RightAligned}" HeaderStyle="{DynamicResource RightAlignedHeader}"/>
-                                    <DataGridTextColumn Binding="{Binding GetOpenAvgPrice}" Header="Avg Open $" Width="100" ElementStyle="{DynamicResource RightAligned}" HeaderStyle="{DynamicResource RightAlignedHeader}"/>
-                                    <DataGridTextColumn Binding="{Binding GetCloseAvgPrice}" Header="Avg Close $" Width="100" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
-                                    <DataGridTextColumn Binding="{Binding IsCloseMM}" Header="IsMM" Width="60" ElementStyle="{DynamicResource CenterAligned}"  />
-                                    <DataGridTextColumn Binding="{Binding AttemptsToClose}" Header="Attmpts" Width="40" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
-                                    <DataGridTextColumn Binding="{Binding MaxDrowdown, StringFormat=N2}" Header="Max DD" Width="100" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
-                                    <DataGridTextColumn Binding="{Binding UnrealizedPnL, StringFormat=N2}" Header="UpnL" Width="100" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
-                                    <DataGridTextColumn Binding="{Binding GetPipsPnL, StringFormat=N2}" Header="PnL (pips)" Width="100" ElementStyle="{DynamicResource RightAligned}" HeaderStyle="{DynamicResource RightAlignedHeader}"/>
-                                    <DataGridTextColumn Binding="{Binding PipsPnLInCurrency, StringFormat=C2}" Header="PnL $" Width="*" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                            <!--END POSITIONS-->
-                        </Grid>
-                    </TabItem>
-
                 </TabControl>
                 <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Orientation="Horizontal" >
                     <Label Content="Session Date"></Label>
                     <DatePicker  SelectedDate="{Binding SelectedDate}" />
-                    <Button x:Name="butExportCsv" ToolTip="Export Bottler..." Click="butExportCsv_Click" Width="20" Height="20" Padding="0" BorderThickness="0" Background="White">
+                    <Button Visibility="Hidden" x:Name="butExportCsv" ToolTip="Export Bottler..." Click="butExportCsv_Click" Width="20" Height="20" Padding="0" BorderThickness="0" Background="White">
                         <StackPanel Orientation="Horizontal" Margin="0" >
                             <Image Source="/Images/excel.png" Height="20" Width="20" ></Image>
                         </StackPanel>

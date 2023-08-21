@@ -107,6 +107,12 @@
     <Compile Include="AnalyticReports\AnalyticReports.xaml.cs">
       <DependentUpon>AnalyticReports.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\GreaterThanZeroConverter.cs" />
+    <Compile Include="Converters\IsNaNConverter.cs" />
+    <Compile Include="Converters\LessThanZeroConverter.cs" />
+    <Compile Include="Converters\StringEqualityConverter.cs" />
+    <Compile Include="Helpers\HelperPnLCalculator.cs" />
+    <Compile Include="Model\PositionManager.cs" />
     <Compile Include="Model\ScatterChartData.cs" />
     <Compile Include="Model\cPLRangeDuration.cs" />
     <Compile Include="Model\cListPLRanges.cs" />
@@ -501,6 +507,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Web.Xdt">
       <Version>7.0.0-preview.22423.2</Version>
+    </PackageReference>
+    <PackageReference Include="MvvmLightLibs">
+      <Version>5.4.1.1</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.3</Version>

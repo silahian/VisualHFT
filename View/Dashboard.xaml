@@ -38,43 +38,51 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
-                <RowDefinition Height="600"  MinHeight="300" />
-                <RowDefinition Height="*" MinHeight="300" />
+                <RowDefinition Height="0.1*" MaxHeight="50" />
+                <RowDefinition Height="0.6*"  />
+                <RowDefinition Height="0.3*" />
             </Grid.RowDefinitions>
 
-            <Grid Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="300"/>
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <!--STRATEGIES-->
-                <Label Content="Strategy" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
-                <ComboBox x:Name="cobStrategy" ItemsSource="{Binding Path=StrategyList}" SelectedItem="{Binding SelectedStrategy}" HorizontalAlignment="Left" Margin="90,10,0,0" VerticalAlignment="Top" Width="203" FontSize="18"/>
+            
+            
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" VerticalAlignment="Top">
                 <!--SYMBOLS-->
-                <Label Content="Symbols" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18" Grid.Column="1"/>
-                <ComboBox x:Name="cboSelectedSymbol" ItemsSource="{Binding SymbolList}" SelectedItem="{Binding SelectedSymbol}" HorizontalAlignment="Left" Margin="90,10,0,0" VerticalAlignment="Top" Width="203" FontSize="18" Grid.Column="1" />
-
-                <Button Content="Abort" ToolTip="Abort remote system (terminate it)" Command="{Binding cmdAbort}" HorizontalAlignment="Right" Grid.Column="2" Width="100" Margin="10"  />
-                <Button Content="Positions Analytics" ToolTip="Analytics report" HorizontalAlignment="Right" Grid.Column="1" Width="150" Margin="0,10,120,10" Click="ButtonAnalyticsReport_Click" />
-			</Grid>
-
+                <Label Content="Symbol" HorizontalAlignment="Left" Margin="10,10,0,0" FontSize="18"/>
+                <ComboBox x:Name="cboSelectedSymbol" ItemsSource="{Binding SymbolList}" SelectedItem="{Binding SelectedSymbol}" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="340" FontSize="18"/>
+                <!--STRATEGIES-->
+                <Label Visibility="Collapsed" Content="Strategy" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
+                <ComboBox  Visibility="Collapsed" x:Name="cobStrategy" ItemsSource="{Binding Path=StrategyList}" SelectedItem="{Binding SelectedStrategy}" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="203" FontSize="18"/>
+            </StackPanel>
+           
             <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" Margin="5" VerticalAlignment="Top">
-                <View:ucStrategyParameterFirmMM DataContext="{Binding StrategyParamsFirmMM}" />
 
+                <WrapPanel Orientation="Horizontal" Margin="20" HorizontalAlignment="Center">
+                    <!-- Buttons inside a WrapPanel -->
+                    <Button Width="150" Height="50" Margin="10" Background="Red" BorderBrush="White" Content="Abort" ToolTip="Abort remote system (terminate it)" Command="{Binding cmdAbort}"/>
+                    <Button Width="150" Height="50" Margin="10" Content="Pos. Analytics" ToolTip="Positions Analytics report" Click="ButtonAnalyticsReport_Click" />
+                    <!--<Button Width="150" Height="50" Margin="10" Content="Button 3"/>
+                    <Button Width="150" Height="50" Margin="10" Content="Button 4"/>
+                    <Button Width="150" Height="50" Margin="10" Content="Button 5"/>
+                    <Button Width="150" Height="50" Margin="10" Content="Button 6"/>-->
+                </WrapPanel>
+                
+                <View:ucProviderConnectivity x:Name="ucProviderConnectivity1" />
                 <!--
+                <View:ucStrategyParameterFirmMM DataContext="{Binding StrategyParamsFirmMM}" />
 			    <View:ucStrategyParameterBBook x:Name="ucBBook" Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" Margin="5" VerticalAlignment="Top" SelectedSymbol="{Binding Path=SelectedItem, ElementName=cboSelectedSymbol}" SelectedLayer="{Binding SelectedLayer}" SelectedStrategy="{Binding Path=SelectedItem, ElementName=cobStrategy}" />
                 <View:ucStrategyParameterHFTAcceptor x:Name="ucHFTAcceptor" Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" Margin="5" VerticalAlignment="Top"/>
                 <View:ucStrategyParameterFirmBB x:Name="ucFirmBB" Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" Margin="5" VerticalAlignment="Top"/>
-			
 			    -->
-                <View:ucProviderConnectivity x:Name="ucProviderConnectivity1" />
-
             </StackPanel>
-            <View:ucPositions DataContext="{Binding Positions}"  Grid.Row="1" Grid.Column="1" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-            <View:ucOrderBook DataContext="{Binding OrderBook}" Grid.Row="2" Grid.Column="1" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            
+
+            
+            
+            
+            <View:ucOrderBook DataContext="{Binding OrderBook}" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Margin="15 10 0 0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            <View:ucPositions DataContext="{Binding Positions}" Grid.Row="2" Grid.Column="1" Margin="15 0 0 0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
 
-		</Grid>
+        </Grid>
         </ScrollViewer>
 </Window>

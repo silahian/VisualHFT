@@ -22,8 +22,7 @@ namespace VisualHFT.AnalyticReport
             get { return this.originalSignal.ToList(); }
             set
             {
-                if (this.originalSignal == null)
-                    this.originalSignal = value;
+                this.originalSignal = value;                    
             }
         }
         public List<PositionEx> originalSignal { get; set; }

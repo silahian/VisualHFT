@@ -39,3 +39,8 @@ public enum AggregationLevel
     S5,
     Automatic
 }
+public enum PositionManagerCalculationMethod
+{
+    FIFO,
+    LIFO
+}

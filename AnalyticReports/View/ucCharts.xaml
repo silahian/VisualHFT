@@ -22,7 +22,7 @@
             <ColumnDefinition  Width="*" SharedSizeGroup="A"/>
             <ColumnDefinition  Width="*" SharedSizeGroup="A"/>
         </Grid.ColumnDefinitions>
-        <contrib:Plot x:Name="chart1" Title="By Hour Win/Loss | Qty of Trades" Grid.Column="0" Grid.Row="0" IsEnabled="True" Style="{StaticResource PlotStyle}" Margin="0,0,0,10">
+        <contrib:Plot x:Name="chart1" Title="By Hour Win/Loss | Qty of Trades" Grid.Column="0" Grid.Row="0" IsEnabled="True" Style="{StaticResource PlotStyle}" Margin="0,0,0,10" >
             <contrib:Plot.Resources>
                 <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
                 <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
@@ -36,7 +36,8 @@
                 <contrib:Legend LegendPlacement="Outside" LegendPosition="BottomLeft" LegendOrientation="Vertical" />
             </contrib:Plot.Legends>
             <contrib:Plot.Axes>
-                <contrib:CategoryAxis Position="Left" ItemsSource="{Binding HourSerieWins}" LabelField="Date" StringFormat="MM.dd HH" MinimumPadding="0.1" MaximumPadding="0.1" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
+                <contrib:CategoryAxis Position="Left" ItemsSource="{Binding HourSerieWins}" LabelField="Date" StringFormat="MM.dd HH" MinimumPadding="0.1" MaximumPadding="0.1" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
+                <contrib:LinearAxis IsZoomEnabled="False"/>
             </contrib:Plot.Axes>
             <contrib:Plot.Series>
                 <contrib:BarSeries Title="Wins" ItemsSource="{Binding HourSerieWins}" ValueField="VolumeQty" Color="Green"/>
@@ -57,7 +58,7 @@
                 <contrib:Legend LegendPlacement="Outside" LegendPosition="BottomLeft" LegendOrientation="Vertical" />
             </contrib:Plot.Legends>
             <contrib:Plot.Axes>
-                <contrib:CategoryAxis Position="Left" ItemsSource="{Binding HourSerieWins}" LabelField="Date" StringFormat="MM.dd HH" MinimumPadding="0.1" MaximumPadding="0.1" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
+                <contrib:CategoryAxis Position="Left" ItemsSource="{Binding HourSerieWins}" LabelField="Date" StringFormat="MM.dd HH" MinimumPadding="0.1" MaximumPadding="0.1" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"  IsZoomEnabled="False"/>
             </contrib:Plot.Axes>
             <contrib:Plot.Series>
                 <contrib:BarSeries Title="Wins" ItemsSource="{Binding HourSerieWins}" ValueField="PLAmount" Color="Green"/>

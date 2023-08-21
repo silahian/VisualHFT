@@ -7,7 +7,8 @@
              xmlns:local="clr-namespace:VisualHFT.View"
              xmlns:Formatters="clr-namespace:VisualHFT.Converters"
              xmlns:ViewModel="clr-namespace:VisualHFT.ViewModel"
-             xmlns:contrib="http://oxyplot.org/wpf/contrib" xmlns:model="clr-namespace:VisualHFT.Model" d:DataContext="{d:DesignInstance Type=model:OrderBookLevel}"
+             xmlns:contrib="http://oxyplot.org/wpf/contrib" xmlns:model="clr-namespace:VisualHFT.Model" 
+             d:DataContext="{d:DesignInstance Type=model:OrderBookLevel}"
              mc:Ignorable="d" 
     
             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -15,7 +16,7 @@
             FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
 
              
-             d:DesignHeight="776" d:DesignWidth="873" MinWidth="500">
+             d:DesignHeight="776" d:DesignWidth="873" MinWidth="300">
 
 
     <UserControl.Resources>
@@ -27,7 +28,8 @@
         </ResourceDictionary>
         
     </UserControl.Resources>
-    <Grid VerticalAlignment="Top">
+    
+    <Grid VerticalAlignment="Stretch">
         <Grid.Resources>
             <Formatters:KiloFormatter x:Key="KiloFormatter"/>
             <Formatters:ConverterIsBuyToColor x:Key="IsBuyConverter" />
@@ -37,10 +39,15 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="270" />
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.3*" MaxHeight="280"  />
+            <RowDefinition Height="0.5*" />
+            <RowDefinition Height="0.2*" />
+        </Grid.RowDefinitions>
 
         <!--PROVIDER & SYMBOL-->
-        <Grid Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-            <StackPanel Orientation="Vertical" Margin="0,0,0,277">
+        <Grid Grid.Column="0" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <StackPanel Orientation="Vertical">
                 <!--SELECT PROVIDER-->
                 <GroupBox Style="{DynamicResource MaterialDesignCardGroupBox}" Header="Provider" BorderBrush="#DBD0C6" VerticalAlignment="Top">
                     <ComboBox ItemsSource="{Binding Path=Providers}" SelectedItem="{Binding SelectedProvider}" DisplayMemberPath="ProviderName" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
@@ -49,7 +56,7 @@
                     <Button x:Name="butPopSymbol" ToolTip="Open this section into a new popup-Window" Click="butPopSymbol_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="999" Margin="0" Padding="0" Height="20" Width="20">
                         <Image Source="/Images/pop-up.png" />
                     </Button>
-                    <Grid x:Name="grdSymbol">
+                    <Grid x:Name="grdSymbol" VerticalAlignment="Stretch" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="200"/>
                             <RowDefinition Height="10" />
@@ -162,7 +169,7 @@
 
 
                             <!--BIDS-->
-                            <DataGrid ItemsSource="{Binding Bids}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="0" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader" HeadersVisibility="Column" AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" IsHitTestVisible="False" EnableRowVirtualization="True" EnableColumnVirtualization="False" Padding="0">
+                            <DataGrid ItemsSource="{Binding Bids}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="0" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader" HeadersVisibility="Column" AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" IsHitTestVisible="False" EnableRowVirtualization="True"  VerticalAlignment="Stretch">
                                 <DataGrid.RowStyle>
                                     <Style TargetType="DataGridRow">
                                         <Setter Property="Height" Value="26" />
@@ -186,7 +193,7 @@
                             </DataGrid>
                             <!--ENDS BIDS-->
                             <!--ASKS-->
-                            <DataGrid ItemsSource="{Binding Asks}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="1" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" IsHitTestVisible="False" EnableRowVirtualization="False">
+                            <DataGrid ItemsSource="{Binding Asks}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="1" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" IsHitTestVisible="False" EnableRowVirtualization="True"  VerticalAlignment="Stretch">
                                 <DataGrid.RowStyle>
                                     <Style TargetType="DataGridRow">
                                         <Setter Property="Height" Value="26" />
@@ -218,157 +225,150 @@
             </StackPanel>
         </Grid>
 
-        <StackPanel Orientation="Vertical" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+        <!--LOB CUMULATIVER CHART-->
+        <Grid Grid.Column="1" Grid.Row="0" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <contrib:Plot PlotAreaBorderThickness="0" TextColor="White" DefaultFontSize="8" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="0" IsEnabled="False" >
+                <contrib:Plot.Resources>
+                    <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
+                    <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
+                    <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
+                    <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
+                </contrib:Plot.Resources>
+                <contrib:Plot.Background>
+                    <StaticResource ResourceKey="PlotBackgroundBrush" />
+                </contrib:Plot.Background>
+                <contrib:Plot.Axes>
+                    <contrib:LinearAxis Position="Left" Maximum="{Binding DepthChartMaxY}" />
+                    <contrib:LinearAxis Position="Bottom"/>
+                </contrib:Plot.Axes>
+                <contrib:Plot.Series>
+                    <contrib:TwoColorAreaSeries Title="Bids" DataFieldX="Price" DataFieldY="Size" ItemsSource="{Binding BidCummulative}" StrokeThickness="5" Fill="DarkGreen" LineStyle="Solid" Color="LightGreen"/>
+                </contrib:Plot.Series>
+            </contrib:Plot>
+            <contrib:Plot PlotAreaBorderThickness="0" TextColor="White" DefaultFontSize="8" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" IsEnabled="False"  >
+                <contrib:Plot.Resources>
+                    <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
+                    <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
+                    <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
+                    <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
+                </contrib:Plot.Resources>
+                <contrib:Plot.Background>
+                    <StaticResource ResourceKey="PlotBackgroundBrush" />
+                </contrib:Plot.Background>
+                <contrib:Plot.Axes>
+                    <contrib:LinearAxis Position="Right" Maximum="{Binding DepthChartMaxY}" />
+                    <contrib:LinearAxis Position="Bottom"/>
+                </contrib:Plot.Axes>
+                <contrib:Plot.Series>
+                    <contrib:TwoColorAreaSeries Title="Asks" DataFieldX="Price" DataFieldY="Size" ItemsSource="{Binding AskCummulative}" StrokeThickness="5" Fill="DarkRed" LineStyle="Solid" Color="Pink"/>
+                </contrib:Plot.Series>
+            </contrib:Plot>
+
+            <Border Margin="0, 10, 0, 120" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" Background="#20FFFFFF" CornerRadius="10" Height="60">
+                <StackPanel Orientation="Vertical" VerticalAlignment="Center" >
+                    <TextBlock Text="{Binding MidPoint, StringFormat={}{0:N}}" FontSize="20" HorizontalAlignment="Center" />
+                    <Rectangle Height="1" Width="250" Fill="White" Margin="5,0" />
+                    <Label Content="Mid Price" FontSize="12"  HorizontalContentAlignment="Center" />
+                </StackPanel>
+            </Border>
+        </Grid>
+        <!--END LOB CUMULATIVER CHART-->
+
+        <!--PRICE CHART-->
+        <Grid Grid.Column="1" Grid.Row="1" VerticalAlignment="Stretch" >
+            <Button x:Name="butPopPriceChart" ToolTip="Open this section into a new popup-Window" Click="butPopPriceChart_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="999" Margin="0,0,50,0" Padding="0" Height="20" Width="20">
+                <Image Source="/Images/pop-up.png" />
+            </Button>
             <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="215" />
-                    <RowDefinition Height="400" />
-                </Grid.RowDefinitions>
-
-                <!--LOB CUMULATIVER CHART-->
-                <Grid VerticalAlignment="Stretch">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="20"/>
-                    </Grid.RowDefinitions>
-                    <contrib:Plot PlotAreaBorderThickness="0" Height="200"  TextColor="White" DefaultFontSize="8" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Top" Grid.Column="0" IsEnabled="False" >
-                        <contrib:Plot.Resources>
-                            <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
-                            <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
-                            <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
-                            <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
-                        </contrib:Plot.Resources>
-                        <contrib:Plot.Background>
-                            <StaticResource ResourceKey="PlotBackgroundBrush" />
-                        </contrib:Plot.Background>
-                        <contrib:Plot.Axes>
-                            <contrib:LinearAxis Position="Left" Maximum="{Binding DepthChartMaxY}" />
-                            <contrib:LinearAxis Position="Bottom"/>
-                        </contrib:Plot.Axes>
-                        <contrib:Plot.Series>
-                            <contrib:TwoColorAreaSeries Title="Bids" DataFieldX="Price" DataFieldY="Size" ItemsSource="{Binding BidCummulative}" StrokeThickness="5" Fill="DarkGreen" LineStyle="Solid" Color="LightGreen"/>
-                        </contrib:Plot.Series>
-                    </contrib:Plot>
-                    <contrib:Plot PlotAreaBorderThickness="0" Height="200"   TextColor="White" DefaultFontSize="8" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Column="1" IsEnabled="False"  >
-                        <contrib:Plot.Resources>
-                            <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
-                            <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
-                            <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
-                            <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
-                        </contrib:Plot.Resources>
-                        <contrib:Plot.Background>
-                            <StaticResource ResourceKey="PlotBackgroundBrush" />
-                        </contrib:Plot.Background>
-                        <contrib:Plot.Axes>
-                            <contrib:LinearAxis Position="Right" Maximum="{Binding DepthChartMaxY}" />
-                            <contrib:LinearAxis Position="Bottom"/>
-                        </contrib:Plot.Axes>
-                        <contrib:Plot.Series>
-                            <contrib:TwoColorAreaSeries Title="Asks" DataFieldX="Price" DataFieldY="Size" ItemsSource="{Binding AskCummulative}" StrokeThickness="5" Fill="DarkRed" LineStyle="Solid" Color="Pink"/>
-                        </contrib:Plot.Series>
-                    </contrib:Plot>
-
-                    <Border Margin="0, 10, 0, 120" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" Background="#20FFFFFF" CornerRadius="10" >
-                        <StackPanel Orientation="Vertical"  >
-                            <TextBlock Text="{Binding MidPoint, StringFormat={}{0:N}}" FontSize="20" HorizontalAlignment="Center" />
-                            <Rectangle Height="1" Width="250" Fill="White" Margin="5,0" />
-                            <Label Content="Mid Price" FontSize="12"  HorizontalContentAlignment="Center" />
+                <Grid.ToolTip>
+                    <ToolTip Placement="Mouse">
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold" Text="Real-time prices"/>
+                            <TextBlock Text="• Red Line = Best offer price."/>
+                            <TextBlock Text="• Green Line = Best bid price."/>
+                            <TextBlock Text="• Gray Line = Mid price."/>
+                            <TextBlock Text="• Red dots: resting Sell orders."/>
+                            <TextBlock Text="• Green dots: resting Buy orders."/>
                         </StackPanel>
-                    </Border>
-                    
-                </Grid>
-                <!--END LOB CUMULATIVER CHART-->
-                <!--CHARTS: Price and Spread-->
-                <Grid Grid.Row="1" VerticalAlignment="Stretch" >
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="80*"/>
-                        <RowDefinition Height="20*"/>
-                    </Grid.RowDefinitions>
-                    <Grid Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" >
-                        <Button x:Name="butPopPriceChart" ToolTip="Open this section into a new popup-Window" Click="butPopPriceChart_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="999" Margin="0,0,50,0" Padding="0" Height="20" Width="20">
-                            <Image Source="/Images/pop-up.png" />
-                        </Button>
-                        <!--PRICE CHART-->
-                        <Grid Grid.Column="1" >
-                            <Grid.ToolTip>
-                                <ToolTip Placement="Mouse">
-                                    <StackPanel>
-                                        <TextBlock FontWeight="Bold" Text="Real-time prices"/>
-                                        <TextBlock Text="• Red Line = Best offer price."/>
-                                        <TextBlock Text="• Green Line = Best bid price."/>
-                                        <TextBlock Text="• Gray Line = Mid price."/>
-                                        <TextBlock Text="• Red dots: resting Sell orders."/>
-                                        <TextBlock Text="• Green dots: resting Buy orders."/>
-                                    </StackPanel>
-                                </ToolTip>
-                            </Grid.ToolTip>
-                            
-                            <contrib:Plot x:Name="chtPrice" 
+                    </ToolTip>
+                </Grid.ToolTip>
+
+                <contrib:Plot x:Name="chtPrice" 
                                       Title="Price" TitleColor="White"  TitleFontSize="10" PlotAreaBorderColor="Gray" TextColor="White"  DefaultFontSize="8" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsEnabled="False" >
-                                <contrib:Plot.Resources>
-                                    <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
-                                    <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
-                                    <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
-                                    <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
-                                </contrib:Plot.Resources>
-                                <contrib:Plot.Background>
-                                    <StaticResource ResourceKey="PlotBackgroundBrush" />
-                                </contrib:Plot.Background>
-                                <contrib:Plot.Axes>
-                                    <contrib:LinearAxis Position="Left" Minimum="{Binding RealTimeYAxisMinimum}" Maximum="{Binding RealTimeYAxisMaximum}" />
-                                    <contrib:DateTimeAxis Position="Bottom"/>
-                                </contrib:Plot.Axes>
-                                <contrib:Plot.Series>
-                                    <contrib:ScatterSeries DataFieldX="Date" DataFieldY="Price" DataFieldValue="Price" DataFieldSize="Size" ItemsSource="{Binding RealTimeOrderLevelsBid}" Color="Green" MarkerType="Circle" MarkerStrokeThickness="1" MarkerFill="#8000FF00"/>
-                                    <contrib:ScatterSeries DataFieldX="Date" DataFieldY="Price" DataFieldValue="Price" DataFieldSize="Size" ItemsSource="{Binding RealTimeOrderLevelsAsk}" Color="Red" MarkerType="Circle" MarkerStrokeThickness="1" MarkerFill="#80FF0000"/>
+                    <contrib:Plot.Resources>
+                        <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
+                        <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
+                        <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
+                        <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
+                    </contrib:Plot.Resources>
+                    <contrib:Plot.Background>
+                        <StaticResource ResourceKey="PlotBackgroundBrush" />
+                    </contrib:Plot.Background>
+                    <contrib:Plot.Axes>
+                        <contrib:LinearAxis Position="Left" Minimum="{Binding RealTimeYAxisMinimum}" Maximum="{Binding RealTimeYAxisMaximum}" />
+                        <contrib:DateTimeAxis Position="Bottom"/>
+                    </contrib:Plot.Axes>
+                    <contrib:Plot.Series>
+                        <contrib:ScatterSeries DataFieldX="Date" DataFieldY="Price" DataFieldValue="Price" DataFieldSize="Size" ItemsSource="{Binding RealTimeOrderLevelsBid}" Color="Green" MarkerType="Circle" MarkerStrokeThickness="1" MarkerFill="#8000FF00"/>
+                        <contrib:ScatterSeries DataFieldX="Date" DataFieldY="Price" DataFieldValue="Price" DataFieldSize="Size" ItemsSource="{Binding RealTimeOrderLevelsAsk}" Color="Red" MarkerType="Circle" MarkerStrokeThickness="1" MarkerFill="#80FF0000"/>
 
-                                    <contrib:LineSeries DataFieldX="Date" DataFieldY="MidPrice" ItemsSource="{Binding RealTimePrices}" StrokeThickness="0.5" LineStyle="Solid" Color="Gray" />
-                                    <contrib:LineSeries DataFieldX="Date" DataFieldY="AskPrice" ItemsSource="{Binding RealTimePrices}" StrokeThickness="1" LineStyle="Solid" Color="Red"/>
-                                    <contrib:LineSeries DataFieldX="Date" DataFieldY="BidPrice" ItemsSource="{Binding RealTimePrices}" StrokeThickness="1" LineStyle="Solid" Color="Green"/>
-                                </contrib:Plot.Series>
-                            </contrib:Plot>
-
-                        </Grid>
-                        <!--END PRICE CHART-->
-                    </Grid>
-                    <Grid Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch" >
-                        <Button x:Name="butPopSpreadChart" ToolTip="Open this section into a new popup-Window" Click="butPopSpreadChart_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="999" Margin="0,0,50,0" Padding="0" Height="20" Width="20">
-                            <Image Source="/Images/pop-up.png" />
-                        </Button>
-                        <!--SPREAD CHART-->
-                        <contrib:Plot x:Name="chtSpread" Title="Spread" TitleColor="White" TitleFontSize="10" PlotAreaBorderThickness="0" TextColor="White" DefaultFontSize="8" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Column="1" IsEnabled="False"  >
-                            <contrib:Plot.Resources>
-                                <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
-                                <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
-                                <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
-                                <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
-                            </contrib:Plot.Resources>
-                            <contrib:Plot.Background>
-                                <StaticResource ResourceKey="PlotBackgroundBrush" />
-                            </contrib:Plot.Background>
-                            <contrib:Plot.Axes>
-                                <contrib:LinearAxis Position="Left" />
-                                <contrib:DateTimeAxis Position="Bottom"/>
-                            </contrib:Plot.Axes>
-                            <contrib:Plot.Series>
-                                <contrib:LineSeries DataFieldX="Date" DataFieldY="MidPrice" ItemsSource="{Binding RealTimeSpread}" StrokeThickness="2" LineStyle="Solid" Color="Blue" LabelMargin="5" IsEnabled="False" />
-
-                            </contrib:Plot.Series>
-                        </contrib:Plot>
-                        <!--END SPREAD CHART-->
-                    </Grid>
-                </Grid>
+                        <contrib:LineSeries DataFieldX="Date" DataFieldY="MidPrice" ItemsSource="{Binding RealTimePrices}" StrokeThickness="0.5" LineStyle="Solid" Color="Gray" />
+                        <contrib:LineSeries DataFieldX="Date" DataFieldY="AskPrice" ItemsSource="{Binding RealTimePrices}" StrokeThickness="1" LineStyle="Solid" Color="Red"/>
+                        <contrib:LineSeries DataFieldX="Date" DataFieldY="BidPrice" ItemsSource="{Binding RealTimePrices}" StrokeThickness="1" LineStyle="Solid" Color="Green"/>
+                    </contrib:Plot.Series>
+                </contrib:Plot>
 
             </Grid>
-        </StackPanel>
+        </Grid>
+        <!--END PRICE CHART-->
 
-        <Grid Grid.Column="2">
+        <!--SPREAD CHART-->
+        <Grid Grid.Column="1" Grid.Row="2" VerticalAlignment="Stretch" >
+            <Button x:Name="butPopSpreadChart" ToolTip="Open this section into a new popup-Window" Click="butPopSpreadChart_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="999" Margin="0,0,50,0" Padding="0" Height="20" Width="20">
+                <Image Source="/Images/pop-up.png" />
+            </Button>
+            <contrib:Plot x:Name="chtSpread" Title="Spread" TitleColor="White" TitleFontSize="10" PlotAreaBorderThickness="0" TextColor="White" DefaultFontSize="8" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Column="1" IsEnabled="False"  >
+                <contrib:Plot.Resources>
+                    <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
+                    <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
+                    <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
+                    <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
+                </contrib:Plot.Resources>
+                <contrib:Plot.Background>
+                    <StaticResource ResourceKey="PlotBackgroundBrush" />
+                </contrib:Plot.Background>
+                <contrib:Plot.Axes>
+                    <contrib:LinearAxis Position="Left" />
+                    <contrib:DateTimeAxis Position="Bottom"/>
+                </contrib:Plot.Axes>
+                <contrib:Plot.Series>
+                    <contrib:LineSeries DataFieldX="Date" DataFieldY="MidPrice" ItemsSource="{Binding RealTimeSpread}" StrokeThickness="2" LineStyle="Solid" Color="Blue" LabelMargin="5" IsEnabled="False" />
+
+                </contrib:Plot.Series>
+            </contrib:Plot>
+        </Grid>
+        <!--END SPREAD CHART-->
+
+
+        <Grid Grid.Column="2" Grid.RowSpan="3" VerticalAlignment="Stretch">
             <!--TRADES-->
-            <DataGrid MaxHeight="600" ItemsSource="{Binding Trades}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="0" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="FullRow" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader" HeadersVisibility="Column" AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" IsHitTestVisible="True" EnableRowVirtualization="True" EnableColumnVirtualization="False" Padding="0" VerticalAlignment="Top" >
+            <DataGrid ItemsSource="{Binding Trades}" Style="{DynamicResource MaterialDesignDataGrid}" FontSize="9" FontFamily="Verdana" 
+                      FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="FullRow" CanUserDeleteRows="False" CanUserAddRows="False" 
+                      ClipboardCopyMode="IncludeHeader" HeadersVisibility="Column" AlternationCount="2" IsReadOnly="True" BorderThickness="0" 
+                      CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" 
+                      HorizontalScrollBarVisibility="Hidden" IsHitTestVisible="True" 
+                      EnableRowVirtualization="True" 
+                      EnableColumnVirtualization="False" 
+                      VerticalScrollBarVisibility="Auto" 
+                      MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}"
+                      Padding="0" >
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
                         <Setter Property="Height" Value="26" />

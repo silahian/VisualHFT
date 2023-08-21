@@ -40,8 +40,8 @@
                 <contrib:Legend LegendPlacement="Outside" LegendPosition="BottomLeft" LegendOrientation="Vertical" />
             </contrib:Plot.Legends>
             <contrib:Plot.Axes>
-                <contrib:CategoryAxis Title="Seconds" Position="Left" ItemsSource="{Binding heldBars}" LabelField="SecondsHeld" MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
-                <contrib:LinearAxis Title = "Qty Trades" Position="Bottom"  MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
+                <contrib:CategoryAxis Title="Seconds" Position="Left" ItemsSource="{Binding heldBars}" LabelField="SecondsHeld" MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
+                <contrib:LinearAxis Title = "Qty Trades" Position="Bottom"  MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
             </contrib:Plot.Axes>
             <contrib:Plot.Series>
                 <contrib:BarSeries Title="Wins" ItemsSource="{Binding heldBars}" ValueField="WinPnLCount" Color="Green"/>
@@ -63,8 +63,8 @@
                 <contrib:Legend LegendPlacement="Outside" LegendPosition="BottomLeft" LegendOrientation="Vertical" />
             </contrib:Plot.Legends>
             <contrib:Plot.Axes>
-                <contrib:CategoryAxis Title="Seconds" Position="Left" ItemsSource="{Binding heldBars}" LabelField="SecondsHeld" MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
-                <contrib:LinearAxis Title = "PnL $" Position="Bottom"  MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
+                <contrib:CategoryAxis Title="Seconds" Position="Left" ItemsSource="{Binding heldBars}" LabelField="SecondsHeld" MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
+                <contrib:LinearAxis Title = "PnL $" Position="Bottom"  MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
             </contrib:Plot.Axes>
             <contrib:Plot.Series>
                 <contrib:BarSeries Title="Wins" ItemsSource="{Binding heldBars}" ValueField="TotalWinPnL" Color="Green"/>
@@ -86,8 +86,8 @@
                 <contrib:Legend LegendPlacement="Outside" LegendPosition="BottomLeft" LegendOrientation="Vertical" />
             </contrib:Plot.Legends>
             <contrib:Plot.Axes>
-                <contrib:CategoryAxis Title="Symbol" Position="Left" ItemsSource="{Binding Top20}" LabelField="Symbol" MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
-                <contrib:LinearAxis Title = "Profit $" Position="Bottom"  MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
+                <contrib:CategoryAxis Title="Symbol" Position="Left" ItemsSource="{Binding Top20}" LabelField="Symbol" MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
+                <contrib:LinearAxis Title = "Profit $" Position="Bottom"  MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
             </contrib:Plot.Axes>
             <contrib:Plot.Series>
                 <contrib:BarSeries Title="Wins" ItemsSource="{Binding Top20}" ValueField="WinsPnL" Color="Green"/>
@@ -109,8 +109,8 @@
                 <contrib:Legend LegendPlacement="Outside" LegendPosition="BottomLeft" LegendOrientation="Vertical" />
             </contrib:Plot.Legends>
             <contrib:Plot.Axes>
-                <contrib:CategoryAxis Title="PL Range" Position="Left" ItemsSource="{Binding ListPLRanges}" LabelField="Range" MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
-                <contrib:LinearAxis Title = "Qty Trades" Position="Bottom"  MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
+                <contrib:CategoryAxis Title="PL Range" Position="Left" ItemsSource="{Binding ListPLRanges}" LabelField="Range" MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
+                <contrib:LinearAxis Title = "Qty Trades" Position="Bottom"  MinimumPadding="0" MaximumPadding="0" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
             </contrib:Plot.Axes>
             <contrib:Plot.Series>
                 <contrib:BarSeries Title="Qty Trades" ItemsSource="{Binding ListPLRanges}" ValueField="Qty" Color="Blue"/>
@@ -131,8 +131,8 @@
                 <contrib:Legend LegendPlacement="Outside" LegendPosition="BottomLeft" LegendOrientation="Vertical" />
             </contrib:Plot.Legends>
             <contrib:Plot.Axes>
-                <contrib:LinearAxis Title = "Seconds" Position="Bottom" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
-                <contrib:LinearAxis Title = "PL Range ($)" Position="Left" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
+                <contrib:LinearAxis Title = "Seconds" Position="Bottom" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
+                <contrib:LinearAxis Title = "PL Range ($)" Position="Left" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
             </contrib:Plot.Axes>
             <contrib:Plot.Series>
                 <contrib:ScatterSeries ItemsSource="{Binding PLRangeDuration}" DataFieldX="Duration" DataFieldY="PLRange" MarkerType="Circle" MarkerSize="2"/>
@@ -154,8 +154,8 @@
                 <contrib:Legend LegendPlacement="Outside" LegendPosition="BottomLeft" LegendOrientation="Vertical" />
             </contrib:Plot.Legends>
             <contrib:Plot.Axes>
-                <contrib:LinearAxis Title = "MAE ($)" Position="Bottom" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
-                <contrib:LinearAxis Title = "PL ($)" Position="Left" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
+                <contrib:LinearAxis Title = "MAE ($)" Position="Bottom" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
+                <contrib:LinearAxis Title = "PL ($)" Position="Left" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
             </contrib:Plot.Axes>
             <contrib:Plot.Series>
                 <contrib:ScatterSeries ItemsSource="{Binding MAE}" DataFieldX="XValue" DataFieldY="YValue" MarkerType="Circle" MarkerSize="2"/>
@@ -177,8 +177,8 @@
                 <contrib:Legend LegendPlacement="Outside" LegendPosition="BottomLeft" LegendOrientation="Vertical" />
             </contrib:Plot.Legends>
             <contrib:Plot.Axes>
-                <contrib:LinearAxis Title = "MAE ($)" Position="Bottom" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
-                <contrib:LinearAxis Title = "PL ($)" Position="Left" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot"/>
+                <contrib:LinearAxis Title = "MAE ($)" Position="Bottom" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
+                <contrib:LinearAxis Title = "PL ($)" Position="Left" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IsZoomEnabled="False"/>
             </contrib:Plot.Axes>
             <contrib:Plot.Series>
                 <contrib:ScatterSeries ItemsSource="{Binding MFE}" DataFieldX="XValue" DataFieldY="YValue" MarkerType="Circle" MarkerSize="2"/>
