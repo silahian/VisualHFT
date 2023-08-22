@@ -4,6 +4,9 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using VisualHFT.DataRetriever;
+using VisualHFT.DataRetriever.DataParsers;
+using System.Diagnostics;
 
 namespace VisualHFT
 {
@@ -25,8 +28,16 @@ namespace VisualHFT
             //START WEBSOCKET LISTENER THREAD 
             new Thread(() => {
                 Thread.CurrentThread.IsBackground = true;
-                HelperWebsocket oWS = new HelperWebsocket();
-                oWS.Connect();
+
+                //DATA RETRIEVER = WEBSOCKETS
+                var dataRetriever = new WebSocketDataRetriever(new JsonParser());
+                var processor = new DataProcessor(dataRetriever);
+                dataRetriever.Start();
+
+
+                while (true) { } ;
+
+
             }).Start();
 
             this.DataContext = new VisualHFT.ViewModel.vmDashboard(Helpers.HelperCommon.GLOBAL_DIALOGS);

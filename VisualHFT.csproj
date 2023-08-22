@@ -111,6 +111,12 @@
     <Compile Include="Converters\IsNaNConverter.cs" />
     <Compile Include="Converters\LessThanZeroConverter.cs" />
     <Compile Include="Converters\StringEqualityConverter.cs" />
+    <Compile Include="DataRetriever\DataParsers\FixParser.cs" />
+    <Compile Include="DataRetriever\DataParsers\IDataParser.cs" />
+    <Compile Include="DataRetriever\DataParsers\JsonParser.cs" />
+    <Compile Include="DataRetriever\DataProcessor.cs" />
+    <Compile Include="DataRetriever\IDataSource.cs" />
+    <Compile Include="DataRetriever\WebSocketDataRetriever.cs" />
     <Compile Include="Helpers\HelperPnLCalculator.cs" />
     <Compile Include="Model\PositionManager.cs" />
     <Compile Include="Model\ScatterChartData.cs" />
@@ -165,7 +171,6 @@
     <Compile Include="Helpers\HelperStrategy.cs" />
     <Compile Include="Helpers\HelperStrategyParams.cs" />
     <Compile Include="Helpers\HelperUtility.cs" />
-    <Compile Include="Helpers\HelperWebsocket.cs" />
     <Compile Include="Converters\ConverterStringFormat.cs" />
     <Compile Include="Converters\ConverterValuesToColorIfEquals.cs" />
     <Compile Include="Converters\ConverterValuesToColorIfNotEqualZero.cs" />
