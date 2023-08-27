@@ -3,7 +3,7 @@
 VisualHFT is a GUI for enterprise-level high-frequency trading systems. It focuses on visualizing market microstructure analytics, such as Limit Order Book dynamics, latencies, execution quality, and other analytics. This project is built with WPF and C# and is designed to support a high-frequency trading operation.
 
 
-![Limit Order Book Visualization](https://github.com/silahian/VisualHFT/blob/master/docImages/LOB_fulldepth.gif)
+![Limit Order Book Visualization](https://github.com/silahian/VisualHFT/blob/master/docImages/LOB_imbalances_2.gif)
 For this specific example we had the following:
 - built with #wpf (desktop app)
 - 5 levels of depth on each side
@@ -102,6 +102,44 @@ Remember, the spotlight of this project is on **VisualHFT** and its real-time an
 
 
 ![Architecture Diagram](/docImages/Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.002.png)
+
+
+## Enterprise-Level Data Feed Integrations
+
+VisualHFT is architecturally designed with a modular and extensible framework, making it an ideal solution for enterprise-level systems that rely on diverse data sources. Whether your infrastructure leverages sophisticated messaging systems like [Kafka](https://kafka.apache.org/), [RabbitMQ](https://www.rabbitmq.com/), the [FIX protocol via QuickFIX](http://www.quickfixengine.org/), or any other advanced data transmission method, VisualHFT stands ready to assimilate and visualize the data with precision. It's pertinent to note that, in this modular integration mode, the primary focus is on the visualization of market data.
+
+### Key Features:
+
+- **Modular Architecture**: VisualHFT's core is built around a plug-and-play model, allowing for seamless integration of new data feeds without disrupting existing functionalities.
+  
+- **Pre-built Data Retrievers**: We've incorporated robust data retrievers for industry-standard platforms such as [FIX](http://www.quickfixengine.org/) and [ZeroMQ](https://zeromq.org/), showcasing the platform's readiness for high-demand scenarios.
+
+### Integration Steps for New Data Feeds:
+
+1. **Interface Implementation**: Begin by implementing the `IDataRetriever` interface. [See IDataRetriever.cs](https://github.com/silahian/VisualHFT/blob/master/DataRetriever/IDataSource.cs)
+   
+2. **Data Model Definition**: Craft a precise data model tailored to your specific feed, ensuring data integrity and compatibility.
+   
+3. **Data Processing & Event Handling**: Efficiently process the incoming data streams and subsequently invoke the `OnDataReceived` event to ensure real-time data visualization.
+
+For enterprises looking to delve deeper and integrate custom solutions, our detailed implementations serve as comprehensive guides:
+- [FIXDataRetriever](https://github.com/silahian/VisualHFT/blob/master/DataRetriever/FIXDataRetriever.cs)
+- [ZeroMQDataRetriever](https://github.com/silahian/VisualHFT/blob/master/DataRetriever/ZeroMQDataRetriever.cs)
+- [Apache Kafka](https://github.com/silahian/VisualHFT/blob/master/DataRetriever/KafkaDataRetriever.cs)
+
+### Instantiating New Data Retrievers:
+
+To integrate these data retrievers into your VisualHFT platform:
+
+1. Navigate to the constructor of [Dashboard.xaml.cs](https://github.com/silahian/VisualHFT/blob/master/View/Dashboard.xaml.cs).
+2. Instantiate your chosen data retriever, for example:
+   ```csharp
+   IDataRetriever fixDataRetriever = new FIXDataRetriever();
+   ```
+3. Ensure that the data retriever is started and stopped appropriately within the lifecycle of the `Dashboard` class.
+
+By leveraging VisualHFT's modular design, enterprises can ensure a streamlined integration process, making it a formidable tool in any high-frequency trading environment.
+
 
 ## Screenshots
 
