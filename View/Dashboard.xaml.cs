@@ -7,6 +7,7 @@ using System.Windows;
 using VisualHFT.DataRetriever;
 using VisualHFT.DataRetriever.DataParsers;
 using System.Diagnostics;
+using VisualHFT.ViewModels;
 
 namespace VisualHFT
 {
@@ -68,6 +69,34 @@ namespace VisualHFT
             oReport.Show();
 
         }
-	}
+
+        private void ButtonVPIN_Click(object sender, RoutedEventArgs e)
+        {
+            View.VPIN formVPIN = new VPIN();
+            formVPIN.DataContext = new vmVPIN();
+            formVPIN.Closed += (sender2, e2) =>
+            {
+                if (formVPIN.DataContext is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+            };
+            formVPIN.Show();
+        }
+        private void ButtonLOBImbalances_Click(object sender, RoutedEventArgs e)
+        {
+            var form = new LOBImbalances();
+            form.DataContext = new vmLOBImbalances();
+            form.Closed += (sender2, e2) =>
+            {
+                if (form.DataContext is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+            };
+            form.Show();
+
+        }
+    }
 }
     

@@ -107,6 +107,7 @@
     <Compile Include="AnalyticReports\AnalyticReports.xaml.cs">
       <DependentUpon>AnalyticReports.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\EnumToListConverter.cs" />
     <Compile Include="Converters\GreaterThanZeroConverter.cs" />
     <Compile Include="Converters\IsNaNConverter.cs" />
     <Compile Include="Converters\LessThanZeroConverter.cs" />
@@ -120,7 +121,12 @@
     <Compile Include="DataRetriever\KafkaDataRetriever.cs" />
     <Compile Include="DataRetriever\WebSocketDataRetriever.cs" />
     <Compile Include="DataRetriever\ZeroMQDataRetriever.cs" />
+    <Compile Include="Helpers\AggregatedCollection.cs" />
     <Compile Include="Helpers\HelperPnLCalculator.cs" />
+    <Compile Include="Model\LOBImbalance.cs" />
+    <Compile Include="Model\VPIN.cs" />
+    <Compile Include="Studies\LOBImbalanceStudy.cs" />
+    <Compile Include="Studies\VPINStudy.cs" />
     <Compile Include="Model\PositionManager.cs" />
     <Compile Include="Model\ScatterChartData.cs" />
     <Compile Include="Model\cPLRangeDuration.cs" />
@@ -218,7 +224,7 @@
     </Compile>
     <Compile Include="Model\OrderBook.cs" />
     <Compile Include="Model\OrderBookLevel.cs" />
-    <Compile Include="Model\OrderFlowAnalysis.cs" />
+    <Compile Include="Studies\OrderFlowAnalysis.cs" />
     <Compile Include="Model\OrderVM.cs" />
     <Compile Include="Model\PlotInfoPriceChart.cs" />
     <Compile Include="Model\PlotInfo.cs" />
@@ -265,6 +271,7 @@
     </Compile>
     <Compile Include="ViewModel\StatisticsViewModel\ChartDateCategoryDataPoint.cs" />
     <Compile Include="ViewModel\StatisticsViewModel\vmStrategyOverview.cs" />
+    <Compile Include="ViewModel\Studies\vmLOBImbalances.cs" />
     <Compile Include="ViewModel\vmDashboard.cs" />
     <Compile Include="ViewModel\vmOrderBookFlowAnalysis.cs" />
     <Compile Include="ViewModel\vmPosition.cs" />
@@ -276,6 +283,7 @@
     <Compile Include="ViewModel\vmStrategyParameterHFTAcceptor.cs" />
     <Compile Include="ViewModel\vmStrategyParameterFirmMM.cs" />
     <Compile Include="ViewModel\vmStrategyParametersBase.cs" />
+    <Compile Include="ViewModel\Studies\vmVPIN.cs" />
     <Compile Include="View\GenericHistoricalLineChart.xaml.cs">
       <DependentUpon>GenericHistoricalLineChart.xaml</DependentUpon>
     </Compile>
@@ -284,6 +292,9 @@
     </Compile>
     <Compile Include="View\StatisticsView\ucStrategyOverview.xaml.cs">
       <DependentUpon>ucStrategyOverview.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Studies\LOBImbalances.xaml.cs">
+      <DependentUpon>LOBImbalances.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\ucPositions.xaml.cs">
       <DependentUpon>ucPositions.xaml</DependentUpon>
@@ -305,6 +316,9 @@
     </Compile>
     <Compile Include="View\ucStrategyParameterFirmMM.xaml.cs">
       <DependentUpon>ucStrategyParameterFirmMM.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Studies\VPIN.xaml.cs">
+      <DependentUpon>VPIN.xaml</DependentUpon>
     </Compile>
     <Page Include="AnalyticReports\AnalyticReports.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -379,6 +393,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\Studies\LOBImbalances.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="View\ucPositions.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -406,6 +424,10 @@
     <Page Include="View\ucStrategyParameterFirmMM.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Studies\VPIN.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -462,6 +484,8 @@
     <Resource Include="Images\sendingParam.png" />
     <Resource Include="Images\new-window.png" />
     <Resource Include="Images\pop-up.png" />
+    <Resource Include="Images\LOBImbalance.png" />
+    <Resource Include="Images\VPIN.png" />
     <Content Include="Model\hftModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>hftModel.Context1.cs</LastGenOutput>

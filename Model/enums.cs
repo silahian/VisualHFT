@@ -1,4 +1,7 @@
-﻿public enum ePOSITIONSIDE { Buy, Sell, None };
+﻿using System.ComponentModel;
+
+
+public enum ePOSITIONSIDE { Buy, Sell, None };
 public enum ePOSITIONSTATUS { NONE, SENT, NEW, CANCELED, REJECTED, PARTIALFILLED, FILLED, CANCELEDSENT, REPLACESENT, REPLACED, LASTLOOK_HOLDING };
 public enum eTIMEINFORCE { FOK, IOC, GTC };
 public enum eINFORMEDSTATUS { INFORMEDSTATUS_NONE, INFORMEDSTATUS_SENT, INFORMEDSTATUS_ACK };
@@ -27,18 +30,37 @@ public enum eSESSIONSTATUS
     BOTH_DISCONNECTED
 };
 
+
 public enum AggregationLevel
 {
+    [Description("No Aggregation")]
     None,
+
+    [Description("1 Millisecond")]
     Ms1,
+
+    [Description("10 Milliseconds")]
     Ms10,
+
+    [Description("100 Milliseconds")]
     Ms100,
+
+    [Description("500 Milliseconds")]
     Ms500,
+
+    [Description("1 Second")]
     S1,
+
+    [Description("3 Seconds")]
     S3,
+
+    [Description("5 Seconds")]
     S5,
+
+    [Description("Automatic Aggregation")]
     Automatic
 }
+
 public enum PositionManagerCalculationMethod
 {
     FIFO,

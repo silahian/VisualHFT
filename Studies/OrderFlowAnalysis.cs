@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VisualHFT.Model;
 
-namespace VisualHFT.Model
+namespace VisualHFT.Studies
 {
     public class OrderFlowAnalysis
     {

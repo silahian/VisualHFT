@@ -1,0 +1,189 @@
+﻿<Window x:Class="VisualHFT.View.LOBImbalances"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        
+        xmlns:local="clr-namespace:VisualHFT"
+        xmlns:Formatters="clr-namespace:VisualHFT.Converters"
+        mc:Ignorable="d"
+        
+
+        xmlns:materialDesign="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
+        xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" 
+        
+        xmlns:contrib="http://oxyplot.org/wpf/contrib" 
+        
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="15"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"        
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{StaticResource MaterialDesignFont}"
+        Title="LOB Imbalances" Height="450" Width="1000">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../GlobalStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <!-- Dropdowns for Provider and Symbol -->
+        <StackPanel Orientation="Horizontal" Margin="10">
+            <TextBlock Text="Provider:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <ComboBox x:Name="ProviderComboBox" Width="150" Margin="0,0,20,0"
+                      ItemsSource="{Binding Path=Providers}" SelectedItem="{Binding SelectedProvider}" DisplayMemberPath="ProviderName" FontSize="18"
+                      />
+
+            <TextBlock Text="Symbol:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <ComboBox x:Name="SymbolComboBox" Width="150" FontSize="18"
+                      ItemsSource="{Binding Symbols}" 
+                      SelectedItem="{Binding SelectedSymbol}"/>
+            <StackPanel Orientation="Horizontal" Margin="20 0 0 0">
+
+                <TextBlock Text="Aggregation:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <ComboBox ItemsSource="{Binding AggregationLevels}" 
+                  DisplayMemberPath="Item1" 
+                  SelectedValuePath="Item2" 
+                  SelectedValue="{Binding AggregationLevelSelection}" 
+                  Width="200" FontSize="18"/>
+
+
+
+                <StackPanel.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock TextWrapping="Wrap">
+                                <Run FontWeight="Bold">Aggregation Level</Run>
+                                <LineBreak />
+                                <Run>The "Aggregation" option allows you to define the granularity of data analysis. By grouping data into specific time intervals, or "aggregations," you can view trends and patterns over varying time scales.</Run>
+                                <LineBreak />
+                                <LineBreak />
+                                <Run FontWeight="Bold">Examples:</Run>
+                                <LineBreak />
+                                <Run>1. </Run>
+                                <Run FontStyle="Italic">"No Aggregation": This means the data will be presented as-is, without any grouping. Every individual data point will be analyzed separately.</Run>
+                                <LineBreak />
+                                <Run>2. </Run>
+                                <Run FontStyle="Italic">"1 Millisecond": The data points will be grouped in 1-millisecond intervals. If you're analyzing trade timings, this would group trades that occur within the same millisecond.</Run>
+                                <LineBreak />
+                                <Run>3. </Run>
+                                <Run FontStyle="Italic">"5 Seconds": Data will be grouped in 5-second intervals. This is useful for identifying patterns over slightly longer periods, such as the number of trades happening every 5 seconds.</Run>
+                                <LineBreak />
+                                <Run>4. </Run>
+                                <Run FontStyle="Italic">"Automatic Aggregation": The system will automatically decide the best aggregation level based on the dataset's size and range, ensuring optimal visualization and analysis.</Run>
+                                <LineBreak />
+                                <LineBreak />
+                                <Run FontWeight="Bold">How to Use it:</Run>
+                                <LineBreak />
+                                <Run>1. For real-time, high-frequency data, choose finer aggregations like "1 Millisecond" or "10 Milliseconds".</Run>
+                                <LineBreak />
+                                <Run>2. For longer-term trend analysis, select broader aggregations like "5 Seconds" or "Automatic Aggregation" to let the system decide.</Run>
+                                <LineBreak />
+                            </TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </StackPanel.ToolTip>
+            </StackPanel>
+            <TextBlock Text="ℹ️Info" Cursor="Hand" Margin="10 10 0 0" >
+                <TextBlock.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock TextWrapping="Wrap">
+                                <Run FontWeight="Bold">The LOB Imbalance </Run>
+                                <Run>(Limit Order Book Imbalance).</Run>
+                                <LineBreak />
+                                <Run>Represents the disparity between buy and sell orders at a specific price level.</Run>
+                                <LineBreak />
+                                <Run>It highlights the difference in demand and supply in the order book, providing insights into potential price movements.</Run>
+                                <LineBreak />
+                                <LineBreak />
+                                <Run>Given its definition, a significant LOB imbalance can:</Run>
+                                <LineBreak />
+                                <Run FontWeight="Bold">Indicate Strong Buying Interest: </Run>
+                                <Run FontStyle="Italic">When there are more buy orders than sell orders at a particular price level, suggesting potential upward price movement.</Run>
+                                <LineBreak />
+                                <Run FontWeight="Bold">Indicate Strong Selling Interest: </Run>
+                                <Run FontStyle="Italic">When there are more sell orders than buy orders, suggesting potential downward price movement.</Run>
+                                <LineBreak />
+                                <LineBreak />
+                                <Run>The LOB Imbalance value ranges between -1 and 1:</Run>
+                                <LineBreak />
+                                <Run FontWeight="Bold">-1: </Run>
+                                <Run FontStyle="Italic">This indicates a complete dominance of sell orders over buy orders, suggesting a strong selling interest.</Run>
+                                <LineBreak />
+                                <Run FontWeight="Bold">0: </Run>
+                                <Run FontStyle="Italic">Indicates a perfect balance between buy and sell orders, meaning there's equilibrium in demand and supply.</Run>
+                                <LineBreak />
+                                <Run FontWeight="Bold">1: </Run>
+                                <Run FontStyle="Italic">This indicates a complete dominance of buy orders over sell orders, suggesting a strong buying interest.</Run>
+                                <LineBreak />
+                                <LineBreak />
+                                <Run FontStyle="Normal">Most of the time, the LOB Imbalance value will float between these extremes, signaling varying levels of buying or selling interest. It's crucial to interpret this value in the context of other market indicators and conditions.</Run>
+                                <LineBreak />
+                            </TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+
+                </TextBlock.ToolTip>
+            </TextBlock>
+        </StackPanel>
+
+        <!-- OxyPlot Chart -->
+        <contrib:Plot Grid.Row="1" Title="LOB Imbalances" 
+                      TitleColor="White" TitleFontSize="10" PlotAreaBorderThickness="0" TextColor="White" DefaultFontSize="8"
+                      HorizontalContentAlignment="Stretch" 
+                      HorizontalAlignment="Stretch" 
+                      VerticalAlignment="Stretch" 
+                      VerticalContentAlignment="Stretch" 
+                      Grid.Column="1" IsEnabled="False"                      
+                      >
+            <contrib:Plot.Resources>
+                <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
+                <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
+                <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
+                <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
+            </contrib:Plot.Resources>
+            <contrib:Plot.Background>
+                <StaticResource ResourceKey="PlotBackgroundBrush" />
+            </contrib:Plot.Background>
+            <contrib:Plot.Axes>
+                <!-- X-axis for Timestamp -->
+                <contrib:DateTimeAxis Position="Bottom" Title="Timestamp" StringFormat="HH:mm:ss.fff"/>
+
+                <!-- Y-axis for VPIN Value -->
+                <contrib:LinearAxis Position="Left" Title="LOB Imbalance" Minimum="-1" Maximum="1" TextColor="Blue" Font="12" TitleFontSize="16" TitleColor="Blue" />
+
+                <!-- Y-axis for Market Data Price -->
+                <contrib:LinearAxis Position="Right" Title="Market Mid Price" Key="PriceAxis" TextColor="White"  Font="12" TitleFontSize="16" TitleColor="White" StringFormat="N0" />
+            </contrib:Plot.Axes>
+            <contrib:Plot.Annotations>
+                <contrib:RectangleAnnotation MinimumY="0.8" MaximumY="1" Fill="#10FF0000" Opacity="0.1" />
+                <contrib:RectangleAnnotation MinimumY="-1" MaximumY="-0.8" Fill="#10FF0000" Opacity="0.5" />
+            </contrib:Plot.Annotations>
+
+            <contrib:Plot.Series>
+                <!-- Series for CHART -->
+                <contrib:LineSeries DataFieldX="Timestamp" DataFieldY="MarketMidPrice" 
+                                    ItemsSource="{Binding ChartData}" 
+                                    StrokeThickness="2" LineStyle="Solid" 
+                                    Color="White" LabelMargin="5" IsEnabled="False" 
+                                    Title="Market Price" YAxisKey="PriceAxis" />
+
+                <contrib:LineSeries DataFieldX="Timestamp" DataFieldY="Value" 
+                                    ItemsSource="{Binding ChartData}" 
+                                    StrokeThickness="2" LineStyle="Solid" 
+                                    Color="Blue" LabelMargin="5" IsEnabled="False" 
+                                     Title="LOB Imbalances" />
+            </contrib:Plot.Series>
+        </contrib:Plot>
+    </Grid>
+</Window>

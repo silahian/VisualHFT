@@ -16,7 +16,7 @@
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{StaticResource MaterialDesignFont}"                      
+        FontFamily="{StaticResource MaterialDesignFont}"
         Closing="Window_Closing"
         Title="Generic Historical" Height="450" Width="800">
 	

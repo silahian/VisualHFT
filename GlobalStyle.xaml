@@ -2,13 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
                     xmlns:local="clr-namespace:VisualHFT"
-                    xmlns:c="clr-namespace:VisualHFT.Converters"
-					xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
-
                     >
 
     <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
-    <c:ConverterValuesToColorIfNotEqualZero x:Key="ConverterValuesToColorIfNotEqualZero" />
 
     <Style TargetType="{x:Type DataGrid}">
         <Setter Property="AlternatingRowBackground" Value="LightBlue" />
@@ -23,16 +19,6 @@
     <Style x:Key="GridColumnAligmentCenter" TargetType="DataGridCell">
         <Setter Property="TextBlock.HorizontalAlignment" Value="Stretch" />
         <Setter Property="TextBlock.TextAlignment" Value="Center" />
-    </Style>
-    <Style x:Key="GridColumnAligmentRightCheckIfNotZero" TargetType="DataGridCell">
-        <Setter Property="TextBlock.HorizontalAlignment" Value="Stretch" />
-        <Setter Property="TextBlock.TextAlignment" Value="Right" />
-        <Setter Property="Background" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text, Converter={StaticResource ConverterValuesToColorIfNotEqualZero}}"/>
-    </Style>
-    <Style x:Key="GridColumnAligmentCenterCheckIfNotZero" TargetType="DataGridCell">
-        <Setter Property="TextBlock.HorizontalAlignment" Value="Stretch" />
-        <Setter Property="TextBlock.TextAlignment" Value="Center" />
-        <Setter Property="Background" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text, Converter={StaticResource ConverterValuesToColorIfNotEqualZero}}"/>
     </Style>
 
 

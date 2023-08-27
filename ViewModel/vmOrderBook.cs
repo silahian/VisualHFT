@@ -10,6 +10,7 @@ using Prism.Mvvm;
 using System.Windows.Threading;
 using System.Windows.Navigation;
 using OxyPlot;
+using System.Windows;
 
 namespace VisualHFT.ViewModel
 {
@@ -374,13 +375,15 @@ namespace VisualHFT.ViewModel
             if (string.IsNullOrEmpty(_selectedSymbol) || _selectedSymbol == "-- All symbols --" || _selectedSymbol != e.Symbol)
                 return;
 
-            
+
             if (_realTimeTrades != null)
-                App.Current.Dispatcher.Invoke(() => {
-                    _realTimeTrades.Insert(0, e);                    
+            {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() => {
+                    _realTimeTrades.Insert(0, e);
                     while (_realTimeTrades.Count > 100)
-                        _realTimeTrades.RemoveAt(_realTimeTrades.Count-1);
-                });
+                        _realTimeTrades.RemoveAt(_realTimeTrades.Count - 1);
+                }));
+            }
         }
 
         private void PROVIDERS_OnDataReceived(object sender, ProviderEx e)

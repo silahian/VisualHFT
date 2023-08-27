@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using VisualHFT.Studies;
 
 namespace VisualHFT.Model
 {
@@ -28,6 +29,23 @@ namespace VisualHFT.Model
         private double _Spread = 0;
         private BookItem _bidTOP = null;
         private BookItem _askTOP = null;
+        public OrderBook() //emtpy constructor for JSON deserialization
+        {
+            _Cummulative_Asks = new List<BookItem>();
+            _Cummulative_Bids = new List<BookItem>();
+            _Bids = new List<BookItem>();
+            _Asks = new List<BookItem>();
+        }
+        public OrderBook(string symbol, int decimalPlaces)
+        {
+            _Cummulative_Asks = new List<BookItem>();
+            _Cummulative_Bids = new List<BookItem>();
+            _Bids = new List<BookItem>();
+            _Asks = new List<BookItem>();
+
+            _Symbol = symbol;
+            _DecimalPlaces = decimalPlaces;
+        }
 
         private void SetKey()
         {
@@ -110,16 +128,7 @@ namespace VisualHFT.Model
         }
 
 
-        public OrderBook() //emtpy constructor for JSON deserialization
-        {
-            _Cummulative_Bids = new List<BookItem>();
-            _Cummulative_Asks = new List<BookItem>();
-        }
-        public OrderBook(string symbol, int decimalPlaces)
-        {
-            _Symbol = symbol;
-            _DecimalPlaces = decimalPlaces;
-        }
+
         public List<BookItem> Asks
         {
             get
