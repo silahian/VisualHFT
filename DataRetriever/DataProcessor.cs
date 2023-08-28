@@ -106,11 +106,6 @@ namespace VisualHFT.DataRetriever
         {
             HelperCommon.LIMITORDERBOOK.UpdateData(orderBooks);
         }
-        private void ParsePositions(IEnumerable<PositionEx> positions)
-        {
-            if (HelperCommon.CLOSEDPOSITIONS.LoadingType == ePOSITION_LOADING_TYPE.WEBSOCKETS)
-                HelperCommon.CLOSEDPOSITIONS.LoadNewPositions(positions.ToList());
-        }
         private void ParseExposures(IEnumerable<Exposure> exposures)
         {
             HelperCommon.EXPOSURES.UpdateData(exposures);

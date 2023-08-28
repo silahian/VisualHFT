@@ -38,7 +38,6 @@ namespace VisualHFT.Helpers
 
             return realizedPnL;
         }
-
         public static double CalculateOpenPnL(List<OrderVM> buys, List<OrderVM> sells, PositionManagerCalculationMethod method, double currentMidPrice)
         {
             double openPnL = 0;

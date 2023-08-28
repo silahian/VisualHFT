@@ -14,20 +14,22 @@ using System.Windows.Controls;
 //using GalaSoft.MvvmLight.Command;
 using System.Windows.Data;
 using GalaSoft.MvvmLight.Command;
+using QuickFix.Fields;
+using System.Threading;
 
 namespace VisualHFT.ViewModel
 {
-    public class vmPosition : BindableBase
+    public class vmPosition : BindableBase, IDisposable
     {
 
         private string _selectedSymbol;
         private string _selectedStrategy;
         private DateTime _selectedDate;
         private Dictionary<string, Func<string, string, bool>> _dialogs;        
-        private List<PositionEx> _positions;
         private ObservableCollection<OrderVM> _allOrders;
         private ObservableCollection<PositionManager> _positionsManager;
-        private object _locker = new object();
+        private readonly object _locker = new object();
+        private bool _disposed = false; // to track whether the object has been disposed
 
         public ICollectionView OrdersView { get; }
         public ICommand FilterCommand { get; }
@@ -40,18 +42,9 @@ namespace VisualHFT.ViewModel
 
 
             this._dialogs = dialogs;
-            _positions = new List<PositionEx>();
-            PositionsManager = new ObservableCollection<PositionManager>();
-
-            HelperCommon.CLOSEDPOSITIONS.OnDataReceived += CLOSEDPOSITIONS_OnDataReceived;
-            HelperCommon.CLOSEDPOSITIONS.OnInitialLoad += CLOSEDPOSITIONS_OnInitialLoad;
-            HelperCommon.EXPOSURES.OnDataReceived += EXPOSURES_OnDataReceived;
-            HelperCommon.ACTIVEORDERS.OnDataReceived += ACTIVEORDERS_OnDataReceived;
-            HelperCommon.ACTIVEORDERS.OnDataRemoved += ACTIVEORDERS_OnDataRemoved;
-            this.SelectedDate = DateTime.Now; //new DateTime(2022, 10, 6);
-
+            PositionsManager = new ObservableCollection<PositionManager>();            
             FilterCommand = new RelayCommand<string>(OnFilterChanged);
-
+            this.SelectedDate = DateTime.Now; //new DateTime(2022, 10, 6); 
 
             lock (_locker)
             {
@@ -59,8 +52,19 @@ namespace VisualHFT.ViewModel
                 OrdersView = CollectionViewSource.GetDefaultView(_allOrders);
                 OrdersView.SortDescriptions.Add(new SortDescription("CreationTimeStamp", ListSortDirection.Descending));
             }
-            
+
+
+            HelperCommon.EXECUTEDORDERS.OnInitialLoad += EXECUTEDORDERS_OnInitialLoad;
+            HelperCommon.EXECUTEDORDERS.OnDataReceived += EXECUTEDORDERS_OnDataReceived;
+            HelperCommon.EXPOSURES.OnDataReceived += EXPOSURES_OnDataReceived;
+            HelperCommon.ACTIVEORDERS.OnDataReceived += ACTIVEORDERS_OnDataReceived;
+            HelperCommon.ACTIVEORDERS.OnDataRemoved += ACTIVEORDERS_OnDataRemoved;
         }
+        ~vmPosition()
+        {
+            Dispose(false);
+        }
+
         private void ACTIVEORDERS_OnDataRemoved(object sender, OrderVM e)
         {
             if (e == null || string.IsNullOrEmpty(_selectedStrategy))
@@ -118,30 +122,22 @@ namespace VisualHFT.ViewModel
                     existingItem.UnrealizedPL = e.UnrealizedPL;
             }*/
         }
-        private void CLOSEDPOSITIONS_OnInitialLoad(object sender, IEnumerable<PositionEx> e)
+        private void EXECUTEDORDERS_OnInitialLoad(object sender, IEnumerable<OrderVM> e)
         {
+            if (_allOrders.Count == 0 && !e.Any() ) return;
 
-            if (_positions.Count == 0 && !e.Any()) return;	
-
-            ReloadPositions(_selectedSymbol, _selectedStrategy);
+            ReloadOrders(e.ToList());
         }
-        private void CLOSEDPOSITIONS_OnDataReceived(object sender, IEnumerable<PositionEx> e)
+        private void EXECUTEDORDERS_OnDataReceived(object sender, IEnumerable<OrderVM> e)
         {
-            foreach(var pos in e)
+            lock (_locker)
             {
-                if ((string.IsNullOrEmpty(_selectedSymbol) || pos.Symbol == _selectedSymbol) && (string.IsNullOrEmpty(_selectedStrategy) || pos.StrategyCode == _selectedStrategy))
-                {
-                    if (_positions == null)
-                        _positions = new List<PositionEx>();
-                    _positions.Insert(0, pos);
-                    lock (_locker)
-                    {
-                        foreach (var ord in pos.GetOrders())
-                            _allOrders.Add(ord);
-                    }
-                }
+                foreach (var ord in e)
+                    _allOrders.Add(ord);
             }
         }
+
+
         public ObservableCollection<OrderVM> AllOrders
         {
             get => _allOrders;
@@ -162,18 +158,18 @@ namespace VisualHFT.ViewModel
         public string SelectedSymbol
         {
             get => _selectedSymbol;
-            set => SetProperty(ref _selectedSymbol, value, onChanged: () => ReloadPositions(_selectedSymbol, _selectedStrategy));
+            set => SetProperty(ref _selectedSymbol, value, onChanged: () => ReloadOrders(HelperCommon.EXECUTEDORDERS.Orders.ToList()));
 
         }
         public string SelectedStrategy
         {
             get => _selectedStrategy;
-            set => SetProperty(ref _selectedStrategy, value, onChanged: () => ReloadPositions(_selectedSymbol, _selectedStrategy));
+            set => SetProperty(ref _selectedStrategy, value, onChanged: () => ReloadOrders(HelperCommon.EXECUTEDORDERS.Orders.ToList()));
         }
         public DateTime SelectedDate
         {            
             get => _selectedDate;
-            set => SetProperty(ref _selectedDate, value, onChanged: () => HelperCommon.CLOSEDPOSITIONS.SessionDate = _selectedDate);
+            set => SetProperty(ref _selectedDate, value, onChanged: () => HelperCommon.EXECUTEDORDERS.SessionDate = _selectedDate);
         }
         private string _selectedFilter = "Working";
         public string SelectedFilter
@@ -190,42 +186,39 @@ namespace VisualHFT.ViewModel
         {
             SelectedFilter = filter;
         }
-        private void ReloadPositions(string symbol, string strategyCode)
+        private void ReloadOrders(List<OrderVM> orders)
         {
-            if (symbol == "-- All symbols --")
+            string symbol = _selectedSymbol;
+            if (_selectedSymbol == "-- All symbols --")
                 symbol = "";
-            var closedPositions = HelperCommon.CLOSEDPOSITIONS.Positions
-                .Where(x => x.CreationTimeStamp.Date == _selectedDate.Date).ToList();
-            _positions = new List<PositionEx>(closedPositions.OrderByDescending(x => x.CloseTimeStamp));
-
-            //ALL ORDERS
-            // Update the ObservableCollection on the UI thread
-            var source = closedPositions.Select(x => x.GetOrders()).SelectMany(x => x).OrderByDescending(x => x.CreationTimeStamp).ToList();
-            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-            {
+            var grpSymbols = orders.GroupBy(x => x.Symbol).ToList();
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() => {
+                //POSITION MANAGER
+                _positionsManager.Clear();
+                foreach (var grp in grpSymbols)
+                {
+                    var existing_item = _positionsManager.Where(x => x.Symbol == grp.Key).FirstOrDefault();
+                    if (existing_item == null)
+                        _positionsManager.Add(new PositionManager(grp.ToList(), PositionManagerCalculationMethod.FIFO));
+                    else
+                        existing_item = new PositionManager(grp.ToList(), PositionManagerCalculationMethod.FIFO);
+                }
                 lock (_locker)
+                {
                     _allOrders.Clear();
-                AllOrders.AddRange(source);
+                    _allOrders.AddRange(orders);
+                }
+                SelectedFilter = "Working";
             }));
-            // Refresh the OrdersView after making changes to the underlying collection
-            OrdersView.Refresh();
-            SelectedFilter = "Working";
-            ApplyFilter();
 
-            //POSITION MANAGER
-            var grpSymbols = source.GroupBy(x => x.Symbol).ToList();
-            foreach (var grp in grpSymbols)
-            {
-                var existing_item = _positionsManager.Where(x => x.Symbol == grp.Key).FirstOrDefault();
-                if (existing_item == null)
-                    _positionsManager.Add(new PositionManager(grp.ToList(), PositionManagerCalculationMethod.FIFO));
-                else
-                    existing_item = new PositionManager(grp.ToList(), PositionManagerCalculationMethod.FIFO);
-            }
 
+
+            RaisePropertyChanged(nameof(AllOrders));
         }
         private void ApplyFilter()
         {
+            if (string.IsNullOrEmpty(SelectedFilter))
+                return;
             switch (SelectedFilter)
             {
                 case "Working":
@@ -264,6 +257,27 @@ namespace VisualHFT.ViewModel
             }
 
             OrdersView.Refresh();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    HelperCommon.EXECUTEDORDERS.OnInitialLoad -= EXECUTEDORDERS_OnInitialLoad;
+                    HelperCommon.EXECUTEDORDERS.OnDataReceived -= EXECUTEDORDERS_OnDataReceived;
+                    HelperCommon.EXPOSURES.OnDataReceived -= EXPOSURES_OnDataReceived;
+                    HelperCommon.ACTIVEORDERS.OnDataReceived -= ACTIVEORDERS_OnDataReceived;
+                    HelperCommon.ACTIVEORDERS.OnDataRemoved -= ACTIVEORDERS_OnDataRemoved;
+                }
+                _disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
         }
     }
 }

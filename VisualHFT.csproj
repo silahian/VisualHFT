@@ -121,6 +121,8 @@
     <Compile Include="DataRetriever\KafkaDataRetriever.cs" />
     <Compile Include="DataRetriever\WebSocketDataRetriever.cs" />
     <Compile Include="DataRetriever\ZeroMQDataRetriever.cs" />
+    <Compile Include="DataTradeRetriever\IDataTradeRetriever.cs" />
+    <Compile Include="DataTradeRetriever\MSSQLServerTradesRetriever.cs" />
     <Compile Include="Helpers\AggregatedCollection.cs" />
     <Compile Include="Helpers\HelperPnLCalculator.cs" />
     <Compile Include="Model\LOBImbalance.cs" />

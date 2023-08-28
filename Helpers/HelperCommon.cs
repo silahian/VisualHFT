@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using VisualHFT.DataTradeRetriever;
 
 namespace VisualHFT.Helpers
 {
@@ -45,7 +46,9 @@ namespace VisualHFT.Helpers
         public static ObservableCollection<string> ALLSYMBOLS = new ObservableCollection<string>();
         public static HelperProvider PROVIDERS = new HelperProvider();
         public static HelperOrderBook LIMITORDERBOOK = new HelperOrderBook();
-        public static HelperPosition CLOSEDPOSITIONS = new HelperPosition(ePOSITION_LOADING_TYPE.DATABASE);
+        //public static HelperPosition CLOSEDPOSITIONS = new HelperPosition(ePOSITION_LOADING_TYPE.DATABASE);
+        public static IDataTradeRetriever EXECUTEDORDERS = new MSSQLServerTradesRetriever();
+
         public static HelperExposure EXPOSURES = new HelperExposure();
         public static HelperActiveOrder ACTIVEORDERS = new HelperActiveOrder();
         public static HelperStrategy ACTIVESTRATEGIES = new HelperStrategy();

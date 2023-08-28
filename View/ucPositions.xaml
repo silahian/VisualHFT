@@ -120,7 +120,7 @@
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="50" />
-                                <RowDefinition Height="*" />
+                                <RowDefinition Height="300" />
                             </Grid.RowDefinitions>
                             <!--ORDERS-->
                             <StackPanel Orientation="Horizontal" Grid.Row="0">

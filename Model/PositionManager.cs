@@ -113,13 +113,11 @@ namespace VisualHFT.Model
         {
             get => NetPosition * _currentMidPrice;
         }
-
         public double CurrentMidPrice
         {
             get => _currentMidPrice;
             set => SetProperty(ref _currentMidPrice, value);
         }
-
         private double CalculateRealizedPnL()
         {
             return HelperPnLCalculator.CalculateRealizedPnL(_buys, _sells, _method);
@@ -133,7 +131,6 @@ namespace VisualHFT.Model
             RaisePropertyChanged("NetPosition");
             RaisePropertyChanged("Exposure");
         }
-
         public void AddOrder(OrderVM newOrder)
         {
             if (newOrder.Side == eORDERSIDE.Buy)

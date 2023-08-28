@@ -56,14 +56,14 @@ namespace VisualHFT.ViewModel
         public virtual void Load()
         {
             GetParameters();
-            HelperCommon.CLOSEDPOSITIONS.OnInitialLoad += CLOSEDPOSITIONS_OnInitialLoad;
-            HelperCommon.CLOSEDPOSITIONS.OnDataReceived += CLOSEDPOSITIONS_OnDataReceived;
+            //HelperCommon.CLOSEDPOSITIONS.OnInitialLoad += CLOSEDPOSITIONS_OnInitialLoad;
+            //HelperCommon.CLOSEDPOSITIONS.OnDataReceived += CLOSEDPOSITIONS_OnDataReceived;
             HelperCommon.STRATEGYPARAMS.OnDataUpdateReceived += STRATEGYPARAMS_OnDataUpdateReceived;
         }
 
         public virtual void Unload()
         {
-            HelperCommon.CLOSEDPOSITIONS.OnDataReceived -= CLOSEDPOSITIONS_OnDataReceived;
+            //HelperCommon.CLOSEDPOSITIONS.OnDataReceived -= CLOSEDPOSITIONS_OnDataReceived;
             HelperCommon.STRATEGYPARAMS.OnDataUpdateReceived -= STRATEGYPARAMS_OnDataUpdateReceived;
         }
 
@@ -393,7 +393,7 @@ namespace VisualHFT.ViewModel
                 return;
             }
 
-            var closedPositions = HelperCommon.CLOSEDPOSITIONS.Positions.Where(x => x.Symbol == _selectedSymbol && x.StrategyCode == _selectedStrategy).ToList();
+            var closedPositions = new List<PositionEx>(); //HelperCommon.CLOSEDPOSITIONS.Positions.Where(x => x.Symbol == _selectedSymbol && x.StrategyCode == _selectedStrategy).ToList();
             _positions = new ObservableCollection<PositionEx>(closedPositions.OrderByDescending(x => x.CloseTimeStamp));
             _vmStrategyOverview.AddNewPositions(_positions);
 

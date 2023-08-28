@@ -8,6 +8,10 @@ using VisualHFT.DataRetriever;
 using VisualHFT.DataRetriever.DataParsers;
 using System.Diagnostics;
 using VisualHFT.ViewModels;
+using VisualHFT.Model;
+using System.Collections.ObjectModel;
+using System.Windows.Documents;
+using System.Collections.Generic;
 
 namespace VisualHFT
 {
@@ -52,11 +56,11 @@ namespace VisualHFT
             {
                 if (cboSelectedSymbol.SelectedValue == null || cboSelectedSymbol.SelectedValue.ToString() == "")
                 {
-                    oReport.Signals = Helpers.HelperCommon.CLOSEDPOSITIONS.Positions.Where(x => x.PipsPnLInCurrency.HasValue).OrderBy(x => x.CreationTimeStamp).ToList();
+                    oReport.Signals = Helpers.HelperCommon.EXECUTEDORDERS.Positions.Where(x => x.PipsPnLInCurrency.HasValue).OrderBy(x => x.CreationTimeStamp).ToList();
                 }
                 else
                 {
-                    oReport.Signals = Helpers.HelperCommon.CLOSEDPOSITIONS.Positions.Where(x => x.PipsPnLInCurrency.HasValue && cboSelectedSymbol.SelectedValue.ToString() == x.Symbol).OrderBy(x => x.CreationTimeStamp).ToList();
+                    oReport.Signals = Helpers.HelperCommon.EXECUTEDORDERS.Positions.Where(x => x.PipsPnLInCurrency.HasValue && cboSelectedSymbol.SelectedValue.ToString() == x.Symbol).OrderBy(x => x.CreationTimeStamp).ToList();
                 }
                 
             }
@@ -72,7 +76,7 @@ namespace VisualHFT
 
         private void ButtonVPIN_Click(object sender, RoutedEventArgs e)
         {
-            View.VPIN formVPIN = new VPIN();
+            View.VPIN formVPIN = new View.VPIN();
             formVPIN.DataContext = new vmVPIN();
             formVPIN.Closed += (sender2, e2) =>
             {
