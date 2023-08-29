@@ -114,7 +114,9 @@ VisualHFT is architecturally designed with a modular and extensible framework, m
   
 - **Pre-built Data Retrievers**: We've incorporated robust data retrievers for industry-standard platforms such as [FIX](http://www.quickfixengine.org/) and [ZeroMQ](https://zeromq.org/), showcasing the platform's readiness for high-demand scenarios.
 
-### Integration Steps for New Data Feeds:
+- **Order Retrieval & Trade History**: We've added a feature that allows the retrieval of past and current orders from the trading system, the history of trades executed. This could be in batch, or in real-time, depending on the implementation.
+
+### Integration Steps for New Data Feeds (usually market data):
 
 1. **Interface Implementation**: Begin by implementing the `IDataRetriever` interface. [See IDataRetriever.cs](https://github.com/silahian/VisualHFT/blob/master/DataRetriever/IDataSource.cs)
    
@@ -138,7 +140,39 @@ To integrate these data retrievers into your VisualHFT platform:
    ```
 3. Ensure that the data retriever is started and stopped appropriately within the lifecycle of the `Dashboard` class.
 
-By leveraging VisualHFT's modular design, enterprises can ensure a streamlined integration process, making it a formidable tool in any high-frequency trading environment.
+### Integration Steps for New Order Retrievers (orders/trades):
+
+To integrate a new source for order and trade retrieval, you'll need to follow these steps:
+
+1. **Understand the Interface**: The `IDataTradeRetriever` interface is the cornerstone for integrating new order and trade sources. This interface provides two main events, `OnInitialLoad` and `OnDataReceived`, which are triggered when initial data is loaded and when new data is received, respectively.
+
+2. **Choose an Existing Implementation**: We already provide three built-in implementations for this interface:
+    - `EmptyTradesRetriever`: A no-op implementation that doesn't retrieve any data.
+    - `MSSQLServerTradesRetriever`: Retrieves data from an MSSQL database.
+    - `FIXTradesRetriever`: Reads and parses a FIX log continuously.
+
+3. **Create Your Own Implementation**: If the existing implementations don't meet your needs, you can create your own by implementing the `IDataTradeRetriever` interface. Make sure to raise the `OnInitialLoad` and `OnDataReceived` events appropriately.
+
+### Instantiating New Order Retrievers (orders/trades):
+
+To use your new or existing order retriever, you'll need to instantiate it in the `HelperCommon.cs` file. Here's how:
+
+1. **Open `HelperCommon.cs`**: Navigate to the `HelperCommon.cs` file where all settings are configured.
+
+2. **Comment Out Existing Instantiation**: If there's an existing instantiation of `IDataTradeRetriever`, comment it out.
+    ```csharp
+    // public static IDataTradeRetriever EXECUTEDORDERS = new EmptyTradesRetriever();
+    ```
+
+3. **Add Your Implementation**: Instantiate your own implementation of `IDataTradeRetriever`.
+    ```csharp
+    public static IDataTradeRetriever EXECUTEDORDERS = new YourOwnTradeRetriever();
+    ```
+
+4. **Compile and Run**: After making these changes, compile and run the application to see your new data source in action.
+
+   
+**By leveraging VisualHFT's modular design, enterprises can ensure a streamlined integration process, making it a formidable tool in any high-frequency trading environment.**
 
 
 ## Screenshots
