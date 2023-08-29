@@ -30,6 +30,8 @@ namespace VisualHFT.ViewModels
         {
             ChartData = new ObservableCollection<LOBImbalance>();
             _symbols = new ObservableCollection<string>(HelperCommon.ALLSYMBOLS.ToList());
+            _providers = new ObservableCollection<ProviderEx>(HelperCommon.PROVIDERS.Select(x => x.Value).ToList());
+            RaisePropertyChanged(nameof(Providers));
             RaisePropertyChanged(nameof(Symbols));
 
             HelperCommon.PROVIDERS.OnDataReceived += PROVIDERS_OnDataReceived;
@@ -88,11 +90,6 @@ namespace VisualHFT.ViewModels
         }
         private void PROVIDERS_OnDataReceived(object sender, ProviderEx e)
         {
-            if (_providers == null)
-            {
-                _providers = new ObservableCollection<ProviderEx>();
-                RaisePropertyChanged(nameof(Providers));
-            }
             if (!_providers.Any(x => x.ProviderName == e.ProviderName))
             {
                 var cleanProvider = new ProviderEx();
