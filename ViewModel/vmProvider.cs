@@ -19,6 +19,7 @@ namespace VisualHFT.ViewModel
         private Dictionary<string, Func<string, string, bool>> _dialogs;
         private DateTime? _lastHeartBeatReceived = null;
         private eSESSIONSTATUS _status;
+        object _lock = new object();
 
         public vmProvider(Dictionary<string, Func<string, string, bool>> dialogs)
         {
@@ -36,19 +37,23 @@ namespace VisualHFT.ViewModel
         {
             if (e == null || e.ProviderCode == -1)
                 return;
-            var existingProv = _providers.Where(x => x.ProviderCode == e.ProviderCode).FirstOrDefault();
-            if (existingProv != null)
+            lock (_lock)
             {
-                _status = e.Status;
-                _lastHeartBeatReceived = e.LastUpdated;
-            }
-            else
-            {
-                //needs to be added in UI thread
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => {
-                    _providers.Add(e);
-                }));
-                
+                var existingProv = _providers.Where(x => x.ProviderCode == e.ProviderCode).FirstOrDefault();
+                if (existingProv != null)
+                {
+                    _status = e.Status;
+                    _lastHeartBeatReceived = e.LastUpdated;
+                }
+                else
+                {
+                    //needs to be added in UI thread
+                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+                    {
+                        _providers.Add(e);
+                    }));
+
+                }
             }
         }
 

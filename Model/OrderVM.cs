@@ -37,7 +37,7 @@ namespace VisualHFT.Model
         private int _symbolDecimals;
         private string _freeText;
         private string _originPartyID;
-        private IEnumerable<ExecutionVM> _executions;
+        private List<ExecutionVM> _executions;
         private int _quoteID;
         private DateTime _quoteServerTimeStamp;
         private DateTime _quoteLocalTimeStamp;
@@ -228,7 +228,7 @@ namespace VisualHFT.Model
             get => _originPartyID;
             set => SetProperty(ref _originPartyID, value);
         }
-        public IEnumerable<ExecutionVM> Executions
+        public List<ExecutionVM> Executions
         {
             get => _executions;
             set => SetProperty(ref _executions, value);

@@ -1,13 +1,20 @@
 ﻿using System;
+using System.Globalization;
 
 public static class StringExtender
     {
-        /// <summary>
-        /// Split a text into an array
-        /// </summary>
-        /// <param name="seperator"></param>
-        /// <param name="text"></param>
-        /// <returns></returns>
+    /// <summary>
+    /// Split a text into an array
+    /// </summary>
+    /// <param name="seperator"></param>
+    /// <param name="text"></param>
+    /// <returns></returns>
+
+    static private string[] DATE_TIME_FORMATS = new string[3] { "yyyyMMdd-HH:mm:ss.ffffff", "yyyyMMdd-HH:mm:ss.fff", "yyyyMMdd-HH:mm:ss" };
+    static private CultureInfo DATE_TIME_CULTURE_INFO = CultureInfo.InvariantCulture;
+    static private DateTimeStyles DATE_TIME_STYLES = DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal;
+
+
         public static string[] Explode(this string text, string seperator)
         {
             string[] stringSeparators = new string[] { seperator };
@@ -47,7 +54,7 @@ public static class StringExtender
         }
         public static double ToDouble(this string obj)
         {
-            try
+            /*try
             {
                 bool isPercentage = false;
                 double i = 0.00;
@@ -61,7 +68,10 @@ public static class StringExtender
                     i = i / 100;
                 return i;
             }
-            catch { return 0; }
+            catch { return 0; }*/
+            double i = 0.00;
+            double.TryParse(obj, out i);
+            return i;
         }
 
 
@@ -128,9 +138,14 @@ public static class StringExtender
         }
         public static DateTime ToDateTime(this string obj, DateTime defaultValue)
         {
-            DateTime i = defaultValue;
+            return DateTime.ParseExact(obj, DATE_TIME_FORMATS, DATE_TIME_CULTURE_INFO, DATE_TIME_STYLES);
+            /*DateTime i = defaultValue;
             DateTime.TryParse(obj, out i);
-            return i;
+            if (i == DateTime.MinValue)
+            {
+                
+            }
+            return i;*/
         }
 
         public static DateTime ToDate(this object obj)

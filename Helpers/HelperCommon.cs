@@ -46,8 +46,10 @@ namespace VisualHFT.Helpers
         public static ObservableCollection<string> ALLSYMBOLS = new ObservableCollection<string>();
         public static HelperProvider PROVIDERS = new HelperProvider();
         public static HelperOrderBook LIMITORDERBOOK = new HelperOrderBook();
-        //public static HelperPosition CLOSEDPOSITIONS = new HelperPosition(ePOSITION_LOADING_TYPE.DATABASE);
-        public static IDataTradeRetriever EXECUTEDORDERS = new MSSQLServerTradesRetriever();
+
+        public static IDataTradeRetriever EXECUTEDORDERS = new EmptyTradesRetriever();
+        //public static IDataTradeRetriever EXECUTEDORDERS = new MSSQLServerTradesRetriever();
+        //public static IDataTradeRetriever EXECUTEDORDERS = new FIXTradesRetriever([path_to_fix_log_file], 1, "CME");
 
         public static HelperExposure EXPOSURES = new HelperExposure();
         public static HelperActiveOrder ACTIVEORDERS = new HelperActiveOrder();

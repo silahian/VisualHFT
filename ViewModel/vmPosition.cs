@@ -211,8 +211,6 @@ namespace VisualHFT.ViewModel
                 SelectedFilter = "Working";
             }));
 
-
-
             RaisePropertyChanged(nameof(AllOrders));
         }
         private void ApplyFilter()
@@ -233,7 +231,7 @@ namespace VisualHFT.ViewModel
                     OrdersView.Filter = o =>
                     {
                         var order = (OrderVM)o;
-                        return order.Status.ToString() == "FILLED"
+                        return (order.Status.ToString() == "FILLED" || order.Status.ToString() == "PARTIALFILLED")
                                && order.CreationTimeStamp.Date == _selectedDate.Date;
                     };
                     break;
