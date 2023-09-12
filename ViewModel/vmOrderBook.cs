@@ -48,7 +48,7 @@ namespace VisualHFT.ViewModel
         private double _depthChartMaxY = 0;
 
 
-        private DispatcherTimer timerUI = new DispatcherTimer();
+        private UIUpdater uiUpdater;
         private List<BookItem> TRACK_Bids = new List<BookItem>();
         private List<BookItem> TRACK_Asks = new List<BookItem>();
         private List<BookItem> TRACK_BidCummulative = new List<BookItem>();
@@ -69,9 +69,9 @@ namespace VisualHFT.ViewModel
             HelperCommon.ACTIVEORDERS.OnDataReceived += ACTIVEORDERS_OnDataReceived;
             HelperCommon.ACTIVEORDERS.OnDataRemoved += ACTIVEORDERS_OnDataRemoved;
             HelperCommon.TRADES.OnDataReceived += TRADES_OnDataReceived;
-            timerUI.Interval = TimeSpan.FromMilliseconds(100);
-            timerUI.Tick += TimerUI_Tick;
-            timerUI.Start();
+
+            uiUpdater = new UIUpdater(uiUpdaterAction);
+            
         }
 
         public vmOrderBook(vmOrderBook vm)
@@ -91,7 +91,7 @@ namespace VisualHFT.ViewModel
             this._layerName = vm.SelectedLayer;
             this._MidPoint = vm.MidPoint;            
         }
-        private void TimerUI_Tick(object sender, EventArgs e)
+        private void uiUpdaterAction()
         {
             lock (MTX_ORDERBOOK)
             {
@@ -385,7 +385,6 @@ namespace VisualHFT.ViewModel
                 }));
             }
         }
-
         private void PROVIDERS_OnDataReceived(object sender, ProviderEx e)
         {
             if (_providers == null)
@@ -398,7 +397,9 @@ namespace VisualHFT.ViewModel
                 var cleanProvider = new ProviderEx();
                 cleanProvider.ProviderName = e.ProviderName;
                 cleanProvider.ProviderCode = e.ProviderCode;
-                _providers.Add(cleanProvider);
+                Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                    _providers.Add(cleanProvider);
+                }));                
                 
                 if (_selectedProvider == null && e.Status == eSESSIONSTATUS.BOTH_CONNECTED) //default provider must be the first who's Active
                     SelectedProvider = cleanProvider;
@@ -409,7 +410,6 @@ namespace VisualHFT.ViewModel
             if (_selectedProvider != null && e.ProviderCode == _selectedProvider.ProviderCode)
                 Clear();
         }
-
         private DateTime Max(DateTime a, DateTime b)
         {
             return a > b ? a : b;
@@ -466,7 +466,6 @@ namespace VisualHFT.ViewModel
             }
         }
         public ObservableCollection<ProviderEx> Providers => _providers;
-
         public BookItemPriceSplit BidTOB_SPLIT
         {
             get => _BidTOB_SPLIT;

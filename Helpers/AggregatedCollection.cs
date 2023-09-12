@@ -28,7 +28,7 @@ namespace VisualHFT.Helpers
         private const int WINDOW_SIZE = 10; // Number of items to consider for frequency calculation
 
         public event EventHandler<int> OnRemoved;
-
+        public event EventHandler<T> OnAdded;
 
         public AggregatedCollection(IEnumerable<T> items, AggregationLevel level, int maxItems, Func<T, DateTime> dateSelector, Action<T, T> aggregator)
         {
@@ -55,6 +55,12 @@ namespace VisualHFT.Helpers
                 if (_aggregationSpan == TimeSpan.Zero && _level != AggregationLevel.Automatic)
                 {
                     _aggregatedData.Add(item);
+                    OnAdded?.Invoke(this, item);
+                    if (_aggregatedData.Count > _maxPoints)
+                    {
+                        _aggregatedData.RemoveAt(0);
+                        OnRemoved?.Invoke(this, 0);
+                    }
                     return true;
                 }
                 else
@@ -89,6 +95,7 @@ namespace VisualHFT.Helpers
                     else
                     {
                         _aggregatedData.Add(item);
+                        OnAdded?.Invoke(this, item);
                         if (_aggregatedData.Count > _maxPoints) 
                         { 
                             _aggregatedData.RemoveAt(0);
@@ -206,5 +213,6 @@ namespace VisualHFT.Helpers
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
     }
 }

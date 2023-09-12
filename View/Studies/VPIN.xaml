@@ -14,7 +14,7 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{StaticResource MaterialDesignFont}"
         
-        Title="VPIN" Height="450" Width="800">
+        Title="VPIN" Height="450" Width="1200" Closed="Window_Closed">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -43,8 +43,15 @@
                       ItemsSource="{Binding Symbols}" 
                       SelectedItem="{Binding SelectedSymbol}"/>
             <StackPanel Orientation="Horizontal" Margin="20 0 0 0">
+                <TextBlock Text="Aggregation:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <ComboBox ItemsSource="{Binding AggregationLevels}" 
+                  DisplayMemberPath="Item1" 
+                  SelectedValuePath="Item2" 
+                  SelectedValue="{Binding AggregationLevelSelection}" 
+                  Width="200" FontSize="18"/>
 
-                <TextBlock Text="Backet Size:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                
+                <TextBlock Text="Backet Size:" VerticalAlignment="Center" Margin="10,0,10,0"/>
                 <TextBox  Text="{Binding BucketVolumeSize}"  Width="120" FontSize="18"/>
                 <StackPanel.ToolTip>
                     <ToolTip>
@@ -137,12 +144,12 @@
             
             <contrib:Plot.Series>
                 <!-- Series for VPIN -->
-                <contrib:LineSeries DataFieldX="TimestampEnd" DataFieldY="MarketMidPrice" 
+                <contrib:LineSeries DataFieldX="Timestamp" DataFieldY="MarketMidPrice" 
                                     ItemsSource="{Binding VPINChartData}" 
                                     StrokeThickness="2" LineStyle="Solid" 
                                     Color="White" LabelMargin="5" IsEnabled="False" 
                                     Title="Market Price" YAxisKey="PriceAxis" />
-                <contrib:LineSeries DataFieldX="TimestampEnd" DataFieldY="Value" 
+                <contrib:LineSeries DataFieldX="Timestamp" DataFieldY="Value" 
                                     ItemsSource="{Binding VPINChartData}" 
                                     StrokeThickness="2" LineStyle="Solid" 
                                     Color="Blue" LabelMargin="5" IsEnabled="False" 

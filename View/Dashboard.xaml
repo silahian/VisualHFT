@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VisualHFT"
         xmlns:View="clr-namespace:VisualHFT.View" 
+        xmlns:uc="clr-namespace:VisualHFT.UserControls" 
         x:Class="VisualHFT.Dashboard"
         xmlns:VM="clr-namespace:VisualHFT.ViewModel"
         xmlns:Classes="clr-namespace:VisualHFT.Model"
@@ -56,44 +57,29 @@
            
             <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" Margin="5" VerticalAlignment="Top">
 
-                <WrapPanel Orientation="Horizontal" Margin="20" HorizontalAlignment="Center">
+                <WrapPanel Orientation="Horizontal" Margin="20" HorizontalAlignment="Left">
                     <!-- Buttons inside a WrapPanel -->
                     <Button Width="200" Height="50" Margin="10" Background="Red" BorderBrush="White" Content="Abort" ToolTip="Abort remote system (terminate it)" Command="{Binding cmdAbort}"/>
                     <Button Width="200" Height="50" Margin="10" Content="Pos. Analytics" ToolTip="Positions Analytics report" Click="ButtonAnalyticsReport_Click" />
-                    <Button Width="200" Height="50" Margin="10" Click="ButtonVPIN_Click">
-                        <Button.ToolTip>
-                            <TextBlock TextWrapping="Wrap" Width="300">
-                                <Run>The VPIN (Volume-Synchronized Probability of Informed Trading) value is a measure of the imbalance between buy and sell volumes in a given bucket.</Run>
-                                <LineBreak />
-                                <LineBreak />
-                                <Run>It's calculated as the absolute difference between buy and sell volumes divided by the total volume (buy + sell) for that bucket.</Run>
-                            </TextBlock>
-                        </Button.ToolTip>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/Images/VPIN.png" Width="40" Height="40" Margin="0,0,15,0"/>
-                            <TextBlock Text="VPIN" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Width="200" Height="50" Margin="10" Padding="5" Click="ButtonLOBImbalances_Click">
-                        <Button.ToolTip>
-                            <TextBlock TextWrapping="Wrap" Width="300">
-                                <Run>The LOB (Limit Order Book) Imbalance represents the disparity between buy and sell orders at a specific price level.</Run>
-                                <LineBreak />
-                                <LineBreak />
-                                <Run>It highlights the difference in demand and supply in the order book, providing insights into potential price movements. A significant imbalance can indicate a strong buying or selling interest at that price.</Run>
-                            </TextBlock>
-                        </Button.ToolTip>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/Images/LOBImbalance.png" Width="40" Height="40" Margin="0,0,15,0"/>
-                            <TextBlock Text="LOB Imbalances" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-
                     <!--<Button Width="150" Height="50" Margin="10" Content="Button 4"/>
                     <Button Width="150" Height="50" Margin="10" Content="Button 5"/>
                     <Button Width="150" Height="50" Margin="10" Content="Button 6"/>-->
                 </WrapPanel>
-                
+
+                <ItemsControl ItemsSource="{Binding Tiles}" HorizontalAlignment="Left" Margin="30 0 0 20" >
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <uc:MetricTile Width="150" Height="150" DataContext="{Binding}" Padding="10"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+
                 <View:ucProviderConnectivity x:Name="ucProviderConnectivity1" />
                 <!--
                 <View:ucStrategyParameterFirmMM DataContext="{Binding StrategyParamsFirmMM}" />

@@ -127,9 +127,13 @@
     <Compile Include="DataTradeRetriever\MSSQLServerTradesRetriever.cs" />
     <Compile Include="Helpers\AggregatedCollection.cs" />
     <Compile Include="Helpers\HelperPnLCalculator.cs" />
-    <Compile Include="Model\LOBImbalance.cs" />
-    <Compile Include="Model\VPIN.cs" />
+    <Compile Include="Helpers\UIUpdater.cs" />
+    <Compile Include="Model\BaseStudyModel.cs" />
+    <Compile Include="Studies\MarketResilienceBiasStudy.cs" />
+    <Compile Include="Studies\MarketResilienceStudy.cs" />
     <Compile Include="Studies\LOBImbalanceStudy.cs" />
+    <Compile Include="Studies\TradeToOrderRatioStudy.cs" />
+    <Compile Include="Studies\OrderToTradeRatioStudy.cs" />
     <Compile Include="Studies\VPINStudy.cs" />
     <Compile Include="Model\PositionManager.cs" />
     <Compile Include="Model\ScatterChartData.cs" />
@@ -164,12 +168,9 @@
     <Compile Include="Converters\ConverterEnum.cs" />
     <Compile Include="Converters\ConverterIsBuyToColor.cs" />
     <Compile Include="Converters\ConverterValueToWidth.cs" />
-    <Compile Include="Converters\DispatchedObservableCollectionConverter.cs" />
     <Compile Include="Extensions\IEnumerableExtensios.cs" />
     <Compile Include="Extensions\ObservableCollectionEx.cs" />
     <Compile Include="Formatters\FormatterKilo.cs" />
-    <Compile Include="Helpers\DispatchedObservableCollection.cs" />
-    <Compile Include="Helpers\DispatchedViewModelBase.cs" />
     <Compile Include="Helpers\HelperAggregatedPlotCollection.cs" />
     <Compile Include="Helpers\HelperAnalytics.cs" />
     <Compile Include="Helpers\HelperFormat.cs" />
@@ -194,7 +195,6 @@
     <Compile Include="Helpers\HelperXAML.cs" />
     <Compile Include="Helpers\HelperYahoo.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
-    <Compile Include="Helpers\UIActionDispatcher.cs" />
     <Compile Include="Model\BookItemPriceSplit.cs" />
     <Compile Include="Model\BookItem.cs" />
     <Compile Include="Model\cBalance.cs" />
@@ -273,8 +273,21 @@
     <Compile Include="UserControls\LoadingAnimationSmall.xaml.cs">
       <DependentUpon>LoadingAnimationSmall.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\MetricTile.xaml.cs">
+      <DependentUpon>MetricTile.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserSettings\enums.cs" />
+    <Compile Include="UserSettings\ISetting.cs" />
+    <Compile Include="UserSettings\SettingsManager.cs" />
+    <Compile Include="UserSettings\TileSettings.cs" />
+    <Compile Include="UserSettings\UserSettings.cs" />
     <Compile Include="ViewModel\StatisticsViewModel\ChartDateCategoryDataPoint.cs" />
     <Compile Include="ViewModel\StatisticsViewModel\vmStrategyOverview.cs" />
+    <Compile Include="ViewModel\Studies\MetricTileViewModel.cs" />
+    <Compile Include="ViewModel\Studies\vmMarketResilienceBias.cs" />
+    <Compile Include="ViewModel\Studies\vmMarketResilience.cs" />
+    <Compile Include="ViewModel\Studies\vmOrderToTradeRatio.cs" />
+    <Compile Include="ViewModel\Studies\vmTradeToOrderRatio.cs" />
     <Compile Include="ViewModel\Studies\vmLOBImbalances.cs" />
     <Compile Include="ViewModel\vmDashboard.cs" />
     <Compile Include="ViewModel\vmOrderBookFlowAnalysis.cs" />
@@ -291,11 +304,20 @@
     <Compile Include="View\GenericHistoricalLineChart.xaml.cs">
       <DependentUpon>GenericHistoricalLineChart.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\PriceCharting.xaml.cs">
-      <DependentUpon>PriceCharting.xaml</DependentUpon>
-    </Compile>
     <Compile Include="View\StatisticsView\ucStrategyOverview.xaml.cs">
       <DependentUpon>ucStrategyOverview.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Studies\MarketResilienceBias.xaml.cs">
+      <DependentUpon>MarketResilienceBias.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Studies\MarketResilience.xaml.cs">
+      <DependentUpon>MarketResilience.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Studies\OrderToTradeRatio.xaml.cs">
+      <DependentUpon>OrderToTradeRatio.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Studies\TradeToOrderRatio.xaml.cs">
+      <DependentUpon>TradeToOrderRatio.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Studies\LOBImbalances.xaml.cs">
       <DependentUpon>LOBImbalances.xaml</DependentUpon>
@@ -372,6 +394,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="UserControls\MetricTile.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\Dashboard.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -389,13 +415,25 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\PriceCharting.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="View\StatisticsView\ucStrategyOverview.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Studies\MarketResilienceBias.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Studies\MarketResilience.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Studies\OrderToTradeRatio.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Studies\TradeToOrderRatio.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="View\Studies\LOBImbalances.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -490,6 +528,7 @@
     <Resource Include="Images\pop-up.png" />
     <Resource Include="Images\LOBImbalance.png" />
     <Resource Include="Images\VPIN.png" />
+    <Resource Include="Images\settings.png" />
     <Content Include="Model\hftModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>hftModel.Context1.cs</LastGenOutput>

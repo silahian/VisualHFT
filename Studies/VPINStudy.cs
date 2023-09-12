@@ -33,6 +33,7 @@ namespace VisualHFT.Studies
         private decimal _currentBuyVolume = 0; // Current volume of buy trades in the bucket
         private decimal _currentSellVolume = 0; // Current volume of sell trades in the bucket
         private decimal _lastMarketMidPrice = 0; //keep track of market price
+        private decimal _lastVPIN = 0;
 
         private readonly int _rollingWindowSize; // Number of buckets to consider for rolling calculation
         private const decimal VPIN_THRESHOLD = 0.7M; // ALERT Example threshold
@@ -40,16 +41,18 @@ namespace VisualHFT.Studies
 
         private DateTime _currentBucketStartTime;
         private DateTime _currentBucketEndTime;
-        private List<VPIN> _rollingVPINValues;//to maintain rolling window of VPIN values
+        private AggregatedCollection<BaseStudyModel> _rollingValues;//to maintain rolling window of study's values
+        private AggregationLevel _aggregationLevel;
 
         // Event declaration
-        public event EventHandler<decimal> VPINAlertTriggered;
-        public event EventHandler<VPIN> VPINCalculated;
-        public event EventHandler<VPIN> VPINRollingAdded;
-        public event EventHandler<VPIN> VPINRollingUpdated;
-        public event EventHandler<int> VPINRollingRemoved;
+        public event EventHandler<decimal> OnAlertTriggered;
+        public event EventHandler<BaseStudyModel> OnCalculated;
+        public event EventHandler<BaseStudyModel> OnRollingAdded;
+        public event EventHandler<BaseStudyModel> OnRollingUpdated;
+        public event EventHandler<int> OnRollingRemoved;
 
-        public VPINStudy(string symbol, int providerId, decimal bucketVolumeSize, int rollingWindowSize = 50)
+
+        public VPINStudy(string symbol, int providerId, AggregationLevel aggregationLevel, decimal bucketVolumeSize, int rollingWindowSize = 50)
         {
             if (string.IsNullOrEmpty(symbol))
                 throw new Exception("Symbol cannot be null or empty.");
@@ -58,22 +61,40 @@ namespace VisualHFT.Studies
             HelperCommon.TRADES.OnDataReceived += TRADES_OnDataReceived;
             _symbol = symbol;
             _providerId = providerId;
+            _aggregationLevel = aggregationLevel;
 
             _bucketVolumeSize = bucketVolumeSize;
             _rollingWindowSize = rollingWindowSize;
-            _rollingVPINValues = new List<VPIN>();
 
-            CalculateVPINForBucket(true); //initial value
+            _rollingValues = new AggregatedCollection<BaseStudyModel>(_aggregationLevel, rollingWindowSize, x => x.Timestamp, AggregateData);
+            _rollingValues.OnRemoved += _rollingValues_OnRemoved;
+
+            CalculateStudy(true); //initial value
             
         }
         ~VPINStudy()
         {
             Dispose(false);
         }
+        private void _rollingValues_OnRemoved(object sender, int e)
+        {
+            OnRollingRemoved?.Invoke(this, e);
+        }
 
+        private static void AggregateData(BaseStudyModel existing, BaseStudyModel newItem)
+        {
+            // Update the existing bucket with the new values
+            existing.Timestamp = newItem.Timestamp;
+            existing.Value = newItem.Value;
+        }
+        public IReadOnlyList<BaseStudyModel> VpinData => _rollingValues.AsReadOnly();
+        public AggregationLevel AggregationLevel
+        {
+            get => _aggregationLevel;
+            set => _aggregationLevel = value;
+        }
+        public decimal BucketVolumeSize => _bucketVolumeSize;
 
-
-        public IReadOnlyList<VPIN> VpinData => _rollingVPINValues.AsReadOnly();
         private void TRADES_OnDataReceived(object sender, Trade e)
         {
             if (e == null)
@@ -97,13 +118,13 @@ namespace VisualHFT.Studies
             {
                 _currentBucketStartTime = e.Timestamp;
                 _currentBucketEndTime = e.Timestamp; // Set the end time for the current bucket
-                CalculateVPINForBucket(true);
+                CalculateStudy(true);
                 ResetBucket();
             }
             else
             {
                 _currentBucketEndTime = e.Timestamp; // Set the end time for the current bucket
-                CalculateVPINForBucket(false);
+                CalculateStudy(false);
             }
         }
         private void LIMITORDERBOOK_OnDataReceived(object sender, OrderBook e)
@@ -121,70 +142,46 @@ namespace VisualHFT.Studies
             if (!_orderBook.LoadData(e.Asks?.ToList(), e.Bids?.ToList()))
                 return; //if nothing to update, then exit
             _lastMarketMidPrice = (decimal)_orderBook.MidPrice;
+
+            if (_lastMarketMidPrice != 0)
+                CalculateStudy(false);
         }
-        private void CalculateVPINForBucket(bool isNewBucket)
+        private void CalculateStudy(bool isNewBucket)
         {
             decimal vpin = 0;
             if ((_currentBuyVolume + _currentSellVolume) > 0)
                 vpin = (decimal)Math.Abs(_currentBuyVolume - _currentSellVolume) / (_currentBuyVolume + _currentSellVolume);
-
             if (isNewBucket)
             {
                 // Check against threshold and trigger alert
                 if (vpin > VPIN_THRESHOLD)
-                    OnVPINAlertTriggered(vpin);
-
-                // Add to rolling window and remove oldest if size exceeded
-                var newItem = new VPIN() { Value = vpin, TimestampIni = _currentBucketStartTime, TimestampEnd = _currentBucketEndTime, MarketMidPrice = _lastMarketMidPrice };
-                _rollingVPINValues.Add(newItem);
-                OnVPINRollingAdded(newItem);
-
-                if (_rollingVPINValues.Count > _rollingWindowSize)
-                {
-                    OnVPINRollingRemoved(0);
-                    _rollingVPINValues.RemoveAt(0);
-                }
+                    OnAlertTriggered?.Invoke(this, vpin);
+                _lastVPIN = vpin;
             }
-            else if (_rollingVPINValues.Any())
+
+
+
+            // Add to rolling window and remove oldest if size exceeded
+            var newItem = new BaseStudyModel()
             {
-                var lastNode = _rollingVPINValues.Last();
-                lastNode.Value = vpin;
-                lastNode.TimestampIni = _currentBucketStartTime;
-                lastNode.TimestampEnd = _currentBucketEndTime;
-                lastNode.MarketMidPrice = _lastMarketMidPrice;
-                OnVPINRollingUpdated(lastNode);
-            }
+                Value = _lastVPIN,
+                ValueFormatted = _lastVPIN.ToString("N1"),
+                Timestamp = DateTime.Now,
+                MarketMidPrice = _lastMarketMidPrice
+            };
+            bool addSuccess = _rollingValues.Add(newItem);
+            if (addSuccess)
+                OnRollingAdded?.Invoke(this, newItem);
+            else
+                OnRollingUpdated?.Invoke(this, newItem);
 
-            if (_rollingVPINValues.Any())
-                OnVPINCalculated(_rollingVPINValues.Last());
+            OnCalculated?.Invoke(this, newItem);
         }
         private void ResetBucket()
         {
             _currentBuyVolume = 0;
             _currentSellVolume = 0;
         }
-        // Event invoker method
-        protected virtual void OnVPINAlertTriggered(decimal vpinValue)
-        {
-            VPINAlertTriggered?.Invoke(this, vpinValue);
-        }
-        protected virtual void OnVPINCalculated(VPIN vpin)
-        {
-            VPINCalculated?.Invoke(this, vpin);
-        }
-        protected virtual void OnVPINRollingAdded(VPIN vpin)
-        {
-            VPINRollingAdded?.Invoke(this, vpin);
-        }
-        protected void OnVPINRollingRemoved(int index)
-        {
-            VPINRollingRemoved?.Invoke(this, index);
-        }
-        protected void OnVPINRollingUpdated(VPIN vpin)
-        {
-            VPINRollingUpdated?.Invoke(this, vpin);
-        }
-
 
         protected virtual void Dispose(bool disposing)
         {
@@ -196,8 +193,9 @@ namespace VisualHFT.Studies
                     HelperCommon.LIMITORDERBOOK.OnDataReceived -= LIMITORDERBOOK_OnDataReceived;
                     HelperCommon.TRADES.OnDataReceived -= TRADES_OnDataReceived;
                     _orderBook = null;
-                    _rollingVPINValues.Clear();
-                    _rollingVPINValues = null;
+                    _rollingValues.OnRemoved -= _rollingValues_OnRemoved;
+                    _rollingValues.Clear();
+                    _rollingValues = null;
                 }
 
                 // Dispose unmanaged resources here, if any

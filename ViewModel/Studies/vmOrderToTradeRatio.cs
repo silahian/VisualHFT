@@ -14,10 +14,10 @@ using System.Collections.Generic;
 
 namespace VisualHFT.ViewModels
 {
-    public class vmLOBImbalances : BindableBase, IDisposable
+    public class vmOrderToTradeRatio : BindableBase, IDisposable
     {
         private bool _disposed = false; // to track whether the object has been disposed
-        private LOBImbalanceStudy _lobStudy;
+        private OrderToTradeRatioStudy _ottStudy;
         private List<BaseStudyModel> _chartData;
         private ObservableCollection<ProviderEx> _providers;
         private ObservableCollection<string> _symbols;
@@ -26,8 +26,7 @@ namespace VisualHFT.ViewModels
         private AggregationLevel _aggregationLevelSelection;
         private int _MAX_ITEMS = 500;
         private UIUpdater uiUpdater;
-
-        public vmLOBImbalances()
+        public vmOrderToTradeRatio()
         {
             ChartData = new List<BaseStudyModel>();
             _symbols = new ObservableCollection<string>(HelperCommon.ALLSYMBOLS.ToList());
@@ -38,6 +37,8 @@ namespace VisualHFT.ViewModels
             HelperCommon.PROVIDERS.OnDataReceived += PROVIDERS_OnDataReceived;
             HelperCommon.ALLSYMBOLS.CollectionChanged += ALLSYMBOLS_CollectionChanged;
 
+
+            
             AggregationLevels = new ObservableCollection<Tuple<string, AggregationLevel>>();
             foreach (AggregationLevel level in Enum.GetValues(typeof(AggregationLevel)))
             {
@@ -47,7 +48,7 @@ namespace VisualHFT.ViewModels
 
             uiUpdater = new UIUpdater(uiUpdaterAction);
         }
-        ~vmLOBImbalances()
+        ~vmOrderToTradeRatio()
         {
             Dispose(false);
         }
@@ -81,11 +82,11 @@ namespace VisualHFT.ViewModels
             set => SetProperty(ref _aggregationLevelSelection, value, onChanged: () => Clear());
         }
         public ObservableCollection<Tuple<string, AggregationLevel>> AggregationLevels { get; set; }
+
         private void uiUpdaterAction()
         {
             RaisePropertyChanged(nameof(ChartData));
         }
-
         private void ALLSYMBOLS_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             _symbols = new ObservableCollection<string>(HelperCommon.ALLSYMBOLS.ToList());
@@ -107,9 +108,9 @@ namespace VisualHFT.ViewModels
                     SelectedProvider = cleanProvider;
             }
         }
-        private void _lobStudy_OnRollingAdded(object sender, BaseStudyModel e)
+        private void _ottStudy_OnRollingAdded(object sender, BaseStudyModel e)
         {
-            _chartData = _lobStudy.Data.ToList();
+            _chartData = _ottStudy.Data.ToList();
         }
         private void Clear()
         {
@@ -118,14 +119,12 @@ namespace VisualHFT.ViewModels
 
             _chartData.Clear();
             RaisePropertyChanged("ChartData");
-            if (_lobStudy != null) 
-                _lobStudy.Dispose();
-            _lobStudy = null;
-            _lobStudy = new LOBImbalanceStudy(_selectedSymbol, _selectedProvider.ProviderCode, _aggregationLevelSelection, _MAX_ITEMS);
-            _lobStudy.OnRollingAdded += _lobStudy_OnRollingAdded;
+            if (_ottStudy != null)
+                _ottStudy.Dispose();
+            _ottStudy = null;
+            _ottStudy = new OrderToTradeRatioStudy(_selectedSymbol, _selectedProvider.ProviderCode, _aggregationLevelSelection, _MAX_ITEMS);
+            _ottStudy.OnRollingAdded += _ottStudy_OnRollingAdded;
         }
-
-
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
@@ -133,10 +132,10 @@ namespace VisualHFT.ViewModels
                 if (disposing)
                 {
                     uiUpdater.Dispose();
-                    if (_lobStudy != null)
+                    if (_ottStudy != null)
                     {
-                        _lobStudy.OnRollingAdded -= _lobStudy_OnRollingAdded;
-                        _lobStudy.Dispose();
+                        _ottStudy.OnRollingAdded -= _ottStudy_OnRollingAdded; ;
+                        _ottStudy.Dispose();
                     }
                     HelperCommon.PROVIDERS.OnDataReceived -= PROVIDERS_OnDataReceived;
                     HelperCommon.ALLSYMBOLS.CollectionChanged -= ALLSYMBOLS_CollectionChanged;

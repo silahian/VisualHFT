@@ -23,13 +23,14 @@ namespace VisualHFT.Studies
         private OrderBook _orderBook; //to hold last market data tick
         private string _symbol = null;
         private int _providerId = -1;
-        private AggregatedCollection<LOBImbalance> _rollingValues;//to maintain rolling window of study's values
+        private AggregatedCollection<BaseStudyModel> _rollingValues;//to maintain rolling window of study's values
+        private AggregationLevel _aggregationLevel;
 
         // Event declaration
         public event EventHandler<decimal> OnAlertTriggered;
-        public event EventHandler<LOBImbalance> OnCalculated;
-        public event EventHandler<LOBImbalance> OnRollingAdded;
-        public event EventHandler<LOBImbalance> OnRollingUpdated;
+        public event EventHandler<BaseStudyModel> OnCalculated;
+        public event EventHandler<BaseStudyModel> OnRollingAdded;
+        public event EventHandler<BaseStudyModel> OnRollingUpdated;
         public event EventHandler<int> OnRollingRemoved;
 
         public LOBImbalanceStudy(string symbol, int providerId, AggregationLevel aggregationLevel, int rollingWindowSize = 50)
@@ -40,21 +41,26 @@ namespace VisualHFT.Studies
             HelperCommon.LIMITORDERBOOK.OnDataReceived += LIMITORDERBOOK_OnDataReceived;
             _symbol = symbol;
             _providerId = providerId;
-
-            _rollingValues = new AggregatedCollection<LOBImbalance>(aggregationLevel, rollingWindowSize, x => x.Timestamp, AggregateData);
+            _aggregationLevel = aggregationLevel;
+            _rollingValues = new AggregatedCollection<BaseStudyModel>(aggregationLevel, rollingWindowSize, x => x.Timestamp, AggregateData);
             _rollingValues.OnRemoved += _rollingValues_OnRemoved;
         }
         ~LOBImbalanceStudy()
         {
             Dispose(false);
         }
-        private static void AggregateData(LOBImbalance existing, LOBImbalance newItem)
+        private static void AggregateData(BaseStudyModel existing, BaseStudyModel newItem)
         {
             // Update the existing bucket with the new values
             existing.Timestamp = newItem.Timestamp;
             existing.Value = newItem.Value;
         }
-        public IReadOnlyList<LOBImbalance> Data => _rollingValues.AsReadOnly();
+        public IReadOnlyList<BaseStudyModel> Data => _rollingValues.AsReadOnly();
+        public AggregationLevel AggregationLevel
+        {
+            get => _aggregationLevel;
+            set => _aggregationLevel = value;
+        }
         private void LIMITORDERBOOK_OnDataReceived(object sender, OrderBook e)
         {
             //Thread.Sleep(1000000000);
@@ -70,12 +76,17 @@ namespace VisualHFT.Studies
             if (!_orderBook.LoadData(e.Asks?.ToList(), e.Bids?.ToList()))
                 return; //if nothing to update, then exit
             
-            
-            CalculateStudy();
+            if (_orderBook.MidPrice != 0)
+                CalculateStudy();
         }
         private void CalculateStudy()
         {
-            var newItem = new LOBImbalance() { Value = (decimal)_orderBook.ImbalanceValue, Timestamp = DateTime.Now, MarketMidPrice = (decimal)_orderBook.MidPrice };
+            var newItem = new BaseStudyModel() { 
+                Value = (decimal)_orderBook.ImbalanceValue, 
+                ValueFormatted = _orderBook.ImbalanceValue.ToString("N1"),
+                Timestamp = DateTime.Now, 
+                MarketMidPrice = (decimal)_orderBook.MidPrice 
+            };
             bool addSuccess = _rollingValues.Add(newItem);
             if (addSuccess)
                 OnRollingAdded?.Invoke(this, newItem);

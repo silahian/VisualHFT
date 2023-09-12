@@ -15,11 +15,11 @@ using System.Windows.Shapes;
 namespace VisualHFT.View
 {
     /// <summary>
-    /// Interaction logic for LOBImbalances.xaml
+    /// Interaction logic for TradeToOrderRatio.xaml
     /// </summary>
-    public partial class LOBImbalances : Window
+    public partial class MarketResilienceBias : Window
     {
-        public LOBImbalances()
+        public MarketResilienceBias()
         {
             InitializeComponent();
         }

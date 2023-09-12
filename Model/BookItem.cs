@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Prism.Mvvm;
 using System;
+using System.Collections.Generic;
 
 namespace VisualHFT.Model
 {
-    public class BookItem : BindableBase, IEquatable<BookItem>
+    public class BookItem : BindableBase, IEquatable<BookItem>, IEqualityComparer<BookItem>
     {
         public bool Equals(BookItem other)
         {
@@ -48,6 +49,15 @@ namespace VisualHFT.Model
             ActiveSize = b.ActiveSize;
         }
 
+        public bool Equals(BookItem x, BookItem y)
+        {
+            return x.Price == y.Price;
+        }
+
+        public int GetHashCode(BookItem obj)
+        {
+            return obj.Price.GetHashCode();
+        }
 
         public int DecimalPlaces { get; set; }
 

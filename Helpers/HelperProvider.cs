@@ -70,7 +70,6 @@ namespace VisualHFT.Helpers
                 //Check provider
                 if (!this.ContainsKey(provider.ProviderCode))
                 {
-                    UpdateDB(provider);
                     return this.TryAdd(provider.ProviderCode, provider);
                 }
                 else
@@ -84,22 +83,6 @@ namespace VisualHFT.Helpers
                 }
 			}
             return false;
-        }
-        private void UpdateDB(Provider provider)
-        {
-            using (var db = new HFTEntities())
-            {
-                var exists = db.Providers.Where(x => x.ProviderCode == provider.ProviderCode).FirstOrDefault();
-                if (exists == null)
-                {
-                    db.Providers.Add(new Provider()
-                    {
-                        ProviderCode = provider.ProviderCode,
-                        ProviderName = provider.ProviderName
-                    });                    
-                    var ret = db.SaveChanges();
-                }
-            }
         }
 
         public void Dispose()

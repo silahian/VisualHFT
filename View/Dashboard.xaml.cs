@@ -74,33 +74,6 @@ namespace VisualHFT
 
         }
 
-        private void ButtonVPIN_Click(object sender, RoutedEventArgs e)
-        {
-            View.VPIN formVPIN = new View.VPIN();
-            formVPIN.DataContext = new vmVPIN();
-            formVPIN.Closed += (sender2, e2) =>
-            {
-                if (formVPIN.DataContext is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
-            };
-            formVPIN.Show();
-        }
-        private void ButtonLOBImbalances_Click(object sender, RoutedEventArgs e)
-        {
-            var form = new LOBImbalances();
-            form.DataContext = new vmLOBImbalances();
-            form.Closed += (sender2, e2) =>
-            {
-                if (form.DataContext is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
-            };
-            form.Show();
-
-        }
     }
 }
     

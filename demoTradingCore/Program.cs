@@ -30,6 +30,7 @@ namespace demoTradingCore
         static Strategy _STRATEGY = null;
         static System.Timers.Timer heartBeat_Timer;
         static int _TIMESPAN_HEARTBEAT_IN_MS = 5000;
+        static int _DEPTH_REQUEST = 10;
 
         static async Task Main(string[] args)
         {
@@ -74,7 +75,7 @@ namespace demoTradingCore
                 Console.Write("Initializing Binance...");
                 var _currEXCH  = eEXCHANGE.BINANCE;
 
-                _EXCHANGES.Add(_currEXCH, new Exchange(_currEXCH, 5));
+                _EXCHANGES.Add(_currEXCH, new Exchange(_currEXCH, _DEPTH_REQUEST));
                 _SYMBOLS_EXCH_TO_NORMALIZED.Add(_currEXCH, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
                 
                 var exchangeAPI = await ExchangeAPI.GetExchangeAPIAsync<ExchangeBinanceUSAPI>();
@@ -89,9 +90,9 @@ namespace demoTradingCore
                 await exchangeAPI.GetFullOrderBookWebSocketAsync(book =>
                 {
                     string localSym = _SYMBOLS_EXCH_TO_NORMALIZED[_currEXCH][book.MarketSymbol];
-                    SnapshotUpdates(localSym, _currEXCH, book, 5);
+                    SnapshotUpdates(localSym, _currEXCH, book, _DEPTH_REQUEST);
 
-                }, 5, lstExchangeSymbols.ToArray());
+                }, _DEPTH_REQUEST, lstExchangeSymbols.ToArray());
 
                 Console.WriteLine("OK");
 
@@ -121,7 +122,7 @@ namespace demoTradingCore
             Console.Write("Initializing Coinbase...");
             var _currEXCH = eEXCHANGE.COINBASE;
 
-            _EXCHANGES.Add(_currEXCH, new Exchange(_currEXCH, 5));
+            _EXCHANGES.Add(_currEXCH, new Exchange(_currEXCH, _DEPTH_REQUEST));
             _SYMBOLS_EXCH_TO_NORMALIZED.Add(_currEXCH, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
 
             var exchangeAPI = await ExchangeAPI.GetExchangeAPIAsync<ExchangeCoinbaseAPI>();
@@ -137,8 +138,8 @@ namespace demoTradingCore
             await exchangeAPI.GetFullOrderBookWebSocketAsync(book => 
                 {
                     string localSym = _SYMBOLS_EXCH_TO_NORMALIZED[_currEXCH][book.MarketSymbol];
-                    SnapshotUpdates(localSym, _currEXCH, book, 5); 
-                }, 5, lstExchangeSymbols.ToArray());
+                    SnapshotUpdates(localSym, _currEXCH, book, _DEPTH_REQUEST); 
+                }, _DEPTH_REQUEST, lstExchangeSymbols.ToArray());
             
             Console.WriteLine("OK");
             /*await exchangeAPI.GetTradesWebSocketAsync((trade) =>
@@ -164,7 +165,7 @@ namespace demoTradingCore
             Console.Write("Initializing OKEx...");
             var _currEXCH = eEXCHANGE.OKEX;
 
-            _EXCHANGES.Add(_currEXCH, new Exchange(_currEXCH, 5));
+            _EXCHANGES.Add(_currEXCH, new Exchange(_currEXCH, _DEPTH_REQUEST));
             _SYMBOLS_EXCH_TO_NORMALIZED.Add(_currEXCH, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
 
             var exchangeAPI = await ExchangeAPI.GetExchangeAPIAsync<ExchangeOKExAPI>();
@@ -183,9 +184,9 @@ namespace demoTradingCore
                 if (_SYMBOLS_EXCH_TO_NORMALIZED[_currEXCH].ContainsKey(book.MarketSymbol))
                 {
                     string localSym = _SYMBOLS_EXCH_TO_NORMALIZED[_currEXCH][book.MarketSymbol];
-                    SnapshotUpdates(localSym, _currEXCH, book, 5);
+                    SnapshotUpdates(localSym, _currEXCH, book, _DEPTH_REQUEST);
                 }
-            }, 5, lstExchangeSymbols.ToArray());
+            }, _DEPTH_REQUEST, lstExchangeSymbols.ToArray());
 
             Console.WriteLine("OK");
             await exchangeAPI.GetTradesWebSocketAsync((trade) =>

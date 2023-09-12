@@ -23,5 +23,13 @@ namespace VisualHFT.View
         {
             InitializeComponent();
         }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            if (this.DataContext is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
     }
 }

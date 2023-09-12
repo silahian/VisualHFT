@@ -8,7 +8,7 @@ using VisualHFT.Studies;
 
 namespace VisualHFT.Model
 {
-    public class OrderBook
+    public class OrderBook: ICloneable
     {
         protected List<BookItem> _Bids;
         protected List<BookItem> _Asks;
@@ -83,6 +83,10 @@ namespace VisualHFT.Model
             var lobMetrics = new OrderFlowAnalysis();
             lobMetrics.LoadData(_Asks.Where(x => x != null).ToList(), _Bids.Where(x => x != null).ToList());
             this.ImbalanceValue = lobMetrics.Calculate_OrderImbalance(); 
+        }
+        public bool LoadData()
+        {
+            return LoadData(this.Asks, this.Bids);
         }
         public bool LoadData(List<BookItem> asks, List<BookItem> bids)
         {
@@ -272,6 +276,21 @@ namespace VisualHFT.Model
             return Tuple.Create(minOrderSize, maxOrderSize);
         }
 
+        public object Clone()
+        {
+            var clone = new OrderBook
+            {
+                Bids = Bids.ToList(),
+                Asks = Asks.ToList(),
+                DecimalPlaces = DecimalPlaces,
+                ProviderID=ProviderID,
+                ProviderName=ProviderName,
+                Symbol = Symbol,
+                SymbolMultiplier = SymbolMultiplier,
+            };
+            clone.LoadData();
+            return clone;
+        }
 
         public List<BookItem> BidCummulative
         {

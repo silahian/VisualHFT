@@ -1,9 +1,8 @@
-﻿<Window x:Class="VisualHFT.View.LOBImbalances"
+﻿<Window x:Class="VisualHFT.View.OrderToTradeRatio"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        
         xmlns:local="clr-namespace:VisualHFT"
         xmlns:Formatters="clr-namespace:VisualHFT.Converters"
         mc:Ignorable="d"
@@ -21,9 +20,9 @@
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{StaticResource MaterialDesignFont}"
-
+        
         Closed="Window_Closed"
-        Title="LOB Imbalances" Height="450" Width="1000">
+        Title="Order To Trade Ratio (OTT)" Height="450" Width="1000">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -57,8 +56,6 @@
                   SelectedValuePath="Item2" 
                   SelectedValue="{Binding AggregationLevelSelection}" 
                   Width="200" FontSize="18"/>
-
-
 
                 <StackPanel.ToolTip>
                     <ToolTip>
@@ -99,48 +96,35 @@
                 <TextBlock.ToolTip>
                     <ToolTip>
                         <StackPanel>
-                            <TextBlock TextWrapping="Wrap">
-                                <Run FontWeight="Bold">The LOB Imbalance </Run>
-                                <Run>(Limit Order Book Imbalance).</Run>
+                            <TextBlock TextWrapping="Wrap" Width="400">
+                                <Run FontWeight="Bold">Order to Trade Ratio (OTT)</Run>
                                 <LineBreak />
-                                <Run>Represents the disparity between buy and sell orders at a specific price level.</Run>
+                                <Run>Represents a metric used to evaluate trading behavior.</Run>
                                 <LineBreak />
-                                <Run>It highlights the difference in demand and supply in the order book, providing insights into potential price movements.</Run>
-                                <LineBreak />
-                                <LineBreak />
-                                <Run>Given its definition, a significant LOB imbalance can:</Run>
-                                <LineBreak />
-                                <Run FontWeight="Bold">Indicate Strong Buying Interest: </Run>
-                                <Run FontStyle="Italic">When there are more buy orders than sell orders at a particular price level, suggesting potential upward price movement.</Run>
-                                <LineBreak />
-                                <Run FontWeight="Bold">Indicate Strong Selling Interest: </Run>
-                                <Run FontStyle="Italic">When there are more sell orders than buy orders, suggesting potential downward price movement.</Run>
+                                <Run>It measures the number of orders placed relative to the number of trades executed. This ratio is often monitored by regulatory bodies to identify potentially manipulative or disruptive trading activities.</Run>
                                 <LineBreak />
                                 <LineBreak />
-                                <Run>The LOB Imbalance value ranges between -1 and 1:</Run>
+                                <Run>This ratio is used to understand how many orders actually result in a trade.</Run>
                                 <LineBreak />
-                                <Run FontWeight="Bold">-1: </Run>
-                                <Run FontStyle="Italic">This indicates a complete dominance of sell orders over buy orders, suggesting a strong selling interest.</Run>
-                                <LineBreak />
-                                <Run FontWeight="Bold">0: </Run>
-                                <Run FontStyle="Italic">Indicates a perfect balance between buy and sell orders, meaning there's equilibrium in demand and supply.</Run>
-                                <LineBreak />
-                                <Run FontWeight="Bold">1: </Run>
-                                <Run FontStyle="Italic">This indicates a complete dominance of buy orders over sell orders, suggesting a strong buying interest.</Run>
+                                <Run>A </Run>
+                                <Run FontWeight="Bold">high OTT ratio</Run>
+                                <Run> suggests that a large number of orders are being placed but few are being executed. This could be a red flag for regulators and may warrant further investigation for potential market manipulation tactics. </Run>
                                 <LineBreak />
                                 <LineBreak />
-                                <Run FontStyle="Normal">Most of the time, the LOB Imbalance value will float between these extremes, signaling varying levels of buying or selling interest. It's crucial to interpret this value in the context of other market indicators and conditions.</Run>
+                                <Run>On the other hand, a </Run>
+                                <Run FontWeight="Bold">low OTT ratio</Run>
+                                <Run> generally indicates efficient trading, where most orders are being executed. This is usually a positive sign of trading performance.</Run>
+                                <LineBreak />
                                 <LineBreak />
                             </TextBlock>
                         </StackPanel>
                     </ToolTip>
-
                 </TextBlock.ToolTip>
             </TextBlock>
         </StackPanel>
 
         <!-- OxyPlot Chart -->
-        <contrib:Plot Grid.Row="1" Title="LOB Imbalances" 
+        <contrib:Plot Grid.Row="1" Title="Trade To Order Ratio" 
                       TitleColor="White" TitleFontSize="10" PlotAreaBorderThickness="0" TextColor="White" DefaultFontSize="8"
                       HorizontalContentAlignment="Stretch" 
                       HorizontalAlignment="Stretch" 
@@ -162,15 +146,12 @@
                 <contrib:DateTimeAxis Position="Bottom" Title="Timestamp" StringFormat="HH:mm:ss.fff"/>
 
                 <!-- Y-axis for VPIN Value -->
-                <contrib:LinearAxis Position="Left" Title="LOB Imbalance" Minimum="-1" Maximum="1" TextColor="Blue" Font="12" TitleFontSize="16" TitleColor="Blue" />
+                <contrib:LinearAxis Position="Left" Title="OTT Ratio" TextColor="Blue" Font="12" TitleFontSize="16" TitleColor="Blue" />
 
                 <!-- Y-axis for Market Data Price -->
                 <contrib:LinearAxis Position="Right" Title="Market Mid Price" Key="PriceAxis" TextColor="White"  Font="12" TitleFontSize="16" TitleColor="White" StringFormat="N0" />
             </contrib:Plot.Axes>
-            <contrib:Plot.Annotations>
-                <contrib:RectangleAnnotation MinimumY="0.8" MaximumY="1" Fill="#10FF0000" Opacity="0.1" />
-                <contrib:RectangleAnnotation MinimumY="-1" MaximumY="-0.8" Fill="#10FF0000" Opacity="0.5" />
-            </contrib:Plot.Annotations>
+
 
             <contrib:Plot.Series>
                 <!-- Series for CHART -->
@@ -184,7 +165,7 @@
                                     ItemsSource="{Binding ChartData}" 
                                     StrokeThickness="2" LineStyle="Solid" 
                                     Color="Blue" LabelMargin="5" IsEnabled="False" 
-                                     Title="LOB Imbalances" />
+                                     Title="OTT Ratio" />
             </contrib:Plot.Series>
         </contrib:Plot>
     </Grid>
