@@ -189,22 +189,18 @@ The decision to open-source VisualHFT was driven by a desire to contribute to th
 
 Having worked extensively in the realm of electronic trading, I recognized the need for a tool that could provide real-time insights into the operations of a high-frequency trading system. While the core trading system operates with minimal human interaction, having a clear, real-time view of its operations is crucial for informed decision-making and effective control.
 
-VisualHFT was developed to meet this need. However, I realized that its potential could be greatly amplified if it were open to the wider community. By open-sourcing VisualHFT, I aimed to provide a valuable resource for other traders and developers, enabling them to better understand and navigate the complex world of high-frequency trading.
+VisualHFT was developed to meet this need. However, I realized that its potential could be greatly amplified if it were open to the broader community. By open-sourcing VisualHFT, I aimed to provide a valuable resource for other traders and developers, enabling them to understand better and navigate the complex world of high-frequency trading.
 
 Moreover, I believe that innovation thrives in a collaborative environment. By making VisualHFT open-source, I hope to encourage others to contribute their ideas and improvements, driving the project forward and ensuring it continues to evolve in line with the needs of the trading community.
 
 ## Things to improve
-- currently using Telerik Charts. Replace them with some good opensource WPF charts.
 - documentation and wiki page.
 - code architecture.
 - be sure to maintain a MVVC pattern.
-- be able to add more UI (ie: web)
-- throttling websocket input messages (when the server sends a lot of messages)
-- performance (real-time charts are taking up too many resources).
+- be able to add more UI (ie: web-base UI)
 - generalization of the strategy parameters and their UI elements.
 - scalability (able to be used by multiple users at the same time)
 - more real-time analytics and risk measurements
-- server app for testing purposes (connect to binance, and simulate orders and executions)
 - add unit tests
 - Ability to have a FIX network sniffer as input data (as an alternative to websockets)
 - Security: even though these kinds of applications run inside a private network, there is no security at all involved.
