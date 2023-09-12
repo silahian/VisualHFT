@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Threading;
 using System.Timers;
-using System.Data.Entity;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Data.Entity;
+using System.Windows;
 
 namespace VisualHFT.Helpers
 {
@@ -72,7 +73,7 @@ namespace VisualHFT.Helpers
                     if (!HelperCommon.ALLSYMBOLS.Contains(p.Symbol))
                     {
                         //this collection needs to be updated in the UI thread
-                        App.Current.Dispatcher.Invoke(() => HelperCommon.ALLSYMBOLS.Add(p.Symbol));
+                        Application.Current.Dispatcher.Invoke(() => HelperCommon.ALLSYMBOLS.Add(p.Symbol));
                     }
                 }
                 if (this.Positions == null || !this.Positions.Any())

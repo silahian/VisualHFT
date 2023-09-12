@@ -8,6 +8,9 @@ using System.Linq;
 using Prism.Mvvm;
 using System.Windows;
 using System.Windows.Threading;
+using System.Windows.Input;
+using System.Runtime.CompilerServices;
+using System.Security.Policy;
 
 namespace VisualHFT.ViewModel
 {
@@ -15,7 +18,7 @@ namespace VisualHFT.ViewModel
     {
         private ProviderEx _selectedItem;
         private ObservableCollection<ProviderEx> _providers;
-        private RelayCommand _cmdUpdateStatus;
+        private ICommand _cmdUpdateStatus;
         private Dictionary<string, Func<string, string, bool>> _dialogs;
         private DateTime? _lastHeartBeatReceived = null;
         private eSESSIONSTATUS _status;
@@ -24,7 +27,7 @@ namespace VisualHFT.ViewModel
         public vmProvider(Dictionary<string, Func<string, string, bool>> dialogs)
         {
             this._dialogs = dialogs;            
-            _cmdUpdateStatus = new RelayCommand(DoUpdateStatus);
+            _cmdUpdateStatus = new RelayCommand<object>(DoUpdateStatus);
             
             _providers = new ObservableCollection<ProviderEx>();
             RaisePropertyChanged(nameof(Providers));
@@ -109,7 +112,7 @@ namespace VisualHFT.ViewModel
             set => SetProperty(ref _providers, value); 
         }
 
-        public RelayCommand CmdUpdateStatus
+        public ICommand CmdUpdateStatus
         {
             get => _cmdUpdateStatus;
             set => SetProperty(ref _cmdUpdateStatus, value);   

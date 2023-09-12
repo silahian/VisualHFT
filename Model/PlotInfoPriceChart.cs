@@ -7,7 +7,7 @@ using System.Windows.Media;
 
 namespace VisualHFT.Model
 {
-    public class PlotInfoPriceChart : BindableBase
+    public class PlotInfoPriceChart
     {
         public DateTime Date { get; set; }
         public double Volume { get; set; }
@@ -16,20 +16,20 @@ namespace VisualHFT.Model
         public double MidPrice
         {
             get => _midPrice;
-            set => SetProperty(ref _midPrice, value);
+            set => _midPrice = value;
         }
         double _bidPrice;
         public double BidPrice
         {
             get => _bidPrice;
-            set => SetProperty(ref _bidPrice, value);
+            set => _bidPrice = value;
         }
 
         double _askPrice;
         public double AskPrice
         {
             get => _askPrice;
-            set => SetProperty(ref _askPrice, value);
+            set => _askPrice = value;
         }
 
         double? _buyActiveOrder;
@@ -37,12 +37,12 @@ namespace VisualHFT.Model
         public double? BuyActiveOrder
         {
             get => _buyActiveOrder;
-            set => SetProperty(ref _buyActiveOrder, value);
+            set => _buyActiveOrder = value;
         }
         public double? SellActiveOrder
         {
             get => _sellActiveOrder;
-            set => SetProperty(ref _sellActiveOrder, value);
+            set => _sellActiveOrder = value;
         }
 
         public List<OrderBookLevel> BidOrders { get; set; }

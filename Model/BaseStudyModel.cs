@@ -12,26 +12,66 @@ namespace VisualHFT.Model
         private string _valueColor = null;
         private decimal _marketMidPrice;
 
+        public BaseStudyModel(bool isBindable = true)
+        {
+            IsBindable = isBindable;
+        }
+
+        public bool IsBindable { get; set; } = true;
         public DateTime Timestamp
         {
             get => _timestamp;
-            set => SetProperty(ref _timestamp, value);
+            set
+            {
+                if (IsBindable)
+                    SetProperty(ref _timestamp, value);
+                else
+                    _timestamp = value;
+            }
         }
         public decimal Value
         {
             get => _value;
-            set => SetProperty(ref _value, value);
+            set {
+                if (IsBindable)
+                    SetProperty(ref _value, value);
+                else
+                    _value = value;
+            }
         }
         public string ValueFormatted
         {
             get => _valueFormatted;
-            set => SetProperty(ref _valueFormatted, value);
+            set 
+            {
+                if (IsBindable)
+                    SetProperty(ref _valueFormatted, value);
+                else
+                    _valueFormatted = value;
+            }
         }
-        public string ValueColor { get => _valueColor; set => SetProperty(ref _valueColor, value); }
+        public string ValueColor 
+        { 
+            get => _valueColor; 
+            set
+            {
+                if (IsBindable)
+                    SetProperty(ref _valueColor, value);
+                else
+                    _valueColor = value;
+            }
+        }
         public decimal MarketMidPrice
         {
             get => _marketMidPrice;
-            set => SetProperty(ref _marketMidPrice, value);
+            set
+            {
+                if (IsBindable)
+                    SetProperty(ref _marketMidPrice, value);
+                else
+                    _marketMidPrice = value;
+                    
+            }
         }
     }
 }

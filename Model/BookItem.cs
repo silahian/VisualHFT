@@ -7,21 +7,6 @@ namespace VisualHFT.Model
 {
     public class BookItem : BindableBase, IEquatable<BookItem>, IEqualityComparer<BookItem>
     {
-        public bool Equals(BookItem other)
-        {
-            if (other == null)
-                return false;
-            if (IsBid != other.IsBid)
-                return false;
-            if (EntryID != other.EntryID)
-                return false;
-            if (Price != other.Price)
-                return false;
-            if (Size != other.Size)
-                return false;
-            return true;
-
-        }
 
         private string _Symbol;
         private int _ProviderID;
@@ -33,6 +18,11 @@ namespace VisualHFT.Model
         private double? _Size;
         private bool _IsBid;
         private double? _ActiveSize;
+
+        public BookItem(bool isBindable = false)
+        {
+            IsBindable = isBindable;
+        }
 
         public void Update(BookItem b)
         {
@@ -49,6 +39,22 @@ namespace VisualHFT.Model
             ActiveSize = b.ActiveSize;
         }
 
+        public bool Equals(BookItem other)
+        {
+            if (other == null)
+                return false;
+            if (IsBid != other.IsBid)
+                return false;
+            if (EntryID != other.EntryID)
+                return false;
+            if (Price != other.Price)
+                return false;
+            if (Size != other.Size)
+                return false;
+            return true;
+
+        }
+
         public bool Equals(BookItem x, BookItem y)
         {
             return x.Price == y.Price;
@@ -59,61 +65,116 @@ namespace VisualHFT.Model
             return obj.Price.GetHashCode();
         }
 
+        public bool IsBindable { get; set; } = true;
         public int DecimalPlaces { get; set; }
 
 
         public string Symbol
         {
             get => _Symbol;
-            set => SetProperty(ref _Symbol, value);
+            set 
+            {
+                if (IsBindable)
+                    SetProperty(ref _Symbol, value);
+                else
+                    _Symbol = value;
+            }
         }
 
         public int ProviderID
         {
             get => _ProviderID;
-            set => SetProperty(ref _ProviderID, value);
+            set
+            {
+                if (IsBindable)
+                    SetProperty(ref _ProviderID, value);
+                else
+                    _ProviderID = value;
+            }
         }
 
         public string EntryID
         {
             get => _EntryID;
-            set => SetProperty(ref _EntryID, value);
+            set 
+            {
+                if (IsBindable)
+                    SetProperty(ref _EntryID, value); 
+                else
+                    _EntryID = value;
+            }
         }
 
         public string LayerName
         {
             get => _LayerName;
-            set => SetProperty(ref _LayerName, value);
+            set
+            {
+                if (IsBindable)
+                    SetProperty(ref _LayerName, value);
+                else
+                    _LayerName = value;
+            }
         }
 
         public DateTime LocalTimeStamp
         {
             get => _LocalTimeStamp;
-            set => SetProperty(ref _LocalTimeStamp, value);
+            set
+            {
+                if (IsBindable)
+                    SetProperty(ref _LocalTimeStamp, value);
+                else
+                    _LocalTimeStamp = value;
+            }
         }
 
         public double? Price
         {
             get => _Price;
-            set => SetProperty(ref _Price, value, onChanged: () => RaisePropertyChanged(nameof(FormattedPrice)));
+            set
+            {
+                if (IsBindable)
+                    SetProperty(ref _Price, value, onChanged: () => RaisePropertyChanged(nameof(FormattedPrice)));
+                else
+                    _Price = value;
+            }
         }
 
         public DateTime ServerTimeStamp
         {
             get => _ServerTimeStamp;
-            set => SetProperty(ref _ServerTimeStamp, value);
+            set
+            {
+                if (IsBindable)
+                    SetProperty(ref _ServerTimeStamp, value);
+                else
+                    _ServerTimeStamp = value;
+            }
         }
 
         public double? Size
         {
             get => _Size;
-            set => SetProperty(ref _Size, value, onChanged: () => RaisePropertyChanged(nameof(FormattedSize)));
+            set
+            {
+                if (IsBindable)
+                    SetProperty(ref _Size, value, onChanged: () => RaisePropertyChanged(nameof(FormattedSize)));
+                else
+                    _Size = value;
+            }
         }
 
         public bool IsBid
         {
             get => _IsBid;
-            set => SetProperty(ref _IsBid, value);
+            set
+            {
+                if (IsBindable)
+                    SetProperty(ref _IsBid, value);
+                else
+                    _IsBid = value;
+            }
         }
         public string FormattedPrice => this.Price.HasValue ? this.Price.Value.ToString("N" + DecimalPlaces) : "";
         public string FormattedSize => this.Size.HasValue ? Helpers.HelperCommon.GetKiloFormatter(this.Size.Value) : "";
@@ -121,7 +182,13 @@ namespace VisualHFT.Model
         public double? ActiveSize
         {
             get => _ActiveSize;
-            set => SetProperty(ref _ActiveSize, value);
+            set
+            {
+                if (IsBindable)
+                    SetProperty(ref _ActiveSize, value);
+                else
+                    _ActiveSize = value;
+            }
         }
     }
 }

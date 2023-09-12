@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace VisualHFT.Model
 {
-    public class PlotInfo : BindableBase
+    public class PlotInfo 
     {
         public DateTime Date { get; set; }
 
@@ -13,7 +13,7 @@ namespace VisualHFT.Model
         public double Value
         {
             get => _value;
-            set => SetProperty(ref _value, value);            
+            set => _value = value;
         }
     }
 }

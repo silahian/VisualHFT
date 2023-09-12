@@ -21,7 +21,7 @@ namespace VisualHFT.ViewModels
     {
         private bool _disposed = false; // to track whether the object has been disposed
         private VPINStudy _vpinStudy;
-        private List<BaseStudyModel> _vpinChartData;
+        private IReadOnlyList<BaseStudyModel> _vpinChartData;
         private ObservableCollection<ProviderEx> _providers;
         private ObservableCollection<string> _symbols;
         private ProviderEx _selectedProvider;
@@ -56,7 +56,7 @@ namespace VisualHFT.ViewModels
         {
             Dispose(false);
         }
-        public List<BaseStudyModel> VPINChartData
+        public IReadOnlyList<BaseStudyModel> VPINChartData
         {
             get 
             {
@@ -120,7 +120,7 @@ namespace VisualHFT.ViewModels
 
         private void _vpinStudy_OnRollingAdded(object sender, BaseStudyModel e)
         {
-            _vpinChartData = _vpinStudy.VpinData.ToList();
+            _vpinChartData = _vpinStudy.VpinData;
         }
 
         private void Clear()
@@ -128,13 +128,13 @@ namespace VisualHFT.ViewModels
             if (string.IsNullOrEmpty(_selectedSymbol) || _selectedProvider == null)
                 return;
 
-            _vpinChartData.Clear();
-            RaisePropertyChanged("VPINChartData");
             if (_vpinStudy != null) 
                 _vpinStudy.Dispose();
             _vpinStudy = null;
             _vpinStudy = new VPINStudy(_selectedSymbol, _selectedProvider.ProviderCode, _aggregationLevelSelection, _bucketVolumeSize, _MAX_ITEMS);
             _vpinStudy.OnRollingAdded += _vpinStudy_OnRollingAdded;
+
+            RaisePropertyChanged("VPINChartData");
         }
 
 

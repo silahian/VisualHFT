@@ -8,7 +8,6 @@ using VisualHFT.ViewModel.Studies;
 using System.Windows.Documents;
 using System.Windows.Ink;
 using VisualHFT.Model;
-using LumenWorks.Framework.IO.Csv;
 using System.Net.Sockets;
 using System.Windows.Media;
 using VisualHFT.ViewModels;

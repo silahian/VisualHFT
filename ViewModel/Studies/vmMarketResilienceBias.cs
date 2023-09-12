@@ -18,7 +18,7 @@ namespace VisualHFT.ViewModels
     {
         private bool _disposed = false; // to track whether the object has been disposed
         private MarketResilienceBiasStudy _Study;
-        private List<BaseStudyModel> _chartData;
+        private IReadOnlyList<BaseStudyModel> _chartData;
         private ObservableCollection<ProviderEx> _providers;
         private ObservableCollection<string> _symbols;
         private ProviderEx _selectedProvider;
@@ -52,7 +52,7 @@ namespace VisualHFT.ViewModels
         {
             Dispose(false);
         }
-        public List<BaseStudyModel> ChartData
+        public IReadOnlyList<BaseStudyModel> ChartData
         {
             get 
             {
@@ -110,20 +110,19 @@ namespace VisualHFT.ViewModels
         }
         private void _Study_OnRollingAdded(object sender, BaseStudyModel e)
         {
-            _chartData = _Study.Data.ToList();
+            _chartData = _Study.Data;
         }
         private void Clear()
         {
             if (string.IsNullOrEmpty(_selectedSymbol) || _selectedProvider == null)
                 return;
 
-            _chartData.Clear();
-            RaisePropertyChanged("ChartData");
             if (_Study != null)
                 _Study.Dispose();
             _Study = null;
             _Study = new MarketResilienceBiasStudy(_selectedSymbol, _selectedProvider.ProviderCode, _aggregationLevelSelection, _MAX_ITEMS);
             _Study.OnRollingAdded += _Study_OnRollingAdded;
+            RaisePropertyChanged("ChartData");
         }
         protected virtual void Dispose(bool disposing)
         {

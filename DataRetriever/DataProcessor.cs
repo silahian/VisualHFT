@@ -8,7 +8,6 @@ using System.Windows;
 using System.Windows.Threading;
 using VisualHFT.Helpers;
 using VisualHFT.Model;
-using VisualHFT.Properties;
 
 namespace VisualHFT.DataRetriever
 {

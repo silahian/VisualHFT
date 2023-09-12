@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Management.Instrumentation;
+
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +13,6 @@ using System.Windows.Threading;
 using VisualHFT.Helpers;
 using VisualHFT.Model;
 using VisualHFT.View;
-using static NetMQ.NetMQSelector;
 
 namespace VisualHFT.Studies
 {
@@ -81,7 +80,7 @@ namespace VisualHFT.Studies
         }
         private void CalculateStudy()
         {
-            var newItem = new BaseStudyModel() { 
+            var newItem = new BaseStudyModel(false) { 
                 Value = (decimal)_orderBook.ImbalanceValue, 
                 ValueFormatted = _orderBook.ImbalanceValue.ToString("N1"),
                 Timestamp = DateTime.Now, 

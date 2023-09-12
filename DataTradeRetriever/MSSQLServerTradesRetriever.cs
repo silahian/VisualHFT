@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows;
 using VisualHFT.Helpers;
 using VisualHFT.Model;
 
@@ -73,7 +74,7 @@ namespace VisualHFT.DataTradeRetriever
                     if (!HelperCommon.ALLSYMBOLS.Contains(p.Symbol))
                     {
                         //this collection needs to be updated in the UI thread
-                        App.Current.Dispatcher.Invoke(() => HelperCommon.ALLSYMBOLS.Add(p.Symbol));
+                        Application.Current.Dispatcher.Invoke(() => HelperCommon.ALLSYMBOLS.Add(p.Symbol));
                     }
                     _positions.Add(p);
                 }

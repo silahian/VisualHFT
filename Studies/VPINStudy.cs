@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Management.Instrumentation;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -162,7 +161,7 @@ namespace VisualHFT.Studies
 
 
             // Add to rolling window and remove oldest if size exceeded
-            var newItem = new BaseStudyModel()
+            var newItem = new BaseStudyModel(false)
             {
                 Value = _lastVPIN,
                 ValueFormatted = _lastVPIN.ToString("N1"),

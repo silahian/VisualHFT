@@ -185,7 +185,7 @@ namespace VisualHFT.Studies
 
         private void TriggerOnCalculatedEvent(OrderBook currentOrderBook)
         {
-            var newItem = new BaseStudyModel { 
+            var newItem = new BaseStudyModel(false) { 
                 Value = _resilienceValue,
                 ValueFormatted = _resilienceValue == 1 ? "↑" : "↓",                
                 ValueColor = _resilienceValue == 1 ? "Green" : "Red",

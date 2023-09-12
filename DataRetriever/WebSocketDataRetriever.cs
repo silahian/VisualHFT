@@ -55,24 +55,24 @@ namespace VisualHFT.DataRetriever
             _webSocket.Open();
         }
 
-        private void WebSocket_Opened(object sender, EventArgs e)
+        private void WebSocket_Opened(object? sender, EventArgs e)
         {
             Console.WriteLine("WebSocket connection opened.");
         }
 
-        private void WebSocket_Closed(object sender, EventArgs e)
+        private void WebSocket_Closed(object? sender, EventArgs e)
         {
             Console.WriteLine("WebSocket connection closed. Attempting to reconnect...");
             HandleReconnection();
         }
 
-        private void WebSocket_Error(object sender, SuperSocket.ClientEngine.ErrorEventArgs e)
+        private void WebSocket_Error(object? sender, SuperSocket.ClientEngine.ErrorEventArgs e)
         {
             Console.WriteLine($"WebSocket error: {e.Exception.Message}");
             HandleReconnection();
         }
 
-        private void WebSocket_MessageReceived(object sender, MessageReceivedEventArgs e)
+        private void WebSocket_MessageReceived(object? sender, MessageReceivedEventArgs e)
         {
             var message = e.Message;
             var dataReceived = _parser.Parse<WebsocketData>(message);

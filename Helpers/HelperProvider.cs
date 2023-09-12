@@ -47,8 +47,6 @@ namespace VisualHFT.Helpers
             EventHandler<ProviderEx> _handler = OnDataReceived;
             if (_handler != null && Application.Current != null)
             {
-                /*Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => {
-                }));*/
                 foreach (var p in providers)
                     _handler(this, p);
             }

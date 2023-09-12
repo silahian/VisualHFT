@@ -18,7 +18,7 @@ namespace VisualHFT.ViewModels
     {
         private bool _disposed = false; // to track whether the object has been disposed
         private LOBImbalanceStudy _lobStudy;
-        private List<BaseStudyModel> _chartData;
+        private IReadOnlyList<BaseStudyModel> _chartData;
         private ObservableCollection<ProviderEx> _providers;
         private ObservableCollection<string> _symbols;
         private ProviderEx _selectedProvider;
@@ -51,7 +51,7 @@ namespace VisualHFT.ViewModels
         {
             Dispose(false);
         }
-        public List<BaseStudyModel> ChartData
+        public IReadOnlyList<BaseStudyModel> ChartData
         {
             get 
             {
@@ -109,20 +109,20 @@ namespace VisualHFT.ViewModels
         }
         private void _lobStudy_OnRollingAdded(object sender, BaseStudyModel e)
         {
-            _chartData = _lobStudy.Data.ToList();
+            _chartData = _lobStudy.Data;
         }
         private void Clear()
         {
             if (string.IsNullOrEmpty(_selectedSymbol) || _selectedProvider == null)
                 return;
 
-            _chartData.Clear();
-            RaisePropertyChanged("ChartData");
             if (_lobStudy != null) 
                 _lobStudy.Dispose();
             _lobStudy = null;
             _lobStudy = new LOBImbalanceStudy(_selectedSymbol, _selectedProvider.ProviderCode, _aggregationLevelSelection, _MAX_ITEMS);
             _lobStudy.OnRollingAdded += _lobStudy_OnRollingAdded;
+
+            RaisePropertyChanged("ChartData");
         }
 
 

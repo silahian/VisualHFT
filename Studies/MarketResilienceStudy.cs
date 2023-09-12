@@ -187,7 +187,7 @@ namespace VisualHFT.Studies
 
         private void TriggerOnCalculatedEvent(OrderBook currentOrderBook)
         {
-            var newItem = new BaseStudyModel { 
+            var newItem = new BaseStudyModel(false) { 
                 Value = _resilienceValue, 
                 ValueFormatted = _resilienceValue.ToString("N1"),
                 Timestamp = DateTime.Now, 

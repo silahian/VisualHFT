@@ -12,8 +12,8 @@ namespace VisualHFT.Model
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
-    
-    public partial class HFTEntities : DbContext
+
+    public partial class HFTEntities : System.Data.Entity.DbContext
     {
         public HFTEntities()
             : base("name=HFTEntities")

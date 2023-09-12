@@ -49,14 +49,6 @@ namespace VisualHFT.ViewModel
 
 
         private UIUpdater uiUpdater;
-        private List<BookItem> TRACK_Bids = new List<BookItem>();
-        private List<BookItem> TRACK_Asks = new List<BookItem>();
-        private List<BookItem> TRACK_BidCummulative = new List<BookItem>();
-        private List<BookItem> TRACK_AskCummulative = new List<BookItem>();
-        private List<PlotInfoPriceChart> TRACK_RealTimePrices = new List<PlotInfoPriceChart>();
-        private List<OrderBookLevel> TRACK_RealTimeOrderLevelsAsk = new List<OrderBookLevel>();
-        private List<OrderBookLevel> TRACK_RealTimeOrderLevelsBid = new List<OrderBookLevel>();
-        private List<PlotInfoPriceChart> TRACK_RealTimeSpread = new List<PlotInfoPriceChart>();
         
 
         public vmOrderBook(Dictionary<string, Func<string, string, bool>> dialogs)
@@ -101,56 +93,23 @@ namespace VisualHFT.ViewModel
                 RaisePropertyChanged(nameof(Spread));
 
 
-                if (Bids != null && !TRACK_Bids.SequenceEqual(Bids))
-                {
-                    RaisePropertyChanged(nameof(Bids));
-                    TRACK_Bids = Bids.ToList();
-                }
-                if (Asks != null && !TRACK_Asks.SequenceEqual(Asks))
-                {
-                    RaisePropertyChanged(nameof(Asks));
-                    TRACK_Asks = Asks.ToList();
-                }
+                RaisePropertyChanged(nameof(Bids));
+                RaisePropertyChanged(nameof(Asks));
 
 
-                if (AskCummulative != null && !TRACK_AskCummulative.SequenceEqual(AskCummulative))
-                {
-                    RaisePropertyChanged(nameof(AskCummulative));
-                    TRACK_AskCummulative = AskCummulative.ToList();
-                }
-                if (BidCummulative != null && !TRACK_BidCummulative.SequenceEqual(BidCummulative))
-                {
-                    RaisePropertyChanged(nameof(BidCummulative));
-                    TRACK_BidCummulative = BidCummulative.ToList();
-                }
+                RaisePropertyChanged(nameof(AskCummulative));
+                RaisePropertyChanged(nameof(BidCummulative));
+
                 CalculateMaximumCummulativeSizeOnBothSides();
                 RaisePropertyChanged(nameof(DepthChartMaxY));
 
 
-
-                if (RealTimePrices != null && !TRACK_RealTimePrices.SequenceEqual(RealTimePrices))
-                {
-                    RaisePropertyChanged(nameof(RealTimePrices));
-                    TRACK_RealTimePrices = RealTimePrices.ToList();
-                }
+                RaisePropertyChanged(nameof(RealTimeOrderLevelsAsk));
+                RaisePropertyChanged(nameof(RealTimeOrderLevelsBid));
 
 
-                if (RealTimeOrderLevelsAsk != null && !TRACK_RealTimeOrderLevelsAsk.SequenceEqual(RealTimeOrderLevelsAsk))
-                {
-                    RaisePropertyChanged(nameof(RealTimeOrderLevelsAsk));
-                    TRACK_RealTimeOrderLevelsAsk = RealTimeOrderLevelsAsk.ToList();
-                }
-                if (RealTimeOrderLevelsBid != null && !TRACK_RealTimeOrderLevelsBid.SequenceEqual(RealTimeOrderLevelsBid))
-                {
-                    RaisePropertyChanged(nameof(RealTimeOrderLevelsBid));
-                    TRACK_RealTimeOrderLevelsBid = RealTimeOrderLevelsBid.ToList();
-                }
-
-                if (RealTimeSpread != null && !TRACK_RealTimeSpread.SequenceEqual(RealTimeSpread))
-                {
-                    RaisePropertyChanged(nameof(RealTimeSpread));
-                    TRACK_RealTimeSpread = RealTimeSpread.ToList();
-                }
+                RaisePropertyChanged(nameof(RealTimePrices));
+                RaisePropertyChanged(nameof(RealTimeSpread));
 
                 
                 RaisePropertyChanged(nameof(LOBImbalanceValue));
@@ -340,7 +299,6 @@ namespace VisualHFT.ViewModel
                         _realTimePrices.Add(objToAdd);
 
                         //calculate min/max axis
-                        //var midPrice = _realTimePrices.GetAvgOfMidPrice();
                         _realTimeYAxisMinimum = _realTimePrices.GetMinOfPrices() * 0.9999; // midPrice * 0.9; //-20%
                         _realTimeYAxisMaximum = _realTimePrices.GetMaxOfPrices() * 1.0001; // midPrice * 1.1; //+20%
 
@@ -434,9 +392,9 @@ namespace VisualHFT.ViewModel
             get => _layerName;
             set => SetProperty(ref _layerName, value, onChanged: () => Clear());
         }
-        public List<PlotInfoPriceChart> RealTimePrices
+        public IReadOnlyList<PlotInfoPriceChart> RealTimePrices
         {
-            get { return _realTimePrices?.ToList().ToList();}
+            get { return _realTimePrices?.AsReadOnly(); }
         }
         public List<OrderBookLevel> RealTimeOrderLevelsAsk
         {
@@ -515,20 +473,18 @@ namespace VisualHFT.ViewModel
         {
             get
             {
-                var ret = OrderBook?.AskCummulative?.ToList();
-                return ret;
+                return OrderBook?.AskCummulative;
             }
         }
         public List<BookItem> BidCummulative
         {
             get
             {
-                var ret = OrderBook?.BidCummulative?.ToList();
-                return ret;
+                return OrderBook?.BidCummulative;
             }
         }
-        public List<BookItem> Asks => OrderBook?.Asks?.ToList();
-        public List<BookItem> Bids => OrderBook?.Bids?.ToList();
+        public List<BookItem> Asks => OrderBook?.Asks;
+        public List<BookItem> Bids => OrderBook?.Bids;
         public ObservableCollection<Trade> Trades
         { 
             get => _realTimeTrades;

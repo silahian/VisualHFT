@@ -18,7 +18,7 @@ namespace VisualHFT.ViewModels
     {
         private bool _disposed = false; // to track whether the object has been disposed
         private TradeToOrderRatioStudy _ttoStudy;
-        private List<BaseStudyModel> _chartData;
+        private IReadOnlyList<BaseStudyModel> _chartData;
         private ObservableCollection<ProviderEx> _providers;
         private ObservableCollection<string> _symbols;
         private ProviderEx _selectedProvider;
@@ -52,7 +52,7 @@ namespace VisualHFT.ViewModels
         {
             Dispose(false);
         }
-        public List<BaseStudyModel> ChartData
+        public IReadOnlyList<BaseStudyModel> ChartData
         {
             get 
             {
@@ -110,20 +110,19 @@ namespace VisualHFT.ViewModels
         }
         private void _ttoStudy_OnRollingAdded(object sender, BaseStudyModel e)
         {
-            _chartData = _ttoStudy.Data.ToList();
+            _chartData = _ttoStudy.Data;
         }
         private void Clear()
         {
             if (string.IsNullOrEmpty(_selectedSymbol) || _selectedProvider == null)
                 return;
 
-            _chartData.Clear();
-            RaisePropertyChanged("ChartData");
             if (_ttoStudy != null) 
                 _ttoStudy.Dispose();
             _ttoStudy = null;
             _ttoStudy = new TradeToOrderRatioStudy(_selectedSymbol, _selectedProvider.ProviderCode, _aggregationLevelSelection, _MAX_ITEMS);
             _ttoStudy.OnRollingAdded += _ttoStudy_OnRollingAdded;
+            RaisePropertyChanged("ChartData");
         }
         protected virtual void Dispose(bool disposing)
         {

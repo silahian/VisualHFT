@@ -5,14 +5,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Management.Instrumentation;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using VisualHFT.Helpers;
 using VisualHFT.Model;
-using static NetMQ.NetMQSelector;
 
 namespace VisualHFT.Studies
 {
@@ -138,7 +136,8 @@ namespace VisualHFT.Studies
                 t2oRatio = totalExecutedTradeSize / delta;
 
             // Trigger any events or updates based on the new T2O ratio
-            var newItem = new BaseStudyModel() {
+            var newItem = new BaseStudyModel(false)
+            {
                 Value = t2oRatio,
                 ValueFormatted = Math.Min(t2oRatio, 0.99m).ToString("N1"),
                 MarketMidPrice = _lastMarketMidPrice, 

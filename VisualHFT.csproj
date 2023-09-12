@@ -1,634 +1,129 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3AA46013-0547-4717-9747-E0467EE60142}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VisualHFT</RootNamespace>
-    <AssemblyName>VisualHFT</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <WarningLevel>4</WarningLevel>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFrameworkProfile />
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>ftp://192.81.110.98:22/installs/Dashboard/</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>true</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
-    <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>1</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <PublishWizardCompleted>true</PublishWizardCompleted>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <PostSharpConstraintVerificationEnabled>False</PostSharpConstraintVerificationEnabled>
-    <PostSharpRuntimeVerificationEnabled>False</PostSharpRuntimeVerificationEnabled>
-    <LangVersion>7.3</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ManifestCertificateThumbprint>9336067C149DA04FFD60142C86CB62881F41E2E2</ManifestCertificateThumbprint>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ManifestKeyFile>hftWPFDashboard_TemporaryKey.pfx</ManifestKeyFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <GenerateManifests>true</GenerateManifests>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignManifests>false</SignManifests>
-  </PropertyGroup>
-  <PropertyGroup>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
     <ApplicationIcon>ico.ico</ApplicationIcon>
+    <RepositoryUrl>https://github.com/silahian/VisualHFT</RepositoryUrl>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject>VisualHFT.App</StartupObject>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="ReachFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Printing" />
-    <Reference Include="System.Security" />
-    <Reference Include="System.Web" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Xaml">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
+    <Compile Remove="demoTradingCore\**" />
+    <EmbeddedResource Remove="demoTradingCore\**" />
+    <None Remove="demoTradingCore\**" />
+    <Page Remove="demoTradingCore\**" />
   </ItemGroup>
+
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Compile Include="AnalyticReports\AnalyticReports.xaml.cs">
-      <DependentUpon>AnalyticReports.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Converters\EnumToListConverter.cs" />
-    <Compile Include="Converters\GreaterThanZeroConverter.cs" />
-    <Compile Include="Converters\IsNaNConverter.cs" />
-    <Compile Include="Converters\LessThanZeroConverter.cs" />
-    <Compile Include="Converters\StringEqualityConverter.cs" />
-    <Compile Include="DataRetriever\DataParsers\FixParser.cs" />
-    <Compile Include="DataRetriever\DataParsers\IDataParser.cs" />
-    <Compile Include="DataRetriever\DataParsers\JsonParser.cs" />
-    <Compile Include="DataRetriever\DataProcessor.cs" />
-    <Compile Include="DataRetriever\FIXDataRetriever.cs" />
-    <Compile Include="DataRetriever\IDataSource.cs" />
-    <Compile Include="DataRetriever\KafkaDataRetriever.cs" />
-    <Compile Include="DataRetriever\WebSocketDataRetriever.cs" />
-    <Compile Include="DataRetriever\ZeroMQDataRetriever.cs" />
-    <Compile Include="DataTradeRetriever\EmptyTradesRetriever.cs" />
-    <Compile Include="DataTradeRetriever\IDataTradeRetriever.cs" />
-    <Compile Include="DataTradeRetriever\FIXTradesRetriever.cs" />
-    <Compile Include="DataTradeRetriever\MSSQLServerTradesRetriever.cs" />
-    <Compile Include="Helpers\AggregatedCollection.cs" />
-    <Compile Include="Helpers\HelperPnLCalculator.cs" />
-    <Compile Include="Helpers\UIUpdater.cs" />
-    <Compile Include="Model\BaseStudyModel.cs" />
-    <Compile Include="Studies\MarketResilienceBiasStudy.cs" />
-    <Compile Include="Studies\MarketResilienceStudy.cs" />
-    <Compile Include="Studies\LOBImbalanceStudy.cs" />
-    <Compile Include="Studies\TradeToOrderRatioStudy.cs" />
-    <Compile Include="Studies\OrderToTradeRatioStudy.cs" />
-    <Compile Include="Studies\VPINStudy.cs" />
-    <Compile Include="Model\PositionManager.cs" />
-    <Compile Include="Model\ScatterChartData.cs" />
-    <Compile Include="Model\cPLRangeDuration.cs" />
-    <Compile Include="Model\cListPLRanges.cs" />
-    <Compile Include="Model\cTop20.cs" />
-    <Compile Include="Model\cheldBars.cs" />
-    <Compile Include="AnalyticReports\ViewModel\vmCharts.cs" />
-    <Compile Include="AnalyticReports\ViewModel\vmChartsStatistics.cs" />
-    <Compile Include="AnalyticReports\ViewModel\vmEquityChart.cs" />
-    <Compile Include="AnalyticReports\ViewModel\vmOverview.cs" />
-    <Compile Include="AnalyticReports\ViewModel\vmStats.cs" />
-    <Compile Include="AnalyticReports\ViewModel\vmStrategyHeader.cs" />
-    <Compile Include="AnalyticReports\View\ucCharts.xaml.cs">
-      <DependentUpon>ucCharts.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="AnalyticReports\View\ucChartsStatistics.xaml.cs">
-      <DependentUpon>ucChartsStatistics.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="AnalyticReports\View\ucEquityChart.xaml.cs">
-      <DependentUpon>ucEquityChart.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="AnalyticReports\View\ucOverview.xaml.cs">
-      <DependentUpon>ucOverview.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="AnalyticReports\View\ucStats.xaml.cs">
-      <DependentUpon>ucStats.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="AnalyticReports\View\ucStrategyHeader.xaml.cs">
-      <DependentUpon>ucStrategyHeader.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Converters\ConverterEnum.cs" />
-    <Compile Include="Converters\ConverterIsBuyToColor.cs" />
-    <Compile Include="Converters\ConverterValueToWidth.cs" />
-    <Compile Include="Extensions\IEnumerableExtensios.cs" />
-    <Compile Include="Extensions\ObservableCollectionEx.cs" />
-    <Compile Include="Formatters\FormatterKilo.cs" />
-    <Compile Include="Helpers\HelperAggregatedPlotCollection.cs" />
-    <Compile Include="Helpers\HelperAnalytics.cs" />
-    <Compile Include="Helpers\HelperFormat.cs" />
-    <Compile Include="Helpers\HelperMath.cs" />
-    <Compile Include="Helpers\HelperPosition.cs" />
-    <Compile Include="Helpers\HelperPrint.cs" />
-    <Compile Include="Helpers\HelperOrderBook.cs" />
-    <Compile Include="Helpers\HelperExposure.cs" />
-    <Compile Include="Helpers\HelperActiveOrders.cs" />
-    <Compile Include="Helpers\HelperTrade.cs" />
-    <Compile Include="Helpers\HelperProvider.cs" />
-    <Compile Include="Helpers\HelperStrategy.cs" />
-    <Compile Include="Helpers\HelperStrategyParams.cs" />
-    <Compile Include="Helpers\HelperUtility.cs" />
-    <Compile Include="Converters\ConverterStringFormat.cs" />
-    <Compile Include="Converters\ConverterValuesToColorIfEquals.cs" />
-    <Compile Include="Converters\ConverterValuesToColorIfNotEqualZero.cs" />
-    <Compile Include="Helpers\HelperCommon.cs" />
-    <Compile Include="Helpers\HelperDataGrid.cs" />
-    <Compile Include="Helpers\HelperDB.cs" />
-    <Compile Include="Helpers\HelperPositionAnalysis.cs" />
-    <Compile Include="Helpers\HelperXAML.cs" />
-    <Compile Include="Helpers\HelperYahoo.cs" />
-    <Compile Include="Helpers\RelayCommand.cs" />
-    <Compile Include="Model\BookItemPriceSplit.cs" />
-    <Compile Include="Model\BookItem.cs" />
-    <Compile Include="Model\cBalance.cs" />
-    <Compile Include="Model\cDrawDown.cs" />
-    <Compile Include="Model\cEquity.cs" />
-    <Compile Include="Model\cHourSerie.cs" />
-    <Compile Include="Model\CloseExecution.cs">
-      <DependentUpon>hftModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\enums.cs" />
-    <Compile Include="Model\Execution.cs" />
-    <Compile Include="Model\hftModel.Context1.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>hftModel.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\hftModel.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>hftModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\hftModel1.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>hftModel.edmx</DependentUpon>
-    </Compile>
-    <Compile Include="Model\IStrategyParameters.cs" />
-    <Compile Include="Model\LinqExtender.cs" />
-    <Compile Include="Model\OpenExecution.cs">
-      <DependentUpon>hftModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\OrderBook.cs" />
-    <Compile Include="Model\OrderBookLevel.cs" />
-    <Compile Include="Studies\OrderFlowAnalysis.cs" />
-    <Compile Include="Model\OrderVM.cs" />
-    <Compile Include="Model\PlotInfoPriceChart.cs" />
-    <Compile Include="Model\PlotInfo.cs" />
-    <Compile Include="Model\Position.cs">
-      <DependentUpon>hftModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\PositionEx.cs" />
-    <Compile Include="Model\Exposure.cs" />
-    <Compile Include="Model\Provider.cs">
-      <DependentUpon>hftModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Trade.cs" />
-    <Compile Include="Model\ProviderEx.cs" />
-    <Compile Include="Model\StrategyParameter.cs">
-      <DependentUpon>hftModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\StrategyParameterFirmBBVM.cs" />
-    <Compile Include="Model\StrategyParameterBBookVM.cs" />
-    <Compile Include="Model\StrategyParameterHFTAcceptorVM.cs" />
-    <Compile Include="Model\StrategyParameterFirmMMVM.cs" />
-    <Compile Include="Model\StrategyVM.cs" />
-    <Compile Include="Model\STRATEGY_PARAMETERS_BBOOK.cs">
-      <DependentUpon>hftModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\STRATEGY_PARAMETERS_FIRMBB.cs">
-      <DependentUpon>hftModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\STRATEGY_PARAMETERS_FIRMMM.cs">
-      <DependentUpon>hftModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\STRATEGY_PARAMETERS_HFTACCEPTOR.cs">
-      <DependentUpon>hftModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\StringExtender.cs" />
-    <Compile Include="Model\TradeBottler.cs" />
-    <Compile Include="UserControls\Block.xaml.cs">
-      <DependentUpon>Block.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UserControls\LoadingAnimation.xaml.cs">
-      <DependentUpon>LoadingAnimation.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UserControls\LoadingAnimationSmall.xaml.cs">
-      <DependentUpon>LoadingAnimationSmall.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UserControls\MetricTile.xaml.cs">
-      <DependentUpon>MetricTile.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UserSettings\enums.cs" />
-    <Compile Include="UserSettings\ISetting.cs" />
-    <Compile Include="UserSettings\SettingsManager.cs" />
-    <Compile Include="UserSettings\TileSettings.cs" />
-    <Compile Include="UserSettings\UserSettings.cs" />
-    <Compile Include="ViewModel\StatisticsViewModel\ChartDateCategoryDataPoint.cs" />
-    <Compile Include="ViewModel\StatisticsViewModel\vmStrategyOverview.cs" />
-    <Compile Include="ViewModel\Studies\MetricTileViewModel.cs" />
-    <Compile Include="ViewModel\Studies\vmMarketResilienceBias.cs" />
-    <Compile Include="ViewModel\Studies\vmMarketResilience.cs" />
-    <Compile Include="ViewModel\Studies\vmOrderToTradeRatio.cs" />
-    <Compile Include="ViewModel\Studies\vmTradeToOrderRatio.cs" />
-    <Compile Include="ViewModel\Studies\vmLOBImbalances.cs" />
-    <Compile Include="ViewModel\vmDashboard.cs" />
-    <Compile Include="ViewModel\vmOrderBookFlowAnalysis.cs" />
-    <Compile Include="ViewModel\vmPosition.cs" />
-    <Compile Include="ViewModel\vmOrderBook.cs" />
-    <Compile Include="ViewModel\vmPriceCharting.cs" />
-    <Compile Include="ViewModel\vmProvider.cs" />
-    <Compile Include="ViewModel\vmStrategyParameterFirmBB.cs" />
-    <Compile Include="ViewModel\vmStrategyParameterBBook.cs" />
-    <Compile Include="ViewModel\vmStrategyParameterHFTAcceptor.cs" />
-    <Compile Include="ViewModel\vmStrategyParameterFirmMM.cs" />
-    <Compile Include="ViewModel\vmStrategyParametersBase.cs" />
-    <Compile Include="ViewModel\Studies\vmVPIN.cs" />
-    <Compile Include="View\GenericHistoricalLineChart.xaml.cs">
-      <DependentUpon>GenericHistoricalLineChart.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\StatisticsView\ucStrategyOverview.xaml.cs">
-      <DependentUpon>ucStrategyOverview.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\Studies\MarketResilienceBias.xaml.cs">
-      <DependentUpon>MarketResilienceBias.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\Studies\MarketResilience.xaml.cs">
-      <DependentUpon>MarketResilience.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\Studies\OrderToTradeRatio.xaml.cs">
-      <DependentUpon>OrderToTradeRatio.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\Studies\TradeToOrderRatio.xaml.cs">
-      <DependentUpon>TradeToOrderRatio.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\Studies\LOBImbalances.xaml.cs">
-      <DependentUpon>LOBImbalances.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\ucPositions.xaml.cs">
-      <DependentUpon>ucPositions.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\ucOrderBook.xaml.cs">
-      <DependentUpon>ucOrderBook.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\ucProviderConnectivity.xaml.cs">
-      <DependentUpon>ucProviderConnectivity.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\ucStrategyParameterFirmBB.xaml.cs">
-      <DependentUpon>ucStrategyParameterFirmBB.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\ucStrategyParameterBBook.xaml.cs">
-      <DependentUpon>ucStrategyParameterBBook.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\ucStrategyParameterHFTAcceptor.xaml.cs">
-      <DependentUpon>ucStrategyParameterHFTAcceptor.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\ucStrategyParameterFirmMM.xaml.cs">
-      <DependentUpon>ucStrategyParameterFirmMM.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\Studies\VPIN.xaml.cs">
-      <DependentUpon>VPIN.xaml</DependentUpon>
-    </Compile>
-    <Page Include="AnalyticReports\AnalyticReports.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="AnalyticReports\ReportDictionary.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="AnalyticReports\View\ucCharts.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="AnalyticReports\View\ucChartsStatistics.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="AnalyticReports\View\ucEquityChart.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="AnalyticReports\View\ucOverview.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="AnalyticReports\View\ucStats.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="AnalyticReports\View\ucStrategyHeader.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="GlobalStyle.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UserControls\Block.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UserControls\LoadingAnimation.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UserControls\LoadingAnimationSmall.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UserControls\MetricTile.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\Dashboard.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Helpers\RESTFulHelper.cs" />
-    <Compile Include="View\Dashboard.xaml.cs">
-      <DependentUpon>Dashboard.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Page Include="View\GenericHistoricalLineChart.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\StatisticsView\ucStrategyOverview.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\Studies\MarketResilienceBias.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\Studies\MarketResilience.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\Studies\OrderToTradeRatio.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\Studies\TradeToOrderRatio.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\Studies\LOBImbalances.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ucPositions.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\ucOrderBook.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ucProviderConnectivity.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\ucStrategyParameterFirmBB.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ucStrategyParameterBBook.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ucStrategyParameterHFTAcceptor.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ucStrategyParameterFirmMM.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\Studies\VPIN.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
+    <None Remove="debug.log" />
+    <None Remove="Images\database.png" />
+    <None Remove="Images\excel.png" />
+    <None Remove="Images\ico.png" />
+    <None Remove="Images\imgGreenBall.png" />
+    <None Remove="Images\imgRedBall.png" />
+    <None Remove="Images\imgYellowBall.png" />
+    <None Remove="Images\LOBImbalance.png" />
+    <None Remove="Images\new-window.png" />
+    <None Remove="Images\pop-up.png" />
+    <None Remove="Images\refresh.png" />
+    <None Remove="Images\refreshD.png" />
+    <None Remove="Images\send.png" />
+    <None Remove="Images\sendingParam.png" />
+    <None Remove="Images\settings.png" />
+    <None Remove="Images\start.png" />
+    <None Remove="Images\startD.png" />
+    <None Remove="Images\stop.png" />
+    <None Remove="Images\stopD.png" />
+    <None Remove="Images\VPIN.png" />
+    <None Remove="README.md.bak" />
+    <None Remove="README.md.docx" />
+    <None Remove="VisualHFT.csproj.bak" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EntityDeploy Include="Model\hftModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>hftModel1.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <None Include="Model\hftModel.edmx.diagram">
-      <DependentUpon>hftModel.edmx</DependentUpon>
-    </None>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <AppDesigner Include="Properties\" />
+    <Content Include="ico.ico" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
+    <PackageReference Include="Confluent.Kafka" Version="2.2.0" />
+    <PackageReference Include="EntityFramework" Version="6.4.4" />
+    <PackageReference Include="log4net" Version="2.0.15" />
+    <PackageReference Include="LumenWorks.Framework.IO.Core" Version="1.0.1" />
+    <PackageReference Include="MaterialDesignColors" Version="2.1.4" />
+    <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
+    <PackageReference Include="MaterialDesignThemes.MahApps" Version="0.3.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.11" />
+    <PackageReference Include="NetMQ" Version="4.0.1.13" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="OxyPlot.Contrib.Wpf" Version="2.1.2" />
+    <PackageReference Include="OxyPlot.Core" Version="2.1.2" />
+    <PackageReference Include="OxyPlot.Wpf" Version="2.1.2" />
+    <PackageReference Include="Prism.Core" Version="8.1.97" />
+    <PackageReference Include="QuickFix.Net.NETCore" Version="1.8.1" />
+    <PackageReference Include="QuickFix.Net.NETCore.FIX44" Version="1.8.1" />
+    <PackageReference Include="WebSocket4Net" Version="0.15.2" />
   </ItemGroup>
+
   <ItemGroup>
-    <Resource Include="Images\start.png" />
-    <Resource Include="Images\stop.png" />
-    <Resource Include="Images\startD.png" />
-    <Resource Include="Images\stopD.png" />
-    <Resource Include="Images\refreshD.png" />
-    <Resource Include="Images\imgGreenBall.png" />
-    <Resource Include="Images\imgRedBall.png" />
-    <Resource Include="Images\imgYellowBall.png" />
-    <Resource Include="Images\excel.png" />
-    <Resource Include="Images\ico.png" />
-    <Resource Include="ico.ico" />
-    <Resource Include="Images\send.png" />
-    <Resource Include="Images\refresh.png" />
-    <Resource Include="Images\database.png" />
-    <Resource Include="Images\sendingParam.png" />
-    <Resource Include="Images\new-window.png" />
-    <Resource Include="Images\pop-up.png" />
-    <Resource Include="Images\LOBImbalance.png" />
-    <Resource Include="Images\VPIN.png" />
-    <Resource Include="Images\settings.png" />
-    <Content Include="Model\hftModel.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>hftModel.Context1.cs</LastGenOutput>
-      <DependentUpon>hftModel.edmx</DependentUpon>
-    </Content>
-    <Content Include="Model\hftModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>hftModel.cs</LastGenOutput>
-      <DependentUpon>hftModel.edmx</DependentUpon>
-    </Content>
+    <Resource Include="Images\database.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\excel.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\ico.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\imgGreenBall.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\imgRedBall.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\imgYellowBall.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\LOBImbalance.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\new-window.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\pop-up.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\refresh.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\refreshD.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\send.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\sendingParam.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\settings.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\start.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\startD.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\stop.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\stopD.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\VPIN.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.5">
-      <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Confluent.Kafka">
-      <Version>2.2.0</Version>
-    </PackageReference>
-    <PackageReference Include="EntityFramework">
-      <Version>6.4.4</Version>
-    </PackageReference>
-    <PackageReference Include="log4net">
-      <Version>2.0.15</Version>
-    </PackageReference>
-    <PackageReference Include="LumenWorksCsvReader">
-      <Version>4.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="MahApps.Metro">
-      <Version>2.4.10</Version>
-    </PackageReference>
-    <PackageReference Include="MahApps.Metro.IconPacks">
-      <Version>4.11.0</Version>
-    </PackageReference>
-    <PackageReference Include="MaterialDesignColors">
-      <Version>2.1.4</Version>
-    </PackageReference>
-    <PackageReference Include="MaterialDesignThemes">
-      <Version>4.9.0</Version>
-    </PackageReference>
-    <PackageReference Include="MaterialDesignThemes.MahApps.163">
-      <Version>0.0.111</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Web.Xdt">
-      <Version>7.0.0-preview.22423.2</Version>
-    </PackageReference>
-    <PackageReference Include="MvvmLightLibs">
-      <Version>5.4.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="NetMQ">
-      <Version>4.0.1.13</Version>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.3</Version>
-    </PackageReference>
-    <PackageReference Include="OxyPlot.Contrib.Wpf">
-      <Version>2.1.2</Version>
-    </PackageReference>
-    <PackageReference Include="Prism.Wpf">
-      <Version>8.1.97</Version>
-    </PackageReference>
-    <PackageReference Include="QuickFix.Net.NetStandard">
-      <Version>1.7.9</Version>
-    </PackageReference>
-    <PackageReference Include="System.Net.Security">
-      <Version>4.3.2</Version>
-    </PackageReference>
-    <PackageReference Include="System.Security.Cryptography.Algorithms">
-      <Version>4.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Security.Cryptography.X509Certificates">
-      <Version>4.3.2</Version>
-    </PackageReference>
-    <PackageReference Include="System.ValueTuple">
-      <Version>4.5.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Windows.Interactivity.WPF">
-      <Version>2.0.20525</Version>
-    </PackageReference>
-    <PackageReference Include="WebSocket4Net">
-      <Version>0.15.2</Version>
-    </PackageReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

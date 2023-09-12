@@ -13,7 +13,6 @@ using System.Windows.Input;
 using System.Windows.Controls;
 //using GalaSoft.MvvmLight.Command;
 using System.Windows.Data;
-using GalaSoft.MvvmLight.Command;
 using QuickFix.Fields;
 using System.Threading;
 
@@ -206,7 +205,7 @@ namespace VisualHFT.ViewModel
                 lock (_locker)
                 {
                     _allOrders.Clear();
-                    _allOrders.AddRange(orders);
+                    orders.ForEach(x => _allOrders.Add(x));                    
                 }
                 SelectedFilter = "Working";
             }));

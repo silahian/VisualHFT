@@ -4,20 +4,20 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using hftWPFDashboard.Model;
+using VisualHFT.Model;
 
 namespace hftWPFDashboard.Classes
 {
     public class PositionParser
     {
-        public static List<Position> Parse(List<GetTodaysSessionTrades_Result> dbTrades)
+        /*public static List<Position> Parse(List<GetTodaysSessionTrades_Result> dbTrades)
         {
             List<Position> ret = new List<Position>();
             long positionID = 0;
             int _openExecutionID = 0;
             int _closeExecutionID = 0;
             Position pos = new Position();
-            /*
+            
             foreach(var r in dbTrades)
             {
 
@@ -113,10 +113,10 @@ namespace hftWPFDashboard.Classes
                     ret.Add(pos);
                 }
             }
-            */
+            
 
 
             return ret;
-        }
+        }*/
     }
 }

@@ -12,7 +12,7 @@ using VisualHFT.Model;
 using QuickFix.Fields;
 using QuickFix.DataDictionary;
 using System.Windows.Shapes;
-
+using System.Windows;
 
 namespace VisualHFT.DataTradeRetriever
 {
@@ -71,7 +71,7 @@ namespace VisualHFT.DataTradeRetriever
                             if (!HelperCommon.ALLSYMBOLS.Contains(symbol))
                             {
                                 //this collection needs to be updated in the UI thread
-                                App.Current.Dispatcher.Invoke(() => HelperCommon.ALLSYMBOLS.Add(symbol));
+                                Application.Current.Dispatcher.Invoke(() => HelperCommon.ALLSYMBOLS.Add(symbol));
                             }
                         }
                     }

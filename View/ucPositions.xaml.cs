@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
 using VisualHFT.Model;
-using System.Web.UI.WebControls;
 
 namespace VisualHFT.View
 {
@@ -97,7 +96,7 @@ namespace VisualHFT.View
                 
                 // Display OpenFileDialog by calling ShowDialog method 
                 Nullable<bool> result = dlg.ShowDialog();
-                if (result == true)
+                /*if (result == true)
                 {
                     // Open document 
                     string filename = dlg.FileName;
@@ -114,7 +113,7 @@ namespace VisualHFT.View
                             //Helpers.HelperCommon.AllPositions = new ObservableCollection<Position>(tmpList);
                         }
                     }
-                }
+                }*/
                 MessageBox.Show("File has been succesfuly loaded.", "", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -137,7 +136,7 @@ namespace VisualHFT.View
                 {
                     // Open document 
                     string filename = dlg.FileName;
-                    if (filename != "")
+                    /*if (filename != "")
                     {
                         ObservableCollection<OrderVM> _positions = ((VisualHFT.ViewModel.vmPosition)this.DataContext).AllOrders;
                         if (_positions != null && _positions.Count > 0)
@@ -150,7 +149,7 @@ namespace VisualHFT.View
                                 bformatter.Serialize(stream, _positions.ToList());
                             }
                         }
-                    }
+                    }*/
                 }
                 MessageBox.Show("File has been succesfuly saved.", "", MessageBoxButton.OK, MessageBoxImage.Information);
             }
