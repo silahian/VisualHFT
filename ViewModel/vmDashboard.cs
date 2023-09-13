@@ -16,7 +16,6 @@ namespace VisualHFT.ViewModel
 {
     public class vmDashboard : BindableBase
     {
-        System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
         private Dictionary<string, Func<string, string, bool>> _dialogs;
         private string _selectedSymbol;
         private string _selectedLayer;
@@ -35,10 +34,6 @@ namespace VisualHFT.ViewModel
 
             HelperCommon.ACTIVESTRATEGIES.CollectionChanged += ACTIVESTRATEGIES_CollectionChanged;
             HelperCommon.ALLSYMBOLS.CollectionChanged += ALLSYMBOLS_CollectionChanged;
-            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 1);
-            dispatcherTimer.Start();
-
 
             this.StrategyParamsFirmMM = new vmStrategyParameterFirmMM(Helpers.HelperCommon.GLOBAL_DIALOGS);
             this.Positions = new vmPosition(Helpers.HelperCommon.GLOBAL_DIALOGS);
@@ -133,7 +128,6 @@ namespace VisualHFT.ViewModel
 
         public ObservableCollection<string> StrategyList => HelperCommon.ACTIVESTRATEGIES;
 
-        private void dispatcherTimer_Tick(object sender, EventArgs e) => RefreshSymbolList();
 
         private void RefreshSymbolList()
         {

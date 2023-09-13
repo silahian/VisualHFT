@@ -57,9 +57,12 @@ namespace VisualHFT.DataRetriever
             {
                 case "Market":
                     var orderBook = e.ParsedModel as IEnumerable<OrderBook>;
-                    var allSymbols = orderBook.Select(x => x.Symbol).Distinct();
-                    ParseSymbols(allSymbols);
-                    ParseOrderBook(orderBook);
+                    if (orderBook != null)
+                    {
+                        var allSymbols = orderBook.Select(x => x.Symbol).Distinct();
+                        ParseSymbols(allSymbols);
+                        ParseOrderBook(orderBook);
+                    }
                     break;
                 case "ActiveOrders":
                     ParseActiveOrders(e.ParsedModel as List<Model.OrderVM>);
