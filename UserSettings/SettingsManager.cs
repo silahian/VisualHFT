@@ -31,6 +31,16 @@ namespace VisualHFT.UserSettings
 
         public UserSettings UserSettings { get; set; }
 
+        public string GetAllSettings()
+        {
+            if (File.Exists(settingsFilePath))
+            {
+                string json = File.ReadAllText(settingsFilePath);
+                return json;
+            }
+            else
+                return null;
+        }
         private SettingsManager()
         {
             appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -51,8 +61,7 @@ namespace VisualHFT.UserSettings
             {
                 UserSettings = new UserSettings();
             }
-        }
-
+        }        
         private void SaveSettings()
         {
             try
@@ -76,7 +85,6 @@ namespace VisualHFT.UserSettings
                 Console.WriteLine($"An error occurred while saving settings: {ex.Message}");
             }
         }
-
 
         public T GetSetting<T>(SettingKey key, string id) where T : class
         {
@@ -106,8 +114,6 @@ namespace VisualHFT.UserSettings
             }
             return null;
         }
-
-
         public void SetSetting(SettingKey key, string id, object value)
         {
             if (!UserSettings.ComponentSettings.ContainsKey(key))

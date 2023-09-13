@@ -12,6 +12,8 @@ using VisualHFT.Model;
 using System.Collections.ObjectModel;
 using System.Windows.Documents;
 using System.Collections.Generic;
+using VisualHFT.ViewModel;
+using VisualHFT.UserSettings;
 
 namespace VisualHFT
 {
@@ -74,6 +76,15 @@ namespace VisualHFT
 
         }
 
+        private void ButtonAppSettings_Click(object sender, RoutedEventArgs e)
+        {
+            var vm = new vmUserSettings();
+            vm.LoadJson(SettingsManager.Instance.GetAllSettings());
+            
+            var form = new View.UserSettings();
+            form.DataContext = vm;
+            form.ShowDialog();
+        }
     }
 }
     

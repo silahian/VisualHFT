@@ -14,7 +14,7 @@
     
         xmlns:materialDesign="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
         xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" 
-    TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal" 
@@ -47,6 +47,8 @@
             
             
             <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" VerticalAlignment="Top">
+                <Button Content="⛭" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="40" Height="40" Margin="0" Padding="0" ToolTip="App Settings" Click="ButtonAppSettings_Click" />
+                
                 <!--SYMBOLS-->
                 <Label Content="Symbol" HorizontalAlignment="Left" Margin="10,10,0,0" FontSize="18"/>
                 <ComboBox x:Name="cboSelectedSymbol" ItemsSource="{Binding SymbolList}" SelectedItem="{Binding SelectedSymbol}" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="340" FontSize="18"/>
