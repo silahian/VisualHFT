@@ -85,6 +85,13 @@ namespace VisualHFT
             form.DataContext = vm;
             form.ShowDialog();
         }
+
+        private void ButtonMultiVenuePrices_Click(object sender, RoutedEventArgs e)
+        {
+            var form = new View.MultiVenuePrices();
+            form.DataContext = new vmMultiVenuePrices();
+            form.Show();
+        }
     }
 }
     

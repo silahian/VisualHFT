@@ -1,0 +1,117 @@
+﻿<Window x:Class="VisualHFT.View.MultiVenuePrices" 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:contrib="http://oxyplot.org/wpf/contrib"
+        
+        
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="15"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"        
+        Background="{DynamicResource MaterialDesignPaper}"
+
+        Closed="Window_Closed"
+        Title="Multi Venue Prices" Height="450" Width="800">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../GlobalStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Window.FontFamily>
+        <StaticResource ResourceKey="MaterialDesignFont"/>
+    </Window.FontFamily>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <!-- Dropdowns for Provider and Symbol -->
+        <StackPanel Orientation="Horizontal" Margin="10">
+            <TextBlock Text="Symbol:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <ComboBox x:Name="SymbolComboBox" Width="150" FontSize="18"
+                      ItemsSource="{Binding Symbols}" 
+                      SelectedItem="{Binding SelectedSymbol}"/>
+            <StackPanel Orientation="Horizontal" Margin="20 0 0 0">
+
+
+
+                <StackPanel.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock TextWrapping="Wrap"><Run FontWeight="Bold" Text="Aggregation Level"/><LineBreak /><Run Text="The &quot;Aggregation&quot; option allows you to define the granularity of data analysis. By grouping data into specific time intervals, or &quot;aggregations,&quot; you can view trends and patterns over varying time scales."/><LineBreak /><LineBreak /><Run FontWeight="Bold" Text="Examples:"/><LineBreak /><Run Text="1."/><Run Text=" "/><Run FontStyle="Italic" Text="&quot;No Aggregation&quot;: This means the data will be presented as-is, without any grouping. Every individual data point will be analyzed separately."/><LineBreak /><Run Text="2."/><Run Text=" "/><Run FontStyle="Italic" Text="&quot;1 Millisecond&quot;: The data points will be grouped in 1-millisecond intervals. If you're analyzing trade timings, this would group trades that occur within the same millisecond."/><LineBreak /><Run Text="3."/><Run Text=" "/><Run FontStyle="Italic" Text="&quot;5 Seconds&quot;: Data will be grouped in 5-second intervals. This is useful for identifying patterns over slightly longer periods, such as the number of trades happening every 5 seconds."/><LineBreak /><Run Text="4."/><Run Text=" "/><Run FontStyle="Italic" Text="&quot;Automatic Aggregation&quot;: The system will automatically decide the best aggregation level based on the dataset's size and range, ensuring optimal visualization and analysis."/><LineBreak /><LineBreak /><Run FontWeight="Bold" Text="How to Use it:"/><LineBreak /><Run Text="1. For real-time, high-frequency data, choose finer aggregations like &quot;1 Millisecond&quot; or &quot;10 Milliseconds&quot;."/><LineBreak /><Run Text="2. For longer-term trend analysis, select broader aggregations like &quot;5 Seconds&quot; or &quot;Automatic Aggregation&quot; to let the system decide."/><LineBreak /></TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </StackPanel.ToolTip>
+
+                <TextBlock Text="Aggregation:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <ComboBox ItemsSource="{Binding AggregationLevels}" 
+                  DisplayMemberPath="Item1" 
+                  SelectedValuePath="Item2" 
+                  SelectedValue="{Binding AggregationLevelSelection}" 
+                  Width="200" FontSize="18"/>
+
+
+
+            </StackPanel>
+            <TextBlock Text="ℹ️Info" Cursor="Hand" Margin="10 10 0 0" >
+                <TextBlock.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock Width="400" TextWrapping="Wrap">
+                                <Run FontWeight="Bold">Venue Price Comparison</Run>
+                                <LineBreak/>
+                                <Run>- Each line represents a different </Run>
+                                <Run FontWeight="Bold">venue's price.</Run>
+                                <LineBreak/>
+                                <Run>* Observe the </Run>
+                                <Run FontWeight="Bold">correlation</Run> 
+                                <Run>between prices from different venues to identify potential arbitrage opportunities or market inefficiencies.</Run>
+                                <LineBreak/>
+                                <LineBreak/>
+                                <Run>Use this correlation in conjunction with </Run>
+                                <Run FontWeight="Bold">LOB imbalances</Run> 
+                                <Run> and other metrics to refine your trading strategies and make more informed decisions.</Run>
+                                <LineBreak/>
+                                <LineBreak/>
+                                <Run FontWeight="Bold">Tip:</Run> 
+                                <Run>Analyzing price correlations alongside other metrics can provide a holistic view of the market, enabling traders to capitalize on emerging trends and anomalies.</Run>
+                            </TextBlock>
+
+                        </StackPanel>
+                    </ToolTip>
+
+                </TextBlock.ToolTip>
+            </TextBlock>
+        </StackPanel>
+
+        <!-- OxyPlot Chart -->
+        <contrib:Plot 
+            Grid.Row="1" Grid.Column="1" Title="Venue's Prices" 
+                      TitleColor="White" TitleFontSize="10" PlotAreaBorderThickness="0" TextColor="White" DefaultFontSize="8"
+                      HorizontalContentAlignment="Stretch" 
+                      HorizontalAlignment="Stretch" 
+                      VerticalAlignment="Stretch" 
+                      VerticalContentAlignment="Stretch" 
+                      IsEnabled="False"
+                      Model="{Binding MyPlotModel}"
+            >
+            <contrib:Plot.Resources>
+                <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
+                <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
+                <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
+                <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
+            </contrib:Plot.Resources>
+            <contrib:Plot.Background>
+                <StaticResource ResourceKey="PlotBackgroundBrush" />
+            </contrib:Plot.Background>
+        </contrib:Plot>
+
+        
+    </Grid>
+</Window>

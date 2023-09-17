@@ -63,6 +63,7 @@
                     <!-- Buttons inside a WrapPanel -->
                     <Button Width="200" Height="50" Margin="10" Background="Red" BorderBrush="White" Content="Abort" ToolTip="Abort remote system (terminate it)" Command="{Binding cmdAbort}"/>
                     <Button Width="200" Height="50" Margin="10" Content="Pos. Analytics" ToolTip="Positions Analytics report" Click="ButtonAnalyticsReport_Click" />
+                    <Button Width="200" Height="50" Margin="10" Content="Multi Venue Prices" ToolTip="See prices from all venues at the same time." Click="ButtonMultiVenuePrices_Click" />
                     <!--<Button Width="150" Height="50" Margin="10" Content="Button 4"/>
                     <Button Width="150" Height="50" Margin="10" Content="Button 5"/>
                     <Button Width="150" Height="50" Margin="10" Content="Button 6"/>-->
