@@ -7,7 +7,7 @@ using System.Windows.Media;
 
 namespace VisualHFT.Model
 {
-    public class PlotInfoPriceChart
+    public partial class PlotInfoPriceChart
     {
         public DateTime Date { get; set; }
         public double Volume { get; set; }

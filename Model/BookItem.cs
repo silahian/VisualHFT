@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace VisualHFT.Model
 {
-    public class BookItem : BindableBase, IEquatable<BookItem>, IEqualityComparer<BookItem>
+    public partial class BookItem : BindableBase, IEquatable<BookItem>, IEqualityComparer<BookItem>
     {
 
         private string _Symbol;
