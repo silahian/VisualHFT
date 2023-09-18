@@ -11,9 +11,13 @@
 
   <ItemGroup>
     <Compile Remove="demoTradingCore\**" />
+    <Compile Remove="packages\**" />
     <EmbeddedResource Remove="demoTradingCore\**" />
+    <EmbeddedResource Remove="packages\**" />
     <None Remove="demoTradingCore\**" />
+    <None Remove="packages\**" />
     <Page Remove="demoTradingCore\**" />
+    <Page Remove="packages\**" />
   </ItemGroup>
 
   <ItemGroup>
