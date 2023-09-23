@@ -18,18 +18,13 @@ namespace VisualHFT.Helpers
         {
             lock (_LOCK)
             {
-                if (Application.Current == null)
-                    return;
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+                foreach (StrategyVM vm in data)
                 {
-                    foreach (StrategyVM vm in data)
+                    if (!this.Any(x => x == vm.StrategyCode))
                     {
-                        if (!this.Any(x => x == vm.StrategyCode))
-                        {
-                            this.Add(vm.StrategyCode);
-                        }
+                        this.Add(vm.StrategyCode);
                     }
-                }));
+                }
             }
         }
     }

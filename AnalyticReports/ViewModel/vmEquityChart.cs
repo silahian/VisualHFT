@@ -9,7 +9,7 @@ namespace VisualHFT.AnalyticReports.ViewModel
 {
     public class vmEquityChart : BindableBase
     {
-        public List<PositionEx> Signals { get; set; }
+        public List<VisualHFT.Model.Position> Signals { get; set; }
         private List<cEquity> aCandlesGrouped;
         private List<cBalance> aBalance;
         private List<cDrawDown> _drawdowns;
@@ -17,7 +17,7 @@ namespace VisualHFT.AnalyticReports.ViewModel
         {
             
         }
-        public void LoadData(List<PositionEx> signals)
+        public void LoadData(List<VisualHFT.Model.Position> signals)
         {
             this.Signals = signals;
 

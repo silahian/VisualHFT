@@ -43,9 +43,21 @@ namespace VisualHFT.DataRetriever
             {
                 while (!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    if (_dataQueue.TryDequeue(out var data))
+                    try
                     {
-                        HandleData(data);
+                        if (_dataQueue.Count > 1000)
+                            Console.WriteLine("WARNING: DataProcessor Queue is behind: " + _dataQueue.Count.ToString());
+
+                        if (_dataQueue.TryDequeue(out var data))
+                        {
+                            if (data != null)
+                                HandleData(data);
+                        }
+                        Task.Delay(1).Wait();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("ERROR: " + ex.ToString());
                     }
                 }
             });
@@ -65,7 +77,7 @@ namespace VisualHFT.DataRetriever
                     }
                     break;
                 case "ActiveOrders":
-                    ParseActiveOrders(e.ParsedModel as List<Model.OrderVM>);
+                    ParseActiveOrders(e.ParsedModel as List<VisualHFT.Model.Order>);
                     break;
                 case "Strategies":
                     ParseActiveStrategies(e.ParsedModel as List<StrategyVM>);
@@ -74,7 +86,7 @@ namespace VisualHFT.DataRetriever
                     ParseExposures(e.ParsedModel as List<Exposure>);
                     break;
                 case "HeartBeats":
-                    ParseHeartBeat(e.ParsedModel as List<ProviderEx>);
+                    ParseHeartBeat(e.ParsedModel as List<VisualHFT.Model.Provider>);
                     break;
                 case "Trades":
                     ParseTrades(e.ParsedModel as List<Trade>);
@@ -86,23 +98,22 @@ namespace VisualHFT.DataRetriever
         #region Parsing Methods        
         private void ParseSymbols(IEnumerable<string> symbols)
         {
-            lock (_LOCK_SYMBOLS)
+            if (HelperCommon.ALLSYMBOLS == null)
+                HelperCommon.ALLSYMBOLS = new System.Collections.ObjectModel.ObservableCollection<string>();
+            if (Application.Current == null)
+                return;
+            foreach (var s in symbols)
             {
-                if (HelperCommon.ALLSYMBOLS == null)
-                    HelperCommon.ALLSYMBOLS = new System.Collections.ObjectModel.ObservableCollection<string>();
-                if (Application.Current == null)
-                    return;
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+                if (!HelperCommon.ALLSYMBOLS.Contains(s))
                 {
-                    foreach (var s in symbols)
+                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
                     {
                         if (!HelperCommon.ALLSYMBOLS.Contains(s))
-                        {
                             HelperCommon.ALLSYMBOLS.Add(s);
-                        }
-                    }
-                }));
+                    }));
+                }
             }
+
         }
         private void ParseOrderBook(IEnumerable<OrderBook> orderBooks)
         {
@@ -112,7 +123,7 @@ namespace VisualHFT.DataRetriever
         {
             HelperCommon.EXPOSURES.UpdateData(exposures);
         }
-        private void ParseActiveOrders(IEnumerable<OrderVM> activeOrders)
+        private void ParseActiveOrders(IEnumerable<VisualHFT.Model.Order> activeOrders)
         {
             HelperCommon.ACTIVEORDERS.UpdateData(activeOrders.ToList());
         }
@@ -125,7 +136,7 @@ namespace VisualHFT.DataRetriever
             HelperCommon.STRATEGYPARAMS.RaiseOnDataUpdateReceived(data);
 
         }
-        private void ParseHeartBeat(IEnumerable<ProviderEx> providers)
+        private void ParseHeartBeat(IEnumerable<VisualHFT.Model.Provider> providers)
         {
             HelperCommon.PROVIDERS.UpdateData(providers.ToList());
         }

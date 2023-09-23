@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace VisualHFT2
+namespace VisualHFT
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

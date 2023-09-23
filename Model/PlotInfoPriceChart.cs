@@ -4,11 +4,17 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
+using VisualHFT.Helpers;
 
 namespace VisualHFT.Model
 {
-    public partial class PlotInfoPriceChart
+    public partial class PlotInfoPriceChart: IDisposable
     {
+        private bool _disposed = false; // to track whether the object has been disposed
+        ~PlotInfoPriceChart()
+        {
+            Dispose(false);
+        }
         public DateTime Date { get; set; }
         public double Volume { get; set; }
 
@@ -47,9 +53,23 @@ namespace VisualHFT.Model
 
         public List<OrderBookLevel> BidOrders { get; set; }
         public List<OrderBookLevel> AskOrders { get; set; }
-        public Brush StrokeAsk { get; set; }
-        public Brush StrokeMiddle { get; set; }
-        public Brush StrokeBid { get; set; }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    BidOrders?.Clear();
+                    AskOrders?.Clear();
+                }
+                _disposed = true;
+            }
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

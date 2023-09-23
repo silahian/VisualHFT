@@ -22,9 +22,9 @@ namespace VisualHFT.ViewModels
         private bool _disposed = false; // to track whether the object has been disposed
         private VPINStudy _vpinStudy;
         private IReadOnlyList<BaseStudyModel> _vpinChartData;
-        private ObservableCollection<ProviderEx> _providers;
+        private ObservableCollection<VisualHFT.ViewModel.Model.Provider> _providers;
         private ObservableCollection<string> _symbols;
-        private ProviderEx _selectedProvider;
+        private VisualHFT.ViewModel.Model.Provider _selectedProvider;
         private string _selectedSymbol;
         private decimal _bucketVolumeSize = 1;
         private AggregationLevel _aggregationLevelSelection;
@@ -36,7 +36,7 @@ namespace VisualHFT.ViewModels
         {
             VPINChartData = new List<BaseStudyModel>();
             _symbols = new ObservableCollection<string>(HelperCommon.ALLSYMBOLS.ToList());
-            _providers = new ObservableCollection<ProviderEx>(HelperCommon.PROVIDERS.Select(x => x.Value).ToList());
+            _providers = HelperCommon.PROVIDERS.CreateObservableCollection();
             RaisePropertyChanged(nameof(Providers));
             RaisePropertyChanged(nameof(Symbols));
 
@@ -67,9 +67,9 @@ namespace VisualHFT.ViewModels
                 SetProperty(ref _vpinChartData, value);
             }            
         }
-        public ObservableCollection<ProviderEx> Providers { get => _providers; set => _providers = value; }
+        public ObservableCollection<VisualHFT.ViewModel.Model.Provider> Providers { get => _providers; set => _providers = value; }
         public ObservableCollection<string> Symbols { get => _symbols; set => _symbols = value; }
-        public ProviderEx SelectedProvider
+        public VisualHFT.ViewModel.Model.Provider SelectedProvider
         {
             get => _selectedProvider;
             set => SetProperty(ref _selectedProvider, value, onChanged: () => Clear());
@@ -101,21 +101,14 @@ namespace VisualHFT.ViewModels
             _symbols = new ObservableCollection<string>(HelperCommon.ALLSYMBOLS.ToList());
             RaisePropertyChanged(nameof(Symbols));
         }
-        private void PROVIDERS_OnDataReceived(object sender, ProviderEx e)
+        private void PROVIDERS_OnDataReceived(object sender, VisualHFT.ViewModel.Model.Provider e)
         {
-            if (!_providers.Any(x => x.ProviderName == e.ProviderName))
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
             {
-                var cleanProvider = new ProviderEx();
-                cleanProvider.ProviderName = e.ProviderName;
-                cleanProvider.ProviderCode = e.ProviderCode;
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
-                {
-                    _providers.Add(cleanProvider);
-                }));
-
+                _providers.Add(e);
                 if (_selectedProvider == null && e.Status == eSESSIONSTATUS.BOTH_CONNECTED) //default provider must be the first who's Active
-                    SelectedProvider = cleanProvider;
-            }
+                    SelectedProvider = e;
+            }));
         }
 
         private void _vpinStudy_OnRollingAdded(object sender, BaseStudyModel e)

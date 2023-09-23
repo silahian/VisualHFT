@@ -22,35 +22,35 @@ namespace VisualHFT.Model
         private double _plOpen;
         private double _currentMidPrice;
         private PositionManagerCalculationMethod _method;
-        private List<OrderVM> _buys;
-        private List<OrderVM> _sells;
+        private List<VisualHFT.Model.Order> _buys;
+        private List<VisualHFT.Model.Order> _sells;
         private DateTime _lastUpdated;
 
-        public PositionManager(List<OrderVM> orders, PositionManagerCalculationMethod method)
+        public PositionManager(List<VisualHFT.Model.Order> orders, PositionManagerCalculationMethod method)
         {
             _method = method;
             //make sure orders are of the same symbol
             if (orders.Select(x => x.Symbol).Distinct().Count() > 1)
                 throw new Exception("This class is not able to handle orders with multiple symbols.");
 
-            _buys = orders.Where(x => x.Side == eORDERSIDE.Buy).DefaultIfEmpty(new OrderVM()).ToList();
-            _sells = orders.Where(x => x.Side == eORDERSIDE.Sell).DefaultIfEmpty(new OrderVM()).ToList();
+            _buys = orders.Where(x => x.Side == eORDERSIDE.Buy).DefaultIfEmpty(new VisualHFT.Model.Order()).ToList();
+            _sells = orders.Where(x => x.Side == eORDERSIDE.Sell).DefaultIfEmpty(new VisualHFT.Model.Order()).ToList();
 
             Symbol = orders.First().Symbol;
             TotBuy = _buys.Sum(x => x.FilledQuantity);
             TotSell = _sells.Sum(x => x.FilledQuantity);
-            WrkBuy = orders.Where(x => x.Side == eORDERSIDE.Buy).DefaultIfEmpty(new OrderVM()).Sum(x => x.PendingQuantity);
-            WrkSell = orders.Where(x => x.Side == eORDERSIDE.Sell).DefaultIfEmpty(new OrderVM()).Sum(x => x.PendingQuantity);
+            WrkBuy = orders.Where(x => x.Side == eORDERSIDE.Buy).DefaultIfEmpty(new VisualHFT.Model.Order()).Sum(x => x.PendingQuantity);
+            WrkSell = orders.Where(x => x.Side == eORDERSIDE.Sell).DefaultIfEmpty(new VisualHFT.Model.Order()).Sum(x => x.PendingQuantity);
 
             PLRealized = CalculateRealizedPnL();
             PLTot = PLRealized + PLOpen;
             LastUpdated = DateTime.Now;
         }
-        private List<OrderVM> Buys {
+        private List<VisualHFT.Model.Order> Buys {
             get => _buys;
             set => SetProperty(ref _buys, value);
         }
-        private List<OrderVM> Sells
+        private List<VisualHFT.Model.Order> Sells
         {
             get => _sells;
             set => SetProperty(ref _sells, value);
@@ -131,7 +131,7 @@ namespace VisualHFT.Model
             RaisePropertyChanged("NetPosition");
             RaisePropertyChanged("Exposure");
         }
-        public void AddOrder(OrderVM newOrder)
+        public void AddOrder(VisualHFT.Model.Order newOrder)
         {
             if (newOrder.Side == eORDERSIDE.Buy)
             {

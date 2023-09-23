@@ -46,7 +46,7 @@ namespace VisualHFT.Helpers
                     RaiseOnDataReceived(data);
 
                 // Wait for the next iteration
-                Thread.Sleep(10);
+                Task.Delay(1).Wait();
             }
         }
 

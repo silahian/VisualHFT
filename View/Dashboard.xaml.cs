@@ -14,6 +14,7 @@ using System.Windows.Documents;
 using System.Collections.Generic;
 using VisualHFT.ViewModel;
 using VisualHFT.UserSettings;
+using System.Threading.Tasks;
 
 namespace VisualHFT
 {
@@ -42,7 +43,12 @@ namespace VisualHFT
                 dataRetriever.Start();
 
 
-                while (true) { } ;
+                while (true) {
+                    Task.Delay(5000).Wait();
+
+                    //due to the high volume of data do this periodically.(this will get fired every 5 secs)
+                    GC.Collect(); //force garbage collection
+                };
 
 
             }).Start();

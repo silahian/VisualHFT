@@ -17,8 +17,8 @@ namespace VisualHFT.DataTradeRetriever
     {
         private const int POLLING_INTERVAL = 5000; // Interval for polling the database
         private long? _LAST_POSITION_ID = null;
-        private List<PositionEx> _positions;
-        private List<OrderVM> _orders;
+        private List<VisualHFT.Model.Position> _positions;
+        private List<VisualHFT.Model.Order> _orders;
         private DateTime? _sessionDate = null;
         private readonly System.Timers.Timer _timer;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); // Added cancellation token source
@@ -27,16 +27,16 @@ namespace VisualHFT.DataTradeRetriever
         private bool _disposed = false; // to track whether the object has been disposed
 
 
-        public event EventHandler<IEnumerable<OrderVM>> OnInitialLoad;
-        public event EventHandler<IEnumerable<OrderVM>> OnDataReceived;
-        protected virtual void RaiseOnInitialLoad(IEnumerable<OrderVM> ord) => OnInitialLoad?.Invoke(this, ord);
-        protected virtual void RaiseOnDataReceived(IEnumerable<OrderVM> ord) => OnDataReceived?.Invoke(this, ord);
+        public event EventHandler<IEnumerable<VisualHFT.Model.Order>> OnInitialLoad;
+        public event EventHandler<IEnumerable<VisualHFT.Model.Order>> OnDataReceived;
+        protected virtual void RaiseOnInitialLoad(IEnumerable<VisualHFT.Model.Order> ord) => OnInitialLoad?.Invoke(this, ord);
+        protected virtual void RaiseOnDataReceived(IEnumerable<VisualHFT.Model.Order> ord) => OnDataReceived?.Invoke(this, ord);
 
 
         public MSSQLServerTradesRetriever()
         {
-            _positions = new List<PositionEx>();
-            _orders =  new List<OrderVM>();
+            _positions = new List<VisualHFT.Model.Position>();
+            _orders =  new List<VisualHFT.Model.Order>();
             _timer = new System.Timers.Timer(POLLING_INTERVAL);
             _timer.Elapsed += _timer_Elapsed;
             _timer.Start();
@@ -86,7 +86,7 @@ namespace VisualHFT.DataTradeRetriever
                 }
                 else
                 {
-                    var ordersToNotify = new List<OrderVM>();
+                    var ordersToNotify = new List<VisualHFT.Model.Order>();
                     foreach (var p in res)
                     {
                         _orders.InsertRange(0, p.GetOrders());
@@ -114,15 +114,15 @@ namespace VisualHFT.DataTradeRetriever
                 }
             }
         }
-        public ReadOnlyCollection<OrderVM> Orders
+        public ReadOnlyCollection<VisualHFT.Model.Order> Orders
         {
             get { return _orders.AsReadOnly(); }
         }
-        public ReadOnlyCollection<PositionEx> Positions
+        public ReadOnlyCollection<VisualHFT.Model.Position> Positions
         {
             get { return _positions.AsReadOnly(); }
         }
-        private async Task<IEnumerable<PositionEx>> GetPositionsAsync()
+        private async Task<IEnumerable<VisualHFT.Model.Position>> GetPositionsAsync()
         {
             if (!SessionDate.HasValue || _cancellationTokenSource.IsCancellationRequested) return null;
 
@@ -148,7 +148,7 @@ namespace VisualHFT.DataTradeRetriever
                         {
                             _LAST_POSITION_ID = result.Max(x => x.ID);
 
-                            var ret = result.Select(x => new PositionEx(x)).ToList(); //convert to our model
+                            var ret = result.Select(x => new VisualHFT.Model.Position(x)).ToList(); //convert to our model
                                                                                       //find provider's name
                             ret.ForEach(x =>
                             {

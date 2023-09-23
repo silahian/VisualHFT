@@ -7,7 +7,7 @@ namespace VisualHFT.Helpers
 {
     public class HelperPositionAnalysis
     {
-        public static List<cEquity> GetEquityCurve(List<PositionEx> aPositions)
+        public static List<cEquity> GetEquityCurve(List<VisualHFT.Model.Position> aPositions)
         {
             if (aPositions == null || aPositions.Count == 0)
                 return null;
@@ -27,7 +27,7 @@ namespace VisualHFT.Helpers
             }
             return dRet;
         }
-        public static List<cEquity> GetEquityCurveByHour(List<PositionEx> aPositions)
+        public static List<cEquity> GetEquityCurveByHour(List<VisualHFT.Model.Position> aPositions)
         {
             var curve = GetEquityCurve(aPositions);
             var hourlyPL = from c in curve.OrderBy(x => x.Date)
@@ -40,7 +40,7 @@ namespace VisualHFT.Helpers
                            };
             return hourlyPL.ToList();
         }
-        public static List<cEquity> GetEquityCurveByDay(List<PositionEx> aSignal)
+        public static List<cEquity> GetEquityCurveByDay(List<VisualHFT.Model.Position> aSignal)
         {
             List<cEquity> aEquity = GetEquityCurve(aSignal);
             var hourly = from x in aEquity.OrderBy(x => x.Date)
@@ -57,7 +57,7 @@ namespace VisualHFT.Helpers
 
 
 
-        public static List<cBalance> GetBalanceCurve(List<PositionEx> aPositions)
+        public static List<cBalance> GetBalanceCurve(List<VisualHFT.Model.Position> aPositions)
         {
             if (aPositions == null || aPositions.Count == 0)
                 return null;
@@ -79,7 +79,7 @@ namespace VisualHFT.Helpers
             }
             return dRet;
         }
-        public static List<cBalance> GetBalanceCurveByHour(List<PositionEx> aPositions)
+        public static List<cBalance> GetBalanceCurveByHour(List<VisualHFT.Model.Position> aPositions)
         {
             var curve = GetBalanceCurve(aPositions);
             var hourlyPL = from c in curve.OrderBy(x => x.Date)

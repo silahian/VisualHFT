@@ -16,8 +16,8 @@ namespace VisualHFT.ViewModel
 {
     public class vmProvider : BindableBase
     {
-        private ProviderEx _selectedItem;
-        private ObservableCollection<ProviderEx> _providers;
+        private VisualHFT.ViewModel.Model.Provider _selectedItem;
+        private ObservableCollection<VisualHFT.ViewModel.Model.Provider> _providers;
         private ICommand _cmdUpdateStatus;
         private Dictionary<string, Func<string, string, bool>> _dialogs;
         private DateTime? _lastHeartBeatReceived = null;
@@ -29,40 +29,48 @@ namespace VisualHFT.ViewModel
             this._dialogs = dialogs;            
             _cmdUpdateStatus = new RelayCommand<object>(DoUpdateStatus);
             
-            _providers = new ObservableCollection<ProviderEx>();
+            _providers = new ObservableCollection<VisualHFT.ViewModel.Model.Provider>();
             RaisePropertyChanged(nameof(Providers));
 
             HelperCommon.PROVIDERS.OnDataReceived += PROVIDERS_OnDataReceived;
-
+            HelperCommon.PROVIDERS.OnHeartBeatFail += PROVIDERS_OnHeartBeatFail;
         }
 
-        private void PROVIDERS_OnDataReceived(object sender, ProviderEx e)
-        {
+        private void PROVIDERS_OnDataReceived(object sender, VisualHFT.ViewModel.Model.Provider e)
+        {           
             if (e == null || e.ProviderCode == -1)
                 return;
-            lock (_lock)
-            {
-                var existingProv = _providers.Where(x => x.ProviderCode == e.ProviderCode).FirstOrDefault();
-                if (existingProv != null)
-                {
-                    _status = e.Status;
-                    _lastHeartBeatReceived = e.LastUpdated;
-                }
-                else
-                {
-                    //needs to be added in UI thread
-                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
-                    {
-                        _providers.Add(e);
-                    }));
 
-                }
+            var existingProv = _providers.Where(x => x.ProviderCode == e.ProviderCode).FirstOrDefault();
+            if (existingProv != null)
+            {
+                _status = e.Status;
+                _lastHeartBeatReceived = e.LastUpdated;
+            }
+            else
+            {
+                //needs to be added in UI thread
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+                {
+                    lock (_lock) 
+                        _providers.Add(e);
+                }));
+            }
+        }
+        private void PROVIDERS_OnHeartBeatFail(object sender, VisualHFT.ViewModel.Model.Provider e)
+        {
+            var itemToUpdate = _providers.Where(x => x.ProviderCode == e.ProviderCode).FirstOrDefault();
+            if (itemToUpdate != null) 
+            { 
+                itemToUpdate.LastUpdated = e.LastUpdated;
+                itemToUpdate.Status = e.Status;
+                itemToUpdate.CheckValuesUponHeartbeatReceived();
             }
         }
 
         private void DoUpdateStatus(object obj)
         {
-            _selectedItem = obj as ProviderEx;
+            _selectedItem = obj as VisualHFT.ViewModel.Model.Provider;
             if (_selectedItem != null)
             {
                 eSESSIONSTATUS statusToSend;
@@ -79,7 +87,7 @@ namespace VisualHFT.ViewModel
                         try
                         {
                             _selectedItem.Status = statusToSend;
-                            args.Result = RESTFulHelper.SetVariable<List<ProviderEx>>(_providers.ToList());
+                            args.Result = RESTFulHelper.SetVariable<List<VisualHFT.ViewModel.Model.Provider>>(_providers.ToList());
                         }
                         catch { /*System.Threading.Thread.Sleep(5000);*/ }
                     };
@@ -106,7 +114,7 @@ namespace VisualHFT.ViewModel
                 }
             }
         }
-        public ObservableCollection<ProviderEx> Providers
+        public ObservableCollection<VisualHFT.ViewModel.Model.Provider> Providers
         {
             get => _providers;
             set => SetProperty(ref _providers, value); 
@@ -118,7 +126,7 @@ namespace VisualHFT.ViewModel
             set => SetProperty(ref _cmdUpdateStatus, value);   
         }
 
-        public ProviderEx SelectedItem
+        public VisualHFT.ViewModel.Model.Provider SelectedItem
         {
             get => _selectedItem;
             set => SetProperty(ref _selectedItem, value);

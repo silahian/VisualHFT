@@ -3,7 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 
-namespace VisualHFT.Model
+namespace VisualHFT.ViewModel.Model
 {
     public class BookItemPriceSplit : BindableBase, ICloneable
     {
@@ -12,11 +12,8 @@ namespace VisualHFT.Model
         private string _nextTwoDecimals = "";
         private string _rest = "";
         private string _size = "";
-        private object _MTX_LOCK = new object();
-
         public void SetNumber(double price, double size, int symbolDecimalPlaces)
         {
-            lock (_MTX_LOCK)
             {
                 _price = price;
                 if (price != 0)
@@ -40,6 +37,7 @@ namespace VisualHFT.Model
                             _nextTwoDecimals = sPrice.Split(',')[1];
                         }
                         _size = Helpers.HelperCommon.GetKiloFormatter(size);
+
                     }
                     catch
                     {
@@ -60,9 +58,17 @@ namespace VisualHFT.Model
                 }
             }
         }
+        public void Clear()
+        {
+            _price = 0;
+            _lastDecimal = "";
+            _nextTwoDecimals = "";
+            _rest = "";
+            _size = "";
+            RaiseUIThread();
+        }
         public void RaiseUIThread()
         {
-            lock (_MTX_LOCK)
             {
                 RaisePropertyChanged(nameof(LastDecimal));
                 RaisePropertyChanged(nameof(NextTwoDecimals));

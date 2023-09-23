@@ -21,23 +21,23 @@ namespace VisualHFT.Helpers
     {
         private const int POLLING_INTERVAL = 5000; // Interval for polling the database
         private long? _LAST_POSITION_ID = null;
-        private List<PositionEx> _positions;
+        private List<VisualHFT.Model.Position> _positions;
         private DateTime? _sessionDate = null;
         private readonly System.Timers.Timer _timer;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); // Added cancellation token source
         private readonly HFTEntities _DB = null;
         private readonly object _lock = new object();
 
-        public event EventHandler<IEnumerable<PositionEx>> OnInitialLoad;
-        public event EventHandler<IEnumerable<PositionEx>> OnDataReceived;
-        protected virtual void RaiseOnInitialLoad(IEnumerable<PositionEx> pos) => OnInitialLoad?.Invoke(this, pos);
-        protected virtual void RaiseOnDataReceived(IEnumerable<PositionEx> pos) => OnDataReceived?.Invoke(this, pos);
+        public event EventHandler<IEnumerable<VisualHFT.Model.Position>> OnInitialLoad;
+        public event EventHandler<IEnumerable<VisualHFT.Model.Position>> OnDataReceived;
+        protected virtual void RaiseOnInitialLoad(IEnumerable<VisualHFT.Model.Position> pos) => OnInitialLoad?.Invoke(this, pos);
+        protected virtual void RaiseOnDataReceived(IEnumerable<VisualHFT.Model.Position> pos) => OnDataReceived?.Invoke(this, pos);
 
 
         public HelperPosition(ePOSITION_LOADING_TYPE loadingType)
         {
 
-            _positions = new List<PositionEx>();
+            _positions = new List<VisualHFT.Model.Position>();
             this.LoadingType = loadingType;
             if (loadingType == ePOSITION_LOADING_TYPE.DATABASE)
             {
@@ -78,7 +78,7 @@ namespace VisualHFT.Helpers
                 }
                 if (this.Positions == null || !this.Positions.Any())
                 {
-                    _positions = new List<PositionEx>(res);
+                    _positions = new List<VisualHFT.Model.Position>(res);
                     RaiseOnInitialLoad(this.Positions);
                 }
                 else
@@ -90,7 +90,7 @@ namespace VisualHFT.Helpers
             }
             _timer.Start(); // Restart the timer once the operation is complete
         }
-        public List<PositionEx> Positions 
+        public List<VisualHFT.Model.Position> Positions 
         { 
             get { return _positions; }
         }
@@ -109,7 +109,7 @@ namespace VisualHFT.Helpers
                 }
             }
         }
-        private async Task<IEnumerable<PositionEx>> GetPositionsAsync()
+        private async Task<IEnumerable<VisualHFT.Model.Position>> GetPositionsAsync()
         {
             if (!SessionDate.HasValue || _cancellationTokenSource.IsCancellationRequested) return null;
 
@@ -135,7 +135,9 @@ namespace VisualHFT.Helpers
                         {
                             _LAST_POSITION_ID = result.Max(x => x.ID);
 
-                            var ret = result.Select(x => new PositionEx(x)).ToList(); //convert to our model
+
+                            //DEPRECIATED
+                            /*var ret = result.Select(x => new VisualHFT.Model.Position(x)).ToList(); //convert to our model
                                                                                       //find provider's name
                             ret.ForEach(x =>
                             {
@@ -145,7 +147,8 @@ namespace VisualHFT.Helpers
                                 x.CloseExecutions.ForEach(ex => ex.ProviderName = x.CloseProviderName);
                                 x.OpenExecutions.ForEach(ex => ex.ProviderName = x.OpenProviderName);
                             });
-                            return ret;
+                            return ret;*/
+                            return new List<Position>();
                         }
                         return null;
                     }
@@ -159,7 +162,7 @@ namespace VisualHFT.Helpers
 
             //return null;
         }
-        public void LoadNewPositions(IEnumerable<PositionEx> positions)
+        public void LoadNewPositions(IEnumerable<VisualHFT.Model.Position> positions)
         {
             if (positions == null || !positions.Any() || _cancellationTokenSource.IsCancellationRequested) return;
 
@@ -168,9 +171,9 @@ namespace VisualHFT.Helpers
                 var posToUpdate = this.Positions.Where(x => x.PositionID == p.PositionID).FirstOrDefault();
                 if (posToUpdate == null)
                 {
-                    foreach (var ex in p.AllExecutions)
+                    /*foreach (var ex in p.AllExecutions)
                         ex.Symbol = p.Symbol;
-                    this.Positions.Add(p);
+                    this.Positions.Add(p);*/
                 }
             }
 

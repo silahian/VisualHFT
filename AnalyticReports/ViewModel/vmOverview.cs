@@ -9,7 +9,7 @@ namespace VisualHFT.AnalyticReports.ViewModel
 {
     public class vmOverview : BindableBase
     {
-        public List<PositionEx> Signals { get; set; }
+        public List<VisualHFT.Model.Position> Signals { get; set; }
 
         public string VolumeTraded { get; private set; }
         public string NumTrades { get; private set; }
@@ -25,7 +25,7 @@ namespace VisualHFT.AnalyticReports.ViewModel
         public string HourlyAvgTrades { get; private set; }
         public string tTestValue { get; private set; }
 
-        public void LoadData(List<PositionEx> signals)
+        public void LoadData(List<VisualHFT.Model.Position> signals)
         {
             //if (ValuesChanged != null)
             //    ValuesChanged(this, new EventArgs(), 0, 0);

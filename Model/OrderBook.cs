@@ -5,20 +5,22 @@ using System.Linq;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using VisualHFT.Studies;
+using VisualHFT.Helpers;
 
 namespace VisualHFT.Model
 {
-    public class OrderBook: ICloneable
+    public partial class OrderBook : ICloneable, IDisposable
     {
-        protected List<BookItem> _Bids;
-        protected List<BookItem> _Asks;
+        private bool _disposed = false; // to track whether the object has been disposed
 
-        private List<BookItem> _Cummulative_Bids;
-        private List<BookItem> _Cummulative_Asks;
+        protected CachedCollection<BookItem> _Asks;
+        protected CachedCollection<BookItem> _Bids;
 
-        static object LOCK_OBJECT = new object();
+        private CachedCollection<BookItem> _Cummulative_Bids;
+        private CachedCollection<BookItem> _Cummulative_Asks;
 
-        private string _KEY;
+        private object LOCK_OBJECT = new object();
+
         private string _Symbol;
         private int _DecimalPlaces;
         private double _SymbolMultiplier;
@@ -31,71 +33,77 @@ namespace VisualHFT.Model
         private BookItem _askTOP = null;
         public OrderBook() //emtpy constructor for JSON deserialization
         {
-            _Cummulative_Asks = new List<BookItem>();
-            _Cummulative_Bids = new List<BookItem>();
-            _Bids = new List<BookItem>();
-            _Asks = new List<BookItem>();
+            _Cummulative_Asks = new CachedCollection<BookItem>();
+            _Cummulative_Bids = new CachedCollection<BookItem>();
+            _Bids = new CachedCollection<BookItem>();
+            _Asks = new CachedCollection<BookItem>();
         }
         public OrderBook(string symbol, int decimalPlaces)
         {
-            _Cummulative_Asks = new List<BookItem>();
-            _Cummulative_Bids = new List<BookItem>();
-            _Bids = new List<BookItem>();
-            _Asks = new List<BookItem>();
+            _Cummulative_Asks = new CachedCollection<BookItem>();
+            _Cummulative_Bids = new CachedCollection<BookItem>();
+            _Bids = new CachedCollection<BookItem>();
+            _Asks = new CachedCollection<BookItem>();
 
             _Symbol = symbol;
             _DecimalPlaces = decimalPlaces;
         }
-
-        private void SetKey()
+        ~OrderBook()
         {
-            if (this.ProviderID >= -1 && this.Symbol != "")
-            {
-                _KEY = this.ProviderID.ToString() + "_" + this.Symbol;
-            }
+            Dispose(false);
         }
-        private bool GetAddDeleteUpdate(ObservableCollectionEx<BookItem> inputExisting, List<BookItem> inputNew, out List<BookItem> outAdds, out List<BookItem> outUpdates, out List<BookItem> outRemoves)
+        public void GetAddDeleteUpdate(ref ObservableCollection<BookItem> inputExisting, ReadOnlyCollection<BookItem> listToMatch)
         {
+            ReadOnlyCollection<BookItem> inputNew = listToMatch;
+            List<BookItem> outAdds;
+            List<BookItem> outUpdates;
+            List<BookItem> outRemoves;
             /*outRemoves = inputExisting.Where(e => !inputNew.Any(i => i.Price == e.Price && i.Size == e.Size && i.ProviderID == e.ProviderID && i.Symbol == e.Symbol)).ToList();
             outUpdates = inputNew.Where(e => inputExisting.Any(i => i.Size != e.Size && i.Price == e.Price && i.ProviderID == e.ProviderID && i.Symbol == e.Symbol)).ToList();
             outAdds = inputNew.Where(e => !inputExisting.Any(i => i.Price == e.Price && i.Size == e.Size && i.ProviderID == e.ProviderID && i.Symbol == e.Symbol)).ToList();
-
             return true;*/
-            var existingSet = new HashSet<BookItem>(inputExisting);
-            var newSet = new HashSet<BookItem>(inputNew);
+
+            var existingSet = inputExisting; // new HashSet<BookItem>(inputExisting);
+            var newSet = inputNew; // new HashSet<BookItem>(inputNew);
 
             outRemoves = inputExisting.Where(e => !newSet.Contains(e)).ToList();
             outUpdates = inputNew.Where(e => existingSet.Contains(e) && e.Size != existingSet.First(i => i.Equals(e)).Size).ToList();
             outAdds = inputNew.Where(e => !existingSet.Contains(e)).ToList();
 
-            return true;
-        }
-        private void MakeEqualLenght()
-        {
-            var largestLength = Math.Max(_Asks.Count, _Bids.Count);
-            while (_Asks.Count != largestLength)
-                _Asks.Add(new BookItem());
-            while (_Bids.Count != largestLength)
-                _Bids.Add(new BookItem());
+            foreach (var b in outRemoves)
+                inputExisting.Remove(b);
+            foreach (var b in outUpdates)
+            {
+                var itemToUpd = inputExisting.Where(x => x.Price == b.Price).FirstOrDefault();
+                if (itemToUpd != null)
+                {
+                    itemToUpd.Size = b.Size;
+                    itemToUpd.ActiveSize = b.ActiveSize;
+                    itemToUpd.LocalTimeStamp = b.LocalTimeStamp;
+                    itemToUpd.ServerTimeStamp = b.ServerTimeStamp;
+                }
+            }
+            foreach (var b in outAdds)
+                inputExisting.Add(b);
         }
         private void CalculateMetrics()
         {
             var lobMetrics = new OrderFlowAnalysis();
             lobMetrics.LoadData(_Asks.Where(x => x != null).ToList(), _Bids.Where(x => x != null).ToList());
-            this.ImbalanceValue = lobMetrics.Calculate_OrderImbalance(); 
+            this.ImbalanceValue = lobMetrics.Calculate_OrderImbalance();
         }
         public bool LoadData()
         {
             return LoadData(this.Asks, this.Bids);
         }
-        public bool LoadData(List<BookItem> asks, List<BookItem> bids)
+        public bool LoadData(IEnumerable<BookItem> asks, IEnumerable<BookItem> bids)
         {
             bool ret = true;
             lock (LOCK_OBJECT)
             {
                 #region Bids
                 if (bids != null)
-                    _Bids = new List<BookItem>(bids.Where(x => x.Price.HasValue).OrderByDescending(x => x.Price).ToList());
+                    _Bids.Update(bids.Where(x => x.Price.HasValue).OrderByDescending(x => x.Price));
                 _Cummulative_Bids.Clear();
                 double cumSize = 0;
                 foreach (var o in _Bids.Where(x => x.Price.HasValue && x.Size.HasValue).OrderByDescending(x => x.Price))
@@ -107,7 +115,7 @@ namespace VisualHFT.Model
 
                 #region Asks
                 if (asks != null)
-                    _Asks = new List<BookItem>(asks.Where(x => x.Price.HasValue).OrderBy(x => x.Price).ToList());
+                    _Asks.Update(asks.Where(x => x.Price.HasValue).OrderBy(x => x.Price));
                 _Cummulative_Asks.Clear();
                 cumSize = 0;
                 foreach (var o in _Asks.Where(x => x.Price.HasValue && x.Size.HasValue).OrderBy(x => x.Price))
@@ -116,8 +124,8 @@ namespace VisualHFT.Model
                     _Cummulative_Asks.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = false });
                 }
                 #endregion
-                
-                _bidTOP  = _Bids.FirstOrDefault();
+
+                _bidTOP = _Bids.FirstOrDefault();
                 _askTOP = _Asks.FirstOrDefault();
                 if (_bidTOP != null && _bidTOP.Price.HasValue && _askTOP != null && _askTOP.Price.HasValue)
                 {
@@ -125,32 +133,23 @@ namespace VisualHFT.Model
                     _Spread = _askTOP.Price.Value - _bidTOP.Price.Value;
                 }
 
-                MakeEqualLenght(); // to avoid grid flickering
                 CalculateMetrics();
             }
             return ret;
         }
-
-
-
-        public List<BookItem> Asks
+        public ReadOnlyCollection<BookItem> Asks
         {
-            get
-            {
-                lock (LOCK_OBJECT)
-                    return _Asks;
-            }
-            set { lock (LOCK_OBJECT) _Asks = value; }
+            get => _Asks.AsReadOnly();
+            set => _Asks.Update(value); //do not remove setter: it is used to auto parse json
         }
-        public List<BookItem> Bids
-        {
-            get
-            {
-                lock (LOCK_OBJECT)
-                    return _Bids;
-            }
-            set { lock (LOCK_OBJECT) _Bids = value; }
+        public ReadOnlyCollection<BookItem> Bids 
+        { 
+            get => _Bids.AsReadOnly();
+            set => _Bids.Update(value); //do not remove setter: it is used to auto parse json
         }
+        public ReadOnlyCollection<BookItem> BidCummulative => _Cummulative_Bids.AsReadOnly();
+        public ReadOnlyCollection<BookItem> AskCummulative => _Cummulative_Asks.AsReadOnly();
+
         public string Symbol
         {
             get
@@ -163,8 +162,6 @@ namespace VisualHFT.Model
                 if (_Symbol != value)
                 {                    
                     _Symbol = value;
-                    SetKey();
-                    //RaisePropertyChanged("Symbol");
                 }
             }
         }
@@ -206,8 +203,6 @@ namespace VisualHFT.Model
                 if (_ProviderID != value)
                 {
                     _ProviderID = value;
-                    SetKey();
-                    //RaisePropertyChanged("ProviderID");
                 }
             }
         }
@@ -223,10 +218,6 @@ namespace VisualHFT.Model
             }
         }
         public eSESSIONSTATUS ProviderStatus { get => _providerStatus; set => _providerStatus = value; }
-        public string KEY
-        {
-            get { return _KEY; }
-        }
 
 
         public BookItem GetTOB(bool isBid)
@@ -280,29 +271,47 @@ namespace VisualHFT.Model
         {
             var clone = new OrderBook
             {
-                Bids = Bids.ToList(),
-                Asks = Asks.ToList(),
                 DecimalPlaces = DecimalPlaces,
                 ProviderID=ProviderID,
                 ProviderName=ProviderName,
                 Symbol = Symbol,
                 SymbolMultiplier = SymbolMultiplier,
             };
-            clone.LoadData();
+            clone.LoadData(Asks, Bids);
             return clone;
         }
 
-        public List<BookItem> BidCummulative
-        {
-            get { lock (LOCK_OBJECT) { return new List<BookItem>(_Cummulative_Bids); } }
-        }
-        public List<BookItem> AskCummulative
-        {
-            get { lock (LOCK_OBJECT) { return new List<BookItem>(_Cummulative_Asks); } }
-        }
         public double ImbalanceValue { get; set; }
         public double MidPrice { get => _MidPrice;  }
         public double Spread { get => _Spread; }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _Cummulative_Asks?.Clear();
+                    _Cummulative_Bids?.Clear();
+                    _Bids?.Clear();
+                    _Asks?.Clear();
+
+
+                    _Cummulative_Asks = null;
+                    _Cummulative_Bids= null;
+                    _Bids = null;
+                    _Asks = null;
+
+                    _bidTOP = null;
+                    _askTOP = null;
+                }
+                _disposed = true;
+            }
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

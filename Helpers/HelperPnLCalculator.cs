@@ -9,7 +9,7 @@ namespace VisualHFT.Helpers
 {
     public static class HelperPnLCalculator
     {
-        public static double CalculateRealizedPnL(List<OrderVM> buys, List<OrderVM> sells, PositionManagerCalculationMethod method)
+        public static double CalculateRealizedPnL(List<VisualHFT.Model.Order> buys, List<VisualHFT.Model.Order> sells, PositionManagerCalculationMethod method)
         {
             double realizedPnL = 0;
             var buyOrders = method == PositionManagerCalculationMethod.FIFO ? buys.OrderBy(o => o.CreationTimeStamp).ToList() : buys.OrderByDescending(o => o.CreationTimeStamp).ToList();
@@ -38,7 +38,7 @@ namespace VisualHFT.Helpers
 
             return realizedPnL;
         }
-        public static double CalculateOpenPnL(List<OrderVM> buys, List<OrderVM> sells, PositionManagerCalculationMethod method, double currentMidPrice)
+        public static double CalculateOpenPnL(List<VisualHFT.Model.Order> buys, List<VisualHFT.Model.Order> sells, PositionManagerCalculationMethod method, double currentMidPrice)
         {
             double openPnL = 0;
             var currentPrice = currentMidPrice;

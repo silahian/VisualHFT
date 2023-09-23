@@ -2,6 +2,7 @@
 using OxyPlot.Axes;
 using OxyPlot.Legends;
 using Prism.Mvvm;
+using QuickFix.Fields;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -198,6 +199,7 @@ namespace VisualHFT.ViewModel
                 {
                     Clear();
                     uiUpdater.Dispose();
+
                     HelperCommon.ALLSYMBOLS.CollectionChanged -= ALLSYMBOLS_CollectionChanged;
                 }
                 _disposed = true;

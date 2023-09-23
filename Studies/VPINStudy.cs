@@ -138,7 +138,7 @@ namespace VisualHFT.Studies
                 _orderBook = new OrderBook(_symbol, e.DecimalPlaces);
             }
 
-            if (!_orderBook.LoadData(e.Asks?.ToList(), e.Bids?.ToList()))
+            if (!_orderBook.LoadData(e.Asks, e.Bids))
                 return; //if nothing to update, then exit
             _lastMarketMidPrice = (decimal)_orderBook.MidPrice;
 
@@ -161,7 +161,7 @@ namespace VisualHFT.Studies
 
 
             // Add to rolling window and remove oldest if size exceeded
-            var newItem = new BaseStudyModel(false)
+            var newItem = new BaseStudyModel()
             {
                 Value = _lastVPIN,
                 ValueFormatted = _lastVPIN.ToString("N1"),
@@ -188,6 +188,9 @@ namespace VisualHFT.Studies
             {
                 if (disposing)
                 {
+                    _providerId = 0;
+                    _symbol = "";
+
                     // Dispose managed resources here
                     HelperCommon.LIMITORDERBOOK.OnDataReceived -= LIMITORDERBOOK_OnDataReceived;
                     HelperCommon.TRADES.OnDataReceived -= TRADES_OnDataReceived;

@@ -11,7 +11,7 @@ namespace VisualHFT.AnalyticReports.ViewModel
         public List<cHourSerie> HourSerieWins { get; private set; }
         public List<cHourSerie> HourSerieLosses { get; private set; }
 
-        public void LoadData(List<PositionEx> signals)
+        public void LoadData(List<VisualHFT.Model.Position> signals)
         {
 
             //#region Hours of the day

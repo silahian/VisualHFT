@@ -13,17 +13,17 @@ namespace VisualHFT.ViewModel.StatisticsViewModel
     public class vmStrategyOverview : BindableBase
     {
 
-        private ObservableCollection<PositionEx> _positions;
+        private ObservableCollection<VisualHFT.Model.Position> _positions;
         public vmStrategyOverview()
         {
-            _positions = new ObservableCollection<PositionEx>();
+            _positions = new ObservableCollection<VisualHFT.Model.Position>();
             BlankFields();
         }
 
         private Dictionary<string, Func<string, string, bool>> _dialogs;
         public vmStrategyOverview(Dictionary<string, Func<string, string, bool>> dialogs)
         {
-            _positions = new ObservableCollection<PositionEx>();
+            _positions = new ObservableCollection<VisualHFT.Model.Position>();
             _dialogs = dialogs;
             BlankFields();
         }
@@ -137,14 +137,14 @@ namespace VisualHFT.ViewModel.StatisticsViewModel
             get => _loserCount;
             set => SetProperty(ref _loserCount, value);
         }
-        public ObservableCollection<PositionEx> Positions => _positions;
-        public void AddNewPositions(IEnumerable<PositionEx> pos)
+        public ObservableCollection<VisualHFT.Model.Position> Positions => _positions;
+        public void AddNewPositions(IEnumerable<VisualHFT.Model.Position> pos)
         {
             foreach (var position in pos)
                 _positions.Add(position);
             CalculatePositionStats();
         }
-        public void AddNewPosition(PositionEx p)
+        public void AddNewPosition(VisualHFT.Model.Position p)
         {
             _positions.Add(p);
             CalculatePositionStats();
@@ -187,8 +187,8 @@ namespace VisualHFT.ViewModel.StatisticsViewModel
 
             try
             {
-                var losers = _positions.Where(x => x.GetPipsPnL < 0).DefaultIfEmpty(new PositionEx()).ToList();
-                var winners = _positions.Where(x => x.GetPipsPnL >= 0).DefaultIfEmpty(new PositionEx()).ToList();
+                var losers = _positions.Where(x => x.GetPipsPnL < 0).DefaultIfEmpty(new VisualHFT.Model.Position()).ToList();
+                var winners = _positions.Where(x => x.GetPipsPnL >= 0).DefaultIfEmpty(new VisualHFT.Model.Position()).ToList();
                 foreach(var item in losers)
                 {
                     if (!item.PipsPnLInCurrency.HasValue)
@@ -203,7 +203,7 @@ namespace VisualHFT.ViewModel.StatisticsViewModel
 
                 //ALL
 
-                this.AllPnL = "Avg PnL: " + _positions.Where(x => x.PipsPnLInCurrency.HasValue).DefaultIfEmpty(new PositionEx() { PipsPnLInCurrency = 0m }).Average(x => x.PipsPnLInCurrency.Value).ToString("C0");
+                this.AllPnL = "Avg PnL: " + _positions.Where(x => x.PipsPnLInCurrency.HasValue).DefaultIfEmpty(new VisualHFT.Model.Position() { PipsPnLInCurrency = 0m }).Average(x => x.PipsPnLInCurrency.Value).ToString("C0");
                 this.AllAttempts = "Avg Attempts: " + _positions.Average(x => (double)x.AttemptsToClose).ToString("N1");
                 this.AllSpan = "Avg Span: " + Helpers.HelperCommon.GetKiloFormatterTime(_positions.Average(x => (x.CloseTimeStamp - x.CreationTimeStamp).TotalMilliseconds));
                 
@@ -211,14 +211,14 @@ namespace VisualHFT.ViewModel.StatisticsViewModel
                 if (losers != null && losers.Count() > 0)
                 {
                     this.LoserCount = losers.Count();
-                    this.LosersPnL = "Avg PnL: " + losers.Where(x => x.PipsPnLInCurrency.HasValue).DefaultIfEmpty(new PositionEx() { PipsPnLInCurrency = 0m }).Average(x => x.PipsPnLInCurrency.Value).ToString("C2");
+                    this.LosersPnL = "Avg PnL: " + losers.Where(x => x.PipsPnLInCurrency.HasValue).DefaultIfEmpty(new VisualHFT.Model.Position() { PipsPnLInCurrency = 0m }).Average(x => x.PipsPnLInCurrency.Value).ToString("C2");
                     this.LosersAttempts = "Avg Attempts: " + losers.Average(x => (double)x.AttemptsToClose).ToString("N1");
                     this.LosersSpan = "Avg Span: " + Helpers.HelperCommon.GetKiloFormatterTime(losers.Average(x => (x.CloseTimeStamp - x.CreationTimeStamp).TotalMilliseconds));
                 }
                 if (winners != null && winners.Count() > 0)
                 {
                     this.WinningCount = winners.Count();
-                    this.WinnersPnL = "Avg PnL: " + winners.Where(x => x.PipsPnLInCurrency.HasValue).DefaultIfEmpty(new PositionEx() { PipsPnLInCurrency = 0m }).Average(x => x.PipsPnLInCurrency.Value).ToString("C2");
+                    this.WinnersPnL = "Avg PnL: " + winners.Where(x => x.PipsPnLInCurrency.HasValue).DefaultIfEmpty(new VisualHFT.Model.Position() { PipsPnLInCurrency = 0m }).Average(x => x.PipsPnLInCurrency.Value).ToString("C2");
                     this.WinnersAttempts = "Avg Attempts: " + winners.Average(x => (double)x.AttemptsToClose).ToString("N1");
                     this.WinnersSpan = "Avg Span: " + Helpers.HelperCommon.GetKiloFormatterTime(winners.Average(x => (x.CloseTimeStamp - x.CreationTimeStamp).TotalMilliseconds));
                 }

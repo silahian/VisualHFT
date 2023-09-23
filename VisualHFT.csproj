@@ -12,12 +12,16 @@
   <ItemGroup>
     <Compile Remove="demoTradingCore\**" />
     <Compile Remove="packages\**" />
+    <Compile Remove="VisualHFT.Commons\**" />
     <EmbeddedResource Remove="demoTradingCore\**" />
     <EmbeddedResource Remove="packages\**" />
+    <EmbeddedResource Remove="VisualHFT.Commons\**" />
     <None Remove="demoTradingCore\**" />
     <None Remove="packages\**" />
+    <None Remove="VisualHFT.Commons\**" />
     <Page Remove="demoTradingCore\**" />
     <Page Remove="packages\**" />
+    <Page Remove="VisualHFT.Commons\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -53,6 +57,10 @@
   <ItemGroup>
     <PackageReference Include="Confluent.Kafka" Version="2.2.0" />
     <PackageReference Include="EntityFramework" Version="6.4.4" />
+    <PackageReference Include="Fody" Version="6.8.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="log4net" Version="2.0.15" />
     <PackageReference Include="LumenWorks.Framework.IO.Core" Version="1.0.1" />
     <PackageReference Include="MaterialDesignColors" Version="2.1.4" />
@@ -63,9 +71,14 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="OxyPlot.Contrib.Wpf" Version="2.1.2" />
     <PackageReference Include="Prism.Core" Version="8.1.97" />
+    <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
     <PackageReference Include="QuickFix.Net.NETCore" Version="1.8.1" />
     <PackageReference Include="QuickFix.Net.NETCore.FIX44" Version="1.8.1" />
     <PackageReference Include="WebSocket4Net" Version="0.15.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="VisualHFT.Commons\VisualHFT.Commons.csproj" />
   </ItemGroup>
 
   <ItemGroup>

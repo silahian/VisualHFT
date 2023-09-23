@@ -23,22 +23,8 @@ namespace VisualHFT.Model
         public string Symbol { get => _symbol; set => SetProperty(ref _symbol, value); }
         public decimal Price { get => _price; set => SetProperty(ref _price, value); }
         public decimal Size { get => _size; set => SetProperty(ref _size, value); }
-        public DateTime Timestamp {
-            get
-            {
-                RaisePropertyChanged(nameof(ForegroundColor));
-                return _timestamp;
-            }
-            set
-            {
-                SetProperty(ref _timestamp, value);                
-            }
-        }
+        public DateTime Timestamp { get => _timestamp; set => SetProperty(ref _timestamp, value); }
         public bool IsBuy { get => _isBuy; set => SetProperty(ref _isBuy, value);  }
         public string Flags { get => _flags; set => SetProperty(ref _flags, value); }
-        public System.Windows.Media.Brush ForegroundColor
-        {
-            get => _isBuy ? System.Windows.Media.Brushes.LightGreen : System.Windows.Media.Brushes.LightPink;
-        }
     }
 }

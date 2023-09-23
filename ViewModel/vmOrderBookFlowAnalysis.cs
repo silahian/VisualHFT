@@ -78,7 +78,7 @@ namespace VisualHFT.ViewModel
                     _orderBook = e;
                     _realTimeData = new List<PlotInfoPriceChart>();
                 }
-                if (!_orderBook.LoadData(e.Asks?.ToList(), e.Bids?.ToList()))
+                if (!_orderBook.LoadData(e.Asks, e.Bids))
                     return; //if nothing to update, then exit
 
                 #region REAL TIME DATA

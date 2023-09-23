@@ -10,11 +10,11 @@ namespace VisualHFT.DataTradeRetriever
 {
     public interface IDataTradeRetriever
     {
-        event EventHandler<IEnumerable<OrderVM>> OnInitialLoad;
-        event EventHandler<IEnumerable<OrderVM>> OnDataReceived;
+        event EventHandler<IEnumerable<Order>> OnInitialLoad;
+        event EventHandler<IEnumerable<Order>> OnDataReceived;
         DateTime? SessionDate { get; set; }
 
-        ReadOnlyCollection<OrderVM> Orders { get; }
-        ReadOnlyCollection<PositionEx> Positions { get; }
+        ReadOnlyCollection<Order> Orders { get; }
+        ReadOnlyCollection<Position> Positions { get; }
     }
 }

@@ -21,7 +21,7 @@ namespace VisualHFT.AnalyticReports.ViewModel
         public List<PointF> regressionLineDataMFE { get; private set; }
         public List<ScatterChartData> MAE { get; private set; }
 
-        public void LoadData(List<PositionEx> signals)
+        public void LoadData(List<VisualHFT.Model.Position> signals)
         {
             heldBars = (from x in signals.Where(s => s.CloseTimeStamp != null)
                             group x by x.CloseTimeStamp.Subtract(x.CreationTimeStamp).TotalSeconds.ToInt() into m

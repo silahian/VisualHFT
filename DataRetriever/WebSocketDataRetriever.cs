@@ -86,7 +86,7 @@ namespace VisualHFT.DataRetriever
             }
             else if (dataType == "ActiveOrders")
             {
-                modelObj = _parser.Parse<List<Model.OrderVM>>(dataReceived.data, settings);
+                modelObj = _parser.Parse<List<VisualHFT.Model.Order>>(dataReceived.data, settings);
             }
             else if (dataType == "Strategies")
             {
@@ -98,7 +98,7 @@ namespace VisualHFT.DataRetriever
             }
             else if (dataType == "HeartBeats")
             {
-                modelObj = _parser.Parse<List<ProviderEx>>(dataReceived.data, settings);
+                modelObj = _parser.Parse<List<VisualHFT.Model.Provider>>(dataReceived.data, settings);
             }
             else if (dataType == "Trades")
             {
@@ -141,6 +141,10 @@ namespace VisualHFT.DataRetriever
         public void Stop()
         {
             _webSocket.Close();
+            _webSocket.Opened -= WebSocket_Opened;
+            _webSocket.Closed -= WebSocket_Closed;
+            _webSocket.Error -= WebSocket_Error;
+            _webSocket.MessageReceived -= WebSocket_MessageReceived;
         }
     }
 }

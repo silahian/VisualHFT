@@ -15,73 +15,14 @@ namespace VisualHFT.View
     /// </summary>
     public partial class ucPositions : UserControl
     {
-        public static readonly DependencyProperty ucPositionsSymbolProperty = DependencyProperty.Register(
-            "SelectedSymbol",
-            typeof(string), typeof(ucPositions),
-            new UIPropertyMetadata("", new PropertyChangedCallback(symbolChangedCallBack))
-            );
-        public static readonly DependencyProperty ucPositionsSelectedStrategyProperty = DependencyProperty.Register(
-            "SelectedStrategy",
-            typeof(string), typeof(ucPositions),
-            new UIPropertyMetadata("", new PropertyChangedCallback(strategyChangedCallBack))
-            );
-        public static readonly DependencyProperty ucPositionsPositionProperty = DependencyProperty.Register(
-            "Positions",
-            typeof(ObservableCollection<Position>), typeof(ucPositions),
-            new UIPropertyMetadata(new ObservableCollection<Position>(), new PropertyChangedCallback(positionChangedCallBack))
-            );
+
 
         public ucPositions()
         {
             InitializeComponent();
-            this.DataContext = new VisualHFT.ViewModel.vmPosition(Helpers.HelperCommon.GLOBAL_DIALOGS);
-
         }
 
 
-        public string SelectedSymbol
-        {
-            get { return (string)GetValue(ucPositionsSymbolProperty); }
-            set
-            {
-                SetValue(ucPositionsSymbolProperty, value);
-                ((VisualHFT.ViewModel.vmPosition)this.DataContext).SelectedSymbol = value;
-            }
-        }
-        public string SelectedStrategy
-        {
-            get { return (string)GetValue(ucPositionsSelectedStrategyProperty); }
-            set
-            {
-                SetValue(ucPositionsSelectedStrategyProperty, value);
-                ((VisualHFT.ViewModel.vmPosition)this.DataContext).SelectedStrategy = value;
-
-            }
-        }
-        public ObservableCollection<Position> Positions
-        {
-            get { return (ObservableCollection<Position>)GetValue(ucPositionsPositionProperty); }
-            set { SetValue(ucPositionsPositionProperty, value); /*((VisualHFT.ViewModel.vmPosition)this.DataContext).Positions = value;*/ }
-        }
-
-
-
-
-        static void symbolChangedCallBack(DependencyObject property, DependencyPropertyChangedEventArgs args)
-        {
-            ucPositions ucSelf = (ucPositions)property;
-            ucSelf.SelectedSymbol = (string)args.NewValue;
-        }
-        static void strategyChangedCallBack(DependencyObject property, DependencyPropertyChangedEventArgs args)
-        {
-            ucPositions ucSelf = (ucPositions)property;
-            ucSelf.SelectedStrategy = (string)args.NewValue;
-        }
-        static void positionChangedCallBack(DependencyObject property, DependencyPropertyChangedEventArgs args)
-        {
-            ucPositions ucSelf = (ucPositions)property;
-            ucSelf.Positions = (ObservableCollection<Position>)args.NewValue;
-        }
 
 
         private void butLoadFile_Click(object sender, RoutedEventArgs e)

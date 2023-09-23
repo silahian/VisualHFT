@@ -18,22 +18,22 @@ namespace VisualHFT.DataTradeRetriever
 {
     public class EmptyTradesRetriever : IDataTradeRetriever, IDisposable
     {
-        private List<PositionEx> _positions;
-        private List<OrderVM> _orders;
+        private List<VisualHFT.Model.Position> _positions;
+        private List<VisualHFT.Model.Order> _orders;
         int _providerId;
         string _providerName;
         DateTime? _sessionDate = null;
 
         private bool _disposed = false;
 
-        public event EventHandler<IEnumerable<OrderVM>> OnInitialLoad;
-        public event EventHandler<IEnumerable<OrderVM>> OnDataReceived;
-        protected virtual void RaiseOnInitialLoad(IEnumerable<OrderVM> ord) => OnInitialLoad?.Invoke(this, ord);
-        protected virtual void RaiseOnDataReceived(IEnumerable<OrderVM> ord) => OnDataReceived?.Invoke(this, ord);
+        public event EventHandler<IEnumerable<VisualHFT.Model.Order>> OnInitialLoad;
+        public event EventHandler<IEnumerable<VisualHFT.Model.Order>> OnDataReceived;
+        protected virtual void RaiseOnInitialLoad(IEnumerable<VisualHFT.Model.Order> ord) => OnInitialLoad?.Invoke(this, ord);
+        protected virtual void RaiseOnDataReceived(IEnumerable<VisualHFT.Model.Order> ord) => OnDataReceived?.Invoke(this, ord);
         public EmptyTradesRetriever()
         {
-            _positions = new List<PositionEx>();
-            _orders = new List<OrderVM>();
+            _positions = new List<VisualHFT.Model.Position>();
+            _orders = new List<VisualHFT.Model.Order>();
         }
         ~EmptyTradesRetriever()
         {
@@ -52,11 +52,11 @@ namespace VisualHFT.DataTradeRetriever
                 }
             }
         }
-        public ReadOnlyCollection<OrderVM> Orders
+        public ReadOnlyCollection<VisualHFT.Model.Order> Orders
         {
             get { return _orders.AsReadOnly(); }
         }
-        public ReadOnlyCollection<PositionEx> Positions
+        public ReadOnlyCollection<VisualHFT.Model.Position> Positions
         {
             get { return _positions.AsReadOnly(); }
         }

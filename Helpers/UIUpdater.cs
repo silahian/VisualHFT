@@ -14,14 +14,18 @@ namespace VisualHFT.Helpers
         private DispatcherTimer _debounceTimer;
         private Action _updateAction;
 
-        public UIUpdater(Action updateAction, double debounceTimeInMilliseconds=300)
+        public UIUpdater(Action updateAction, double debounceTimeInMilliseconds=30)
         {
             _updateAction = updateAction;
-            
-            _debounceTimer = new DispatcherTimer();
-            _debounceTimer.Interval = TimeSpan.FromMilliseconds(debounceTimeInMilliseconds);
-            _debounceTimer.Tick += _debounceTimer_Tick;
-            _debounceTimer.Start();
+
+            // Ensure the timer is created on the UI thread
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                _debounceTimer = new DispatcherTimer();
+                _debounceTimer.Interval = TimeSpan.FromMilliseconds(debounceTimeInMilliseconds);
+                _debounceTimer.Tick += _debounceTimer_Tick;
+                _debounceTimer.Start();
+            });
         }
         ~UIUpdater()
         {

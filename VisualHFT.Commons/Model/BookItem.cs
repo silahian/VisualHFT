@@ -1,11 +1,10 @@
 ﻿using Newtonsoft.Json;
-using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 
 namespace VisualHFT.Model
 {
-    public partial class BookItem : BindableBase, IEquatable<BookItem>, IEqualityComparer<BookItem>
+    public partial class BookItem : IEquatable<BookItem>, IEqualityComparer<BookItem>
     {
 
         private string _Symbol;
@@ -19,9 +18,8 @@ namespace VisualHFT.Model
         private bool _IsBid;
         private double? _ActiveSize;
 
-        public BookItem(bool isBindable = false)
+        public BookItem()
         {
-            IsBindable = isBindable;
         }
 
         public void Update(BookItem b)
@@ -65,130 +63,70 @@ namespace VisualHFT.Model
             return obj.Price.GetHashCode();
         }
 
-        public bool IsBindable { get; set; } = true;
         public int DecimalPlaces { get; set; }
 
 
         public string Symbol
         {
             get => _Symbol;
-            set 
-            {
-                if (IsBindable)
-                    SetProperty(ref _Symbol, value);
-                else
-                    _Symbol = value;
-            }
+            set => _Symbol = value;
         }
 
         public int ProviderID
         {
             get => _ProviderID;
-            set
-            {
-                if (IsBindable)
-                    SetProperty(ref _ProviderID, value);
-                else
-                    _ProviderID = value;
-            }
+            set => _ProviderID = value;
         }
 
         public string EntryID
         {
             get => _EntryID;
-            set 
-            {
-                if (IsBindable)
-                    SetProperty(ref _EntryID, value); 
-                else
-                    _EntryID = value;
-            }
+            set => _EntryID = value;
         }
 
         public string LayerName
         {
             get => _LayerName;
-            set
-            {
-                if (IsBindable)
-                    SetProperty(ref _LayerName, value);
-                else
-                    _LayerName = value;
-            }
+            set => _LayerName = value;
         }
 
         public DateTime LocalTimeStamp
         {
             get => _LocalTimeStamp;
-            set
-            {
-                if (IsBindable)
-                    SetProperty(ref _LocalTimeStamp, value);
-                else
-                    _LocalTimeStamp = value;
-            }
+            set => _LocalTimeStamp = value;
         }
 
         public double? Price
         {
             get => _Price;
-            set
-            {
-                if (IsBindable)
-                    SetProperty(ref _Price, value, onChanged: () => RaisePropertyChanged(nameof(FormattedPrice)));
-                else
-                    _Price = value;
-            }
+            set => _Price = value;
         }
 
         public DateTime ServerTimeStamp
         {
             get => _ServerTimeStamp;
-            set
-            {
-                if (IsBindable)
-                    SetProperty(ref _ServerTimeStamp, value);
-                else
-                    _ServerTimeStamp = value;
-            }
+            set => _ServerTimeStamp = value;
         }
 
         public double? Size
         {
             get => _Size;
-            set
-            {
-                if (IsBindable)
-                    SetProperty(ref _Size, value, onChanged: () => RaisePropertyChanged(nameof(FormattedSize)));
-                else
-                    _Size = value;
-            }
+            set => _Size = value;
         }
 
         public bool IsBid
         {
             get => _IsBid;
-            set
-            {
-                if (IsBindable)
-                    SetProperty(ref _IsBid, value);
-                else
-                    _IsBid = value;
-            }
+            set => _IsBid = value;
         }
         public string FormattedPrice => this.Price.HasValue ? this.Price.Value.ToString("N" + DecimalPlaces) : "";
         public string FormattedSize => this.Size.HasValue ? Helpers.HelperCommon.GetKiloFormatter(this.Size.Value) : "";
+        public string FormattedActiveSize => this.ActiveSize.HasValue ? Helpers.HelperCommon.GetKiloFormatter(this.ActiveSize.Value) : "";
 
         public double? ActiveSize
         {
             get => _ActiveSize;
-            set
-            {
-                if (IsBindable)
-                    SetProperty(ref _ActiveSize, value);
-                else
-                    _ActiveSize = value;
-            }
+            set => _ActiveSize = value;
         }
     }
 }

@@ -7,8 +7,8 @@
              xmlns:local="clr-namespace:VisualHFT.View"
              xmlns:Formatters="clr-namespace:VisualHFT.Converters"
              xmlns:ViewModel="clr-namespace:VisualHFT.ViewModel"
-             xmlns:contrib="http://oxyplot.org/wpf/contrib" xmlns:model="clr-namespace:VisualHFT.Model" 
-             d:DataContext="{d:DesignInstance Type=model:OrderBookLevel}"
+             xmlns:contrib="http://oxyplot.org/wpf/contrib" 
+             xmlns:model="clr-namespace:VisualHFT.Model"
              mc:Ignorable="d" 
     
             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -40,7 +40,7 @@
             <ColumnDefinition Width="270" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.3*" MaxHeight="280"  />
+            <RowDefinition Height="0.3*"  />
             <RowDefinition Height="0.5*" />
             <RowDefinition Height="0.2*" />
         </Grid.RowDefinitions>
@@ -63,7 +63,10 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <!--BID/ASK Prices BOX-->
-                        <GroupBox x:Name="grpSymbol" Grid.Row="0" Style="{DynamicResource MaterialDesignCardGroupBox}" Header="{Binding SelectedSymbol}" BorderBrush="#DBD0C6" FontSize="26" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <GroupBox x:Name="grpSymbol" Grid.Row="0" 
+                                  Style="{DynamicResource MaterialDesignCardGroupBox}" 
+                                  Header="{Binding SelectedSymbol}" BorderBrush="#DBD0C6" FontSize="26" 
+                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <Grid >
                                 <Grid.RowDefinitions>
                                     <RowDefinition />
@@ -125,7 +128,7 @@
                                         </Style>
                                     </Grid.Resources>
                                     <Border BorderBrush="WhiteSmoke" BorderThickness="2" Height="25" Width="80" Background="#434D4C"  >
-                                        <TextBlock Text="{Binding Spread, StringFormat=N2}" />
+                                        <TextBlock Text="{Binding Spread, StringFormat=N}" />
                                     </Border>
 
                                 </Grid>
@@ -169,7 +172,24 @@
 
 
                             <!--BIDS-->
-                            <DataGrid ItemsSource="{Binding Bids}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="0" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader" HeadersVisibility="Column" AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" IsHitTestVisible="False" EnableRowVirtualization="True"  VerticalAlignment="Stretch">
+                            <DataGrid ItemsSource="{Binding Bids}" 
+                                      Style="{StaticResource MaterialDesignDataGrid}" 
+                                      Grid.Column="0" FontSize="9" FontFamily="Verdana" 
+                                      FontWeight="UltraLight" AutoGenerateColumns="False" 
+                                      SelectionUnit="Cell" 
+                                      CanUserDeleteRows="False" 
+                                      CanUserAddRows="False" 
+                                      ClipboardCopyMode="IncludeHeader" HeadersVisibility="Column" 
+                                      IsReadOnly="True" 
+                                      BorderThickness="0" CanUserReorderColumns="False" 
+                                      CanUserResizeColumns="False" 
+                                      CanUserResizeRows="False" 
+                                      CanUserSortColumns="False" 
+                                      HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" 
+                                      IsHitTestVisible="False" 
+                                      VerticalAlignment="Stretch"
+                                      AlternationCount="0"
+                                      >
                                 <DataGrid.RowStyle>
                                     <Style TargetType="DataGridRow">
                                         <Setter Property="Height" Value="26" />
@@ -186,14 +206,28 @@
                                     </Style>
                                 </DataGrid.RowStyle>
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="*" Foreground="LightGreen" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
-                                    <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="*" Foreground="LightGreen" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
-                                    <DataGridTextColumn Header="A" Binding="{Binding ActiveSize, Converter={StaticResource KiloFormatter}, TargetNullValue={x:Static System:String.Empty}}" Width="50" Foreground="DarkGreen" FontWeight="Bold" />
+                                    <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="80" Foreground="LightGreen" ElementStyle="{StaticResource RightAligned}"  HeaderStyle="{StaticResource RightAlignedHeader}"/>
+                                    <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="100" Foreground="LightGreen" ElementStyle="{StaticResource RightAligned}"  HeaderStyle="{StaticResource RightAlignedHeader}"/>
+                                    <DataGridTextColumn Header="A" Binding="{Binding FormattedActiveSize}" Width="50" Foreground="DarkGreen" FontWeight="Bold" />
                                 </DataGrid.Columns>
                             </DataGrid>
                             <!--ENDS BIDS-->
                             <!--ASKS-->
-                            <DataGrid ItemsSource="{Binding Asks}" Style="{DynamicResource MaterialDesignDataGrid}" Grid.Column="1" FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserDeleteRows="False" CanUserAddRows="False" ClipboardCopyMode="IncludeHeader"  HeadersVisibility="Column"  AlternationCount="2" IsReadOnly="True" BorderThickness="0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" IsHitTestVisible="False" EnableRowVirtualization="True"  VerticalAlignment="Stretch">
+                            <DataGrid ItemsSource="{Binding Asks}" 
+                                      Style="{StaticResource MaterialDesignDataGrid}" 
+                                      Grid.Column="1" 
+                                      FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" 
+                                      AutoGenerateColumns="False" 
+                                      SelectionUnit="Cell" 
+                                      CanUserDeleteRows="False" CanUserAddRows="False" 
+                                      ClipboardCopyMode="IncludeHeader"  
+                                      HeadersVisibility="Column"  
+                                      AlternationCount="0"
+                                      IsReadOnly="True" BorderThickness="0" 
+                                      CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" 
+                                      HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" 
+                                      IsHitTestVisible="False" VerticalAlignment="Stretch"
+                                      >
                                 <DataGrid.RowStyle>
                                     <Style TargetType="DataGridRow">
                                         <Setter Property="Height" Value="26" />
@@ -210,9 +244,9 @@
                                     </Style>
                                 </DataGrid.RowStyle>
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="A" Binding="{Binding ActiveSize, Converter={StaticResource KiloFormatter}, TargetNullValue={x:Static System:String.Empty}}" Width="50" Foreground="DarkRed" FontWeight="Bold"  />
-                                    <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="*"  Foreground="Pink" />
-                                    <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="*" Foreground="Pink" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
+                                    <DataGridTextColumn Header="A" Binding="{Binding FormattedActiveSize}" Width="50" Foreground="DarkRed" FontWeight="Bold" />
+                                    <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="100"  Foreground="Pink" />
+                                    <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="80" Foreground="Pink" ElementStyle="{StaticResource RightAligned}"  HeaderStyle="{StaticResource RightAlignedHeader}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                             <!--ENDS ASKS-->
@@ -231,9 +265,6 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
             <contrib:Plot PlotAreaBorderThickness="0" TextColor="White" DefaultFontSize="8" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="0" IsEnabled="False" >
                 <contrib:Plot.Resources>
                     <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
@@ -246,7 +277,7 @@
                 </contrib:Plot.Background>
                 <contrib:Plot.Axes>
                     <contrib:LinearAxis Position="Left" Maximum="{Binding DepthChartMaxY}" />
-                    <contrib:LinearAxis Position="Bottom"/>
+                    <contrib:LinearAxis Position="Bottom" StringFormat="N"/>
                 </contrib:Plot.Axes>
                 <contrib:Plot.Series>
                     <contrib:TwoColorAreaSeries Title="Bids" DataFieldX="Price" DataFieldY="Size" ItemsSource="{Binding BidCummulative}" StrokeThickness="5" Fill="DarkGreen" LineStyle="Solid" Color="LightGreen"/>
@@ -264,7 +295,7 @@
                 </contrib:Plot.Background>
                 <contrib:Plot.Axes>
                     <contrib:LinearAxis Position="Right" Maximum="{Binding DepthChartMaxY}" />
-                    <contrib:LinearAxis Position="Bottom"/>
+                    <contrib:LinearAxis Position="Bottom" StringFormat="N"/>
                 </contrib:Plot.Axes>
                 <contrib:Plot.Series>
                     <contrib:TwoColorAreaSeries Title="Asks" DataFieldX="Price" DataFieldY="Size" ItemsSource="{Binding AskCummulative}" StrokeThickness="5" Fill="DarkRed" LineStyle="Solid" Color="Pink"/>
@@ -312,7 +343,7 @@
                         <StaticResource ResourceKey="PlotBackgroundBrush" />
                     </contrib:Plot.Background>
                     <contrib:Plot.Axes>
-                        <contrib:LinearAxis Position="Left" Minimum="{Binding RealTimeYAxisMinimum}" Maximum="{Binding RealTimeYAxisMaximum}" />
+                        <contrib:LinearAxis Position="Left" Minimum="{Binding RealTimeYAxisMinimum}" Maximum="{Binding RealTimeYAxisMaximum}" StringFormat="N0"/>
                         <contrib:DateTimeAxis Position="Bottom"/>
                     </contrib:Plot.Axes>
                     <contrib:Plot.Series>
@@ -345,7 +376,7 @@
                     <StaticResource ResourceKey="PlotBackgroundBrush" />
                 </contrib:Plot.Background>
                 <contrib:Plot.Axes>
-                    <contrib:LinearAxis Position="Left" />
+                    <contrib:LinearAxis Position="Left" StringFormat="N2"/>
                     <contrib:DateTimeAxis Position="Bottom"/>
                 </contrib:Plot.Axes>
                 <contrib:Plot.Series>
@@ -385,7 +416,7 @@
                     </Style>
                 </DataGrid.RowStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat=N}" Width="*"   HeaderStyle="{DynamicResource RightAlignedHeader}" >
+                    <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat=N}" Width="120" HeaderStyle="{DynamicResource RightAlignedHeader}" >
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground" Value="{Binding IsBuy, Converter={StaticResource IsBuyConverter}}"/>
@@ -393,7 +424,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="*" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
+                    <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="120" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
                     <DataGridTextColumn Header="Time" Binding="{Binding Timestamp, StringFormat='{}{0:HH:mm:ss}'}" Width="80" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
                 </DataGrid.Columns>
             </DataGrid>

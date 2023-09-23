@@ -23,7 +23,7 @@ namespace VisualHFT.ViewModel
         protected vmStrategyOverview _vmStrategyOverview;
         protected string _cmdStartImage;
         protected string _cmdStopImage;
-        protected ObservableCollection<PositionEx> _positions;
+        protected ObservableCollection<VisualHFT.Model.Position> _positions;
         protected Dictionary<string, Func<string, string, bool>> _dialogs;
         protected BackgroundWorker bwGetParameters = new BackgroundWorker();
         protected BackgroundWorker bwSetParameters = new BackgroundWorker();
@@ -50,7 +50,7 @@ namespace VisualHFT.ViewModel
             cmdUpdate = new RelayCommand(DoUpdate);
             cmdSaveToDB = new RelayCommand(DoSaveToDB);
 
-            _positions = new ObservableCollection<PositionEx>();
+            _positions = new ObservableCollection<VisualHFT.Model.Position>();
             RaisePropertyChanged(nameof(Positions));
         }
         public virtual void Load()
@@ -79,7 +79,7 @@ namespace VisualHFT.ViewModel
         public RelayCommand cmdStart { get; set; }
         public RelayCommand cmdStop { get; set; }
         public RelayCommand cmdUpdate { get; set; }
-        public ObservableCollection<PositionEx> Positions
+        public ObservableCollection<VisualHFT.Model.Position> Positions
         {
             get => _positions;
             set => SetProperty(ref _positions, value);
@@ -393,20 +393,20 @@ namespace VisualHFT.ViewModel
                 return;
             }
 
-            var closedPositions = new List<PositionEx>(); //HelperCommon.CLOSEDPOSITIONS.Positions.Where(x => x.Symbol == _selectedSymbol && x.StrategyCode == _selectedStrategy).ToList();
-            _positions = new ObservableCollection<PositionEx>(closedPositions.OrderByDescending(x => x.CloseTimeStamp));
+            var closedPositions = new List<VisualHFT.Model.Position>(); //HelperCommon.CLOSEDPOSITIONS.Positions.Where(x => x.Symbol == _selectedSymbol && x.StrategyCode == _selectedStrategy).ToList();
+            _positions = new ObservableCollection<VisualHFT.Model.Position>(closedPositions.OrderByDescending(x => x.CloseTimeStamp));
             _vmStrategyOverview.AddNewPositions(_positions);
 
             RecalculatePositionStatistics();
             RaisePropertyChanged(nameof(Positions));
         }
-        private void CLOSEDPOSITIONS_OnInitialLoad(object sender, IEnumerable<PositionEx> e)
+        private void CLOSEDPOSITIONS_OnInitialLoad(object sender, IEnumerable<VisualHFT.Model.Position> e)
         {
-            _positions = new ObservableCollection<PositionEx>(e);
+            _positions = new ObservableCollection<VisualHFT.Model.Position>(e);
             RaisePropertyChanged(nameof(Positions));
             RecalculatePositionStatistics();
         }
-        private void CLOSEDPOSITIONS_OnDataReceived(object sender, IEnumerable<PositionEx> e)
+        private void CLOSEDPOSITIONS_OnDataReceived(object sender, IEnumerable<VisualHFT.Model.Position> e)
         {
             foreach (var pos in e)
             {
@@ -426,8 +426,8 @@ namespace VisualHFT.ViewModel
             {
                 List<double> ack_latency = new List<double>();
                 List<double> fill_latency = new List<double>();
-                List<ExecutionVM> allBuys = new List<ExecutionVM>();
-                List<ExecutionVM> allSells = new List<ExecutionVM>();
+                List<Execution> allBuys = new List<Execution>();
+                List<Execution> allSells = new List<Execution>();
 
                 var lastHour = _positions.Last().CreationTimeStamp.AddHours(-1); //to get hour from server
                 var allPositions = _positions.Where(x => x.CreationTimeStamp > lastHour && x.CloseTimeStamp > x.CreationTimeStamp);//.SelectMany(x => x.AllExecutions)
@@ -438,13 +438,13 @@ namespace VisualHFT.ViewModel
                 foreach (var pos in allPositions)
                 {
                     var allExecutions = pos.AllExecutions.OrderBy(x => x.LocalTimeStamp);
-                    ExecutionVM _new_sent = null;
-                    ExecutionVM _cancel_sent = null;
-                    ExecutionVM _replace_sent = null;
-                    ExecutionVM _new_ack = null;
-                    ExecutionVM _replace_ack = null;
-                    ExecutionVM _cancel_ack = null;
-                    ExecutionVM _filled = null;
+                    Execution _new_sent = null;
+                    Execution _cancel_sent = null;
+                    Execution _replace_sent = null;
+                    Execution _new_ack = null;
+                    Execution _replace_ack = null;
+                    Execution _cancel_ack = null;
+                    Execution _filled = null;
 
                     foreach (var execution in allExecutions)
                     {

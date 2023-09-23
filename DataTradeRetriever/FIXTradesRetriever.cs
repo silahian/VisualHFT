@@ -23,22 +23,22 @@ namespace VisualHFT.DataTradeRetriever
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private long _lastReadPosition = 0; // to keep track of where we left off reading the file
         private readonly string _logFilePath; // path to the QuickFIX log file
-        private List<PositionEx> _positions;
-        private List<OrderVM> _orders;
+        private List<VisualHFT.Model.Position> _positions;
+        private List<VisualHFT.Model.Order> _orders;
         int _providerId;
         string _providerName;
         DateTime? _sessionDate = null;
 
         private bool _disposed = false;
 
-        public event EventHandler<IEnumerable<OrderVM>> OnInitialLoad;
-        public event EventHandler<IEnumerable<OrderVM>> OnDataReceived;
-        protected virtual void RaiseOnInitialLoad(IEnumerable<OrderVM> ord) => OnInitialLoad?.Invoke(this, ord);
-        protected virtual void RaiseOnDataReceived(IEnumerable<OrderVM> ord) => OnDataReceived?.Invoke(this, ord);
+        public event EventHandler<IEnumerable<VisualHFT.Model.Order>> OnInitialLoad;
+        public event EventHandler<IEnumerable<VisualHFT.Model.Order>> OnDataReceived;
+        protected virtual void RaiseOnInitialLoad(IEnumerable<VisualHFT.Model.Order> ord) => OnInitialLoad?.Invoke(this, ord);
+        protected virtual void RaiseOnDataReceived(IEnumerable<VisualHFT.Model.Order> ord) => OnDataReceived?.Invoke(this, ord);
         public FIXTradesRetriever(string logFilePath, int providerId, string providerName)
         {
-            _positions = new List<PositionEx>();
-            _orders = new List<OrderVM>();
+            _positions = new List<VisualHFT.Model.Position>();
+            _orders = new List<VisualHFT.Model.Order>();
             _logFilePath = logFilePath;
             _providerId = providerId;
             _providerName = providerName;
@@ -110,19 +110,19 @@ namespace VisualHFT.DataTradeRetriever
                 }
             }
         }
-        public ReadOnlyCollection<OrderVM> Orders
+        public ReadOnlyCollection<VisualHFT.Model.Order> Orders
         {
             get { return _orders.AsReadOnly(); }
         }
-        public ReadOnlyCollection<PositionEx> Positions
+        public ReadOnlyCollection<VisualHFT.Model.Position> Positions
         {
             get { return _positions.AsReadOnly(); }
         }
 
-        private IEnumerable<OrderVM> ParseTradesFromLogLines(IEnumerable<string> logLines)
+        private IEnumerable<VisualHFT.Model.Order> ParseTradesFromLogLines(IEnumerable<string> logLines)
         {
             StringBuilder _symbolBuilder = new StringBuilder(30);
-            var parsedOrders = new Dictionary<string, OrderVM>();
+            var parsedOrders = new Dictionary<string, VisualHFT.Model.Order>();
             List<Dictionary<int, string>> _arr = new List<Dictionary<int, string>>();
 
             try
@@ -146,7 +146,7 @@ namespace VisualHFT.DataTradeRetriever
                 {
                     if (dicFIX[Tags.MsgType] == MsgType.NEWORDERSINGLE)  // New Order
                     {
-                        var order = new OrderVM();
+                        var order = new VisualHFT.Model.Order();
 
                         order.CreationTimeStamp = dicFIX[Tags.SendingTime].ToDateTime();
                         order.ClOrdId = dicFIX[Tags.ClOrdID];
@@ -183,7 +183,7 @@ namespace VisualHFT.DataTradeRetriever
                         order.OrderType = ParseOrderType(dicFIX[Tags.OrdType]);
                         order.ProviderId = _providerId;
                         order.ProviderName = _providerName;
-                        order.Executions = new List<ExecutionVM>();
+                        order.Executions = new List<VisualHFT.Model.Execution>();
                         order.LastUpdated = System.DateTime.Now;
                         parsedOrders.Add(order.ClOrdId, order);
                     }
@@ -193,7 +193,7 @@ namespace VisualHFT.DataTradeRetriever
                         string _clordId = dicFIX[Tags.ClOrdID];
                         string _orig_clordId = dicFIX[Tags.OrigClOrdID];
 
-                        OrderVM order = null;
+                        VisualHFT.Model.Order order = null;
                         if (parsedOrders.TryGetValue(_orig_clordId, out order))
                         {
                             var exec = new OpenExecution() { Price = 0, QtyFilled = 0 };
@@ -208,7 +208,7 @@ namespace VisualHFT.DataTradeRetriever
                             exec.Price = 0;
                             exec.QtyFilled = 0;
                             order.LastUpdated = System.DateTime.Now;
-                            order.Executions.Add(new ExecutionVM(exec, order.Symbol));
+                            order.Executions.Add(new VisualHFT.Model.Execution(exec, order.Symbol));
                         }
                         else
                         {
@@ -222,7 +222,7 @@ namespace VisualHFT.DataTradeRetriever
                         if (dicFIX.ContainsKey(Tags.OrigClOrdID))
                             _orig_clordId = dicFIX[Tags.OrigClOrdID];
 
-                        OrderVM order = null;
+                        VisualHFT.Model.Order order = null;
                         if (parsedOrders.TryGetValue(_orig_clordId == "" ? _clordId : _orig_clordId, out order))
                         {
                             var exec = new OpenExecution() { Price = 0, QtyFilled = 0 };
@@ -239,7 +239,7 @@ namespace VisualHFT.DataTradeRetriever
                             exec.Side = (int)order.Side;
                             exec.Status = (int)ParseOrderStatus(dicFIX[Tags.OrdStatus]);
 
-                            order.Executions.Add(new ExecutionVM(exec, order.Symbol));
+                            order.Executions.Add(new Execution(exec, order.Symbol));
 
                             order.Status = ParseOrderStatus(dicFIX[Tags.OrdStatus]);
                             order.LastUpdated = System.DateTime.Now;

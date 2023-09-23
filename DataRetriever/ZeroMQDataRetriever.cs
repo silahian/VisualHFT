@@ -47,12 +47,7 @@ namespace VisualHFT.DataRetriever
         private void HandleMessage(string message)
         {
             // Process the received message
-            var model = new OrderBook
-            {
-                Bids = new List<BookItem>(),
-                Asks = new List<BookItem>()
-            };
-
+            var model = new OrderBook();
             // parse message and populate 'model'
 
 
@@ -62,7 +57,7 @@ namespace VisualHFT.DataRetriever
 
 
 
-            var provider = new ProviderEx() { LastUpdated = DateTime.Now, ProviderID = 1, ProviderName = "ZeroMQ", Status = eSESSIONSTATUS.BOTH_CONNECTED };
+            var provider = new VisualHFT.ViewModel.Model.Provider() { LastUpdated = DateTime.Now, ProviderID = 1, ProviderName = "ZeroMQ", Status = eSESSIONSTATUS.BOTH_CONNECTED };
             // Raise the OnDataReceived event
             OnDataReceived?.Invoke(this, new DataEventArgs { DataType = "HeartBeats", RawData = message, ParsedModel = model });
 

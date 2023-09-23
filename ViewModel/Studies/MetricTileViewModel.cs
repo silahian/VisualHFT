@@ -26,12 +26,10 @@ namespace VisualHFT.ViewModel.Studies
         private string _value;
         private string _title;
         private string _tooltip;
-        private ObservableCollection<ProviderEx> _providers;
+        private ObservableCollection<VisualHFT.ViewModel.Model.Provider> _providers;
         private ObservableCollection<string> _symbols;
-        private ProviderEx _selectedProvider;
+        private VisualHFT.ViewModel.Model.Provider _selectedProvider;
         private string _selectedSymbol;
-        private bool _areSymbolsLoaded = false;
-        private bool _areProvidersLoaded = false;
         private UIUpdater uiUpdater;
 
         //*********************************************************
@@ -55,31 +53,26 @@ namespace VisualHFT.ViewModel.Studies
         {
             _tile_id = tile_id;
             _type = type;
-            
+            _value = ".";
+
             SaveSettingsCommand = new RelayCommand(param => SaveSetting(), param => CanSaveSetting());
             OpenChartCommand = new RelayCommand(OpenChartClick);
 
             _symbols = new ObservableCollection<string>(HelperCommon.ALLSYMBOLS.ToList());
-            _providers = new ObservableCollection<ProviderEx>(HelperCommon.PROVIDERS.Select(x => x.Value).ToList());
+            _providers = HelperCommon.PROVIDERS.CreateObservableCollection();
             RaisePropertyChanged(nameof(Providers));
             RaisePropertyChanged(nameof(Symbols));
 
             HelperCommon.PROVIDERS.OnDataReceived += PROVIDERS_OnDataReceived;
             HelperCommon.ALLSYMBOLS.CollectionChanged += ALLSYMBOLS_CollectionChanged;
 
-            uiUpdater = new UIUpdater(uiUpdaterAction);
+
+            uiUpdater = new UIUpdater(uiUpdaterAction, 500);
         }
         ~MetricTileViewModel(){Dispose(false);}
 
         private void uiUpdaterAction()
         {
-            if (!Application.Current.Dispatcher.CheckAccess())
-            {
-                // This means the method is being called from a non-UI thread
-                throw new InvalidOperationException("uiUpdaterAction is being accessed from a non-UI thread");
-            }
-
-
             RaisePropertyChanged(nameof(Value));
             RaisePropertyChanged(nameof(ValueColor));
         }
@@ -112,9 +105,8 @@ namespace VisualHFT.ViewModel.Studies
                 {
                     _valueColor = new SolidColorBrush((Color)ColorConverter.ConvertFromString(e.ValueColor));
                 });
-
+                
             }
-
         }
 
 
@@ -122,37 +114,26 @@ namespace VisualHFT.ViewModel.Studies
         {
             _symbols = new ObservableCollection<string>(HelperCommon.ALLSYMBOLS.ToList());
             RaisePropertyChanged(nameof(Symbols));
-            _areSymbolsLoaded = true;
-            if (_settings == null && _areProvidersLoaded && _areSymbolsLoaded)
+            if (_settings == null)
             {
                 LoadSetting();
             }
         }
-        private void PROVIDERS_OnDataReceived(object sender, ProviderEx e)
+        private void PROVIDERS_OnDataReceived(object sender, VisualHFT.ViewModel.Model.Provider e)
         {
-            if (!_providers.Any(x => x.ProviderName == e.ProviderName))
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
             {
-                var cleanProvider = new ProviderEx();
-                cleanProvider.ProviderName = e.ProviderName;
-                cleanProvider.ProviderCode = e.ProviderCode;
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
-                {
-                    _providers.Add(cleanProvider);
-                    _areProvidersLoaded = true;
-                }));
-
-                if (_selectedProvider == null && e.Status == eSESSIONSTATUS.BOTH_CONNECTED) //default provider must be the first who's Active
-                    SelectedProvider = cleanProvider;               
-            }
-            if (_settings == null && _areProvidersLoaded && _areSymbolsLoaded)
-                LoadSetting();
+                _providers.Add(e);
+                if (_settings == null)
+                    LoadSetting();
+            }));
 
         }
         public ICommand SaveSettingsCommand { get; set; }
         public ICommand OpenChartCommand { get; private set; }
-        public ObservableCollection<ProviderEx> Providers { get => _providers; set => _providers = value; } 
+        public ObservableCollection<VisualHFT.ViewModel.Model.Provider> Providers { get => _providers; set => _providers = value; } 
         public ObservableCollection<string> Symbols { get => _symbols; set => _symbols = value; }
-        public ProviderEx SelectedProvider
+        public VisualHFT.ViewModel.Model.Provider SelectedProvider
         {
             get => _selectedProvider;
             set => SetProperty(ref _selectedProvider, value);
@@ -163,8 +144,8 @@ namespace VisualHFT.ViewModel.Studies
             set => SetProperty(ref _selectedSymbol, value);
 
         }
-        public string Value { get => _value; set => SetProperty(ref _value, value); }
-        public SolidColorBrush ValueColor { get => _valueColor; set => SetProperty(ref _valueColor, value); }
+        public string Value { get => _value; }
+        public SolidColorBrush ValueColor { get => _valueColor; }
         public string Title { get => _title; set => SetProperty(ref _title, value); }
         public string Tooltip { get => _tooltip; set => SetProperty(ref _tooltip, value); }
         public bool IsSettingsOpen { get => _isSettingsOpen; set => SetProperty(ref _isSettingsOpen, value); }
@@ -267,7 +248,6 @@ namespace VisualHFT.ViewModel.Studies
                 RaisePropertyChanged(nameof(SelectedProvider));
                 RaisePropertyChanged(nameof(SelectedSymbol));
                 IsSettingsOpen = false;
-                Value = "..";
 
                 if (_type == eTILES_TYPE.STUDY_LOB_IMBALANCE)
                 {
@@ -318,9 +298,16 @@ namespace VisualHFT.ViewModel.Studies
         }
         private void SaveInitialSettings()
         {
+            if (!_symbols.Any())
+                return;
+
             _selectedSymbol = Symbols.First();
             _selectedProvider = _providers.SkipWhile(x => x.Status == eSESSIONSTATUS.BOTH_DISCONNECTED).FirstOrDefault();
-            SaveSetting();
+            if (_selectedProvider != null && !string.IsNullOrEmpty(_selectedSymbol))
+            {
+                SaveSetting();
+            }
+            
         }
         private void SaveSetting()
         {

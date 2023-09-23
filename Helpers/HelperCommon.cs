@@ -82,71 +82,6 @@ namespace VisualHFT.Helpers
                     {"validation", GetValidationPopup() },
                     {"error", GetErrorPopup() }
                 };        
-        public static double GetPipValueInBaseCurrency(bool getBid, string currencySymbol, int symbolMultiplier, decimal pipsValue, decimal size, string baseCurrency = "USD")
-        {
-            string ccy1 = currencySymbol.Split('/')[0];
-            string ccy2 = currencySymbol.Split('/')[1];
-            double rate = 0;
-            if (ccy2 == baseCurrency)
-                rate = 1;
-            else
-            {
-                //for example-> USD/GBP GBP=X
-                if (baseCurrency == "USD")
-                    rate = GetCurrencyRate(ccy2 + "=X", getBid);
-                else
-                    rate = GetCurrencyRate(baseCurrency + "/" + ccy2, getBid);
-            }
-            double dRet = (double)(pipsValue * size) / (symbolMultiplier * rate);
-            return dRet;
-        }
-        public static double GetCurrencyRate(string currencySymbol, bool getBid)
-        {
-            var stock = HelperYahoo.GetStock(currencySymbol);
-            if (stock == null)
-                return 0;
-            else
-                return (getBid ? stock.Bid : stock.Ask);
-        }
-        public static string GetKiloFormatter(int num)
-        {
-            return GetKiloFormatter((double)num);
-        }
-        public static string GetKiloFormatter(decimal num)
-        {
-            return GetKiloFormatter((double)num);
-        }
-        public static string GetKiloFormatter(double num)
-        {
-            if (num < 500)
-                return num.ToString("N2");
-            if (num < 10000)
-                return num.ToString("N0");
-
-
-            if (num >= 100000000)
-                return (num / 1000000D).ToString("0.#M");
-            if (num >= 1000000)
-                return (num / 1000000D).ToString("0.##M");
-            if (num >= 100000)
-                return (num / 1000D).ToString("0.#k");
-            if (num >= 10000)
-                return (num / 1000D).ToString("0.##k");
-            return num.ToString("#,0");
-        }
-        public static string GetKiloFormatterTime(double milliseconds)
-        {
-            double num = milliseconds;
-
-            if (num >= 1000 * 60 * 60.0)
-                return (num / (60.0 * 60.0 * 1000D)).ToString("0.0 hs");
-            if (num >= 1000 * 60.0)
-                return (num / (60.0 * 1000D)).ToString("0.0 min");
-            if (num >= 1000)
-                return (num / 1000D).ToString("0.0# sec");
-
-            return num.ToString("#,0 ms");
-        }
         public static void CreateCommonPopUpWindow(FrameworkElement ctrlToSendIntoNewWindow, Button butPopUp, object dataContext, string titleWindow = "New Window", int widthWindow = 800, int heightWindow = 600, ResizeMode resizeMode = ResizeMode.CanResize)
         {
             // Create a new window
@@ -221,7 +156,45 @@ namespace VisualHFT.Helpers
             window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             window.Show();
         }
-        
+        public static string GetKiloFormatter(int num)
+        {
+            return GetKiloFormatter((double)num);
+        }
+        public static string GetKiloFormatter(decimal num)
+        {
+            return GetKiloFormatter((double)num);
+        }
+        public static string GetKiloFormatter(double num)
+        {
+            if (num < 500)
+                return num.ToString("N2");
+            if (num < 10000)
+                return num.ToString("N0");
+
+
+            if (num >= 100000000)
+                return (num / 1000000D).ToString("0.#M");
+            if (num >= 1000000)
+                return (num / 1000000D).ToString("0.##M");
+            if (num >= 100000)
+                return (num / 1000D).ToString("0.#k");
+            if (num >= 10000)
+                return (num / 1000D).ToString("0.##k");
+            return num.ToString("#,0");
+        }
+        public static string GetKiloFormatterTime(double milliseconds)
+        {
+            double num = milliseconds;
+
+            if (num >= 1000 * 60 * 60.0)
+                return (num / (60.0 * 60.0 * 1000D)).ToString("0.0 hs");
+            if (num >= 1000 * 60.0)
+                return (num / (60.0 * 1000D)).ToString("0.0 min");
+            if (num >= 1000)
+                return (num / 1000D).ToString("0.0# sec");
+
+            return num.ToString("#,0 ms");
+        }
         public static string GetEnumDescription(Enum value)
         {
             FieldInfo fi = value.GetType().GetField(value.ToString());

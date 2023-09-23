@@ -1,11 +1,7 @@
-﻿using Prism.Mvvm;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-
+﻿
 namespace VisualHFT.Model
 {
-    public class OrderVM : BindableBase
+    public partial class Order
     {
         /// <summary>
         /// This override will fire PostedSecondsAgo property change when any other property fires
@@ -37,7 +33,7 @@ namespace VisualHFT.Model
         private int _symbolDecimals;
         private string _freeText;
         private string _originPartyID;
-        private List<ExecutionVM> _executions;
+        private List<Execution> _executions;
         private int _quoteID;
         private DateTime _quoteServerTimeStamp;
         private DateTime _quoteLocalTimeStamp;
@@ -57,11 +53,11 @@ namespace VisualHFT.Model
         private double _filledPercentage;
         #endregion
 
-        public OrderVM()
+        public Order()
         {
             IsEmpty = true;
         }
-        public void Update(OrderVM order)
+        public void Update(Order order)
         {
             ProviderName = order.ProviderName;
             OrderID = order.OrderID;
@@ -111,212 +107,212 @@ namespace VisualHFT.Model
         public string ProviderName
         {
             get => _providerName;
-            set => SetProperty(ref _providerName, value);
+            set => _providerName = value;
         }
         public long OrderID
         {
             get => _orderID;
-            set => SetProperty(ref _orderID, value);
+            set => _orderID = value;
         }
         public string StrategyCode
         {
             get => _strategyCode;
-            set => SetProperty(ref _strategyCode, value);
+            set => _strategyCode = value;
         }
         public string Symbol
         {
             get => _symbol;
-            set => SetProperty(ref _symbol, value);
+            set => _symbol = value;
         }
         public int ProviderId
         {
             get => _providerId;
-            set => SetProperty(ref _providerId, value);
+            set => _providerId = value;
         }
         public string ClOrdId
         {
             get => _clOrdId;
-            set => SetProperty(ref _clOrdId, value);
+            set => _clOrdId = value;
         }
         public eORDERSIDE Side
         {
             get => _side;
-            set => SetProperty(ref _side, value);
+            set => _side = value;
         }
         public eORDERTYPE OrderType
         {
             get => _orderType;
-            set => SetProperty(ref _orderType, value);
+            set => _orderType = value;
         }
         public eORDERTIMEINFORCE TimeInForce
         {
             get => _timeInForce;
-            set => SetProperty(ref _timeInForce, value);
+            set => _timeInForce = value;
         }
         public eORDERSTATUS Status
         {
             get => _status;
-            set => SetProperty(ref _status, value);
+            set => _status = value;
         }
         public double Quantity
         {
             get => _quantity;
-            set => SetProperty(ref _quantity, value);
+            set => _quantity = value;
         }
         public double MinQuantity
         {
             get => _minQuantity;
-            set => SetProperty(ref _minQuantity, value);
+            set => _minQuantity = value;
         }
         public double FilledQuantity
         {
             get => _filledQuantity;
-            set => SetProperty(ref _filledQuantity, value);
+            set => _filledQuantity = value;
         }
         public double PricePlaced
         {
             get => _pricePlaced;
-            set => SetProperty(ref _pricePlaced, value);
+            set => _pricePlaced = value;
         }
         public string Currency
         {
             get => _currency;
-            set => SetProperty(ref _currency, value);
+            set => _currency = value;
         }
         public string FutSettDate
         {
             get => _futSettDate;
-            set => SetProperty(ref _futSettDate, value);
+            set => _futSettDate = value;
         }
         public bool IsMM
         {
             get => _isMM;
-            set => SetProperty(ref _isMM, value);
+            set => _isMM = value;
         }
         public bool IsEmpty
         {
             get => _isEmpty;
-            set => SetProperty(ref _isEmpty, value);
+            set => _isEmpty = value;
         }
         public string LayerName
         {
             get => _layerName;
-            set => SetProperty(ref _layerName, value);
+            set => _layerName = value;
         }
         public int AttemptsToClose
         {
             get => _attemptsToClose;
-            set => SetProperty(ref _attemptsToClose, value);
+            set => _attemptsToClose = value ;
         }
         public int SymbolMultiplier
         {
             get => _symbolMultiplier;
-            set => SetProperty(ref _symbolMultiplier, value);
+            set => _symbolMultiplier = value;
         }
         public int SymbolDecimals
         {
             get => _symbolDecimals;
-            set => SetProperty(ref _symbolDecimals, value);
+            set => _symbolDecimals = value;
         }
         public string FreeText
         {
             get => _freeText;
-            set => SetProperty(ref _freeText, value);
+            set => _freeText = value;
         }
         public string OriginPartyID
         {
             get => _originPartyID;
-            set => SetProperty(ref _originPartyID, value);
+            set => _originPartyID = value;
         }
-        public List<ExecutionVM> Executions
+        public List<Execution> Executions
         {
             get => _executions;
-            set => SetProperty(ref _executions, value);
+            set => _executions = value;
         }
         public int QuoteID
         {
             get => _quoteID;
-            set => SetProperty(ref _quoteID, value);
+            set => _quoteID = value;
         }
         public DateTime QuoteServerTimeStamp
         {
             get => _quoteServerTimeStamp;
-            set => SetProperty(ref _quoteServerTimeStamp, value);
+            set => _quoteServerTimeStamp = value;
         }
         public DateTime QuoteLocalTimeStamp
         {
             get => _quoteLocalTimeStamp;
-            set => SetProperty(ref _quoteLocalTimeStamp, value);
+            set => _quoteLocalTimeStamp = value;
         }
         public DateTime CreationTimeStamp
         {
             get => _creationTimeStamp;
-            set => SetProperty(ref _creationTimeStamp, value);
+            set => _creationTimeStamp = value;
         }
         public DateTime LastUpdated
         {
             get => _lastUpdate;
-            set => SetProperty(ref _lastUpdate, value);
+            set => _lastUpdate = value;
         }
         public DateTime ExecutedTimeStamp
         {
             get => _executedTimeStamp;
-            set => SetProperty(ref _executedTimeStamp, value);
+            set => _executedTimeStamp = value;
         }
         public DateTime FireSignalTimestamp
         {
             get => _fireSignalTimestamp;
-            set => SetProperty(ref _fireSignalTimestamp, value);
+            set => _fireSignalTimestamp = value;
         }
         public double StopLoss
         {
             get => _stopLoss;
-            set => SetProperty(ref _stopLoss, value);
+            set => _stopLoss = value;
         }
         public double TakeProfit
         {
             get => _takeProfit;
-            set => SetProperty(ref _takeProfit, value);
+            set => _takeProfit = value;
         }
         public bool PipsTrail
         {
             get => _pipsTrail;
-            set => SetProperty(ref _pipsTrail, value);
+            set => _pipsTrail = value;
         }
         public double UnrealizedPnL
         {
             get => _unrealizedPnL;
-            set => SetProperty(ref _unrealizedPnL, value);
+            set => _unrealizedPnL = value;
         }
         public double MaxDrowdown
         {
             get => _maxDrowdown;
-            set => SetProperty(ref _maxDrowdown, value);
+            set => _maxDrowdown = value;
         }
         public double BestBid
         {
             get => _bestBid;
-            set => SetProperty(ref _bestBid, value);
+            set => _bestBid = value;
         }
         public double BestAsk
         {
             get => _bestAsk;
-            set => SetProperty(ref _bestAsk, value);
+            set => _bestAsk = value;
         }
         public double GetAvgPrice
         {
             get => _getAvgPrice;
-            set => SetProperty(ref _getAvgPrice, value);
+            set => _getAvgPrice = value;
         }
         public double GetQuantity
         {
             get => _getQuantity;
-            set => SetProperty(ref _getQuantity, value);
+            set => _getQuantity = value;
         }
         public double FilledPercentage
         {
             get => _filledPercentage;
-            set => SetProperty(ref _filledPercentage, value);
+            set => _filledPercentage = value;
         }
     }
 

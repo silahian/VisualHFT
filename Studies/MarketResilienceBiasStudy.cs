@@ -185,7 +185,7 @@ namespace VisualHFT.Studies
 
         private void TriggerOnCalculatedEvent(OrderBook currentOrderBook)
         {
-            var newItem = new BaseStudyModel(false) { 
+            var newItem = new BaseStudyModel() { 
                 Value = _resilienceValue,
                 ValueFormatted = _resilienceValue == 1 ? "↑" : "↓",                
                 ValueColor = _resilienceValue == 1 ? "Green" : "Red",
@@ -279,6 +279,9 @@ namespace VisualHFT.Studies
             {
                 if (disposing)
                 {
+                    _providerId = 0;
+                    _symbol = "";
+
                     HelperCommon.LIMITORDERBOOK.OnDataReceived -= LIMITORDERBOOK_OnDataReceived;
                     HelperCommon.TRADES.OnDataReceived -= TRADES_OnDataReceived;
                     _largeTradeStopwatch.Reset();

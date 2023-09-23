@@ -1,77 +1,19 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace VisualHFT.Model
+﻿namespace VisualHFT.Model
 {
-    public class ExecutionVM: OpenExecution
+    using System;
+    using System.Collections.Generic;
+    
+    public partial class Position
     {
-
-        public ExecutionVM(OpenExecution exec, string symbol)
+        public Position()
         {
-            if (exec == null)
-                return;
-            this.ClOrdId = exec.ClOrdId;
-            this.ExecID = exec.ExecID;
-            this.ExecutionID = exec.ExecutionID;
-            this.IsOpen = exec.IsOpen;
-            this.LocalTimeStamp = exec.LocalTimeStamp;
-            this.PositionID = exec.PositionID;
-            this.Price = exec.Price;
-            this.ProviderID = exec.ProviderID;
-            this.QtyFilled = exec.QtyFilled;
-            this.ServerTimeStamp = exec.ServerTimeStamp;
-            this.Side = (ePOSITIONSIDE)exec.Side;
-            this.Status = (ePOSITIONSTATUS)exec.Status;
-            this.Symbol = symbol;
+            this.CloseExecutions = new List<Execution>();
+            this.OpenExecutions = new List<Execution>();
         }
-        public ExecutionVM(CloseExecution exec, string symbol)
+        public Position(Position p)
         {
-            if (exec == null)
-                return;
-            this.ClOrdId = exec.ClOrdId;
-            this.ExecID = exec.ExecID;
-            this.ExecutionID = exec.ExecutionID;
-            this.IsOpen = exec.IsOpen;
-            this.LocalTimeStamp = exec.LocalTimeStamp;
-            this.PositionID = exec.PositionID;
-            this.Price = exec.Price;
-            this.ProviderID = exec.ProviderID;
-            this.QtyFilled = exec.QtyFilled;
-            this.ServerTimeStamp = exec.ServerTimeStamp;
-            this.Side = (ePOSITIONSIDE)exec.Side;
-            this.Status = (ePOSITIONSTATUS)exec.Status;
-            this.Symbol = symbol;
-        }
-        public string ProviderName { get; set; }
-        public string Symbol { get; set; }
-        public double LatencyInMiliseconds
-        {
-            get { return this.LocalTimeStamp.Subtract(this.ServerTimeStamp).TotalMilliseconds; }
-        }
-        public new ePOSITIONSIDE Side
-        {
-            get { return base.Side == null ? ePOSITIONSIDE.None : (ePOSITIONSIDE)base.Side; }
-            set { base.Side = (int)value; }
-        }
-        public new ePOSITIONSTATUS Status
-        {
-            get { return base.Status == null? ePOSITIONSTATUS.NONE: (ePOSITIONSTATUS)base.Status; }
-            set { base.Status = (int)value; }
-        }
-    }
-    public class PositionEx : Position
-    {
-        /*
-            No need to implement base fields notification methods, since this class won't be dynamic.
-            It will be static collections, where only adding new items to the collection is the only thing dynamic.
-        */
-        public PositionEx()
-        {
-        }
-        public PositionEx(Position p)
-        {
-            this.CloseExecutions = p.CloseExecutions.Select(x => new ExecutionVM(x, p.Symbol)).ToList();
-            this.OpenExecutions = p.OpenExecutions.Select(x => new ExecutionVM(x, p.Symbol)).ToList();
+            this.CloseExecutions = p.CloseExecutions.Select(x => new Execution(x, p.Symbol)).ToList();
+            this.OpenExecutions = p.OpenExecutions.Select(x => new Execution(x, p.Symbol)).ToList();
 
 
             this.AttemptsToClose = p.AttemptsToClose;
@@ -84,7 +26,7 @@ namespace VisualHFT.Model
             this.CloseQuoteId = p.CloseQuoteId;
             this.CloseQuoteLocalTimeStamp = p.CloseQuoteLocalTimeStamp;
             this.CloseQuoteServerTimeStamp = p.CloseQuoteServerTimeStamp;
-            this.CloseStatus = (ePOSITIONSTATUS)p.CloseStatus;
+            this.CloseStatus = p.CloseStatus;
             this.CloseTimeStamp = p.CloseTimeStamp;
             this.CreationTimeStamp = p.CreationTimeStamp;
             this.Currency = p.Currency;
@@ -109,12 +51,12 @@ namespace VisualHFT.Model
             this.OpenQuoteId = p.OpenQuoteId;
             this.OpenQuoteLocalTimeStamp = p.OpenQuoteLocalTimeStamp;
             this.OpenQuoteServerTimeStamp = p.OpenQuoteServerTimeStamp;
-            this.OpenStatus = (ePOSITIONSTATUS)p.OpenStatus;
+            this.OpenStatus = p.OpenStatus;
             this.OrderQuantity = p.OrderQuantity;
             this.PipsPnLInCurrency = p.PipsPnLInCurrency;
             this.PipsTrail = p.PipsTrail;
             this.PositionID = p.PositionID;
-            this.Side = (ePOSITIONSIDE)p.Side;
+            this.Side = p.Side;
             this.StopLoss = p.StopLoss;
             this.StrategyCode = p.StrategyCode;
             this.Symbol = p.Symbol;
@@ -123,7 +65,7 @@ namespace VisualHFT.Model
             this.TakeProfit = p.TakeProfit;
             this.UnrealizedPnL = p.UnrealizedPnL;
         }
-        ~PositionEx()
+        ~Position()
         {
             if (this.CloseExecutions != null)
                 this.CloseExecutions.Clear();
@@ -133,15 +75,14 @@ namespace VisualHFT.Model
                 this.OpenExecutions.Clear();
             this.OpenExecutions = null;
         }
+
         public string OpenProviderName { get; set; }
         public string CloseProviderName { get; set; }
-
-        public new List<ExecutionVM> OpenExecutions { get; set; }
-        public new List<ExecutionVM> CloseExecutions { get; set; }
-
-        public List<ExecutionVM> AllExecutions {
-            get {
-                var _ret = new List<ExecutionVM>();
+        public List<Execution> AllExecutions
+        {
+            get
+            {
+                var _ret = new List<Execution>();
                 if (this.OpenExecutions != null && this.OpenExecutions.Any())
                     _ret.AddRange(this.OpenExecutions);
 
@@ -150,34 +91,87 @@ namespace VisualHFT.Model
                 return _ret/*.OrderBy(x => x.ServerTimeStamp)*/.ToList();
             }
         }
-        private OrderVM GetOrder(bool isOpen)
+
+
+        public long ID { get; set; }
+        public long PositionID { get; set; }
+        public int AttemptsToClose { get; set; }
+        public string CloseClOrdId { get; set; }
+        public int CloseProviderId { get; set; }
+        public Nullable<int> CloseQuoteId { get; set; }
+        public Nullable<System.DateTime> CloseQuoteLocalTimeStamp { get; set; }
+        public Nullable<System.DateTime> CloseQuoteServerTimeStamp { get; set; }
+        public int CloseStatus { get; set; }
+        public System.DateTime CloseTimeStamp { get; set; }
+        public System.DateTime CreationTimeStamp { get; set; }
+        public string Currency { get; set; }
+        public string FreeText { get; set; }
+        public Nullable<System.DateTime> FutSettDate { get; set; }
+        public decimal GetCloseAvgPrice { get; set; }
+        public decimal GetCloseQuantity { get; set; }
+        public decimal GetOpenAvgPrice { get; set; }
+        public decimal GetOpenQuantity { get; set; }
+        public decimal GetPipsPnL { get; set; }
+        public bool IsCloseMM { get; set; }
+        public bool IsOpenMM { get; set; }
+        public decimal MaxDrowdown { get; set; }
+        public string OpenClOrdId { get; set; }
+        public int OpenProviderId { get; set; }
+        public Nullable<int> OpenQuoteId { get; set; }
+        public Nullable<System.DateTime> OpenQuoteLocalTimeStamp { get; set; }
+        public Nullable<System.DateTime> OpenQuoteServerTimeStamp { get; set; }
+        public int OpenStatus { get; set; }
+        public decimal OrderQuantity { get; set; }
+        public decimal PipsTrail { get; set; }
+        public ePOSITIONSIDE Side { get; set; }
+        public decimal StopLoss { get; set; }
+        public string StrategyCode { get; set; }
+        public string Symbol { get; set; }
+        public int SymbolDecimals { get; set; }
+        public int SymbolMultiplier { get; set; }
+        public decimal TakeProfit { get; set; }
+        public decimal UnrealizedPnL { get; set; }
+        public Nullable<decimal> OpenBestBid { get; set; }
+        public Nullable<decimal> OpenBestAsk { get; set; }
+        public Nullable<decimal> CloseBestBid { get; set; }
+        public Nullable<decimal> CloseBestAsk { get; set; }
+        public string OpenOriginPartyID { get; set; }
+        public string CloseOriginPartyID { get; set; }
+        public string LayerName { get; set; }
+        public Nullable<System.DateTime> OpenFireSignalTimestamp { get; set; }
+        public Nullable<System.DateTime> CloseFireSignalTimestamp { get; set; }
+        public Nullable<decimal> PipsPnLInCurrency { get; set; }
+    
+        public virtual List<Execution> CloseExecutions { get; set; }
+        public virtual List<Execution> OpenExecutions { get; set; }
+        private Order GetOrder(bool isOpen)
         {
             if (!string.IsNullOrEmpty(this.OpenClOrdId))
             {
-                OrderVM o = new OrderVM();
+                Order o = new Order();
                 //o.OrderID
                 o.Currency = this.Currency;
-                o.ClOrdId = isOpen? this.OpenClOrdId : this.CloseClOrdId;
-                o.ProviderId = isOpen ? this.OpenProviderId: this.CloseProviderId;
-                o.ProviderName = isOpen ? this.OpenProviderName: this.CloseProviderName;
+                o.ClOrdId = isOpen ? this.OpenClOrdId : this.CloseClOrdId;
+                o.ProviderId = isOpen ? this.OpenProviderId : this.CloseProviderId;
+                o.ProviderName = isOpen ? this.OpenProviderName : this.CloseProviderName;
                 o.LayerName = this.LayerName;
                 o.AttemptsToClose = this.AttemptsToClose;
-                o.BestAsk = isOpen ? this.OpenBestAsk.ToDouble(): this.CloseBestAsk.ToDouble();
-                o.BestBid = isOpen ? this.OpenBestBid.ToDouble(): this.CloseBestBid.ToDouble();
-                o.CreationTimeStamp = isOpen ? this.OpenQuoteLocalTimeStamp.ToDateTime(): this.CloseQuoteLocalTimeStamp.ToDateTime();
+                o.BestAsk = isOpen ? this.OpenBestAsk.ToDouble() : this.CloseBestAsk.ToDouble();
+                o.BestBid = isOpen ? this.OpenBestBid.ToDouble() : this.CloseBestBid.ToDouble();
+                o.CreationTimeStamp = isOpen ? this.OpenQuoteLocalTimeStamp.ToDateTime() : this.CloseQuoteLocalTimeStamp.ToDateTime();
                 o.Executions = isOpen ? this.OpenExecutions.ToList() : this.CloseExecutions.ToList();
                 o.SymbolMultiplier = this.SymbolMultiplier;
                 o.Symbol = this.Symbol;
                 o.FreeText = this.FreeText;
-                o.Status = (eORDERSTATUS)(isOpen ? this.OpenStatus: this.CloseStatus);
-                o.GetAvgPrice = isOpen ? this.GetOpenAvgPrice.ToDouble(): this.GetCloseAvgPrice.ToDouble();
+                o.Status = (eORDERSTATUS)(isOpen ? this.OpenStatus : this.CloseStatus);
+                o.GetAvgPrice = isOpen ? this.GetOpenAvgPrice.ToDouble() : this.GetCloseAvgPrice.ToDouble();
 
-                o.GetQuantity = isOpen ? this.GetOpenQuantity.ToDouble(): this.GetCloseQuantity.ToDouble();
+                o.GetQuantity = isOpen ? this.GetOpenQuantity.ToDouble() : this.GetCloseQuantity.ToDouble();
                 o.Quantity = this.OrderQuantity.ToDouble();
                 o.FilledQuantity = isOpen ? this.GetOpenQuantity.ToDouble() : this.GetCloseQuantity.ToDouble();
-                
+
                 o.IsEmpty = false;
-                o.IsMM = isOpen ? this.IsOpenMM: this.IsCloseMM;
+                o.IsMM = isOpen ? this.IsOpenMM : this.IsCloseMM;
                 //o.MaxDrowdown = 
                 //o.MinQuantity = 
                 //o.OrderID = 
@@ -193,9 +187,9 @@ namespace VisualHFT.Model
                 {
                     o.PricePlaced = o.GetAvgPrice;
                 }
-                o.QuoteID = isOpen ? this.OpenQuoteId.ToInt(): this.CloseQuoteId.ToInt();
-                o.QuoteLocalTimeStamp = isOpen ? this.OpenQuoteLocalTimeStamp.ToDateTime(): this.CloseQuoteLocalTimeStamp.ToDateTime();
-                o.QuoteServerTimeStamp = isOpen ? this.OpenQuoteServerTimeStamp.ToDateTime(): this.CloseQuoteServerTimeStamp.ToDateTime();
+                o.QuoteID = isOpen ? this.OpenQuoteId.ToInt() : this.CloseQuoteId.ToInt();
+                o.QuoteLocalTimeStamp = isOpen ? this.OpenQuoteLocalTimeStamp.ToDateTime() : this.CloseQuoteLocalTimeStamp.ToDateTime();
+                o.QuoteServerTimeStamp = isOpen ? this.OpenQuoteServerTimeStamp.ToDateTime() : this.CloseQuoteServerTimeStamp.ToDateTime();
                 if (isOpen)
                     o.Side = (eORDERSIDE)this.Side;
                 else
@@ -211,17 +205,17 @@ namespace VisualHFT.Model
 
                 //o.UnrealizedPnL               
                 o.LastUpdated = System.DateTime.Now;
-                o.FilledPercentage = 100* (o.FilledQuantity / o.Quantity);
+                o.FilledPercentage = 100 * (o.FilledQuantity / o.Quantity);
                 return o;
             }
             return null;
         }
-        public List<OrderVM> GetOrders()
+        public List<Order> GetOrders()
         {
 
-            OrderVM openOrder = GetOrder(true);
-            OrderVM closeOrder = GetOrder(false);
-            var orders = new List<OrderVM>();
+            Order openOrder = GetOrder(true);
+            Order closeOrder = GetOrder(false);
+            var orders = new List<Order>();
             if (openOrder != null)
                 orders.Add(openOrder);
             if (closeOrder != null)
@@ -231,22 +225,6 @@ namespace VisualHFT.Model
             return orders;
         }
 
-
-        public new ePOSITIONSIDE Side
-        {
-            get { return (ePOSITIONSIDE)base.Side; }
-            set { base.Side = (int)value; }
-        }
-        public new ePOSITIONSTATUS CloseStatus
-        {
-            get { return (ePOSITIONSTATUS)base.CloseStatus; }
-            set { base.CloseStatus = (int)value; }
-        }
-        public new ePOSITIONSTATUS OpenStatus
-        {
-            get { return (ePOSITIONSTATUS)base.OpenStatus; }
-            set { base.OpenStatus = (int)value; }
-        }
 
     }
 }

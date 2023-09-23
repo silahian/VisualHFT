@@ -222,9 +222,9 @@ namespace VisualHFT.Helpers
     {
         public override Style SelectStyle(object item, DependencyObject container)
         {
-            if (item is PositionEx)
+            if (item is VisualHFT.Model.Position)
             {
-                PositionEx pos = item as PositionEx;
+                VisualHFT.Model.Position pos = item as VisualHFT.Model.Position;
                 if (pos.CloseProviderId < 0) //means that is an open position
                     return NullBackColorStyle;
                 else if (pos.GetPipsPnL >= 0)

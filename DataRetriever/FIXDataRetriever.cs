@@ -15,7 +15,6 @@ namespace VisualHFT.DataRetriever
     using System.ComponentModel.DataAnnotations;
     using VisualHFT.Model;
     using System.Collections.Generic;
-    using OxyPlot;
 
     public class FIXDataRetriever : IDataRetriever, IApplication
     {
@@ -136,15 +135,12 @@ namespace VisualHFT.DataRetriever
         }
         private void HandleMarketDataSnapshot(MarketDataSnapshotFullRefresh snapshot)
         {
-            var model = new OrderBook
-            {
-                Bids = new List<BookItem>(),
-                Asks = new List<BookItem>()
-            };
             int? decimalPlaces = null;
 
             // Extract data from the snapshot
             var symbol = snapshot.Get(new Symbol()).getValue();
+            var _bids = new List<BookItem>();
+            var _asks = new List<BookItem>();
 
             // Iterate through the repeating groups for market data entries
             var noMDEntries = snapshot.GetInt(Tags.NoMDEntries);
@@ -176,16 +172,17 @@ namespace VisualHFT.DataRetriever
                 switch (type)
                 {
                     case '0':  // Bid
-                        model.Bids.Add(bookItem);
+                        _bids.Add(bookItem);
                         break;
                     case '1':  // Ask
-                        model.Asks.Add(bookItem);
+                        _asks.Add(bookItem);
                         break;
                 }
 
             }
 
-
+            var model = new OrderBook();
+            model.LoadData(_asks, _bids);
             model.Symbol = symbol;
             model.DecimalPlaces = decimalPlaces.Value;
             model.SymbolMultiplier = Math.Pow(10, decimalPlaces.Value);
@@ -197,8 +194,8 @@ namespace VisualHFT.DataRetriever
         }
         private void HandleHeartBeat()
         {
-            var provider = new ProviderEx() { LastUpdated = DateTime.Now, ProviderCode=12, ProviderID=12, ProviderName="FXCM", Status = eSESSIONSTATUS.BOTH_CONNECTED };
-            var model = new List<ProviderEx>() { provider };
+            var provider = new VisualHFT.ViewModel.Model.Provider() { LastUpdated = DateTime.Now, ProviderCode=12, ProviderID=12, ProviderName="FXCM", Status = eSESSIONSTATUS.BOTH_CONNECTED };
+            var model = new List<VisualHFT.ViewModel.Model.Provider>() { provider };
             // Raise an event or further process the data as needed
             OnDataReceived?.Invoke(this, new DataEventArgs { DataType = "HeartBeats", ParsedModel = model, RawData = "" });
         }

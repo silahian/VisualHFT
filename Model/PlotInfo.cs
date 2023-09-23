@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace VisualHFT.Model
 {
-    public class PlotInfo 
+    public partial class PlotInfo 
     {
         public DateTime Date { get; set; }
 

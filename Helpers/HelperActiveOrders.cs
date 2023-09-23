@@ -7,36 +7,36 @@ using System.Windows;
 
 namespace VisualHFT.Helpers
 {
-    public class HelperActiveOrder: ConcurrentDictionary<string, OrderVM>
+    public class HelperActiveOrder: ConcurrentDictionary<string, VisualHFT.Model.Order>
     {
-        public event EventHandler<OrderVM> OnDataReceived;
-        public event EventHandler<OrderVM> OnDataRemoved;
+        public event EventHandler<VisualHFT.Model.Order> OnDataReceived;
+        public event EventHandler<VisualHFT.Model.Order> OnDataRemoved;
 
         public HelperActiveOrder()
         {}
         ~HelperActiveOrder()
         {}
 
-        protected virtual void RaiseOnDataReceived(List<OrderVM> orders)
+        protected virtual void RaiseOnDataReceived(List<VisualHFT.Model.Order> orders)
         {
-            EventHandler<OrderVM> _handler = OnDataReceived;
+            EventHandler<VisualHFT.Model.Order> _handler = OnDataReceived;
             if (_handler != null && Application.Current != null)
             {
-                foreach (OrderVM o in orders)
+                foreach (var o in orders)
                     _handler(this, o);
             }
         }
-        protected virtual void RaiseOnDataRemoved(List<OrderVM> orders)
+        protected virtual void RaiseOnDataRemoved(List<VisualHFT.Model.Order> orders)
         {
-            EventHandler<OrderVM> _handler = OnDataRemoved;
+            EventHandler<VisualHFT.Model.Order> _handler = OnDataRemoved;
             if (_handler != null && Application.Current != null)
             {
-                foreach (OrderVM o in orders)
+                foreach (var o in orders)
                     _handler(this, o);
             }
         }
 
-        public bool TryFindOrder(int providerId, string symbol, double price, out OrderVM order)
+        public bool TryFindOrder(int providerId, string symbol, double price, out VisualHFT.Model.Order order)
         {
             
             var o = this.Select(x => x.Value).Where(x => x.ProviderId == providerId && x.Symbol == symbol && x.PricePlaced == price).FirstOrDefault();
@@ -51,10 +51,10 @@ namespace VisualHFT.Helpers
             }
 
         }
-        public void UpdateData(IEnumerable<OrderVM> orders)
+        public void UpdateData(IEnumerable<VisualHFT.Model.Order> orders)
         {
-            List<OrderVM> _listToRemove = new List<OrderVM>();
-            List<OrderVM> _listToAdd = new List<OrderVM>();
+            var _listToRemove = new List<VisualHFT.Model.Order>();
+            var _listToAdd = new List<VisualHFT.Model.Order>();
             _listToRemove = this.Where(x => !orders.Any(o => o.ClOrdId == x.Value.ClOrdId)).Select(x => x.Value).ToList();
             _listToAdd = orders.Where(x => !this.Any(o => o.Value.ClOrdId == x.ClOrdId)).ToList();
 
@@ -64,7 +64,7 @@ namespace VisualHFT.Helpers
             if (_listToRemove.Any())
                 RaiseOnDataRemoved(_listToRemove);
 
-            List<OrderVM> _listToAddOrUpdate = new List<OrderVM>();
+            var _listToAddOrUpdate = new List<VisualHFT.Model.Order>();
             foreach (var o in _listToAdd)
             {
                 if (UpdateData(o))
@@ -73,7 +73,7 @@ namespace VisualHFT.Helpers
             if (_listToAddOrUpdate.Any())
                 RaiseOnDataReceived(_listToAddOrUpdate);
         }
-        private bool UpdateData(OrderVM order)
+        private bool UpdateData(VisualHFT.Model.Order order)
         {            
             if (order != null)
             {

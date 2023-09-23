@@ -16,7 +16,7 @@ namespace VisualHFT.Helpers
         private TimeSpan _aggregationSpan;
         private TimeSpan _dynamicAggregationSpan;
         private AggregationLevel _level;
-        private readonly List<T> _aggregatedData = new List<T>();
+        private readonly CachedCollection<T> _aggregatedData;
         private readonly Func<T, DateTime> _dateSelector;
         private readonly Action<T, T> _aggregator;
         
@@ -32,7 +32,7 @@ namespace VisualHFT.Helpers
 
         public AggregatedCollection(IEnumerable<T> items, AggregationLevel level, int maxItems, Func<T, DateTime> dateSelector, Action<T, T> aggregator)
         {
-            _aggregatedData = items.ToList();
+            _aggregatedData = new CachedCollection<T>(items);
             _maxPoints = maxItems;
              _level = level;
             _aggregationSpan = GetAggregationSpan(level);
@@ -56,7 +56,7 @@ namespace VisualHFT.Helpers
                 {
                     _aggregatedData.Add(item);
                     OnAdded?.Invoke(this, item);
-                    if (_aggregatedData.Count > _maxPoints)
+                    while(_aggregatedData.Count() > _maxPoints)
                     {
                         _aggregatedData.RemoveAt(0);
                         OnRemoved?.Invoke(this, 0);
@@ -96,9 +96,15 @@ namespace VisualHFT.Helpers
                     {
                         _aggregatedData.Add(item);
                         OnAdded?.Invoke(this, item);
-                        if (_aggregatedData.Count > _maxPoints) 
-                        { 
+                        while (_aggregatedData.Count() > _maxPoints) 
+                        {
+                            var itemToRemove = _aggregatedData.FirstOrDefault();
+                            if (itemToRemove is IDisposable disposableItem)
+                            {
+                                disposableItem.Dispose();
+                            }
                             _aggregatedData.RemoveAt(0);
+
                             OnRemoved?.Invoke(this, 0);
                         }
                         return true;
@@ -116,7 +122,7 @@ namespace VisualHFT.Helpers
         {
             lock (_lockObject)
             {
-                return _aggregatedData.Count;
+                return _aggregatedData.Count();
             }
         }
         public IEnumerable<T> ToList()
@@ -154,6 +160,11 @@ namespace VisualHFT.Helpers
             lock (_lockObject)
                 return _aggregatedData.FirstOrDefault();
         }
+        public IEnumerable<T> Where(Func<T, bool> predicate)
+        {
+            lock (_lockObject)
+                return _aggregatedData.Where(predicate);
+        }
         private TimeSpan GetAggregationSpan(AggregationLevel level)
         {
             switch (level)
@@ -172,7 +183,7 @@ namespace VisualHFT.Helpers
         }
         private TimeSpan CalculateAutomaticAggregationSpan(DateTime currentItemDate)
         {
-            if (_aggregatedData.Count < WINDOW_SIZE)
+            if (_aggregatedData.Count() < WINDOW_SIZE)
                 return _dynamicAggregationSpan; //return the same
             //var olderItemDate = _dateSelector(_aggregatedData[_aggregatedData.Count - WINDOW_SIZE]);
             var averageElapsed = new TimeSpan((currentItemDate - lastItemDate).Ticks / WINDOW_SIZE);

@@ -32,7 +32,6 @@ namespace VisualHFT.ViewModel
             this._dialogs = dialogs;
             CmdAbort = new RelayCommand(DoAbort);
 
-            HelperCommon.ACTIVESTRATEGIES.CollectionChanged += ACTIVESTRATEGIES_CollectionChanged;
             HelperCommon.ALLSYMBOLS.CollectionChanged += ALLSYMBOLS_CollectionChanged;
 
             this.StrategyParamsFirmMM = new vmStrategyParameterFirmMM(Helpers.HelperCommon.GLOBAL_DIALOGS);
@@ -47,7 +46,6 @@ namespace VisualHFT.ViewModel
             Tiles = new ObservableCollection<MetricTileViewModel>();
             Tiles.Add(new MetricTileViewModel(eTILES_TYPE.STUDY_LOB_IMBALANCE, "dashboard_LOB_Imbalance")
             {
-                Value = "",
                 Title = "LOB Imbalance",
                 Tooltip = "The <b>Limit Order Book Imbalance</b> represents the disparity between buy and sell orders at a specific price level.<br/><br/>" +
                 "It highlights the difference in demand and supply in the order book, providing insights into potential price movements.<br/>" +
@@ -55,14 +53,12 @@ namespace VisualHFT.ViewModel
             });
             Tiles.Add(new MetricTileViewModel(eTILES_TYPE.STUDY_VPIN, "dashboard_VPIN")
             {
-                Value = "",
                 Title = "VPIN",
                 Tooltip = "The <b>VPIN</b> (Volume - Synchronized Probability of Informed Trading) value is a measure of the imbalance between buy and sell volumes in a given bucket.<br/><br/>" +
                 "It's calculated as the absolute difference between buy and sell volumes divided by the total volume (buy + sell) for that bucket.<br/>"
             });
             Tiles.Add(new MetricTileViewModel(eTILES_TYPE.STUDY_TTO, "dashboard_TTO")
             {
-                Value = "",
                 Title = "TTO",
                 Tooltip = "The <b>TTO</b> (Volume - Trade To Order Ratio) value is a key metric that measures the efficiency of trading by comparing the number of executed trades to the number of orders placed.<br/><br/>" +
                 "<b>TTO</b> is calculation as follows: <i>TTO Ratio=Number of Executed Trades / Number of Orders Placed</i><br/>" +
@@ -70,7 +66,6 @@ namespace VisualHFT.ViewModel
             });
             Tiles.Add(new MetricTileViewModel(eTILES_TYPE.STUDY_OTT, "dashboard_OTT")
             {
-                Value = "",
                 Title = "OTT",
                 Tooltip = "The <b>OTT</b> (Volume - Order To Trade Ratio) is a key metric used to evaluate trading behavior. <br/> It measures the number of orders placed relative to the number of trades executed. This ratio is often <b>monitored by regulatory bodies</b> to identify potentially manipulative or disruptive trading activities.<br/><br/>" +
                 "<b>OTT</b> is calculation as follows: <i>OTT Ratio  = Number of Orders Placed / Number of Executed Trades</i><br/>" +
@@ -78,7 +73,6 @@ namespace VisualHFT.ViewModel
             });
             Tiles.Add(new MetricTileViewModel(eTILES_TYPE.STUDY_MARKETRESILIENCE, "dashboard_MKTRESIL")
             {
-                Value = "",
                 Title = "MR",
                 Tooltip = "<b>Market Resilience</b> (MR) is a real-time metric that quantifies how quickly a market rebounds after experiencing a large trade. <br/> It's an invaluable tool for traders to gauge market stability and sentiment.<br/><br/>" +
                 "The <b>MR</b> score is a composite index derived from two key market behaviors:<br/>" +
@@ -89,7 +83,6 @@ namespace VisualHFT.ViewModel
             });
             Tiles.Add(new MetricTileViewModel(eTILES_TYPE.STUDY_MARKETRESILIENCEBIAS, "dashboard_MKTRESILBIAS")
             {
-                Value = "",
                 Title = "MBR",
                 Tooltip = "<b>Market Resilience Bias</b> (MRB) is a real-time metric that quantifies the directional tendency of the market following a large trade. <br/> It provides insights into the prevailing sentiment among market participants, enhancing traders' understanding of market dynamics.<br/><br/>" +
                 "The <b>MRB</b> score is derived from the behavior of the Limit Order Book (LOB) post-trade:<br/>" +
@@ -124,10 +117,6 @@ namespace VisualHFT.ViewModel
         {
             RefreshSymbolList();
         }
-        private void ACTIVESTRATEGIES_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) => RaisePropertyChanged(nameof(StrategyList));
-
-        public ObservableCollection<string> StrategyList => HelperCommon.ACTIVESTRATEGIES;
-
 
         private void RefreshSymbolList()
         {
@@ -193,8 +182,8 @@ namespace VisualHFT.ViewModel
                 if (value != "")
                 {
                     _selectedSymbol = "-- All symbols --";
-                    _vmStrategyParamsFirmMM.SelectedStrategy = value;
-                    _vmPosition.SelectedStrategy = value;
+                    if (_vmStrategyParamsFirmMM != null) _vmStrategyParamsFirmMM.SelectedStrategy = value;
+                    if (_vmPosition != null) _vmPosition.SelectedStrategy = value;
 
                     RaisePropertyChanged(nameof(SelectedStrategy));
                     RaisePropertyChanged(nameof(SelectedSymbol));
@@ -210,9 +199,9 @@ namespace VisualHFT.ViewModel
                 if (_selectedSymbol != value)
                 {
                     _selectedSymbol = value;
-                    _vmStrategyParamsFirmMM.SelectedSymbol = value;
-                    _vmPosition.SelectedSymbol = value;
-                    _vmOrderBook.SelectedSymbol = value;
+                    if (_vmStrategyParamsFirmMM != null) _vmStrategyParamsFirmMM.SelectedSymbol = value;
+                    if (_vmPosition != null) _vmPosition.SelectedSymbol = value;
+                    if (_vmOrderBook != null) _vmOrderBook.SelectedSymbol = value;
 
                     RaisePropertyChanged(nameof(SelectedSymbol));
                 }
@@ -226,7 +215,7 @@ namespace VisualHFT.ViewModel
                 if (_selectedLayer != value)
                 {
                     _selectedLayer = value;
-                    _vmOrderBook.SelectedLayer = value;
+                    if (_vmOrderBook != null) _vmOrderBook.SelectedLayer = value;
 
                     RaisePropertyChanged(nameof(SelectedLayer));
                 }

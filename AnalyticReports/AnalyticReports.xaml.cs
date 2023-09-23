@@ -17,7 +17,7 @@ namespace VisualHFT.AnalyticReport
     /// </summary>
     public partial class AnalyticReport : Window
     {
-        public List<PositionEx> Signals
+        public List<VisualHFT.Model.Position> Signals
         {
             get { return this.originalSignal.ToList(); }
             set
@@ -25,7 +25,7 @@ namespace VisualHFT.AnalyticReport
                 this.originalSignal = value;                    
             }
         }
-        public List<PositionEx> originalSignal { get; set; }
+        public List<VisualHFT.Model.Position> originalSignal { get; set; }
 
         public AnalyticReport()
         {

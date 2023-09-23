@@ -42,7 +42,7 @@ namespace VisualHFT.Studies
             _providerId = providerId;
             _aggregationLevel = aggregationLevel;
             _rollingValues = new AggregatedCollection<BaseStudyModel>(aggregationLevel, rollingWindowSize, x => x.Timestamp, AggregateData);
-            _rollingValues.OnRemoved += _rollingValues_OnRemoved;
+            _rollingValues.OnRemoved += _rollingValues_OnRemoved;            
         }
         ~LOBImbalanceStudy()
         {
@@ -72,7 +72,7 @@ namespace VisualHFT.Studies
                 _orderBook = new OrderBook(_symbol, e.DecimalPlaces);
             }
 
-            if (!_orderBook.LoadData(e.Asks?.ToList(), e.Bids?.ToList()))
+            if (!_orderBook.LoadData(e.Asks, e.Bids))
                 return; //if nothing to update, then exit
             
             if (_orderBook.MidPrice != 0)
@@ -80,7 +80,7 @@ namespace VisualHFT.Studies
         }
         private void CalculateStudy()
         {
-            var newItem = new BaseStudyModel(false) { 
+            var newItem = new BaseStudyModel() { 
                 Value = (decimal)_orderBook.ImbalanceValue, 
                 ValueFormatted = _orderBook.ImbalanceValue.ToString("N1"),
                 Timestamp = DateTime.Now, 
@@ -105,6 +105,9 @@ namespace VisualHFT.Studies
             {
                 if (disposing)
                 {
+                    _providerId = 0;
+                    _symbol = "";
+
                     // Dispose managed resources here
                     HelperCommon.LIMITORDERBOOK.OnDataReceived -= LIMITORDERBOOK_OnDataReceived;
                     _orderBook = null;
