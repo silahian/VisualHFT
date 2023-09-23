@@ -1,5 +1,5 @@
 # Latest improvements
-See details [here](https://github.com/silahian/VisualHFT/edit/master/README.md#latest-releases)
+See details [here](#latest-releases)
 
 # VisualHFT
 
