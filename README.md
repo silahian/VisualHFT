@@ -1,3 +1,6 @@
+# Latest improvements
+See details [here](https://github.com/silahian/VisualHFT/edit/master/README.md#latest-releases)
+
 # VisualHFT
 
 VisualHFT is a GUI for enterprise-level high-frequency trading systems. It focuses on visualizing market microstructure analytics, such as Limit Order Book dynamics, latencies, execution quality, and other analytics. This project is built with WPF and C# and is designed to support a high-frequency trading operation.
@@ -217,3 +220,21 @@ If you are interested in reporting/fixing issues and contributing directly to th
 For project questions use the repository’s forums or any of my social media profiles.
 [Twitter](https://twitter.com/sisSoftware) | [LinkedIn](https://www.linkedin.com/in/silahian/) | Forums
 
+## Latest releases
+### Sep 22 2023
+- Architectural improvement: Rearranged classes around to improve project structure.
+- Improved performance overall:
+    - Gradually separating pure “model” classes from “model view” classes. This will improve the MVVM architecture and it will give a performance boost, since model are light-weight.
+    - Created custom collections and cache capability
+    - UI updates improved for a flawless visualization
+    - Improvement in memory usage
+- Preparing the architecture, to introduce Plugins: these plugins will act as independent components, letting the community create new ones and have VisualHFT easily use them.
+- Added Tiles into the dashboard, with different metrics. With the ability to launch realtime charts for each of them. The following list of metrics has been added:
+    - VPIN
+    - LOB Imbalance
+    - TTO: trade to trade ratio
+    - OTT: order to trade ratio
+    - Market Resilience
+    - Market Resilience Bias
+- Multi Venue (providers) price chart
+- Updated to latest .NET Framework .NET 7.0
