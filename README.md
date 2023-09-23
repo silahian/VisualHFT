@@ -1,4 +1,4 @@
-# Latest improvements
+# Latest Releases
 See details [here](#latest-releases)
 
 # VisualHFT
