@@ -220,7 +220,8 @@ If you are interested in reporting/fixing issues and contributing directly to th
 For project questions use the repository’s forums or any of my social media profiles.
 [Twitter](https://twitter.com/sisSoftware) | [LinkedIn](https://www.linkedin.com/in/silahian/) | Forums
 
-## Latest releases
+
+# Latest releases
 ### Sep 22 2023
 - Architectural improvement: Rearranged classes around to improve project structure.
 - Improved performance overall:
