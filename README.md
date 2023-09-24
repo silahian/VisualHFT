@@ -1,4 +1,4 @@
-# Latest Releases
+# Release Notes
 See details [here](#latest-releases)
 
 # VisualHFT
@@ -221,7 +221,7 @@ For project questions use the repository’s forums or any of my social media pr
 [Twitter](https://twitter.com/sisSoftware) | [LinkedIn](https://www.linkedin.com/in/silahian/) | Forums
 
 
-# Latest releases
+# Release notes
 ### Sep 22 2023
 - Architectural improvement: Rearranged classes around to improve project structure.
 - Improved performance overall:
