@@ -18,6 +18,8 @@ namespace VisualHFT.DataRetriever
 
     public class FIXDataRetriever : IDataRetriever, IApplication
     {
+        private bool _disposed = false; // to track whether the object has been disposed
+
         private SessionSettings _settings;
         private IMessageStoreFactory _storeFactory;
         private ILogFactory _logFactory;
@@ -44,7 +46,10 @@ namespace VisualHFT.DataRetriever
             _logFactory = new FileLogFactory(_settings);
             _initiator = new SocketInitiator(this, _storeFactory, _settings, _logFactory);
         }
-
+        ~FIXDataRetriever()
+        {
+            Dispose(false);
+        }
         public void Start()
         {
             if (!_initiator.IsLoggedOn)
@@ -200,6 +205,23 @@ namespace VisualHFT.DataRetriever
             OnDataReceived?.Invoke(this, new DataEventArgs { DataType = "HeartBeats", ParsedModel = model, RawData = "" });
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _initiator.Dispose();
+                    
+                }
+                _disposed = true;
+            }
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 
 }

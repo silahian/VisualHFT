@@ -9,6 +9,8 @@ namespace VisualHFT.DataRetriever
 {
     public class ZeroMQDataRetriever : IDataRetriever
     {
+        private bool _disposed = false; // to track whether the object has been disposed
+
         private readonly string _connectionString;
         private SubscriberSocket _subscriber;
         public event EventHandler<DataEventArgs> OnDataReceived;
@@ -17,7 +19,10 @@ namespace VisualHFT.DataRetriever
         {
             _connectionString = connectionString;
         }
-
+        ~ZeroMQDataRetriever()
+        {
+            Dispose(false);
+        }
         public void Start()
         {
             _subscriber = new SubscriberSocket();
@@ -61,6 +66,23 @@ namespace VisualHFT.DataRetriever
             // Raise the OnDataReceived event
             OnDataReceived?.Invoke(this, new DataEventArgs { DataType = "HeartBeats", RawData = message, ParsedModel = model });
 
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _subscriber.Dispose();
+
+                }
+                _disposed = true;
+            }
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

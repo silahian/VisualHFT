@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VisualHFT.DataRetriever
 {
-    public interface IDataRetriever
+    public interface IDataRetriever: IDisposable
     {
         event EventHandler<DataEventArgs> OnDataReceived;
         void Start();

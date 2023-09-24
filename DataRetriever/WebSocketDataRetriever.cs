@@ -1,5 +1,6 @@
 ﻿
 using Newtonsoft.Json;
+using QuickFix.Fields;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,6 +21,7 @@ namespace VisualHFT.DataRetriever
 
     public class WebSocketDataRetriever : IDataRetriever
     {
+        private bool _disposed = false; // to track whether the object has been disposed
         private IDataParser _parser;
         private WebSocket _webSocket;
         private string WEBSOCKET_URL = System.Configuration.ConfigurationManager.AppSettings["WSorderBook"];
@@ -40,7 +42,10 @@ namespace VisualHFT.DataRetriever
             };
             InitializeWebSocket();
         }
-
+        ~WebSocketDataRetriever()
+        {
+            Dispose(false);
+        }
         private void InitializeWebSocket()
         {
             _webSocket = new WebSocket(WEBSOCKET_URL);
@@ -145,6 +150,26 @@ namespace VisualHFT.DataRetriever
             _webSocket.Closed -= WebSocket_Closed;
             _webSocket.Error -= WebSocket_Error;
             _webSocket.MessageReceived -= WebSocket_MessageReceived;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    if (_webSocket != null)
+                        Stop();
+                    _webSocket.Dispose();
+
+                }
+                _disposed = true;
+            }
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

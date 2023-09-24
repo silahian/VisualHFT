@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Confluent.Kafka;
+using QuickFix;
 using VisualHFT.Model;
 
 namespace VisualHFT.DataRetriever
 {
     public class KafkaDataRetriever : IDataRetriever
     {
+        private bool _disposed = false; // to track whether the object has been disposed
         private readonly string _bootstrapServers;
         private readonly string _topic;
         private IConsumer<Ignore, string> _consumer;
@@ -17,7 +19,10 @@ namespace VisualHFT.DataRetriever
             _bootstrapServers = bootstrapServers;
             _topic = topic;
         }
-
+        ~KafkaDataRetriever()
+        {
+            Dispose(false);
+        }
         public void Start()
         {
             var config = new ConsumerConfig
@@ -65,6 +70,25 @@ namespace VisualHFT.DataRetriever
             var provider = new VisualHFT.ViewModel.Model.Provider() { LastUpdated = DateTime.Now, ProviderID = 2, ProviderName = "Kafka", Status = eSESSIONSTATUS.BOTH_CONNECTED };
             // Raise the OnDataReceived event
             OnDataReceived?.Invoke(this, new DataEventArgs { DataType = "HeartBeats", RawData = message, ParsedModel = model });
+        }
+
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _consumer.Dispose();
+
+                }
+                _disposed = true;
+            }
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
