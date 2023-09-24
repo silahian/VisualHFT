@@ -1,5 +1,5 @@
 # Release Notes
-See details [here](#latest-releases)
+See details [here](#release-notes-1)
 
 # VisualHFT
 
