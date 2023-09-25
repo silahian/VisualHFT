@@ -66,6 +66,14 @@ namespace VisualHFT.ViewModel
                 itemToUpdate.Status = e.Status;
                 itemToUpdate.CheckValuesUponHeartbeatReceived();
             }
+            else
+            {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+                {
+                    lock (_lock)
+                        _providers.Add(e);
+                }));
+            }
         }
 
         private void DoUpdateStatus(object obj)
