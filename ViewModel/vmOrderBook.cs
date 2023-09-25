@@ -1,5 +1,4 @@
-﻿using VisualHFT.Extensions;
-using VisualHFT.Helpers;
+﻿using VisualHFT.Helpers;
 using VisualHFT.Model;
 using System;
 using System.Collections.Generic;
@@ -8,11 +7,8 @@ using System.ComponentModel;
 using System.Linq;
 using Prism.Mvvm;
 using System.Windows.Threading;
-using System.Windows.Navigation;
-using OxyPlot;
 using System.Windows;
 using System.Windows.Data;
-using Confluent.Kafka;
 using VisualHFT.ViewModel.Model;
 
 namespace VisualHFT.ViewModel

@@ -1,11 +1,6 @@
-﻿using VisualHFT.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using VisualHFT.Studies;
+﻿using System.Collections.ObjectModel;
 using VisualHFT.Helpers;
+using VisualHFT.Studies;
 
 namespace VisualHFT.Model
 {
@@ -137,89 +132,6 @@ namespace VisualHFT.Model
             }
             return ret;
         }
-        public ReadOnlyCollection<BookItem> Asks
-        {
-            get => _Asks.AsReadOnly();
-            set => _Asks.Update(value); //do not remove setter: it is used to auto parse json
-        }
-        public ReadOnlyCollection<BookItem> Bids 
-        { 
-            get => _Bids.AsReadOnly();
-            set => _Bids.Update(value); //do not remove setter: it is used to auto parse json
-        }
-        public ReadOnlyCollection<BookItem> BidCummulative => _Cummulative_Bids.AsReadOnly();
-        public ReadOnlyCollection<BookItem> AskCummulative => _Cummulative_Asks.AsReadOnly();
-
-        public string Symbol
-        {
-            get
-            {
-                return _Symbol;
-            }
-
-            set
-            {
-                if (_Symbol != value)
-                {                    
-                    _Symbol = value;
-                }
-            }
-        }
-        public int DecimalPlaces
-        {
-            get
-            {
-                return _DecimalPlaces;
-            }
-            set
-            {
-                if (_DecimalPlaces != value)
-                {
-                    _DecimalPlaces = value;
-                    //RaisePropertyChanged("DecimalPlaces");
-                }
-            }
-        }
-        public double SymbolMultiplier
-        {
-            get
-            {
-                return _SymbolMultiplier;
-            }
-            set
-            {
-                if (_SymbolMultiplier != value)
-                {
-                    // get { return Math.Pow(10, _DecimalPlaces - 1); }
-                    _SymbolMultiplier = value;
-                    //RaisePropertyChanged("SymbolMultiplier");
-                }
-            }            
-        }
-        public int ProviderID {
-            get => _ProviderID;
-            set
-            {
-                if (_ProviderID != value)
-                {
-                    _ProviderID = value;
-                }
-            }
-        }
-        public string ProviderName {
-            get => _ProviderName;
-            set
-            {
-                if (_ProviderName != value)
-                {
-                    _ProviderName = value;
-                    //RaisePropertyChanged("ProviderName");
-                }
-            }
-        }
-        public eSESSIONSTATUS ProviderStatus { get => _providerStatus; set => _providerStatus = value; }
-
-
         public BookItem GetTOB(bool isBid)
         {
             lock (LOCK_OBJECT)
@@ -251,7 +163,7 @@ namespace VisualHFT.Model
             {
                 if (_Bids != null)
                     allOrders.AddRange(_Bids.Where(x => x.Size.HasValue).ToList());
-                if (_Asks != null)  
+                if (_Asks != null)
                     allOrders.AddRange(_Asks.Where(x => x.Size.HasValue).ToList());
             }
             //AVOID OUTLIERS IN SIZES (when data is invalid)
@@ -266,14 +178,13 @@ namespace VisualHFT.Model
 
             return Tuple.Create(minOrderSize, maxOrderSize);
         }
-
         public object Clone()
         {
             var clone = new OrderBook
             {
                 DecimalPlaces = DecimalPlaces,
-                ProviderID=ProviderID,
-                ProviderName=ProviderName,
+                ProviderID = ProviderID,
+                ProviderName = ProviderName,
                 Symbol = Symbol,
                 SymbolMultiplier = SymbolMultiplier,
             };
@@ -281,9 +192,33 @@ namespace VisualHFT.Model
             return clone;
         }
 
+
+        public ReadOnlyCollection<BookItem> Asks
+        {
+            get => _Asks.AsReadOnly();
+            set => _Asks.Update(value); //do not remove setter: it is used to auto parse json
+        }
+        public ReadOnlyCollection<BookItem> Bids 
+        { 
+            get => _Bids.AsReadOnly();
+            set => _Bids.Update(value); //do not remove setter: it is used to auto parse json
+        }
+        public ReadOnlyCollection<BookItem> BidCummulative => _Cummulative_Bids.AsReadOnly();
+        public ReadOnlyCollection<BookItem> AskCummulative => _Cummulative_Asks.AsReadOnly();
+
+        public string Symbol { get => _Symbol; set => _Symbol = value; }
+        public int DecimalPlaces { get => _DecimalPlaces; set => _DecimalPlaces = value; }
+        public double SymbolMultiplier { get => _SymbolMultiplier; set => _SymbolMultiplier = value; }
+        public int ProviderID { get => _ProviderID; set => _ProviderID = value; }
+        public string ProviderName { get => _ProviderName; set => _ProviderName = value; }
+        public eSESSIONSTATUS ProviderStatus { get => _providerStatus; set => _providerStatus = value; }
         public double ImbalanceValue { get; set; }
-        public double MidPrice { get => _MidPrice;  }
+        public double MidPrice { get => _MidPrice; }
         public double Spread { get => _Spread; }
+
+
+
+
 
         protected virtual void Dispose(bool disposing)
         {
