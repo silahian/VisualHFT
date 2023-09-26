@@ -87,6 +87,16 @@ namespace VisualHFT.Model
             lobMetrics.LoadData(_Asks.Where(x => x != null).ToList(), _Bids.Where(x => x != null).ToList());
             this.ImbalanceValue = lobMetrics.Calculate_OrderImbalance();
         }
+        public void Clear()
+        {
+            lock (LOCK_OBJECT)
+            {
+                _Cummulative_Asks?.Clear();
+                _Cummulative_Bids?.Clear();
+                _Bids?.Clear();
+                _Asks?.Clear();
+            }
+        }
         public bool LoadData()
         {
             return LoadData(this.Asks, this.Bids);
@@ -98,7 +108,7 @@ namespace VisualHFT.Model
             {
                 #region Bids
                 if (bids != null)
-                    _Bids.Update(bids.Where(x => x.Price.HasValue).OrderByDescending(x => x.Price));
+                    _Bids.Update(bids.Where(x => x != null && x.Price.HasValue).OrderByDescending(x => x.Price));
                 _Cummulative_Bids.Clear();
                 double cumSize = 0;
                 foreach (var o in _Bids.Where(x => x.Price.HasValue && x.Size.HasValue).OrderByDescending(x => x.Price))
@@ -110,7 +120,7 @@ namespace VisualHFT.Model
 
                 #region Asks
                 if (asks != null)
-                    _Asks.Update(asks.Where(x => x.Price.HasValue).OrderBy(x => x.Price));
+                    _Asks.Update(asks.Where(x => x != null && x.Price.HasValue).OrderBy(x => x.Price));
                 _Cummulative_Asks.Clear();
                 cumSize = 0;
                 foreach (var o in _Asks.Where(x => x.Price.HasValue && x.Size.HasValue).OrderBy(x => x.Price))
