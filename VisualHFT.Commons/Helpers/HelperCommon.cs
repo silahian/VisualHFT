@@ -24,7 +24,7 @@ namespace VisualHFT.Helpers
         public static string GetKiloFormatter(double num)
         {
             if (num < 500)
-                return num.ToString("N2");
+                return num.ToString("N");
             if (num < 10000)
                 return num.ToString("N0");
 
