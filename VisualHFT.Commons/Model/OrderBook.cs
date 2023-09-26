@@ -213,8 +213,14 @@ namespace VisualHFT.Model
             get => _Bids.AsReadOnly();
             set => _Bids.Update(value); //do not remove setter: it is used to auto parse json
         }
-        public ReadOnlyCollection<BookItem> BidCummulative => _Cummulative_Bids.AsReadOnly();
-        public ReadOnlyCollection<BookItem> AskCummulative => _Cummulative_Asks.AsReadOnly();
+        public ReadOnlyCollection<BookItem> BidCummulative
+        {
+            get { lock (LOCK_OBJECT) return _Cummulative_Bids.AsReadOnly(); }
+        }
+        public ReadOnlyCollection<BookItem> AskCummulative
+        {
+            get { lock (LOCK_OBJECT) return _Cummulative_Asks.AsReadOnly(); }
+        }
 
         public string Symbol { get => _Symbol; set => _Symbol = value; }
         public int DecimalPlaces { get => _DecimalPlaces; set => _DecimalPlaces = value; }
