@@ -1,6 +1,10 @@
 # Release Notes
 See details [here](#release-notes-1)
 
+# Coming Soon
+- ability to connect to any market data source, including, equities, futures, forex, and even news.
+- open plug-in architecture, to allow 3rd party developers to create their own analytics, data sources, and more
+
 # VisualHFT
 
 VisualHFT is a GUI for enterprise-level high-frequency trading systems. It focuses on visualizing market microstructure analytics, such as Limit Order Book dynamics, latencies, execution quality, and other analytics. This project is built with WPF and C# and is designed to support a high-frequency trading operation.
@@ -9,8 +13,8 @@ VisualHFT is a GUI for enterprise-level high-frequency trading systems. It focus
 ![Limit Order Book Visualization](https://github.com/silahian/VisualHFT/blob/master/docImages/LOB_imbalances_2.gif)
 For this specific example we had the following:
 - built with #wpf (desktop app)
-- 5 levels of depth on each side
-- market data is coming from Binance (btc/usd)
+- 10 or more levels of depth on each side
+- market data is coming from Binance, Okex (btc/usd) (soon plugins to add other sources)
 - red/green bubbles are selling/buying orders on the LOB
 - light green/red bubbles are our orders (market making)
 - bottom chart in blue, is the spread
