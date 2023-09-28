@@ -4,6 +4,10 @@ See details [here](#release-notes-1)
 # Coming Soon
 - ability to connect to any market data source, including, equities, futures, forex, and even news.
 - open plug-in architecture, to allow 3rd party developers to create their own analytics, data sources, and more
+- and much more...
+
+We are open tho hearing from the community to add more features. Make sure you open new Issues with suggestions.
+
 
 # VisualHFT
 
