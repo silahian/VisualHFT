@@ -20,7 +20,7 @@ namespace VisualHFT.ViewModel.Model
                 {
                     try
                     {
-                        string sPrice = string.Format("{0:N" + symbolDecimalPlaces + "}", price).Replace(",", ".");
+                        string sPrice = string.Format("{0:N" + symbolDecimalPlaces + "}", price);
                         if (symbolDecimalPlaces > 0)
                         {
                             /*LastDecimal = sPrice.Last().ToString();

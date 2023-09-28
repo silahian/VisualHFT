@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Threading;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace VisualHFT.Helpers
 {
@@ -31,6 +32,13 @@ namespace VisualHFT.Helpers
         private void ProcessQueue()
         {
             Thread.CurrentThread.IsBackground = true;
+
+            CultureInfo ci_clone = (CultureInfo)Thread.CurrentThread.CurrentCulture.Clone();
+            ci_clone.NumberFormat = CultureInfo.GetCultureInfo("en-US").NumberFormat;
+
+            Thread.CurrentThread.CurrentCulture = ci_clone;
+            Thread.CurrentThread.CurrentUICulture = ci_clone;
+
             while (!_cancellationTokenSource.Token.IsCancellationRequested)
             {
                 List<OrderBook> data = new List<OrderBook>();
