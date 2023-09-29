@@ -20,7 +20,7 @@ namespace VisualHFT.Helpers
 
         public HelperOrderBook()
         {
-            _processingTask = Task.Run(() => ProcessQueue(), _cancellationTokenSource.Token);
+            _processingTask = Task.Run(async () => await ProcessQueueAsync(), _cancellationTokenSource.Token);
         }
         ~HelperOrderBook()
         {
@@ -28,7 +28,7 @@ namespace VisualHFT.Helpers
             _processingTask.Wait();
         }
 
-        private void ProcessQueue()
+        private async Task ProcessQueueAsync()
         {
             Thread.CurrentThread.IsBackground = true;
             while (!_cancellationTokenSource.Token.IsCancellationRequested)
@@ -46,7 +46,7 @@ namespace VisualHFT.Helpers
                     RaiseOnDataReceived(data);
 
                 // Wait for the next iteration
-                Task.Delay(1).Wait();
+                await Task.Delay(1);
             }
         }
 
