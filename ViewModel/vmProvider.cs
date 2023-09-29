@@ -71,7 +71,13 @@ namespace VisualHFT.ViewModel
                 Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
                 {
                     lock (_lock)
-                        _providers.Add(e);
+                    {
+                        if (!_providers.Any(x => x.ProviderCode == e.ProviderCode))
+                        {
+                            _providers.Add(e);
+                            e.CheckValuesUponHeartbeatReceived();
+                        }
+                    }
                 }));
             }
         }

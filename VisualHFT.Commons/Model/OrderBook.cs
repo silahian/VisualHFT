@@ -208,8 +208,8 @@ namespace VisualHFT.Model
             get => _Asks.AsReadOnly();
             set => _Asks.Update(value); //do not remove setter: it is used to auto parse json
         }
-        public ReadOnlyCollection<BookItem> Bids 
-        { 
+        public ReadOnlyCollection<BookItem> Bids
+        {
             get => _Bids.AsReadOnly();
             set => _Bids.Update(value); //do not remove setter: it is used to auto parse json
         }
@@ -249,7 +249,7 @@ namespace VisualHFT.Model
 
 
                     _Cummulative_Asks = null;
-                    _Cummulative_Bids= null;
+                    _Cummulative_Bids = null;
                     _Bids = null;
                     _Asks = null;
 
