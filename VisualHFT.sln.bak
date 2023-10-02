@@ -9,11 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "demoTradingCore", "demoTrad
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisualHFT.Commons", "VisualHFT.Commons\VisualHFT.Commons.csproj", "{D479C46D-1016-4C55-89CA-7FECB77BADD9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarketConnectors.Binance", "VisualHFT.Plugins\MarketConnectors.Binance\MarketConnectors.Binance.csproj", "{94E440F7-C9B4-41B4-B7F2-631361BB15C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarketConnectors.Binance", "..\VisualHFT.Plugins\MarketConnectors.Binance\MarketConnectors.Binance.csproj", "{94E440F7-C9B4-41B4-B7F2-631361BB15C2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarketConnectors.Bitfinex", "VisualHFT.Plugins\MarketConnectors.Bitfinex\MarketConnectors.Bitfinex.csproj", "{06AD6F6B-BBFA-458E-ACA4-EEA5AF1F3AE0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarketConnectors.Bitfinex", "..\VisualHFT.Plugins\MarketConnectors.Bitfinex\MarketConnectors.Bitfinex.csproj", "{06AD6F6B-BBFA-458E-ACA4-EEA5AF1F3AE0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

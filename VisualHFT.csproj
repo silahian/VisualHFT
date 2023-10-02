@@ -13,15 +13,19 @@
     <Compile Remove="demoTradingCore\**" />
     <Compile Remove="packages\**" />
     <Compile Remove="VisualHFT.Commons\**" />
+    <Compile Remove="VisualHFT.Plugins\**" />
     <EmbeddedResource Remove="demoTradingCore\**" />
     <EmbeddedResource Remove="packages\**" />
     <EmbeddedResource Remove="VisualHFT.Commons\**" />
+    <EmbeddedResource Remove="VisualHFT.Plugins\**" />
     <None Remove="demoTradingCore\**" />
     <None Remove="packages\**" />
     <None Remove="VisualHFT.Commons\**" />
+    <None Remove="VisualHFT.Plugins\**" />
     <Page Remove="demoTradingCore\**" />
     <Page Remove="packages\**" />
     <Page Remove="VisualHFT.Commons\**" />
+    <Page Remove="VisualHFT.Plugins\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -78,9 +82,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VisualHFT.Plugins\MarketConnectors.Binance\MarketConnectors.Binance.csproj" />
-    <ProjectReference Include="..\VisualHFT.Plugins\MarketConnectors.Bitfinex\MarketConnectors.Bitfinex.csproj" />
     <ProjectReference Include="VisualHFT.Commons\VisualHFT.Commons.csproj" />
+    <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Binance\MarketConnectors.Binance.csproj" />
+    <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Bitfinex\MarketConnectors.Bitfinex.csproj" />
   </ItemGroup>
 
   <ItemGroup>
