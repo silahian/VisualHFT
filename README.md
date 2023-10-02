@@ -230,6 +230,22 @@ For project questions use the repository’s forums or any of my social media pr
 
 
 # Release notes
+### Oct 02 2023
+## New Features:
+- **Plugin System Integration**: Incorporated the ability to use plugins within the application, allowing for modular expansion and customization. This will allow us to incorporate more functionalities in a modular fashion. Also, it will allow for 3rd party developers to expand VisualHFT even further.
+- **Sample Plugins**: Added two sample plugins that serve as connectors to **Binance** and **Bitfinex** exchanges, demonstrating the capability and flexibility of the new plugin system. With this, VisualHFT won't need to run the **demoTradingCore** project anymore.
+- **Plugin Manager UI**: Introduced a user interface for managing plugins. This allows users to load, unload, start, stop, and configure plugins.
+- Plugin Normalization: Implemented a symbol normalization feature to allow users to analyze data from different exchanges in a standardized format. This ensures a consistent analysis across various exchanges.
+- **Dynamic Plugin Settings UI**: Enhanced the plugin system to support dynamic user interface elements for plugin settings. This allows plugins to provide their own UI for configuration.
+- **Performance Optimizations**: Introduced various performance improvements, including optimized data structures and multi-threading strategies.
+
+## Enhancements:
+- Improved Error Handling: Integrated more robust error handling mechanisms, especially for plugins. Plugins can now report errors which can either be logged or displayed to the user based on their severity.
+- Base Class Refinements: Enhanced the base class for plugins to provide more features out-of-the-box, making it easier for third-party developers to create plugins.
+- Tooltip for Symbol Normalization: Added detailed tooltips to guide users on how to use the symbol normalization feature.
+- Code Refactoring: Refactored various parts of the code to improve maintainability, readability, and performance.
+
+
 ### Sep 22 2023
 - Architectural improvement: Rearranged classes around to improve project structure.
 - Improved performance overall:
