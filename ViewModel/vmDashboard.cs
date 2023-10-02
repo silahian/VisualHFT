@@ -30,7 +30,7 @@ namespace VisualHFT.ViewModel
         public vmDashboard(Dictionary<string, Func<string, string, bool>> dialogs)
         {
             this._dialogs = dialogs;
-            CmdAbort = new RelayCommand(DoAbort);
+            CmdAbort = new RelayCommand<object>(DoAbort);
 
             HelperCommon.ALLSYMBOLS.CollectionChanged += ALLSYMBOLS_CollectionChanged;
 
@@ -111,7 +111,7 @@ namespace VisualHFT.ViewModel
             set => SetProperty(ref _vmOrderBook, value);
         }
 
-        public RelayCommand CmdAbort { get; set; }
+        public RelayCommand<object> CmdAbort { get; set; }
 
         private void ALLSYMBOLS_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {

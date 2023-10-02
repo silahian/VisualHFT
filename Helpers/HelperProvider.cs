@@ -77,6 +77,7 @@ namespace VisualHFT.Helpers
                 {
                     this[provider.ProviderCode].LastUpdated = DateTime.Now;
                     this[provider.ProviderCode].Status = provider.Status;
+                    this[provider.ProviderCode].Plugin = provider.Plugin;
                 }
 			}
             return false;

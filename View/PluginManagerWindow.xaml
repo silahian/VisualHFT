@@ -1,0 +1,60 @@
+﻿<Window x:Class="VisualHFT.View.PluginManagerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VisualHFT.View"
+        mc:Ignorable="d"
+        
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="15"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"        
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{StaticResource MaterialDesignFont}"
+        
+        Title="Plugin Manager" Height="450" Width="900">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../GlobalStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <ListView ItemsSource="{Binding Plugins}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Plugin Name" DisplayMemberBinding="{Binding Name}" Width="150" />
+                    <GridViewColumn Header="Version" DisplayMemberBinding="{Binding Version}" Width="120"  />
+                    <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="250" />
+                    <GridViewColumn Header="Status" Width="120" DisplayMemberBinding="{Binding Status}" />
+                    <GridViewColumn Header="Actions" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="▶" 
+                                        Command="{Binding DataContext.StartPluginCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=ListView}}" 
+                                        CommandParameter="{Binding}" Margin="0, 0, 10, 0" />
+                                    <Button Content="⏸" 
+                                        Command="{Binding DataContext.StopPluginCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=ListView}}" 
+                                        CommandParameter="{Binding}" Margin="0, 0, 10, 0"/>
+                                    <Button Content="⚙" 
+                                        Command="{Binding DataContext.ConfigurePluginCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=ListView}}" 
+                                        CommandParameter="{Binding}" Margin="0, 0, 10, 0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
+</Window>

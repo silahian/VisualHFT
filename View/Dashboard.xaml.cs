@@ -26,35 +26,8 @@ namespace VisualHFT
         public Dashboard()
         {
             InitializeComponent();
-
-            //START SNIFFER THREAD 
-            /*
-            new Thread(() =>
-                Helpers.HelperFIXSniffer.Start()
-            ).Start();
-            */
-            //START WEBSOCKET LISTENER THREAD 
-            new Thread(() => {
-                Thread.CurrentThread.IsBackground = true;
-
-                //DATA RETRIEVER = WEBSOCKETS
-                var dataRetriever = new WebSocketDataRetriever(new JsonParser());
-                var processor = new DataProcessor(dataRetriever);
-                dataRetriever.Start();
-
-
-                while (true) {
-                    Task.Delay(5000).Wait();
-
-                    //due to the high volume of data do this periodically.(this will get fired every 5 secs)
-                    GC.Collect(); //force garbage collection
-                };
-
-
-            }).Start();
-
             this.DataContext = new VisualHFT.ViewModel.vmDashboard(Helpers.HelperCommon.GLOBAL_DIALOGS);
-            
+
         }
 
         private void ButtonAnalyticsReport_Click(object sender, RoutedEventArgs e)
@@ -70,14 +43,14 @@ namespace VisualHFT
                 {
                     oReport.Signals = Helpers.HelperCommon.EXECUTEDORDERS.Positions.Where(x => x.PipsPnLInCurrency.HasValue && cboSelectedSymbol.SelectedValue.ToString() == x.Symbol).OrderBy(x => x.CreationTimeStamp).ToList();
                 }
-                
+
             }
             catch (Exception ex)
             {
 
                 MessageBox.Show(ex.ToString(), "ERRROR", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            
+
             oReport.Show();
 
         }
@@ -86,7 +59,7 @@ namespace VisualHFT
         {
             var vm = new vmUserSettings();
             vm.LoadJson(SettingsManager.Instance.GetAllSettings());
-            
+
             var form = new View.UserSettings();
             form.DataContext = vm;
             form.ShowDialog();
@@ -98,6 +71,12 @@ namespace VisualHFT
             form.DataContext = new vmMultiVenuePrices();
             form.Show();
         }
+
+        private void ButtonPluginManagement_Click(object sender, RoutedEventArgs e)
+        {
+            var form = new View.PluginManagerWindow();
+            form.DataContext = new vmPluginManager();
+            form.Show();
+        }
     }
 }
-    

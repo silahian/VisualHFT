@@ -17,5 +17,7 @@ namespace VisualHFT.Model
         public string ProviderName { get; set; }
 
         public eSESSIONSTATUS Status { get; set; }
+
+        public VisualHFT.PluginManager.IPlugin Plugin { get; set; } //reference to a plugin (if any)
     }
 }

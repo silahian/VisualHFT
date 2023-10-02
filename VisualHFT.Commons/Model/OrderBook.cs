@@ -205,21 +205,21 @@ namespace VisualHFT.Model
 
         public ReadOnlyCollection<BookItem> Asks
         {
-            get => _Asks.AsReadOnly();
+            get => _Asks.ToList().AsReadOnly();
             set => _Asks.Update(value); //do not remove setter: it is used to auto parse json
         }
         public ReadOnlyCollection<BookItem> Bids
         {
-            get => _Bids.AsReadOnly();
+            get => _Bids.ToList().AsReadOnly();
             set => _Bids.Update(value); //do not remove setter: it is used to auto parse json
         }
         public ReadOnlyCollection<BookItem> BidCummulative
         {
-            get { lock (LOCK_OBJECT) return _Cummulative_Bids.AsReadOnly(); }
+            get { lock (LOCK_OBJECT) return _Cummulative_Bids.ToList().AsReadOnly(); }
         }
         public ReadOnlyCollection<BookItem> AskCummulative
         {
-            get { lock (LOCK_OBJECT) return _Cummulative_Asks.AsReadOnly(); }
+            get { lock (LOCK_OBJECT) return _Cummulative_Asks.ToList().AsReadOnly(); }
         }
 
         public string Symbol { get => _Symbol; set => _Symbol = value; }

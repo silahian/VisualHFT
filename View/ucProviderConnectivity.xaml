@@ -30,14 +30,14 @@
             <ListView x:Name="lstItem" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Providers}" >
 
                 <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="MouseDoubleClick">
+                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
                         <i:InvokeCommandAction Command="{Binding CmdUpdateStatus}" CommandParameter="{Binding SelectedItem, ElementName=lstItem}"/>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-                
+
                 <ListView.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel Width="{Binding (FrameworkElement.ActualWidth), RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}" ItemWidth="{Binding (ListView.View).ItemWidth, RelativeSource={RelativeSource AncestorType=ListView}}" MinWidth="{Binding ItemWidth, RelativeSource={RelativeSource Self}}" ItemHeight="{Binding (ListView.View).ItemHeight, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                        <WrapPanel Cursor="Hand" Width="{Binding (FrameworkElement.ActualWidth), RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}" ItemWidth="{Binding (ListView.View).ItemWidth, RelativeSource={RelativeSource AncestorType=ListView}}" MinWidth="{Binding ItemWidth, RelativeSource={RelativeSource Self}}" ItemHeight="{Binding (ListView.View).ItemHeight, RelativeSource={RelativeSource AncestorType=ListView}}" />
                     </ItemsPanelTemplate>
                 </ListView.ItemsPanel>
 
@@ -58,8 +58,8 @@
                                 <TextBlock Text="{Binding ProviderName}" ToolTip="{Binding Tooltip}" Margin="5,0,0,0"  Grid.Row="0" Grid.Column="1" FontSize="28" HorizontalAlignment="Left" />
                             </Grid>
                         </WrapPanel>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
             </ListView>
         </GroupBox>
     </Grid>

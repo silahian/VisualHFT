@@ -26,9 +26,9 @@
             </ResourceDictionary.MergedDictionaries>
             <Formatters:ConverterValueToWidth x:Key="ValueToWidthConverter" />
         </ResourceDictionary>
-        
+
     </UserControl.Resources>
-    
+
     <Grid VerticalAlignment="Stretch">
         <Grid.Resources>
             <Formatters:KiloFormatter x:Key="KiloFormatter"/>
@@ -416,7 +416,7 @@
                     </Style>
                 </DataGrid.RowStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat=N}" Width="120" HeaderStyle="{DynamicResource RightAlignedHeader}" >
+                    <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat=N}" Width="90" HeaderStyle="{DynamicResource RightAlignedHeader}" >
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground" Value="{Binding IsBuy, Converter={StaticResource IsBuyConverter}}"/>
@@ -424,7 +424,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="120" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
+                    <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="90" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
                     <DataGridTextColumn Header="Time" Binding="{Binding Timestamp, StringFormat='{}{0:HH:mm:ss}'}" Width="80" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
                 </DataGrid.Columns>
             </DataGrid>

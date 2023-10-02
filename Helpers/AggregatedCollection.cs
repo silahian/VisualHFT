@@ -10,7 +10,7 @@ using VisualHFT.Model;
 
 namespace VisualHFT.Helpers
 {
-    public class AggregatedCollection<T>: IDisposable
+    public class AggregatedCollection<T> : IDisposable
     {
         private bool _disposed = false; // to track whether the object has been disposed
         private TimeSpan _aggregationSpan;
@@ -19,7 +19,7 @@ namespace VisualHFT.Helpers
         private readonly CachedCollection<T> _aggregatedData;
         private readonly Func<T, DateTime> _dateSelector;
         private readonly Action<T, T> _aggregator;
-        
+
         private readonly object _lockObject = new object();
         private int _maxPoints = 0; // Maximum number of points
         private DateTime lastItemDate = DateTime.MinValue;
@@ -34,7 +34,7 @@ namespace VisualHFT.Helpers
         {
             _aggregatedData = new CachedCollection<T>(items);
             _maxPoints = maxItems;
-             _level = level;
+            _level = level;
             _aggregationSpan = GetAggregationSpan(level);
             _dynamicAggregationSpan = _aggregationSpan; // Initialize with the same value
             _dateSelector = dateSelector;
@@ -42,7 +42,7 @@ namespace VisualHFT.Helpers
         }
         public AggregatedCollection(AggregationLevel level, int maxItems, Func<T, DateTime> dateSelector, Action<T, T> aggregator)
             : this(new List<T>(), level, maxItems, dateSelector, aggregator)
-        {}
+        { }
         ~AggregatedCollection()
         {
             Dispose(false);
@@ -56,7 +56,7 @@ namespace VisualHFT.Helpers
                 {
                     _aggregatedData.Add(item);
                     OnAdded?.Invoke(this, item);
-                    while(_aggregatedData.Count() > _maxPoints)
+                    while (_aggregatedData.Count() > _maxPoints)
                     {
                         _aggregatedData.RemoveAt(0);
                         OnRemoved?.Invoke(this, 0);
@@ -85,18 +85,21 @@ namespace VisualHFT.Helpers
                         existingBucket = _aggregatedData.FirstOrDefault(p => new DateTime((_dateSelector(p).Ticks / _aggregationSpan.Ticks) * _aggregationSpan.Ticks) == bucketTime);
                     }
 
-                    
 
                     if (existingBucket != null)
                     {
-                        _aggregator(existingBucket, item);
+                        //CALL THE AGGREGATOR
+                        if (_aggregator != null)
+                        {
+                            _aggregator(existingBucket, item);
+                        }
                         return false;
                     }
                     else
                     {
                         _aggregatedData.Add(item);
                         OnAdded?.Invoke(this, item);
-                        while (_aggregatedData.Count() > _maxPoints) 
+                        while (_aggregatedData.Count() > _maxPoints)
                         {
                             var itemToRemove = _aggregatedData.FirstOrDefault();
                             if (itemToRemove is IDisposable disposableItem)
@@ -204,7 +207,7 @@ namespace VisualHFT.Helpers
             else
                 return GetAggregationSpan(AggregationLevel.S5);
 
-            
+
         }
 
         protected virtual void Dispose(bool disposing)

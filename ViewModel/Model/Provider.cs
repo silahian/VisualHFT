@@ -1,9 +1,10 @@
-﻿using System;
+﻿using log4net.Plugin;
+using System;
 using System.ComponentModel;
 
 namespace VisualHFT.ViewModel.Model
 {
-    public class Provider: VisualHFT.Model.Provider, INotifyPropertyChanged
+    public class Provider : VisualHFT.Model.Provider, INotifyPropertyChanged
     {
         private int _MILLISECONDS_HEART_BEAT = 5000;
 
@@ -47,6 +48,7 @@ namespace VisualHFT.ViewModel.Model
             }
         }
         public DateTime? LastUpdated { get; set; }
+
 
         public string StatusImage
         {
@@ -93,21 +95,21 @@ namespace VisualHFT.ViewModel.Model
 
         public Provider()
         {
-                
+
         }
         public Provider(VisualHFT.Model.Provider p)
         {
             this.ProviderID = p.ProviderID;
             this.ProviderCode = p.ProviderCode;
             this.ProviderName = p.ProviderName;
-            this.LastUpdated =   DateTime.Now;
+            this.LastUpdated = DateTime.Now;
         }
         public void CheckValuesUponHeartbeatReceived()
         {
             OnPropertyChanged(nameof(Status));
             OnPropertyChanged(nameof(StatusImage));
             OnPropertyChanged(nameof(Tooltip));
-            
+
         }
     }
 }

@@ -45,10 +45,10 @@ namespace VisualHFT.ViewModel
 
 
             this.IsActive = Visibility.Hidden;
-            cmdStop = new RelayCommand((args) => StartStop(false));
-            cmdStart = new RelayCommand((args) => StartStop(true));
-            cmdUpdate = new RelayCommand(DoUpdate);
-            cmdSaveToDB = new RelayCommand(DoSaveToDB);
+            cmdStop = new RelayCommand<object>((args) => StartStop(false));
+            cmdStart = new RelayCommand<object>((args) => StartStop(true));
+            cmdUpdate = new RelayCommand<object>(DoUpdate);
+            cmdSaveToDB = new RelayCommand<object>(DoSaveToDB);
 
             _positions = new ObservableCollection<VisualHFT.Model.Position>();
             RaisePropertyChanged(nameof(Positions));
@@ -75,10 +75,10 @@ namespace VisualHFT.ViewModel
             get => _isActive;
             set => SetProperty(ref _isActive, value);
         }
-        public RelayCommand cmdSaveToDB { get; set; }
-        public RelayCommand cmdStart { get; set; }
-        public RelayCommand cmdStop { get; set; }
-        public RelayCommand cmdUpdate { get; set; }
+        public RelayCommand<object> cmdSaveToDB { get; set; }
+        public RelayCommand<object> cmdStart { get; set; }
+        public RelayCommand<object> cmdStop { get; set; }
+        public RelayCommand<object> cmdUpdate { get; set; }
         public ObservableCollection<VisualHFT.Model.Position> Positions
         {
             get => _positions;

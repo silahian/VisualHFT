@@ -28,7 +28,7 @@ namespace VisualHFT.ViewModel
         private ReadOnlyCollection<OrderBookLevel> _realTimeOrderLevelsAsk;
         private ReadOnlyCollection<OrderBookLevel> _realTimeOrderLevelsBid;
         private AggregatedCollection<PlotInfoPriceChart> _realTimeSpread;
-        private ObservableCollection<Trade> _realTimeTrades;
+        private ObservableCollection<VisualHFT.ViewModel.Model.Trade> _realTimeTrades;
         private ObservableCollection<BookItem> _bidsGrid;
         private ObservableCollection<BookItem> _asksGrid;
 
@@ -53,7 +53,7 @@ namespace VisualHFT.ViewModel
 
 
         private UIUpdater uiUpdater;
-        
+
 
         public vmOrderBook(Dictionary<string, Func<string, string, bool>> dialogs)
         {
@@ -114,7 +114,7 @@ namespace VisualHFT.ViewModel
                 RaisePropertyChanged(nameof(RealTimePrices));
                 RaisePropertyChanged(nameof(RealTimeSpread));
 
-                
+
                 RaisePropertyChanged(nameof(LOBImbalanceValue));
                 RaisePropertyChanged(nameof(RealTimeYAxisMinimum));
                 RaisePropertyChanged(nameof(RealTimeYAxisMaximum));
@@ -142,30 +142,31 @@ namespace VisualHFT.ViewModel
                 _orderBook = new OrderBook();
                 _realTimePrices = new AggregatedCollection<PlotInfoPriceChart>(_AGG_LEVEL_CHARTS, _MAX_CHART_POINTS, x => x.Date, _realTimePrices_OnAggregate);
                 _realTimeSpread = new AggregatedCollection<PlotInfoPriceChart>(_AGG_LEVEL_CHARTS, _MAX_CHART_POINTS, x => x.Date, _realTimePrices_OnAggregate);
-                _realTimeTrades = new ObservableCollection<Trade>();
+                _realTimeTrades = new ObservableCollection<VisualHFT.ViewModel.Model.Trade>();
                 _maxOrderSize = 0; //reset
                 _minOrderSize = 0; //reset
                 _realTimeYAxisMaximum = 0;
                 _realTimeYAxisMinimum = 0;
                 _depthChartMaxY = 0;
+
+                RaisePropertyChanged(nameof(AskCummulative));
+                RaisePropertyChanged(nameof(BidCummulative));
+                RaisePropertyChanged(nameof(Asks));
+                RaisePropertyChanged(nameof(Bids));
+                RaisePropertyChanged(nameof(RealTimePrices));
+                RaisePropertyChanged(nameof(RealTimeSpread));
+                RaisePropertyChanged(nameof(Trades));
             }
-            RaisePropertyChanged(nameof(AskCummulative));
-            RaisePropertyChanged(nameof(BidCummulative));
-            RaisePropertyChanged(nameof(Asks));
-            RaisePropertyChanged(nameof(Bids));
-            RaisePropertyChanged(nameof(RealTimePrices));
-            RaisePropertyChanged(nameof(RealTimeSpread));
-            RaisePropertyChanged(nameof(Trades));
         }
         private void _realTimePrices_OnAggregate(PlotInfoPriceChart existing, PlotInfoPriceChart newItem)
         {
             // Update the existing bucket with the new values
-            existing.Volume = newItem.Volume; // (existingBucket.Volume + plotInfo.Volume) / 2;
-            existing.MidPrice = newItem.MidPrice; // (existingBucket.MidPrice + plotInfo.MidPrice) / 2;
-            existing.BidPrice = newItem.BidPrice; // (existingBucket.BidPrice + plotInfo.BidPrice) / 2;
-            existing.AskPrice = newItem.AskPrice; // (existingBucket.AskPrice + plotInfo.AskPrice) / 2;
-            existing.BuyActiveOrder = newItem.BuyActiveOrder; // (existingBucket.BuyActiveOrder + plotInfo.BuyActiveOrder) / 2;
-            existing.SellActiveOrder = newItem.SellActiveOrder; // (existingBucket.SellActiveOrder + plotInfo.SellActiveOrder) / 2;
+            existing.Volume = newItem.Volume;
+            existing.MidPrice = newItem.MidPrice;
+            existing.BidPrice = newItem.BidPrice;
+            existing.AskPrice = newItem.AskPrice;
+            existing.BuyActiveOrder = newItem.BuyActiveOrder;
+            existing.SellActiveOrder = newItem.SellActiveOrder;
             existing.AskOrders = newItem.AskOrders;
             existing.BidOrders = newItem.BidOrders;
         }
@@ -224,7 +225,7 @@ namespace VisualHFT.ViewModel
         private void LIMITORDERBOOK_OnDataReceived(object sender, OrderBook e)
         {
             if (e == null)
-                return;            
+                return;
             if (_selectedProvider == null || string.IsNullOrEmpty(_selectedSymbol) || _selectedProvider.ProviderCode != e.ProviderID)
                 return;
             if (string.IsNullOrEmpty(_selectedSymbol) || _selectedSymbol == "-- All symbols --" || _selectedSymbol != e.Symbol)
@@ -272,8 +273,8 @@ namespace VisualHFT.ViewModel
                 #region REAL TIME PRICES
                 if (_realTimePrices != null && tobAsk != null && tobBid != null)
                 {
-                    DateTime maxDateIncoming = Max(tobAsk.LocalTimeStamp, tobBid.LocalTimeStamp);
-                    if (true) 
+                    DateTime maxDateIncoming = DateTime.Now;// Max(tobAsk.LocalTimeStamp, tobBid.LocalTimeStamp);
+                    if (true)
                     {
                         var objToAdd = new PlotInfoPriceChart() { Date = maxDateIncoming, MidPrice = MidPoint, AskPrice = tobAsk.Price.Value, BidPrice = tobBid.Price.Value, Volume = tobAsk.Size.Value + tobBid.Size.Value };
                         if (HelperCommon.ACTIVEORDERS.Any(x => x.Value.ProviderId == _selectedProvider.ProviderCode && x.Value.Symbol == _selectedSymbol))
@@ -283,7 +284,7 @@ namespace VisualHFT.ViewModel
                             objToAdd.BuyActiveOrder = objToAdd.BuyActiveOrder == 0 ? null : objToAdd.BuyActiveOrder;
                             objToAdd.SellActiveOrder = objToAdd.SellActiveOrder == 0 ? null : objToAdd.SellActiveOrder;
                         }
-                        
+
                         #region Resting Orders at different levels [SCATTER BUBBLES]
                         var sizeMinMax = _orderBook.GetMinMaxSizes();
                         _minOrderSize = Math.Min(sizeMinMax.Item1, _minOrderSize);
@@ -292,7 +293,7 @@ namespace VisualHFT.ViewModel
                         double minBubbleSize = 1; // Minimum size for bubbles in pixels
                         double maxBubbleSize = 10; // Maximum size for bubbles in pixels
 
-                        if (_realTimePrices.Count() >= _MAX_CHART_POINTS-10) //START ADDING bubbles when full frame is collected
+                        if (_realTimePrices.Count() >= _MAX_CHART_POINTS - 10) //START ADDING bubbles when full frame is collected
                         {
                             objToAdd.BidOrders = new List<OrderBookLevel>();
                             objToAdd.AskOrders = new List<OrderBookLevel>();
@@ -302,7 +303,7 @@ namespace VisualHFT.ViewModel
                                 {
                                     double normalizedSize = minBubbleSize + (item.Size.Value - _minOrderSize) / (_maxOrderSize - _minOrderSize) * (maxBubbleSize - minBubbleSize);
                                     objToAdd.BidOrders.Add(new OrderBookLevel() { Date = objToAdd.Date, Price = item.Price.Value, Size = normalizedSize });
-                                    
+
                                 }
                             }
                             if (_orderBook.Asks != null && _orderBook.Asks.Any())
@@ -369,7 +370,7 @@ namespace VisualHFT.ViewModel
                 _orderBook.GetAddDeleteUpdate(ref _asksGrid, _orderBook.Asks);
             }
         }
-        private void TRADES_OnDataReceived(object sender, Trade e)
+        private void TRADES_OnDataReceived(object sender, VisualHFT.ViewModel.Model.Trade e)
         {
             if (e == null)
                 return;
@@ -409,7 +410,7 @@ namespace VisualHFT.ViewModel
         }
         public OrderBook OrderBook
         {
-            get {return _orderBook;}
+            get { return _orderBook; }
         }
         public string SelectedSymbol
         {
@@ -485,8 +486,8 @@ namespace VisualHFT.ViewModel
         public ICollectionView Bids { get; }
 
 
-        public ObservableCollection<Trade> Trades
-        { 
+        public ObservableCollection<VisualHFT.ViewModel.Model.Trade> Trades
+        {
             get => _realTimeTrades;
             set => SetProperty(ref _realTimeTrades, value);
         }
@@ -523,7 +524,7 @@ namespace VisualHFT.ViewModel
                     _realTimeSpread?.Clear();
                     _realTimeTrades?.Clear();
                     _providers?.Clear();
-                    
+
                 }
                 _disposed = true;
             }

@@ -78,6 +78,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\VisualHFT.Plugins\MarketConnectors.Binance\MarketConnectors.Binance.csproj" />
+    <ProjectReference Include="..\VisualHFT.Plugins\MarketConnectors.Bitfinex\MarketConnectors.Bitfinex.csproj" />
     <ProjectReference Include="VisualHFT.Commons\VisualHFT.Commons.csproj" />
   </ItemGroup>
 

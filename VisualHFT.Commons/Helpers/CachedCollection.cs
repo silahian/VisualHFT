@@ -50,7 +50,7 @@ namespace VisualHFT.Helpers
         {
             lock (_lock)
             {
-                if ( _cachedReadOnlyCollection != null)
+                if (_cachedReadOnlyCollection != null)
                     return _cachedReadOnlyCollection.Count;
                 else
                     return _internalList.Count;
@@ -104,6 +104,10 @@ namespace VisualHFT.Helpers
                 else
                     return _internalList.ToList().GetEnumerator(); // Create a copy to ensure thread safety during enumeration
             }
+        }
+        public void InvalidateCache()
+        {
+            _cachedReadOnlyCollection = null; // Invalidate the cache
         }
         IEnumerator IEnumerable.GetEnumerator()
         {

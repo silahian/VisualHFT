@@ -55,8 +55,8 @@ namespace VisualHFT.ViewModel.Studies
             _type = type;
             _value = ".";
 
-            SaveSettingsCommand = new RelayCommand(param => SaveSetting(), param => CanSaveSetting());
-            OpenChartCommand = new RelayCommand(OpenChartClick);
+            SaveSettingsCommand = new RelayCommand<MetricTileViewModel>(param => SaveSetting(), param => CanSaveSetting());
+            OpenChartCommand = new RelayCommand<MetricTileViewModel>(OpenChartClick);
 
             _symbols = new ObservableCollection<string>(HelperCommon.ALLSYMBOLS.ToList());
             _providers = HelperCommon.PROVIDERS.CreateObservableCollection();

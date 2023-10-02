@@ -10,17 +10,17 @@ namespace VisualHFT.Helpers
 {
     public class HelperTrade
     {
-        public event EventHandler<Trade> OnDataReceived;
+        public event EventHandler<VisualHFT.ViewModel.Model.Trade> OnDataReceived;
 
         public HelperTrade()
-        {}
+        { }
 
         protected virtual void RaiseOnDataReceived(List<Trade> trades)
         {
-            EventHandler<Trade> _handler = OnDataReceived;
+            EventHandler<VisualHFT.ViewModel.Model.Trade> _handler = OnDataReceived;
             if (_handler != null && Application.Current != null)
             {
-                foreach (var p in trades)
+                foreach (var p in trades.Select(x => new VisualHFT.ViewModel.Model.Trade(x)))
                     _handler(this, p);
             }
         }

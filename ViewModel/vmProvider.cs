@@ -11,6 +11,8 @@ using System.Windows.Threading;
 using System.Windows.Input;
 using System.Runtime.CompilerServices;
 using System.Security.Policy;
+using VisualHFT.DataRetriever;
+using System.Threading.Tasks;
 
 namespace VisualHFT.ViewModel
 {
@@ -26,9 +28,9 @@ namespace VisualHFT.ViewModel
 
         public vmProvider(Dictionary<string, Func<string, string, bool>> dialogs)
         {
-            this._dialogs = dialogs;            
+            this._dialogs = dialogs;
             _cmdUpdateStatus = new RelayCommand<object>(DoUpdateStatus);
-            
+
             _providers = new ObservableCollection<VisualHFT.ViewModel.Model.Provider>();
             RaisePropertyChanged(nameof(Providers));
 
@@ -37,7 +39,7 @@ namespace VisualHFT.ViewModel
         }
 
         private void PROVIDERS_OnDataReceived(object sender, VisualHFT.ViewModel.Model.Provider e)
-        {           
+        {
             if (e == null || e.ProviderCode == -1)
                 return;
 
@@ -52,7 +54,7 @@ namespace VisualHFT.ViewModel
                 //needs to be added in UI thread
                 Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
                 {
-                    lock (_lock) 
+                    lock (_lock)
                         _providers.Add(e);
                 }));
             }
@@ -60,8 +62,8 @@ namespace VisualHFT.ViewModel
         private void PROVIDERS_OnHeartBeatFail(object sender, VisualHFT.ViewModel.Model.Provider e)
         {
             var itemToUpdate = _providers.Where(x => x.ProviderCode == e.ProviderCode).FirstOrDefault();
-            if (itemToUpdate != null) 
-            { 
+            if (itemToUpdate != null)
+            {
                 itemToUpdate.LastUpdated = e.LastUpdated;
                 itemToUpdate.Status = e.Status;
                 itemToUpdate.CheckValuesUponHeartbeatReceived();
@@ -92,52 +94,36 @@ namespace VisualHFT.ViewModel
                     statusToSend = eSESSIONSTATUS.BOTH_DISCONNECTED;
                 else
                     statusToSend = eSESSIONSTATUS.BOTH_CONNECTED;
-                string msg = "Are you sure want to " + (statusToSend == eSESSIONSTATUS.BOTH_CONNECTED ? " connect " : " disconnect ") + "'" + _selectedItem.ProviderName + "' ?";
+                string msg = "Are you sure want to" + (statusToSend == eSESSIONSTATUS.BOTH_CONNECTED ? " connect " : " disconnect ") + "'" + _selectedItem.ProviderName + "' ?";
                 if (_dialogs.ContainsKey("confirm") && _dialogs["confirm"](msg, "Updating..."))
                 {
-                    var bw = new System.ComponentModel.BackgroundWorker();
-                    bw.DoWork += (s, args) =>
+                    var _linkToPlugIn = _selectedItem.Plugin as IDataRetriever;
+                    if (_linkToPlugIn != null)
                     {
-                        try
+                        Task.Run(() =>
                         {
-                            _selectedItem.Status = statusToSend;
-                            args.Result = RESTFulHelper.SetVariable<List<VisualHFT.ViewModel.Model.Provider>>(_providers.ToList());
-                        }
-                        catch { /*System.Threading.Thread.Sleep(5000);*/ }
-                    };
-                    bw.RunWorkerCompleted += (s, args) =>
-                    {
-                        try
-                        {
-                            bool bRes = (bool)args.Result;
-                            if (_dialogs != null && _dialogs.ContainsKey("popup"))
-                            {
-                                if (bRes)
-                                {
-                                    _dialogs["popup"]("Status has been updated.", "");
-                                }
-                                else if (_dialogs != null && _dialogs.ContainsKey("error"))
-                                    _dialogs["error"]("Looks like we are unable to get connected to the trading system.", "");
-                                //GetProviders();
-                            }
-                        }
-                        catch { }
-                    };
-                    if (!bw.IsBusy)
-                        bw.RunWorkerAsync();
+                            if (statusToSend == eSESSIONSTATUS.BOTH_CONNECTED)
+                                _linkToPlugIn.Start();
+                            else
+                                _linkToPlugIn.Stop();
+                        });
+
+
+
+                    }
                 }
             }
         }
         public ObservableCollection<VisualHFT.ViewModel.Model.Provider> Providers
         {
             get => _providers;
-            set => SetProperty(ref _providers, value); 
+            set => SetProperty(ref _providers, value);
         }
 
         public ICommand CmdUpdateStatus
         {
             get => _cmdUpdateStatus;
-            set => SetProperty(ref _cmdUpdateStatus, value);   
+            set => SetProperty(ref _cmdUpdateStatus, value);
         }
 
         public VisualHFT.ViewModel.Model.Provider SelectedItem
