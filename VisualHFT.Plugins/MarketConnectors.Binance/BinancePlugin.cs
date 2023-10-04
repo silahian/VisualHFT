@@ -543,6 +543,7 @@ namespace MarketConnectors.Binance
 
                     _socketClient?.Dispose();
                     _restClient?.Dispose();
+                    _heartbeatTimer?.Dispose();
                 }
                 _disposed = true;
             }

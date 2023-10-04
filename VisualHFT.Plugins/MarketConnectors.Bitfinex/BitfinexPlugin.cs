@@ -564,6 +564,7 @@ namespace MarketConnectors.Bitfinex
 
                     _socketClient?.Dispose();
                     _restClient?.Dispose();
+                    _heartbeatTimer?.Dispose();
                 }
                 _disposed = true;
             }
