@@ -60,7 +60,7 @@ Common prefixes:
 Once you have committed your changes, it is a good idea to use `git rebase` (not `git merge`) to synchronize your work with the main repository.
 ```
 git fetch upstream
-git rebase upstream/main
+git rebase upstream/master
 ```
 #### Step 7: Test
 Test your code by ensuring the application builds successfully and completes the requirements to the best of your ability. 
