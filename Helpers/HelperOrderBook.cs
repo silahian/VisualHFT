@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace VisualHFT.Helpers
 {
-    public class HelperOrderBook
+    public class HelperOrderBook: IOrderBookHelper
     {
         protected ConcurrentQueue<OrderBook> _DataQueue = new ConcurrentQueue<OrderBook>();
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
@@ -49,20 +49,11 @@ namespace VisualHFT.Helpers
                 await Task.Delay(1);
             }
         }
-
-
         protected virtual void RaiseOnDataReceived(List<OrderBook> books)
         {
-            EventHandler<OrderBook> _handler = OnDataReceived;
-            if (_handler != null && Application.Current != null)
-            {
-                foreach (var ob in books)
-                    _handler(this, ob);
-            }
+            foreach (var ob in books)
+                EventAggregator.Instance.PublishOrderBookDataReceived(this, ob);
         }
-
-
-
         public void UpdateData(IEnumerable<OrderBook> data)
         {
             foreach (var e in data)

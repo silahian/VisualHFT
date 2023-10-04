@@ -28,7 +28,7 @@ namespace VisualHFT.ViewModel
             _symbols = new ObservableCollection<string>(HelperCommon.ALLSYMBOLS.ToList());
             RaisePropertyChanged(nameof(Symbols));
             HelperCommon.ALLSYMBOLS.CollectionChanged += ALLSYMBOLS_CollectionChanged;
-            HelperCommon.LIMITORDERBOOK.OnDataReceived += LIMITORDERBOOK_OnDataReceived;
+            EventAggregator.Instance.OnOrderBookDataReceived += LIMITORDERBOOK_OnDataReceived;
             
             AggregationLevels = new ObservableCollection<Tuple<string, AggregationLevel>>();
             foreach (AggregationLevel level in Enum.GetValues(typeof(AggregationLevel)))

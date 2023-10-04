@@ -31,7 +31,7 @@ namespace VisualHFT.ViewModel
         public vmOrderBookFlowAnalysis(Dictionary<string, Func<string, string, bool>> dialogs)
         {
             this._dialogs = dialogs;
-            HelperCommon.LIMITORDERBOOK.OnDataReceived += LIMITORDERBOOK_OnDataReceived;
+            EventAggregator.Instance.OnOrderBookDataReceived += LIMITORDERBOOK_OnDataReceived;
 
             timerUI.Interval = TimeSpan.FromMilliseconds(1);
             timerUI.Tick += TimerUI_Tick;

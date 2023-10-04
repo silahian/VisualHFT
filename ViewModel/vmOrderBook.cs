@@ -69,7 +69,7 @@ namespace VisualHFT.ViewModel
 
             HelperCommon.PROVIDERS.OnDataReceived += PROVIDERS_OnDataReceived;
             HelperCommon.PROVIDERS.OnHeartBeatFail += PROVIDERS_OnHeartBeatFail;
-            HelperCommon.LIMITORDERBOOK.OnDataReceived += LIMITORDERBOOK_OnDataReceived;
+            EventAggregator.Instance.OnOrderBookDataReceived += LIMITORDERBOOK_OnDataReceived;
             HelperCommon.ACTIVEORDERS.OnDataReceived += ACTIVEORDERS_OnDataReceived;
             HelperCommon.ACTIVEORDERS.OnDataRemoved += ACTIVEORDERS_OnDataRemoved;
             HelperCommon.TRADES.OnDataReceived += TRADES_OnDataReceived;

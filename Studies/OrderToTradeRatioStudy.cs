@@ -54,7 +54,7 @@ namespace VisualHFT.Studies
             if (string.IsNullOrEmpty(symbol))
                 throw new Exception("Symbol cannot be null or empty.");
 
-            HelperCommon.LIMITORDERBOOK.OnDataReceived += LIMITORDERBOOK_OnDataReceived;
+            EventAggregator.Instance.OnOrderBookDataReceived += LIMITORDERBOOK_OnDataReceived;
             HelperCommon.TRADES.OnDataReceived += TRADES_OnDataReceived;
             _symbol = symbol;
             _providerId = providerId;
