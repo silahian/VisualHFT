@@ -169,7 +169,9 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" MaxHeight="600" />
+                            </Grid.RowDefinitions>
 
                             <!--BIDS-->
                             <DataGrid ItemsSource="{Binding Bids}" 
