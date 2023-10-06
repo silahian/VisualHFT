@@ -61,10 +61,9 @@ namespace VisualHFT.ViewModel
 
             _bidsGrid = new ObservableCollection<BookItem>();
             _asksGrid = new ObservableCollection<BookItem>();
-            Asks = CollectionViewSource.GetDefaultView(_asksGrid);
-            Asks.SortDescriptions.Add(new SortDescription("Price", ListSortDirection.Ascending));
+            Asks = CollectionViewSource.GetDefaultView(_asksGrid);            
             Bids = CollectionViewSource.GetDefaultView(_bidsGrid);
-            Bids.SortDescriptions.Add(new SortDescription("Price", ListSortDirection.Descending));
+            SetSortDescriptions();
 
 
             HelperCommon.PROVIDERS.OnDataReceived += PROVIDERS_OnDataReceived;
@@ -84,6 +83,11 @@ namespace VisualHFT.ViewModel
             RaisePropertyChanged(nameof(BidTOB_SPLIT));
             RaisePropertyChanged(nameof(AskTOB_SPLIT));
 
+        }
+        public void SetSortDescriptions()
+        {
+            Asks.SortDescriptions.Add(new SortDescription("Price", ListSortDirection.Ascending));
+            Bids.SortDescriptions.Add(new SortDescription("Price", ListSortDirection.Descending));
         }
         ~vmOrderBook()
         {
