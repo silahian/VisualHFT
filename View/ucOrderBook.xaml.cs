@@ -40,6 +40,7 @@ namespace VisualHFT.View
             //var newViewModel = new ViewModel.vmOrderBook((ViewModel.vmOrderBook)this.DataContext);
             var newViewModel = (ViewModel.vmOrderBook)this.DataContext;
             HelperCommon.CreateCommonPopUpWindow(grdSymbol, (Button)sender,  newViewModel, "Symbol", 450, 600);
+            newViewModel.SetSortDescriptions();
         }
 
         private void butPopImbalances_Click(object sender, RoutedEventArgs e)
