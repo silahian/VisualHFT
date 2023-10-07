@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="App.config" />
     <None Remove="debug.log" />
     <None Remove="Images\database.png" />
     <None Remove="Images\excel.png" />
@@ -49,6 +50,7 @@
     <None Remove="Images\stop.png" />
     <None Remove="Images\stopD.png" />
     <None Remove="Images\VPIN.png" />
+    <None Remove="log4net.config" />
     <None Remove="README.md.bak" />
     <None Remove="README.md.docx" />
     <None Remove="VisualHFT.csproj.bak" />
@@ -56,6 +58,9 @@
 
   <ItemGroup>
     <Content Include="ico.ico" />
+    <Content Include="log4net.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -88,6 +93,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="App.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Resource Include="Images\database.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>

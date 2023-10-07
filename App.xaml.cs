@@ -18,6 +18,9 @@ namespace VisualHFT
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            
+            //Initialize logging
+            log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo("log4net.config"));
 
             //Launch the GC cleanup thread
             Task.Run(async () => { await GCCleanupAsync(); });

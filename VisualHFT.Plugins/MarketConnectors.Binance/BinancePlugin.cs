@@ -44,6 +44,7 @@ namespace MarketConnectors.Binance
         private Timer _heartbeatTimer;
         private CallResult<UpdateSubscription> deltaSubscription;
         private CallResult<UpdateSubscription> tradesSubscription;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 
         public override string Name { get; set; } = "Binance.US Plugin";
@@ -208,7 +209,7 @@ namespace MarketConnectors.Binance
                                 data.Data.EventTime = data.Timestamp;
                                 if (Math.Abs(DateTime.Now.Subtract(data.Data.EventTime.ToLocalTime()).TotalSeconds) > 1)
                                 {
-                                    Console.WriteLine("Rates coming late?");
+                                    log.Warn("Rates coming late?");
                                 }
                                 var normalizedSymbol = GetNormalizedSymbol(data.Data.Symbol);
                                 lock (_lock_eventBuffers)

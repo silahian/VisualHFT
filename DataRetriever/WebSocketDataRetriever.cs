@@ -30,6 +30,8 @@ namespace VisualHFT.DataRetriever
 
         public event EventHandler<DataEventArgs> OnDataReceived;
         JsonSerializerSettings settings = null;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
 
         public WebSocketDataRetriever(IDataParser parser)
         {
@@ -62,18 +64,18 @@ namespace VisualHFT.DataRetriever
 
         private void WebSocket_Opened(object? sender, EventArgs e)
         {
-            Console.WriteLine("WebSocket connection opened.");
+            log.Info("WebSocket connection opened.");
         }
 
         private void WebSocket_Closed(object? sender, EventArgs e)
         {
-            Console.WriteLine("WebSocket connection closed. Attempting to reconnect...");
+            log.Info("WebSocket connection closed. Attempting to reconnect...");
             HandleReconnection();
         }
 
         private void WebSocket_Error(object? sender, SuperSocket.ClientEngine.ErrorEventArgs e)
         {
-            Console.WriteLine($"WebSocket error: {e.Exception.Message}");
+            log.Error($"WebSocket error: {e.Exception.ToString()}");
             HandleReconnection();
         }
 
@@ -111,7 +113,7 @@ namespace VisualHFT.DataRetriever
             }
             else
             {
-                Console.WriteLine("Websocket data retriever :" + dataType + " error: NOT RECOGNIZED.");
+                log.Warn("Websocket data retriever :" + dataType + " error: NOT RECOGNIZED.");
             }
 
 
@@ -128,7 +130,7 @@ namespace VisualHFT.DataRetriever
                     return;
                 }
 
-                Console.WriteLine("Attempting to reconnect...");
+                log.Info("Attempting to reconnect...");
                 try
                 {
                     _webSocket.Open();
@@ -136,7 +138,7 @@ namespace VisualHFT.DataRetriever
                 }
                 catch
                 {
-                    Console.WriteLine("Failed to reconnect. Retrying...");
+                    log.Warn("Failed to reconnect. Retrying...");
                     await Task.Delay(delay);
                     delay = Math.Min(delay * 2, MAX_DELAY);
                 }

@@ -19,6 +19,7 @@ namespace VisualHFT.DataRetriever
         private object _LOCK_SYMBOLS = new object();
         private const int MAX_QUEUE_SIZE = 10000; // Define a threshold for max queue size
         private const int BACK_PRESSURE_DELAY = 300; // Delay in milliseconds to apply back pressure
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public DataProcessor(IDataRetriever dataRetriever)
         {
@@ -46,7 +47,7 @@ namespace VisualHFT.DataRetriever
                     try
                     {
                         if (_dataQueue.Count > 1000)
-                            Console.WriteLine("WARNING: DataProcessor Queue is behind: " + _dataQueue.Count.ToString());
+                            log.Warn("WARNING: DataProcessor Queue is behind: " + _dataQueue.Count.ToString());
 
                         if (_dataQueue.TryDequeue(out var data))
                         {
@@ -57,7 +58,7 @@ namespace VisualHFT.DataRetriever
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("ERROR: " + ex.ToString());
+                        log.Error("ERROR: " + ex.ToString());
                     }
                 }
             });

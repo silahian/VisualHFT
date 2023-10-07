@@ -13,6 +13,7 @@ namespace VisualHFT.Commons.PluginManager
     public abstract class BasePluginDataRetriever : IDataRetriever, IPlugin, IDisposable
     {
         private Dictionary<string, string> parsedNormalizedSymbols;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public abstract string Name { get; set; }
         public abstract string Version { get; set; }
@@ -45,10 +46,12 @@ namespace VisualHFT.Commons.PluginManager
         public virtual void Start()
         {
             Status = ePluginStatus.STARTED;
+            log.Info("Plugins: " + this.Name + " has started.");
         }
         public virtual void Stop()
         {
             Status = ePluginStatus.STOPPED;
+            log.Info("Plugins: " + this.Name + " has stopped.");
         }
         protected virtual void RaiseOnDataReceived(DataEventArgs args)
         {

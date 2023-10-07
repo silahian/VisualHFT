@@ -25,6 +25,7 @@ namespace VisualHFT.ViewModel
         protected vmPosition _vmPosition;
         protected vmOrderBook _vmOrderBook;
         public ObservableCollection<Studies.MetricTileViewModel> Tiles { get; set; }
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 
         public vmDashboard(Dictionary<string, Func<string, string, bool>> dialogs)
@@ -126,7 +127,7 @@ namespace VisualHFT.ViewModel
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                log.Error(ex.ToString());
             }
         }
 

@@ -43,6 +43,7 @@ namespace MarketConnectors.Bitfinex
         private CallResult<UpdateSubscription> deltaSubscription;
         private CallResult<UpdateSubscription> tradesSubscription;
 
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 
         public override string Name { get; set; } = "Bitfinex Plugin";

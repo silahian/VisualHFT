@@ -26,6 +26,8 @@ namespace VisualHFT.UserSettings
         private static readonly Lazy<SettingsManager> lazy = new Lazy<SettingsManager>(() => new SettingsManager());
         private string appDataPath;
         private string settingsFilePath;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
 
         public static SettingsManager Instance => lazy.Value;
 
@@ -82,7 +84,7 @@ namespace VisualHFT.UserSettings
             catch (Exception ex)
             {
                 // Log or handle the exception as needed
-                Console.WriteLine($"An error occurred while saving settings: {ex.Message}");
+                log.Error($"An error occurred while saving settings: {ex.ToString()}");
             }
         }
 

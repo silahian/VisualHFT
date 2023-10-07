@@ -16,6 +16,7 @@ namespace VisualHFT.PluginManager
     public static class PluginManager
     {
         private static List<IPlugin> ALL_PLUGINS = new List<IPlugin>();
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public static void LoadPlugins()
         {
@@ -140,11 +141,13 @@ namespace VisualHFT.PluginManager
                             var plugin = Activator.CreateInstance(type) as IPlugin;
                             ALL_PLUGINS.Add(plugin);
                             plugin.OnError += Plugin_OnError;
+                            log.Info("Plugins: " + plugin.Name + " loaded OK.");
                         }
                     }
                 }
                 catch (Exception ex)
                 {
+                    log.Error(ex);
                     throw new Exception($"Plugin {file} has failed to load. Error: " + ex.Message);
                 }
 
@@ -156,11 +159,13 @@ namespace VisualHFT.PluginManager
         {
             if (e.IsCritical)
             {
+                log.Error(e.PluginName, e.Exception);
                 Helpers.HelperCommon.GLOBAL_DIALOGS["error"](e.Exception.Message, e.PluginName);
             }
             else
             {
                 //LOG error
+                log.Error(e.PluginName, e.Exception);
             }
 
         }

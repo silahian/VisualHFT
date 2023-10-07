@@ -19,6 +19,9 @@ namespace VisualHFT.Helpers
 
         public event EventHandler<OrderBook> OnDataReceived;
 
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+
         public HelperOrderBook()
         {
             _processingTask = Task.Run(async () => await ProcessQueueAsync(), _cancellationTokenSource.Token);
@@ -44,7 +47,7 @@ namespace VisualHFT.Helpers
                 List<OrderBook> data = new List<OrderBook>();
                 if (_DataQueue.Count > 500)
                 {
-                    Console.WriteLine("HelperOrderBook QUEUE is way behind: " + _DataQueue.Count);
+                    log.Warn("HelperOrderBook QUEUE is way behind: " + _DataQueue.Count);
                 }
 
                 while (_DataQueue.TryDequeue(out var ob))
