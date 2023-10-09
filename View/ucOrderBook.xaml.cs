@@ -43,6 +43,27 @@ namespace VisualHFT.View
             newViewModel.SetSortDescriptions();
         }
 
+        private void butDepthView1_Click(object sender, RoutedEventArgs e)
+        {
+            var newViewModel = (ViewModel.vmOrderBook)this.DataContext;
+            newViewModel.SwitchView = 0;
+            newViewModel.SetSortDescriptions();
+        }
+
+        private void butDepthView2_Click(object sender, RoutedEventArgs e)
+        {
+            var newViewModel = (ViewModel.vmOrderBook)this.DataContext;
+            newViewModel.SwitchView = 1;
+            newViewModel.SetSortDescriptions();
+        }
+
+        private void butDepthView3_Click(object sender, RoutedEventArgs e)
+        {
+            var newViewModel = (ViewModel.vmOrderBook)this.DataContext;
+            newViewModel.SwitchView = 2;
+            newViewModel.SetSortDescriptions();
+        }
+
         private void butPopImbalances_Click(object sender, RoutedEventArgs e)
         {
             var currentViewModel = (ViewModel.vmOrderBook)this.DataContext;

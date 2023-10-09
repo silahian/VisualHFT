@@ -34,6 +34,9 @@
     <None Remove="Images\database.png" />
     <None Remove="Images\excel.png" />
     <None Remove="Images\ico.png" />
+    <None Remove="Images\imgDepth.png" />
+    <None Remove="Images\imgDepth1.png" />
+    <None Remove="Images\imgDepth2.png" />
     <None Remove="Images\imgGreenBall.png" />
     <None Remove="Images\imgRedBall.png" />
     <None Remove="Images\imgYellowBall.png" />
@@ -103,6 +106,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Images\ico.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\imgDepth.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\imgDepth1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\imgDepth2.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Images\imgGreenBall.png">

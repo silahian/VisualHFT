@@ -25,6 +25,15 @@
                 <ResourceDictionary Source="../GlobalStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <Formatters:ConverterValueToWidth x:Key="ValueToWidthConverter" />
+            <DataTemplate x:Key="View1Template" DataType="{x:Type ViewModel:vmOrderBook}">
+                <local:ucDepth />
+            </DataTemplate>
+            <DataTemplate x:Key="View2Template" DataType="{x:Type ViewModel:vmOrderBook}">
+                <local:ucDepth1 />
+            </DataTemplate>
+            <DataTemplate x:Key="View3Template" DataType="{x:Type ViewModel:vmOrderBook}">
+                <local:ucDepth2 />
+            </DataTemplate>
         </ResourceDictionary>
 
     </UserControl.Resources>
@@ -165,93 +174,34 @@
                         </Grid>
                         <!--DATAGRID BID/ASK-->
                         <Grid Grid.Row="2" Grid.Column="0" VerticalAlignment="Stretch" >
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="*" MaxHeight="600" />
+                                <RowDefinition Height="28"/>
+                                <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-
-                            <!--BIDS-->
-                            <DataGrid ItemsSource="{Binding Bids}" 
-                                      Style="{StaticResource MaterialDesignDataGrid}" 
-                                      Grid.Column="0" FontSize="9" FontFamily="Verdana" 
-                                      FontWeight="UltraLight" AutoGenerateColumns="False" 
-                                      SelectionUnit="Cell" 
-                                      CanUserDeleteRows="False" 
-                                      CanUserAddRows="False" 
-                                      ClipboardCopyMode="IncludeHeader" HeadersVisibility="Column" 
-                                      IsReadOnly="True" 
-                                      BorderThickness="0" CanUserReorderColumns="False" 
-                                      CanUserResizeColumns="False" 
-                                      CanUserResizeRows="False" 
-                                      CanUserSortColumns="False" 
-                                      HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" 
-                                      IsHitTestVisible="False" 
-                                      VerticalAlignment="Stretch"
-                                      AlternationCount="0"
-                                      >
-                                <DataGrid.RowStyle>
-                                    <Style TargetType="DataGridRow">
-                                        <Setter Property="Height" Value="26" />
-                                        <Setter Property="Padding" Value="0" />
-                                        <Setter Property="Margin" Value="0" />
+                            <Button Grid.Row="0" x:Name="butDepthView1" Command="{Binding}" CommandParameter="DepthView1" ToolTip="Change depth view" HorizontalAlignment="Left" Margin="0,0,0,0" Padding="0" Width="25" Height="25" VerticalAlignment="Top" Click="butDepthView1_Click">
+                                <Image Source="/Images/imgDepth.png" />
+                            </Button>
+                            <Button Grid.Row="0" x:Name="butDepthView2" Command="{Binding}" CommandParameter="DepthView2" ToolTip="Change depth view" HorizontalAlignment="Left" Margin="27,0,0,0" Padding="0" Width="25" Height="25" VerticalAlignment="Top" Click="butDepthView2_Click">
+                                <Image Source="/Images/imgDepth1.png" />
+                            </Button>
+                            <Button Grid.Row="0" x:Name="butDepthView3" Command="{Binding}" CommandParameter="DepthView3" ToolTip="Change depth view" HorizontalAlignment="Left" Margin="54,0,0,0" Padding="0" Width="25" Height="25" VerticalAlignment="Top" Click="butDepthView3_Click">
+                                <Image Source="/Images/imgDepth2.png" />
+                            </Button>
+                            <ContentControl Content="{Binding }" Grid.Row="1">
+                                <ContentControl.Style>
+                                    <Style TargetType="{x:Type ContentControl}">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource View1Template}" />
                                         <Style.Triggers>
-                                            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                                <Setter Property="Background" Value="Transparent"/>
-                                            </Trigger>
-                                            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                                <Setter Property="Background" Value="Black"/>
-                                            </Trigger>
+                                            <DataTrigger Binding="{Binding SwitchView}" Value="1">
+                                                <Setter Property="ContentTemplate" Value="{StaticResource View2Template}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding SwitchView}" Value="2">
+                                                <Setter Property="ContentTemplate" Value="{StaticResource View3Template}" />
+                                            </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </DataGrid.RowStyle>
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="80" Foreground="LightGreen" ElementStyle="{StaticResource RightAligned}"  HeaderStyle="{StaticResource RightAlignedHeader}"/>
-                                    <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="100" Foreground="LightGreen" ElementStyle="{StaticResource RightAligned}"  HeaderStyle="{StaticResource RightAlignedHeader}"/>
-                                    <DataGridTextColumn Header="A" Binding="{Binding FormattedActiveSize}" Width="50" Foreground="DarkGreen" FontWeight="Bold" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                            <!--ENDS BIDS-->
-                            <!--ASKS-->
-                            <DataGrid ItemsSource="{Binding Asks}" 
-                                      Style="{StaticResource MaterialDesignDataGrid}" 
-                                      Grid.Column="1" 
-                                      FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" 
-                                      AutoGenerateColumns="False" 
-                                      SelectionUnit="Cell" 
-                                      CanUserDeleteRows="False" CanUserAddRows="False" 
-                                      ClipboardCopyMode="IncludeHeader"  
-                                      HeadersVisibility="Column"  
-                                      AlternationCount="0"
-                                      IsReadOnly="True" BorderThickness="0" 
-                                      CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" 
-                                      HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" 
-                                      IsHitTestVisible="False" VerticalAlignment="Stretch"
-                                      >
-                                <DataGrid.RowStyle>
-                                    <Style TargetType="DataGridRow">
-                                        <Setter Property="Height" Value="26" />
-                                        <Setter Property="Padding" Value="0" />
-                                        <Setter Property="Margin" Value="0" />
-                                        <Style.Triggers>
-                                            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                                <Setter Property="Background" Value="Transparent"/>
-                                            </Trigger>
-                                            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                                <Setter Property="Background" Value="Black"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </DataGrid.RowStyle>
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="A" Binding="{Binding FormattedActiveSize}" Width="50" Foreground="DarkRed" FontWeight="Bold" />
-                                    <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="100"  Foreground="Pink" />
-                                    <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="80" Foreground="Pink" ElementStyle="{StaticResource RightAligned}"  HeaderStyle="{StaticResource RightAlignedHeader}"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                            <!--ENDS ASKS-->
+                                </ContentControl.Style>
+                            </ContentControl>
                         </Grid>
 
                     </Grid>
