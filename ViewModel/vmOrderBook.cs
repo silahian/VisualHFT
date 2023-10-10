@@ -10,6 +10,7 @@ using System.Windows.Threading;
 using System.Windows;
 using System.Windows.Data;
 using VisualHFT.ViewModel.Model;
+using VisualHFT.View;
 
 namespace VisualHFT.ViewModel
 {
@@ -31,6 +32,7 @@ namespace VisualHFT.ViewModel
         private ObservableCollection<VisualHFT.ViewModel.Model.Trade> _realTimeTrades;
         private ObservableCollection<BookItem> _bidsGrid;
         private ObservableCollection<BookItem> _asksGrid;
+        private ObservableCollection<BookItem> _depthGrid;
 
         private ObservableCollection<VisualHFT.ViewModel.Model.Provider> _providers;
         private string _selectedSymbol;
@@ -61,8 +63,10 @@ namespace VisualHFT.ViewModel
 
             _bidsGrid = new ObservableCollection<BookItem>();
             _asksGrid = new ObservableCollection<BookItem>();
+            _depthGrid = new ObservableCollection<BookItem>();
             Asks = CollectionViewSource.GetDefaultView(_asksGrid);            
             Bids = CollectionViewSource.GetDefaultView(_bidsGrid);
+            Depth = CollectionViewSource.GetDefaultView(_depthGrid);
             SetSortDescriptions();
 
 
@@ -88,6 +92,7 @@ namespace VisualHFT.ViewModel
         {
             Asks.SortDescriptions.Add(new SortDescription("Price", ListSortDirection.Ascending));
             Bids.SortDescriptions.Add(new SortDescription("Price", ListSortDirection.Descending));
+            Depth.SortDescriptions.Add(new SortDescription("Price", ListSortDirection.Descending));
         }
         ~vmOrderBook()
         {
@@ -373,6 +378,14 @@ namespace VisualHFT.ViewModel
             {
                 _orderBook.GetAddDeleteUpdate(ref _asksGrid, _orderBook.Asks);
             }
+            if (_asksGrid != null && _bidsGrid != null)
+            {
+                _depthGrid.Clear();
+                foreach (var item in _asksGrid)
+                    _depthGrid.Add(item);
+                foreach (var item in _bidsGrid)
+                    _depthGrid.Add(item);
+            }
         }
         private void TRADES_OnDataReceived(object sender, VisualHFT.ViewModel.Model.Trade e)
         {
@@ -488,6 +501,7 @@ namespace VisualHFT.ViewModel
 
         public ICollectionView Asks { get; }
         public ICollectionView Bids { get; }
+        public ICollectionView Depth { get; }
 
 
         public ObservableCollection<VisualHFT.ViewModel.Model.Trade> Trades
@@ -507,6 +521,14 @@ namespace VisualHFT.ViewModel
         {
             get => _depthChartMaxY;
         }
+
+        public int SwitchView
+        {
+            get => _switchView;
+            set => SetProperty(ref _switchView, value);
+        }
+
+        private int _switchView = 0;
 
         protected virtual void Dispose(bool disposing)
         {

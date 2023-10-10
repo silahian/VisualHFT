@@ -1,0 +1,108 @@
+﻿<UserControl x:Class="VisualHFT.View.ucDepth"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:VisualHFT.View"
+             xmlns:ViewModel="clr-namespace:VisualHFT.ViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="450">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../GlobalStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="450*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+
+        <!--BIDS-->
+        <DataGrid ItemsSource="{Binding Bids}" 
+                                     Style="{StaticResource MaterialDesignDataGrid}" 
+                                     Grid.Column="0" FontSize="9" FontFamily="Verdana" 
+                                     FontWeight="UltraLight" AutoGenerateColumns="False" 
+                                     SelectionUnit="Cell" 
+                                     CanUserDeleteRows="False" 
+                                     CanUserAddRows="False" 
+                                     ClipboardCopyMode="IncludeHeader" HeadersVisibility="Column" 
+                                     IsReadOnly="True" 
+                                     BorderThickness="0" CanUserReorderColumns="False" 
+                                     CanUserResizeColumns="False" 
+                                     CanUserResizeRows="False" 
+                                     CanUserSortColumns="False" 
+                                     HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" 
+                                     IsHitTestVisible="False"
+                                     AlternationCount="0"
+                                     >
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Height" Value="26" />
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="Margin" Value="0" />
+                    <Style.Triggers>
+                        <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                            <Setter Property="Background" Value="Transparent"/>
+                        </Trigger>
+                        <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                            <Setter Property="Background" Value="Black"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="80" Foreground="LightGreen" ElementStyle="{StaticResource RightAligned}"  HeaderStyle="{StaticResource RightAlignedHeader}"/>
+                <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="100" Foreground="LightGreen" ElementStyle="{StaticResource RightAligned}"  HeaderStyle="{StaticResource RightAlignedHeader}"/>
+                <DataGridTextColumn Header="A" Binding="{Binding FormattedActiveSize}" Width="50" Foreground="DarkGreen" FontWeight="Bold" ElementStyle="{StaticResource RightAligned}"  HeaderStyle="{StaticResource RightAlignedHeader}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <!--ENDS BIDS-->
+        <!--ASKS-->
+        <DataGrid ItemsSource="{Binding Asks}" 
+                                     Style="{StaticResource MaterialDesignDataGrid}" 
+                                     Grid.Column="1" 
+                                     FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" 
+                                     AutoGenerateColumns="False" 
+                                     SelectionUnit="Cell" 
+                                     CanUserDeleteRows="False" CanUserAddRows="False" 
+                                     ClipboardCopyMode="IncludeHeader"  
+                                     HeadersVisibility="Column"  
+                                     AlternationCount="0"
+                                     IsReadOnly="True" BorderThickness="0" 
+                                     CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" 
+                                     HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" 
+                                     IsHitTestVisible="False"
+                                     >
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Height" Value="26" />
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="Margin" Value="0" />
+                    <Style.Triggers>
+                        <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                            <Setter Property="Background" Value="Transparent"/>
+                        </Trigger>
+                        <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                            <Setter Property="Background" Value="Black"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="A" Binding="{Binding FormattedActiveSize}" Width="50" Foreground="DarkRed" FontWeight="Bold" />
+                <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="100"  Foreground="Pink" />
+                <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="80" Foreground="Pink"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <!--ENDS ASKS-->
+    </Grid>
+
+</UserControl>
