@@ -33,7 +33,7 @@ namespace VisualHFT.Helpers
         {
             lock (_lock)
             {
-                _internalList = newData.ToList();
+                _internalList = new List<T>(newData);
                 _cachedReadOnlyCollection = null; // Invalidate the cache
             }
         }

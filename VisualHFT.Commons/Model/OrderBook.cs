@@ -197,6 +197,8 @@ namespace VisualHFT.Model
                 ProviderName = ProviderName,
                 Symbol = Symbol,
                 SymbolMultiplier = SymbolMultiplier,
+                ImbalanceValue = ImbalanceValue,
+                ProviderStatus = ProviderStatus,
             };
             clone.LoadData(Asks, Bids);
             return clone;
