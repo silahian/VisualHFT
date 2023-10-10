@@ -11,7 +11,7 @@ using System.Globalization;
 
 namespace VisualHFT.Helpers
 {
-    public class HelperOrderBook: IOrderBookHelper
+    public class HelperOrderBook : IOrderBookHelper
     {
         protected ConcurrentQueue<OrderBook> _DataQueue = new ConcurrentQueue<OrderBook>();
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
@@ -69,7 +69,7 @@ namespace VisualHFT.Helpers
         {
             foreach (var e in data)
             {
-                _DataQueue.Enqueue(e);
+                _DataQueue.Enqueue((OrderBook)e.Clone());
             }
 
         }

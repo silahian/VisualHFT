@@ -40,7 +40,7 @@ namespace VisualHFT.DataRetriever
 
         private void StartProcessing()
         {
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 while (!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
@@ -54,7 +54,7 @@ namespace VisualHFT.DataRetriever
                             if (data != null)
                                 HandleData(data);
                         }
-                        Task.Delay(1).Wait();
+                        await Task.Delay(0); // Prevents tight looping, adjust as needed
                     }
                     catch (Exception ex)
                     {
