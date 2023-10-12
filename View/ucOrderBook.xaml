@@ -55,10 +55,10 @@
         </Grid.RowDefinitions>
 
         <!--PROVIDER & SYMBOL-->
-        <Grid Grid.Column="0" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <StackPanel Orientation="Vertical">
+        <Grid Grid.Column="0" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}">
+            <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto">
                 <!--SELECT PROVIDER-->
-                <GroupBox Style="{DynamicResource MaterialDesignCardGroupBox}" Header="Provider" BorderBrush="#DBD0C6" VerticalAlignment="Top">
+                <GroupBox Style="{DynamicResource MaterialDesignCardGroupBox}" Header="Provider" BorderBrush="#DBD0C6" VerticalAlignment="Top" DockPanel.Dock="Top">
                     <ComboBox ItemsSource="{Binding Path=Providers}" SelectedItem="{Binding SelectedProvider}" DisplayMemberPath="ProviderName" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
                 </GroupBox>
                 <Grid>
@@ -187,7 +187,8 @@
                             <Button Grid.Row="0" x:Name="butDepthView3" Command="{Binding}" CommandParameter="DepthView3" ToolTip="Change depth view" HorizontalAlignment="Left" Margin="54,0,0,0" Padding="0" Width="25" Height="25" VerticalAlignment="Top" Click="butDepthView3_Click">
                                 <Image Source="/Images/imgDepth2.png" />
                             </Button>
-                            <ContentControl Content="{Binding }" Grid.Row="1">
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                <ContentControl Content="{Binding }" Grid.Row="1">
                                 <ContentControl.Style>
                                     <Style TargetType="{x:Type ContentControl}">
                                         <Setter Property="ContentTemplate" Value="{StaticResource View1Template}" />
@@ -202,13 +203,14 @@
                                     </Style>
                                 </ContentControl.Style>
                             </ContentControl>
+                            </ScrollViewer>
                         </Grid>
 
                     </Grid>
 
                 </Grid>
 
-            </StackPanel>
+            </DockPanel>
         </Grid>
 
         <!--LOB CUMULATIVER CHART-->
