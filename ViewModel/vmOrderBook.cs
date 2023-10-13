@@ -18,7 +18,7 @@ namespace VisualHFT.ViewModel
     {
         private bool _disposed = false; // to track whether the object has been disposed
         private int _MAX_CHART_POINTS = 300;
-        private AggregationLevel _AGG_LEVEL_CHARTS = AggregationLevel.Ms10;
+        private AggregationLevel _AGG_LEVEL_CHARTS = AggregationLevel.Ms100;
 
         private OrderBook _orderBook;
         protected object MTX_ORDERBOOK = new object();
@@ -77,7 +77,7 @@ namespace VisualHFT.ViewModel
             HelperCommon.ACTIVEORDERS.OnDataRemoved += ACTIVEORDERS_OnDataRemoved;
             HelperCommon.TRADES.OnDataReceived += TRADES_OnDataReceived;
 
-            uiUpdater = new UIUpdater(uiUpdaterAction, 100);
+            uiUpdater = new UIUpdater(uiUpdaterAction, 200);
             _providers = HelperCommon.PROVIDERS.CreateObservableCollection();
             RaisePropertyChanged(nameof(Providers));
 

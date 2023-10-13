@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace VisualHFT.DataRetriever
 {
-    public interface IDataRetriever: IDisposable
+    public interface IDataRetriever : IDisposable
     {
         event EventHandler<DataEventArgs> OnDataReceived;
-        void Start();
-        void Stop();
+        Task StartAsync();
+        Task StopAsync();
     }
     public class DataEventArgs : EventArgs
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
 using System.Text;
 using VisualHFT.DataRetriever;
@@ -15,6 +16,11 @@ namespace VisualHFT.Commons.PluginManager
         private Dictionary<string, string> parsedNormalizedSymbols;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        protected bool _isHandlingConnectionLost = false;
+        protected int failedAttempts = 0;
+        protected const int maxAttempts = 5;
+
+
         public abstract string Name { get; set; }
         public abstract string Version { get; set; }
         public abstract string Description { get; set; }
@@ -26,7 +32,7 @@ namespace VisualHFT.Commons.PluginManager
         protected abstract void LoadSettings();
         protected abstract void SaveSettings();
         protected abstract void InitializeDefaultSettings();
-        
+
 
 
         public event EventHandler<DataEventArgs> OnDataReceived;
@@ -43,19 +49,52 @@ namespace VisualHFT.Commons.PluginManager
 
             Status = ePluginStatus.LOADED;
         }
-        public virtual void Start()
+        public virtual async Task StartAsync()
         {
             Status = ePluginStatus.STARTED;
             log.Info("Plugins: " + this.Name + " has started.");
+            failedAttempts = 0; // Reset on successful connection
+            _isHandlingConnectionLost = false;
         }
-        public virtual void Stop()
+        public virtual async Task StopAsync()
         {
             Status = ePluginStatus.STOPPED;
-            log.Info("Plugins: " + this.Name + " has stopped.");
+            log.Info("Plugins: " + Name + " has stopped.");
         }
+
         protected virtual void RaiseOnDataReceived(DataEventArgs args)
         {
             OnDataReceived?.Invoke(this, args);
+        }
+        protected virtual async Task HandleConnectionLost()
+        {
+            // If already handling connection loss, exit
+            if (_isHandlingConnectionLost)
+                return;
+
+            _isHandlingConnectionLost = true;
+            while (failedAttempts < maxAttempts)
+            {
+                try
+                {
+                    log.Warn($"{this.Name} Reconnection attempt {failedAttempts} of {maxAttempts}");
+                    await StopAsync();  // Close the connection 
+                    await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, failedAttempts))); // Exponential backoff
+                    await StartAsync(); // Start the connection again
+                    log.Warn($"{this.Name} Reconnection attempt {failedAttempts} success.");
+                    failedAttempts = 0; // Reset on successful connection
+                    _isHandlingConnectionLost = false;
+                    return;
+                }
+                catch
+                {
+                    failedAttempts++;
+                    log.Error($"{this.Name} connection failed. Attempt {failedAttempts}");
+                }
+            }
+            _isHandlingConnectionLost = false;
+            failedAttempts = 0;//reset attempts
+            log.Error($"{this.Name} connection Aborted. All attempts failed");
         }
         public virtual void RaiseOnError(VisualHFT.PluginManager.ErrorEventArgs args)
         {
@@ -76,7 +115,7 @@ namespace VisualHFT.Commons.PluginManager
             {
                 return jObject.ToObject<T>();
             }
-           return null;
+            return null;
         }
         public virtual string GetPluginUniqueID()
         {
@@ -124,6 +163,12 @@ namespace VisualHFT.Commons.PluginManager
             if (parsedNormalizedSymbols == null)
                 return new List<string>();
             return parsedNormalizedSymbols.Keys.ToList();
+        }
+        protected List<string> GetAllNormalizedSymbols()
+        {
+            if (parsedNormalizedSymbols == null)
+                return new List<string>();
+            return parsedNormalizedSymbols.Values.ToList();
         }
         // 2. Normalization Method
         protected string GetNormalizedSymbol(string inputSymbol)

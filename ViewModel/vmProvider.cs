@@ -103,9 +103,9 @@ namespace VisualHFT.ViewModel
                         Task.Run(() =>
                         {
                             if (statusToSend == eSESSIONSTATUS.BOTH_CONNECTED)
-                                _linkToPlugIn.Start();
+                                _linkToPlugIn.StartAsync();
                             else
-                                _linkToPlugIn.Stop();
+                                _linkToPlugIn.StopAsync();
                         });
 
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using NetMQ;
 using NetMQ.Sockets;
 using VisualHFT.Model;
@@ -23,7 +24,7 @@ namespace VisualHFT.DataRetriever
         {
             Dispose(false);
         }
-        public void Start()
+        public async Task StartAsync()
         {
             _subscriber = new SubscriberSocket();
             _subscriber.Connect(_connectionString);
@@ -43,7 +44,7 @@ namespace VisualHFT.DataRetriever
             }
         }
 
-        public void Stop()
+        public async Task StopAsync()
         {
             _subscriber.Close();
             _subscriber.Dispose();

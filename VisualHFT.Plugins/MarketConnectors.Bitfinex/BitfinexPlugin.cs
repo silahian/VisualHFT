@@ -59,7 +59,7 @@ namespace MarketConnectors.Bitfinex
             _ct_trades = new Dictionary<string, CancellationTokenSource>();
             _socketClient = new BitfinexSocketClient(options =>
             {
-                if (_settings.ApiKey != ""  && _settings.ApiSecret != "")
+                if (_settings.ApiKey != "" && _settings.ApiSecret != "")
                     options.ApiCredentials = new ApiCredentials(_settings.ApiKey, _settings.ApiSecret);
                 options.Environment = BitfinexEnvironment.Live;
                 options.AutoReconnect = true;
@@ -79,13 +79,13 @@ namespace MarketConnectors.Bitfinex
             Dispose(false);
         }
 
-        public override void Start()
+        public override async Task StartAsync()
         {
             _eventBuffers.Clear();
             _tradesBuffers.Clear();
             _ct.Clear();
             _ct_trades.Clear();
-            
+
             foreach (var sym in GetAllNonNormalizedSymbols())
             {
                 var symbol = GetNormalizedSymbol(sym);
@@ -102,9 +102,9 @@ namespace MarketConnectors.Bitfinex
             InitializeTrades();
             InitializeDeltas();
             InitializeSnapshots();
-            base.Start();
+            await base.StartAsync();
         }
-        public override void Stop()
+        public override async Task StopAsync()
         {
             _ctDeltas.Cancel();
             foreach (var token in _ct.Values)
@@ -115,17 +115,14 @@ namespace MarketConnectors.Bitfinex
             UnattachEventHandlers(tradesSubscription.Data);
             UnattachEventHandlers(deltaSubscription.Data);
 
-            Task.Run(async () =>
-            {
-                await deltaSubscription.Data.CloseAsync();
-                await tradesSubscription.Data.CloseAsync();
-            });
+            await deltaSubscription.Data.CloseAsync();
+            await tradesSubscription.Data.CloseAsync();
 
             //reset models
             RaiseOnDataReceived(new DataEventArgs() { DataType = "Market", ParsedModel = new List<VisualHFT.Model.OrderBook>(), RawData = "" });
             RaiseOnDataReceived(new DataEventArgs() { DataType = "HeartBeats", ParsedModel = new List<VisualHFT.Model.Provider>() { ToHeartBeatModel(false) }, RawData = "" });
 
-            base.Stop();
+            await base.StopAsync();
         }
         private void InitializeTrades()
         {
@@ -133,7 +130,7 @@ namespace MarketConnectors.Bitfinex
             {
                 try
                 {
-                    foreach(var symbol in GetAllNonNormalizedSymbols())
+                    foreach (var symbol in GetAllNonNormalizedSymbols())
                     {
                         tradesSubscription = await _socketClient.SpotApi.SubscribeToTradeUpdatesAsync(
                             symbol,
@@ -200,10 +197,10 @@ namespace MarketConnectors.Bitfinex
             {
                 try
                 {
-                    foreach(var symbol in GetAllNonNormalizedSymbols())
+                    foreach (var symbol in GetAllNonNormalizedSymbols())
                     {
                         deltaSubscription = await _socketClient.SpotApi.SubscribeToOrderBookUpdatesAsync(
-                            symbol, 
+                            symbol,
                             Precision.PrecisionLevel0,
                             Frequency.Realtime,
                             _settings.DepthLevels,
@@ -214,22 +211,22 @@ namespace MarketConnectors.Bitfinex
                                 {
                                     var normalizedSymbol = GetNormalizedSymbol(symbol);
                                     lock (_lock_eventBuffers)
-                                    {                                        
+                                    {
                                         foreach (var item in data.Data)
                                         {
-                                            if(_eventBuffers.ContainsKey(normalizedSymbol))
+                                            if (_eventBuffers.ContainsKey(normalizedSymbol))
                                                 _eventBuffers[normalizedSymbol].Enqueue(new Tuple<DateTime, BitfinexOrderBookEntry>(data.Timestamp.ToLocalTime(), item));
                                         }
                                     }
                                 }
-                            },null, _ctDeltas.Token);
+                            }, null, _ctDeltas.Token);
                         if (deltaSubscription.Success)
                         {
                             AttachEventHandlers(deltaSubscription.Data);
                         }
                         else
                         {
-                             throw new Exception($"{this.Name} deltas subscription for {symbol} error: {deltaSubscription.Error}");
+                            throw new Exception($"{this.Name} deltas subscription for {symbol} error: {deltaSubscription.Error}");
                         }
 
                     }
@@ -286,11 +283,11 @@ namespace MarketConnectors.Bitfinex
         private async Task HandleConnectionLost()
         {
             // Close the connection on a background thread
-            await Task.Run(() => Stop());
+            await StopAsync();
             // Wait 
             await Task.Delay(TimeSpan.FromSeconds(10));
             // Start the connection again
-            Start();
+            await StartAsync();
         }
 
         #region Websocket Deltas Callbacks
@@ -342,7 +339,7 @@ namespace MarketConnectors.Bitfinex
         private void ProcessBufferedTrades(string symbol)
         {
             lock (_lock_tradeBuffers)
-            {                
+            {
                 List<VisualHFT.Model.Trade> _trades = new List<VisualHFT.Model.Trade>();
                 while (_tradesBuffers[symbol].Count > 0)
                 {
@@ -360,7 +357,7 @@ namespace MarketConnectors.Bitfinex
                             ProviderName = _settings.ProviderName,
                             IsBuy = eventData.Quantity > 0,
                         }); ;
-                        
+
                     }
                     catch (Exception ex)
                     {
@@ -379,20 +376,20 @@ namespace MarketConnectors.Bitfinex
                 while (_eventBuffers[normalizedSymbol].Count > 0)
                     eventsToProcess.Add(_eventBuffers[normalizedSymbol].Dequeue());
             }
-            
-            foreach(var eventData in eventsToProcess)
+
+            foreach (var eventData in eventsToProcess)
             {
                 try
                 {
                     UpdateOrderBook(eventData.Item2, normalizedSymbol, eventData.Item1);
                 }
                 catch (Exception ex)
-                {}
+                { }
 
             }
         }
         private void UpdateOrderBook(BitfinexOrderBookEntry lob_update, string symbol, DateTime ts)
-        {            
+        {
             if (!_localOrderBooks.ContainsKey(symbol))
                 return;
             if (lob_update == null)
@@ -474,7 +471,7 @@ namespace MarketConnectors.Bitfinex
 
 
             local_lob.LoadData(
-                _asks.OrderBy(x => x.Price).Take(_settings.DepthLevels), 
+                _asks.OrderBy(x => x.Price).Take(_settings.DepthLevels),
                 _bids.OrderByDescending(x => x.Price).Take(_settings.DepthLevels)
             );
 

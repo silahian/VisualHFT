@@ -57,9 +57,9 @@ namespace VisualHFT.DataRetriever
             _webSocket.MessageReceived += WebSocket_MessageReceived;
         }
 
-        public void Start()
+        public async Task StartAsync()
         {
-            _webSocket.Open();
+            await _webSocket.OpenAsync();
         }
 
         private void WebSocket_Opened(object? sender, EventArgs e)
@@ -145,9 +145,9 @@ namespace VisualHFT.DataRetriever
             }
         }
 
-        public void Stop()
+        public async Task StopAsync()
         {
-            _webSocket.Close();
+            await _webSocket.CloseAsync();
             _webSocket.Opened -= WebSocket_Opened;
             _webSocket.Closed -= WebSocket_Closed;
             _webSocket.Error -= WebSocket_Error;
@@ -161,7 +161,7 @@ namespace VisualHFT.DataRetriever
                 if (disposing)
                 {
                     if (_webSocket != null)
-                        Stop();
+                        StopAsync();
                     _webSocket.Dispose();
 
                 }

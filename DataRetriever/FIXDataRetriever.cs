@@ -15,6 +15,7 @@ namespace VisualHFT.DataRetriever
     using System.ComponentModel.DataAnnotations;
     using VisualHFT.Model;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     public class FIXDataRetriever : IDataRetriever, IApplication
     {
@@ -50,7 +51,8 @@ namespace VisualHFT.DataRetriever
         {
             Dispose(false);
         }
-        public void Start()
+
+        public async Task StartAsync()
         {
             if (!_initiator.IsLoggedOn)
             {
@@ -58,7 +60,7 @@ namespace VisualHFT.DataRetriever
             }
         }
 
-        public void Stop()
+        public async Task StopAsync()
         {
             if (_initiator.IsLoggedOn)
             {
@@ -106,7 +108,7 @@ namespace VisualHFT.DataRetriever
             {
                 Console.WriteLine("Received Heartbeat from: " + sessionId.ToString());
                 HandleHeartBeat();
-            }            
+            }
             else if (message is QuickFix.FIX44.TestRequest testRequestMessage) // Check if the message is a Test Request
             {
                 var testReqID = testRequestMessage.TestReqID.getValue();
@@ -156,7 +158,8 @@ namespace VisualHFT.DataRetriever
                 var price = group.GetDecimal(Tags.MDEntryPx);
                 var size = group.GetDecimal(Tags.MDEntrySize);
                 var type = group.GetChar(Tags.MDEntryType);
-                if (decimalPlaces == null) {
+                if (decimalPlaces == null)
+                {
                     var priceString = group.GetString(Tags.MDEntryPx);
                     if (priceString.IndexOf(".") > 0)
                         decimalPlaces = priceString.Split('.')[1].Length;
@@ -167,11 +170,11 @@ namespace VisualHFT.DataRetriever
                     Size = size.ToDouble(),
                     IsBid = type == '0',
                     EntryID = entryId.ToString(),
-                    LocalTimeStamp = DateTime.Now,  
+                    LocalTimeStamp = DateTime.Now,
                     ServerTimeStamp = DateTime.Now,
                     DecimalPlaces = decimalPlaces.Value,
                     ProviderID = 12, //FXCM
-                    Symbol = symbol,                    
+                    Symbol = symbol,
                 };
 
                 switch (type)
@@ -195,11 +198,11 @@ namespace VisualHFT.DataRetriever
             model.ProviderName = "FXCM";
 
             // Raise an event or further process the data as needed
-            OnDataReceived?.Invoke(this, new DataEventArgs { DataType ="Market", ParsedModel = model, RawData = snapshot.ToString() });
+            OnDataReceived?.Invoke(this, new DataEventArgs { DataType = "Market", ParsedModel = model, RawData = snapshot.ToString() });
         }
         private void HandleHeartBeat()
         {
-            var provider = new VisualHFT.ViewModel.Model.Provider() { LastUpdated = DateTime.Now, ProviderCode=12, ProviderID=12, ProviderName="FXCM", Status = eSESSIONSTATUS.BOTH_CONNECTED };
+            var provider = new VisualHFT.ViewModel.Model.Provider() { LastUpdated = DateTime.Now, ProviderCode = 12, ProviderID = 12, ProviderName = "FXCM", Status = eSESSIONSTATUS.BOTH_CONNECTED };
             var model = new List<VisualHFT.ViewModel.Model.Provider>() { provider };
             // Raise an event or further process the data as needed
             OnDataReceived?.Invoke(this, new DataEventArgs { DataType = "HeartBeats", ParsedModel = model, RawData = "" });
@@ -212,7 +215,7 @@ namespace VisualHFT.DataRetriever
                 if (disposing)
                 {
                     _initiator.Dispose();
-                    
+
                 }
                 _disposed = true;
             }
@@ -222,6 +225,8 @@ namespace VisualHFT.DataRetriever
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+
     }
 
 }

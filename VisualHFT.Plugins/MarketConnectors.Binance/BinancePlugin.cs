@@ -11,15 +11,10 @@ using MarketConnectors.Binance.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Threading;
 using VisualHFT.Commons.PluginManager;
 using VisualHFT.DataRetriever;
-using VisualHFT.PluginManager;
 using VisualHFT.UserSettings;
 
 namespace MarketConnectors.Binance
@@ -34,11 +29,12 @@ namespace MarketConnectors.Binance
         private Dictionary<string, VisualHFT.Model.OrderBook> _localOrderBooks = new Dictionary<string, VisualHFT.Model.OrderBook>();
         private Dictionary<string, Queue<IBinanceEventOrderBook>> _eventBuffers = new Dictionary<string, Queue<IBinanceEventOrderBook>>();
         private Dictionary<string, Queue<IBinanceTrade>> _tradesBuffers = new Dictionary<string, Queue<IBinanceTrade>>();
-        private CancellationTokenSource _ctDeltas;
-        private Dictionary<string, CancellationTokenSource> _ct;
-        private Dictionary<string, CancellationTokenSource> _ct_trades;
+
         private object _lock_eventBuffers = new object();
         private object _lock_tradeBuffers = new object();
+
+        private Dictionary<string, CancellationTokenSource> _ctDeltas = new Dictionary<string, CancellationTokenSource>();
+        private Dictionary<string, CancellationTokenSource> _ctTrades = new Dictionary<string, CancellationTokenSource>();
 
         private Dictionary<string, long> _localOrderBooks_LastUpdate = new Dictionary<string, long>();
         private Timer _heartbeatTimer;
@@ -56,11 +52,9 @@ namespace MarketConnectors.Binance
 
         public BinancePlugin()
         {
-            _ct = new Dictionary<string, CancellationTokenSource>();
-            _ct_trades = new Dictionary<string, CancellationTokenSource>();
             _socketClient = new BinanceSocketClient(options =>
             {
-                if (_settings.ApiKey != ""  && _settings.ApiSecret != "")
+                if (_settings.ApiKey != "" && _settings.ApiSecret != "")
                     options.ApiCredentials = new ApiCredentials(_settings.ApiKey, _settings.ApiSecret);
                 options.Environment = BinanceEnvironment.Us;
                 options.AutoReconnect = true;
@@ -80,102 +74,103 @@ namespace MarketConnectors.Binance
             Dispose(false);
         }
 
-        public override void Start()
+        public override async Task StartAsync()
         {
-            _eventBuffers.Clear();
-            _tradesBuffers.Clear();
-            _ct.Clear();
-            _ct_trades.Clear();
-            
-            foreach (var sym in GetAllNonNormalizedSymbols())
+            try
             {
-                string symbol = GetNormalizedSymbol(sym);
+                _eventBuffers.Clear();
+                _tradesBuffers.Clear();
+                foreach (var sym in GetAllNormalizedSymbols())
+                {
+                    _tradesBuffers.Add(sym, new Queue<IBinanceTrade>());
+                    _eventBuffers.Add(sym, new Queue<IBinanceEventOrderBook>());
+                }
 
-                // Initialize event buffer for each symbol
-                lock (_lock_eventBuffers)
-                    _eventBuffers.Add(symbol, new Queue<IBinanceEventOrderBook>());
-                lock (_lock_tradeBuffers)
-                    _tradesBuffers.Add(symbol, new Queue<IBinanceTrade>());
 
-                _ct_trades.Add(symbol, null);
-                _ct.Add(symbol, null);
+                await InitializeTradesAsync();
+                await InitializeDeltasAsync();
+                await Task.Delay(1000); // allow deltas to come in
+                await InitializeSnapshotsAsync();
+                await base.StartAsync();
+            }
+            catch (Exception ex)
+            {
+                if (failedAttempts == 0)
+                    RaiseOnError(new VisualHFT.PluginManager.ErrorEventArgs() { IsCritical = true, PluginName = Name, Exception = ex });
+                await HandleConnectionLost();
+                throw;
             }
 
-            InitializeTrades();
-            InitializeDeltas();
-            InitializeSnapshots();
-            base.Start();
         }
-        public override void Stop()
+        public override async Task StopAsync()
         {
-            _ctDeltas.Cancel();
-            foreach (var token in _ct.Values)
+            foreach (var token in _ctDeltas.Values)
                 token.Cancel();
-            foreach (var token in _ct_trades.Values)
+            foreach (var token in _ctTrades.Values)
                 token.Cancel();
 
-            UnattachEventHandlers(tradesSubscription.Data);
-            UnattachEventHandlers(deltaSubscription.Data);
+            UnattachEventHandlers(tradesSubscription?.Data);
+            UnattachEventHandlers(deltaSubscription?.Data);
 
-            Task.Run(async () =>
-            {
+            if (deltaSubscription?.Data != null)
                 await deltaSubscription.Data.CloseAsync();
+            if (tradesSubscription?.Data != null)
                 await tradesSubscription.Data.CloseAsync();
-            });
+
 
             //reset models
             RaiseOnDataReceived(new DataEventArgs() { DataType = "Market", ParsedModel = new List<VisualHFT.Model.OrderBook>(), RawData = "" });
             RaiseOnDataReceived(new DataEventArgs() { DataType = "HeartBeats", ParsedModel = new List<VisualHFT.Model.Provider>() { ToHeartBeatModel(false) }, RawData = "" });
 
-            base.Stop();
+            await base.StopAsync();
         }
-        private void InitializeTrades()
+        private async Task InitializeTradesAsync()
         {
-            Task.Run(async () =>
-            {
-                try
+            tradesSubscription = await _socketClient.SpotApi.ExchangeData.SubscribeToTradeUpdatesAsync(
+                GetAllNonNormalizedSymbols(),
+                trade =>
                 {
-                    tradesSubscription = await _socketClient.SpotApi.ExchangeData.SubscribeToTradeUpdatesAsync(
-                        GetAllNonNormalizedSymbols(),
-                        trade =>
+                    // Buffer the trades
+                    if (trade.Data != null)
+                    {
+                        try
                         {
-                            // Buffer the trades
-                            if (trade.Data != null)
+                            lock (_lock_tradeBuffers)
                             {
-                                lock (_lock_tradeBuffers)
-                                    _tradesBuffers[GetNormalizedSymbol(trade.Data.Symbol)].Enqueue(trade.Data);
+                                _tradesBuffers[GetNormalizedSymbol(trade.Data.Symbol)].Enqueue(trade.Data);
                             }
-                        });
-                    if (tradesSubscription.Success)
-                    {
-                        AttachEventHandlers(tradesSubscription.Data);
-                        InitializeBufferProcessingTasks();
+                        }
+                        catch (Exception ex)
+                        {
+                            RaiseOnError(new VisualHFT.PluginManager.ErrorEventArgs() { IsCritical = false, PluginName = Name, Exception = ex });
+                            // Start the HandleConnectionLost task without awaiting it
+                            Task.Run(HandleConnectionLost);
+                        }
                     }
-                    else
-                    {
-                        throw new Exception($"{this.Name} trades subscription error: {tradesSubscription.Error}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    RaiseOnError(new VisualHFT.PluginManager.ErrorEventArgs() { IsCritical = true, PluginName = Name, Exception = ex });
-                }
-            });
-
+                });
+            if (tradesSubscription.Success)
+            {
+                AttachEventHandlers(tradesSubscription.Data);
+                InitializeBufferProcessingTasks();
+            }
+            else
+            {
+                throw new Exception($"{this.Name} trades subscription error: {tradesSubscription.Error}");
+            }
         }
         private void InitializeBufferProcessingTasks()
         {
             //Initialize processes to consume buffer
-            _ct_trades = new Dictionary<string, CancellationTokenSource>();
+            _ctTrades.Clear();
             foreach (var sym in GetAllNonNormalizedSymbols())
             {
                 string symbol = GetNormalizedSymbol(sym);
-                
-                _ct_trades.Add(symbol, new CancellationTokenSource());
+
+                _ctTrades.Add(symbol, new CancellationTokenSource());
                 //launch Task. in a new thread with _ct as cancellation
                 Task.Run(async () =>
                 {
-                    while (!_ct_trades[symbol].IsCancellationRequested)
+                    while (!_ctTrades[symbol].IsCancellationRequested)
                     {
                         // Process buffered events
                         ProcessBufferedTrades(symbol);
@@ -186,58 +181,45 @@ namespace MarketConnectors.Binance
             }
 
         }
-        private void InitializeDeltas()
+        private async Task InitializeDeltasAsync()
         {
-            _ctDeltas = new CancellationTokenSource();
-            Task.Run(async () =>
-            {
-                try
+            // *************** PARTIAL OR NOT???????
+            // Subscribe to updates of a symbol
+            //_socketClient.SpotApi.ExchangeData.SubscribeToOrderBookUpdatesAsync
+            //_socketClient.SpotApi.ExchangeData.SubscribeToPartialOrderBookUpdatesAsync (looks like this is snapshots)
+            deltaSubscription = await _socketClient.SpotApi.ExchangeData.SubscribeToOrderBookUpdatesAsync(
+                GetAllNonNormalizedSymbols(),
+                //DEPTH_LEVELS,
+                _settings.UpdateIntervalMs,
+                data =>
                 {
-                    // *************** PARTIAL OR NOT???????
-                    // Subscribe to updates of a symbol
-                    //_socketClient.SpotApi.ExchangeData.SubscribeToOrderBookUpdatesAsync
-                    //_socketClient.SpotApi.ExchangeData.SubscribeToPartialOrderBookUpdatesAsync (looks like this is snapshots)
-                    deltaSubscription = await _socketClient.SpotApi.ExchangeData.SubscribeToOrderBookUpdatesAsync(
-                        GetAllNonNormalizedSymbols(),
-                        //DEPTH_LEVELS,
-                        _settings.UpdateIntervalMs,
-                        data =>
+                    // Buffer the events
+                    if (data.Data != null)
+                    {
+                        data.Data.EventTime = data.Timestamp;
+                        if (Math.Abs(DateTime.Now.Subtract(data.Data.EventTime.ToLocalTime()).TotalSeconds) > 1)
                         {
-                            // Buffer the events
-                            if (data.Data != null)
-                            {
-                                data.Data.EventTime = data.Timestamp;
-                                if (Math.Abs(DateTime.Now.Subtract(data.Data.EventTime.ToLocalTime()).TotalSeconds) > 1)
-                                {
-                                    log.Warn("Rates coming late?");
-                                }
-                                var normalizedSymbol = GetNormalizedSymbol(data.Data.Symbol);
-                                lock (_lock_eventBuffers)
-                                {
-                                    if (_eventBuffers.ContainsKey(normalizedSymbol))
-                                        _eventBuffers[normalizedSymbol].Enqueue(data.Data);
-                                }
-                            }
-                        }, _ctDeltas.Token);
-                    if (deltaSubscription.Success)
-                    {
-                        AttachEventHandlers(deltaSubscription.Data);
+                            log.Warn("Rates coming late?");
+                        }
+                        var normalizedSymbol = GetNormalizedSymbol(data.Data.Symbol);
+                        lock (_lock_eventBuffers)
+                        {
+                            _eventBuffers[normalizedSymbol].Enqueue(data.Data);
+                        }
                     }
-                    else
-                    {
-                        throw new Exception($"{this.Name} deltas subscription error: {deltaSubscription.Error}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    RaiseOnError(new VisualHFT.PluginManager.ErrorEventArgs() { IsCritical = true, PluginName = Name, Exception = ex });
-                }
-            });
-            // ***************
-
+                }, new CancellationToken());
+            if (deltaSubscription.Success)
+            {
+                AttachEventHandlers(deltaSubscription.Data);
+            }
+            else
+            {
+                throw new Exception($"{this.Name} deltas subscription error: {deltaSubscription.Error}");
+            }
         }
-        private void InitializeSnapshots()
+        private async Task InitializeSnapshotsAsync()
         {
+
             foreach (var symbol in GetAllNonNormalizedSymbols())
             {
                 var normalizedSymbol = GetNormalizedSymbol(symbol);
@@ -248,42 +230,41 @@ namespace MarketConnectors.Binance
                 if (!_localOrderBooks_LastUpdate.ContainsKey(normalizedSymbol))
                     _localOrderBooks_LastUpdate.Add(normalizedSymbol, -1);
 
-                _ct[normalizedSymbol] = new CancellationTokenSource();
+                if (!_ctDeltas.ContainsKey(normalizedSymbol))
+                    _ctDeltas.Add(normalizedSymbol, new CancellationTokenSource());
+                else
+                    _ctDeltas[normalizedSymbol] = new CancellationTokenSource();
+
                 if (depthSnapshot.Success)
                 {
                     _localOrderBooks[normalizedSymbol] = ToOrderBookModel(depthSnapshot.Data);
                     _localOrderBooks_LastUpdate[normalizedSymbol] = depthSnapshot.Data.LastUpdateId;
 
                     //launch Task. in a new thread with _ct as cancellation
-                    Task.Run(async () => {
-                        while (!_ct[normalizedSymbol].IsCancellationRequested)
+                    _ = Task.Run(async () =>
+                    {
+                        while (!_ctDeltas[normalizedSymbol].IsCancellationRequested)
                         {
                             // Process buffered events
                             ProcessBufferedEvents(normalizedSymbol);
                             await Task.Delay(1); // Prevents tight looping, adjust as needed
                         }
-                    });                    
+                    });
                 }
                 else
-                {                    
+                {
                     string erroMsg = $"{this.Name} getting Snapshot error for {symbol}: {depthSnapshot.ResponseStatusCode} - {depthSnapshot.Error}";
-                    RaiseOnError(new VisualHFT.PluginManager.ErrorEventArgs() { IsCritical = true, PluginName = Name, Exception = new Exception(erroMsg) });
+                    throw new Exception(erroMsg);
                 }
             }
         }
-        private async Task HandleConnectionLost()
-        {
-            // Close the connection on a background thread
-            await Task.Run(() => Stop());
-            // Wait 
-            await Task.Delay(TimeSpan.FromSeconds(10));
-            // Start the connection again
-            Start();
-        }
+
 
         #region Websocket Deltas Callbacks
         private void AttachEventHandlers(UpdateSubscription data)
         {
+            if (data == null)
+                return;
             data.Exception += deltaSubscription_Exception;
             data.ConnectionLost += deltaSubscription_ConnectionLost;
             data.ConnectionClosed += deltaSubscription_ConnectionClosed;
@@ -293,6 +274,8 @@ namespace MarketConnectors.Binance
         }
         private void UnattachEventHandlers(UpdateSubscription data)
         {
+            if (data == null)
+                return;
             data.Exception -= deltaSubscription_Exception;
             data.ConnectionLost -= deltaSubscription_ConnectionLost;
             data.ConnectionClosed -= deltaSubscription_ConnectionClosed;
@@ -310,34 +293,40 @@ namespace MarketConnectors.Binance
         }
         private void deltaSubscription_ConnectionRestored(TimeSpan obj)
         {
-            throw new NotImplementedException();
         }
         private void deltaSubscription_ConnectionClosed()
         {
+            if (log.IsWarnEnabled)
+                log.Warn($"{this.Name} Reconnecting because Subscription channel has been closed from the server");
+
             // Start the HandleConnectionLost task without awaiting it
-            _ = HandleConnectionLost();
+            Task.Run(HandleConnectionLost);
+
         }
         private void deltaSubscription_ConnectionLost()
         {
+            RaiseOnError(new VisualHFT.PluginManager.ErrorEventArgs() { IsCritical = false, PluginName = Name, Exception = new Exception("Connection lost.") });
             // Start the HandleConnectionLost task without awaiting it
-            _ = HandleConnectionLost();
+            Task.Run(HandleConnectionLost);
         }
         private void deltaSubscription_Exception(Exception obj)
         {
-            throw new NotImplementedException();
+            RaiseOnError(new VisualHFT.PluginManager.ErrorEventArgs() { IsCritical = false, PluginName = Name, Exception = obj });
+            // Start the HandleConnectionLost task without awaiting it
+            Task.Run(HandleConnectionLost);
         }
         #endregion
         private void ProcessBufferedTrades(string symbol)
         {
             lock (_lock_tradeBuffers)
-            {                
+            {
                 List<VisualHFT.Model.Trade> _trades = new List<VisualHFT.Model.Trade>();
                 while (_tradesBuffers[symbol].Count > 0)
                 {
                     var eventData = _tradesBuffers[symbol].Dequeue();
                     try
                     {
-                        
+
                         _trades.Add(new VisualHFT.Model.Trade()
                         {
                             Price = eventData.Price,
@@ -346,9 +335,9 @@ namespace MarketConnectors.Binance
                             Timestamp = eventData.TradeTime.ToLocalTime(),
                             ProviderId = _settings.ProviderId,
                             ProviderName = _settings.ProviderName,
-                            IsBuy = eventData.BuyerIsMaker                           
+                            IsBuy = eventData.BuyerIsMaker
                         }); ;
-                        
+
                     }
                     catch (Exception ex)
                     {
@@ -368,7 +357,7 @@ namespace MarketConnectors.Binance
                 while (_eventBuffers[normalizedSymbol].Count > 0)
                     eventsToProces.Add(_eventBuffers[normalizedSymbol].Dequeue());
             }
-            foreach(var eventData in eventsToProces)
+            foreach (var eventData in eventsToProces)
             {
                 if (eventData.LastUpdateId <= lastUpdateId) continue;
                 try
@@ -376,7 +365,7 @@ namespace MarketConnectors.Binance
                     UpdateOrderBook(eventData, normalizedSymbol);
                 }
                 catch (Exception ex)
-                {}
+                { }
                 lastUpdateId = eventData.LastUpdateId;
             }
             _localOrderBooks_LastUpdate[normalizedSymbol] = lastUpdateId;
@@ -451,9 +440,9 @@ namespace MarketConnectors.Binance
                 else
                     continue;
             }
-            
+
             local_lob.LoadData(
-                _asks.OrderBy(x => x.Price).Take(_settings.DepthLevels), 
+                _asks.OrderBy(x => x.Price).Take(_settings.DepthLevels),
                 _bids.OrderByDescending(x => x.Price).Take(_settings.DepthLevels)
             );
 
@@ -527,10 +516,9 @@ namespace MarketConnectors.Binance
             {
                 if (disposing)
                 {
-                    _ctDeltas.Cancel();
-                    foreach (var token in _ct.Values)
+                    foreach (var token in _ctDeltas.Values)
                         token.Cancel();
-                    foreach (var token in _ct_trades.Values)
+                    foreach (var token in _ctTrades.Values)
                         token.Cancel();
 
                     UnattachEventHandlers(tradesSubscription.Data);
@@ -539,8 +527,8 @@ namespace MarketConnectors.Binance
                     _localOrderBooks?.Clear();
                     _eventBuffers?.Clear();
                     _tradesBuffers?.Clear();
-                    _ct?.Clear();
-                    _ct_trades?.Clear();
+                    _ctDeltas?.Clear();
+                    _ctTrades?.Clear();
 
                     _socketClient?.Dispose();
                     _restClient?.Dispose();
@@ -599,7 +587,8 @@ namespace MarketConnectors.Binance
                 _settings.Symbols = viewModel.Symbols;
                 SaveSettings();
                 ParseSymbols(string.Join(',', _settings.Symbols.ToArray()));
-                HandleConnectionLost(); //run this because it will allow to reconnect with the new values
+                // Start the HandleConnectionLost task without awaiting it
+                Task.Run(HandleConnectionLost);
             };
             // Display the view, perhaps in a dialog or a new window.
             view.DataContext = viewModel;

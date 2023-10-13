@@ -41,7 +41,7 @@ namespace VisualHFT.PluginManager
                 StartPlugin(plugin);
             }
         }
-        
+
         public static void StartPlugin(IPlugin plugin)
         {
             try
@@ -52,14 +52,12 @@ namespace VisualHFT.PluginManager
                     {
                         //DATA RETRIEVER = WEBSOCKETS
                         var processor = new VisualHFT.DataRetriever.DataProcessor(dataRetriever);
-                        dataRetriever.Start();
+                        dataRetriever.StartAsync();
                     }
                 }
-
             }
             catch (Exception ex)
             {
-
                 throw;
             }
         }
@@ -73,14 +71,12 @@ namespace VisualHFT.PluginManager
                     {
                         //DATA RETRIEVER = WEBSOCKETS
                         var processor = new VisualHFT.DataRetriever.DataProcessor(dataRetriever);
-                        dataRetriever.Stop();
+                        dataRetriever.StopAsync();
                     }
                 }
-
             }
             catch (Exception ex)
             {
-
                 throw;
             }
         }
@@ -134,7 +130,7 @@ namespace VisualHFT.PluginManager
                 try
                 {
                     var assembly = Assembly.LoadFrom(file);
-                    foreach (var type in assembly.GetTypes())
+                    foreach (var type in assembly.GetExportedTypes())
                     {
                         if (!type.IsAbstract && type.GetInterfaces().Contains(typeof(IPlugin)))
                         {
@@ -143,6 +139,7 @@ namespace VisualHFT.PluginManager
                             plugin.OnError += Plugin_OnError;
                             log.Info("Plugins: " + plugin.Name + " loaded OK.");
                         }
+
                     }
                 }
                 catch (Exception ex)

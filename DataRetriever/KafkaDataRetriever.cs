@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Confluent.Kafka;
 using QuickFix;
 using VisualHFT.Model;
@@ -23,7 +24,7 @@ namespace VisualHFT.DataRetriever
         {
             Dispose(false);
         }
-        public void Start()
+        public async Task StartAsync()
         {
             var config = new ConsumerConfig
             {
@@ -49,7 +50,7 @@ namespace VisualHFT.DataRetriever
             }
         }
 
-        public void Stop()
+        public async Task StopAsync()
         {
             _consumer.Close();
             _consumer.Dispose();
