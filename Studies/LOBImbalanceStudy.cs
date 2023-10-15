@@ -80,20 +80,26 @@ namespace VisualHFT.Studies
         }
         private void CalculateStudy()
         {
-            var newItem = new BaseStudyModel() { 
-                Value = (decimal)_orderBook.ImbalanceValue, 
-                ValueFormatted = _orderBook.ImbalanceValue.ToString("N1"),
-                Timestamp = DateTime.Now, 
-                MarketMidPrice = (decimal)_orderBook.MidPrice 
-            };
-            bool addSuccess = _rollingValues.Add(newItem);
-            if (addSuccess)
-                OnRollingAdded?.Invoke(this, newItem);
-            else
-                OnRollingUpdated?.Invoke(this, newItem);
-
-
-            OnCalculated?.Invoke(this, newItem);
+            try
+            {
+                var newItem = new BaseStudyModel()
+                {
+                    Value = (decimal)_orderBook.ImbalanceValue,
+                    ValueFormatted = _orderBook.ImbalanceValue.ToString("N1"),
+                    Timestamp = DateTime.Now,
+                    MarketMidPrice = (decimal)_orderBook.MidPrice
+                };
+                bool addSuccess = _rollingValues.Add(newItem);
+                if (addSuccess)
+                    OnRollingAdded?.Invoke(this, newItem);
+                else
+                    OnRollingUpdated?.Invoke(this, newItem);
+                OnCalculated?.Invoke(this, newItem);
+            }
+            catch (Exception ex)
+            {
+                
+            }
         }
         private void _rollingValues_OnRemoved(object sender, int e)
         {
