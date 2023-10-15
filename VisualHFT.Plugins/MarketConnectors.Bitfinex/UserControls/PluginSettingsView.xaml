@@ -19,7 +19,6 @@
             <Label Content="API Secret" Margin="0,20,0,0"/>
             <TextBox Text="{Binding ApiSecret, UpdateSourceTrigger=PropertyChanged}" Margin="0,5" />
 
-            <Label Content="Symbols (comma separated)" Margin="0,20,0,0"/>
             <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
                 <Label Content="Symbols (comma separated)" />
                 <TextBlock Text="ℹ️ Normalization" Cursor="Hand" Margin="10 5 0 0" >
