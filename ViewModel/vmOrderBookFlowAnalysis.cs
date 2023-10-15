@@ -12,7 +12,7 @@ using VisualHFT.Model;
 
 namespace VisualHFT.ViewModel
 {
-    public class vmOrderBookFlowAnalysis: BindableBase, IDisposable
+    public class vmOrderBookFlowAnalysis : BindableBase, IDisposable
     {
         private OrderBook _orderBook;
         protected object MTX_ORDERBOOK = new object();
@@ -85,7 +85,7 @@ namespace VisualHFT.ViewModel
                 if (_realTimeData != null && _orderBook != null)
                 {
                     //Imbalance
-                    var objWithHigherDate = _realTimeData.OrderBy(x => x.Date).LastOrDefault();
+                    PlotInfoPriceChart objWithHigherDate = _realTimeData.OrderBy(x => x.Date).LastOrDefault();
                     var objToAdd = new PlotInfoPriceChart() { Date = DateTime.Now, Volume = _orderBook.ImbalanceValue, MidPrice = _orderBook.MidPrice };
                     if (objWithHigherDate == null || objToAdd.Date.Subtract(objWithHigherDate.Date).TotalMilliseconds > 10)
                     {

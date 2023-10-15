@@ -78,8 +78,6 @@ namespace MarketConnectors.Binance
         {
             try
             {
-                _eventBuffers.Clear();
-                _tradesBuffers.Clear();
                 foreach (var sym in GetAllNormalizedSymbols())
                 {
                     _tradesBuffers.Add(sym, new Queue<IBinanceTrade>());
@@ -108,19 +106,27 @@ namespace MarketConnectors.Binance
                 token.Cancel();
             foreach (var token in _ctTrades.Values)
                 token.Cancel();
+            _ctDeltas?.Clear();
+            _ctTrades?.Clear();
+
 
             UnattachEventHandlers(tradesSubscription?.Data);
             UnattachEventHandlers(deltaSubscription?.Data);
 
-            if (deltaSubscription?.Data != null)
+            if (deltaSubscription != null && deltaSubscription.Data != null)
                 await deltaSubscription.Data.CloseAsync();
-            if (tradesSubscription?.Data != null)
+            if (tradesSubscription != null && tradesSubscription.Data != null)
                 await tradesSubscription.Data.CloseAsync();
+            if (_socketClient != null)
+                await _socketClient.UnsubscribeAllAsync();
 
 
             //reset models
             RaiseOnDataReceived(new DataEventArgs() { DataType = "Market", ParsedModel = new List<VisualHFT.Model.OrderBook>(), RawData = "" });
             RaiseOnDataReceived(new DataEventArgs() { DataType = "HeartBeats", ParsedModel = new List<VisualHFT.Model.Provider>() { ToHeartBeatModel(false) }, RawData = "" });
+
+            _eventBuffers.Clear();
+            _tradesBuffers.Clear();
 
             await base.StopAsync();
         }
@@ -174,7 +180,7 @@ namespace MarketConnectors.Binance
                     {
                         // Process buffered events
                         ProcessBufferedTrades(symbol);
-                        await Task.Delay(1); // Prevents tight looping, adjust as needed
+                        await Task.Delay(0); // Prevents tight looping, adjust as needed
                     }
                 });
 
@@ -247,7 +253,7 @@ namespace MarketConnectors.Binance
                         {
                             // Process buffered events
                             ProcessBufferedEvents(normalizedSymbol);
-                            await Task.Delay(1); // Prevents tight looping, adjust as needed
+                            await Task.Delay(0); // Prevents tight looping, adjust as needed
                         }
                     });
                 }
@@ -587,7 +593,9 @@ namespace MarketConnectors.Binance
                 _settings.Symbols = viewModel.Symbols;
                 SaveSettings();
                 ParseSymbols(string.Join(',', _settings.Symbols.ToArray()));
+
                 // Start the HandleConnectionLost task without awaiting it
+                //run this because it will allow to reconnect with the new values
                 Task.Run(HandleConnectionLost);
             };
             // Display the view, perhaps in a dialog or a new window.

@@ -41,23 +41,31 @@ namespace VisualHFT.Helpers
 
             Thread.CurrentThread.CurrentCulture = ci_clone;
             Thread.CurrentThread.CurrentUICulture = ci_clone;
+            List<OrderBook> data = new List<OrderBook>();
 
-            while (!_cancellationTokenSource.Token.IsCancellationRequested)
+            try
             {
-                List<OrderBook> data = new List<OrderBook>();
-                if (_DataQueue.Count > 500)
+                while (!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    log.Warn("HelperOrderBook QUEUE is way behind: " + _DataQueue.Count);
+                    data.Clear();
+                    if (_DataQueue.Count > 500)
+                    {
+                        log.Warn($"HelperOrderBook QUEUE is way behind: {_DataQueue.Count}");
+                    }
+
+                    while (_DataQueue.TryDequeue(out var ob))
+                        data.Add(ob);
+
+                    if (data.Any())
+                        RaiseOnDataReceived(data);
+
+                    // Wait for the next iteration
+                    await Task.Delay(0);
                 }
-
-                while (_DataQueue.TryDequeue(out var ob))
-                    data.Add(ob);
-
-                if (data.Any())
-                    RaiseOnDataReceived(data);
-
-                // Wait for the next iteration
-                await Task.Delay(1);
+            }
+            catch (Exception ex)
+            {
+                log.Fatal(ex);
             }
         }
         protected virtual void RaiseOnDataReceived(List<OrderBook> books)

@@ -8,12 +8,12 @@ using VisualHFT.Helpers;
 
 namespace VisualHFT.Model
 {
-    public partial class PlotInfoPriceChart: IDisposable
+    public partial class PlotInfoPriceChart
     {
-        private bool _disposed = false; // to track whether the object has been disposed
-        ~PlotInfoPriceChart()
+        public PlotInfoPriceChart()
         {
-            Dispose(false);
+            AskLevelOrders = new List<OrderBookLevel>();
+            BidLevelOrders = new List<OrderBookLevel>();
         }
         public DateTime Date { get; set; }
         public double Volume { get; set; }
@@ -50,26 +50,8 @@ namespace VisualHFT.Model
             get => _sellActiveOrder;
             set => _sellActiveOrder = value;
         }
+        public List<OrderBookLevel> AskLevelOrders { get; set; }
+        public List<OrderBookLevel> BidLevelOrders { get; set; }
 
-        public List<OrderBookLevel> BidOrders { get; set; }
-        public List<OrderBookLevel> AskOrders { get; set; }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    BidOrders?.Clear();
-                    AskOrders?.Clear();
-                }
-                _disposed = true;
-            }
-        }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
     }
 }

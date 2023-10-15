@@ -9,26 +9,29 @@ namespace VisualHFT.Studies
 {
     public class OrderFlowAnalysis
     {
-        private List<BookItem> asks;
-        private List<BookItem> bids;
+        private IEnumerable<BookItem> asks;
+        private IEnumerable<BookItem> bids;
 
-        public void LoadData(List<BookItem> pAsks, List<BookItem> pBids)
+        public void LoadData(IEnumerable<BookItem> pAsks, IEnumerable<BookItem> pBids)
         {
-            asks = pAsks.ToList();
-            bids = pBids.ToList();
+            asks = pAsks;
+            bids = pBids;
         }
 
-        private void Calculate_TradeImbalance() {
+        private void Calculate_TradeImbalance()
+        {
             /*
              Similar to order imbalance, trade imbalance measures the difference between the number of executed buy and sell trades. It can provide insights into the actual trading activity in the market.
              */
         }
-        private void Calculate_OrderFlowToxicity() {
+        private void Calculate_OrderFlowToxicity()
+        {
             /*
              This metric measures the likelihood that incoming orders are informed trades (i.e., trades based on private information). High order flow toxicity can indicate a higher likelihood of price movements, as informed traders are likely to trade in the direction of future price changes.
              */
         }
-        private double Calculate_VWAP() {
+        private double Calculate_VWAP()
+        {
             /*
              VWAP is the average price a security has traded at throughout the day, based on both volume and price. It is important because it provides traders with insight into both the trend and value of a security.
              */
@@ -38,24 +41,28 @@ namespace VisualHFT.Studies
             double totalSize = asks.Sum(a => a.Size.Value) + bids.Sum(b => b.Size.Value);
             return totalValue / totalSize;
         }
-        private double Calculate_OrderBookDepth() {
+        private double Calculate_OrderBookDepth()
+        {
             /*
              This metric measures the number of open buy and sell orders at different price levels. It can provide insights into the liquidity and depth of the market.
              */
-            return asks.Count + bids.Count;
+            return asks.Count() + bids.Count();
         }
-        private void Calculate_OrderSizeAndFrequency() {
+        private void Calculate_OrderSizeAndFrequency()
+        {
             /*
              These metrics measure the average size and frequency of incoming orders. They can provide insights into the trading activity and liquidity in the market.
              */
 
         }
-        private void Calculate_PriceImpactOfTrades() {
+        private void Calculate_PriceImpactOfTrades()
+        {
             /*
              This metric measures the impact of trades on the price of a security. It can provide insights into the liquidity and resilience of the market.
              */
         }
-        private void Calculate_CancelationRate() {
+        private void Calculate_CancelationRate()
+        {
             /*             
              This metric measures the rate at which orders are canceled relative to the rate at which they are placed. A high cancellation rate can indicate a more volatile and less predictable market.
              */
@@ -90,8 +97,8 @@ namespace VisualHFT.Studies
             It can provide insights into the supply and demand dynamics in the market. 
             A positive order imbalance (more buy orders than sell orders) can indicate upward pressure on prices, while a negative order imbalance (more sell orders than buy orders) can indicate downward pressure on prices.
             */
-            double totalAskSize = asks.Where(a => a.Size.HasValue).Sum(a => a.Size.Value);
-            double totalBidSize = bids.Where(b => b.Size.HasValue).Sum(b => b.Size.Value);
+            double totalAskSize = asks.Sum(a => a.Size.Value);
+            double totalBidSize = bids.Sum(b => b.Size.Value);
             return (totalBidSize - totalAskSize) / (totalBidSize + totalAskSize);
         }
         public double CalculateOrderBookKurtosis()
@@ -109,13 +116,13 @@ namespace VisualHFT.Studies
             // Calculate Price Level Clustering
             // This metric measures the extent to which orders are clustered at certain price levels. Clustering can indicate the presence of significant support or resistance levels.
             var priceLevels = asks.Select(a => a.Price.Value).Concat(bids.Select(b => b.Price.Value)).Distinct().Count();
-            return (double)priceLevels / (asks.Count + bids.Count);
+            return (double)priceLevels / (asks.Count() + bids.Count());
         }
         public double CalculateLiquidityConsumption()
         {
             // Calculate Liquidity Consumption
             // This is a measure of how much the order book "moves" for each unit of volume traded. It can provide insights into market liquidity and efficiency.
-            double volumeWeightedPrice = asks.Sum(a => a.Price.Value * a.Size.Value ) + bids.Sum(b => b.Price.Value * b.Size.Value);
+            double volumeWeightedPrice = asks.Sum(a => a.Price.Value * a.Size.Value) + bids.Sum(b => b.Price.Value * b.Size.Value);
             double totalVolume = asks.Sum(a => a.Size.Value) + bids.Sum(b => b.Size.Value);
             double averagePrice = volumeWeightedPrice / totalVolume;
             double midPrice = (asks.Min(a => a.Price.Value) + bids.Max(b => b.Price.Value)) / 2;

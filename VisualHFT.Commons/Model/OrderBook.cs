@@ -26,6 +26,8 @@ namespace VisualHFT.Model
         private double _Spread = 0;
         private BookItem _bidTOP = null;
         private BookItem _askTOP = null;
+        OrderFlowAnalysis lobMetrics = new OrderFlowAnalysis();
+
         public OrderBook() //emtpy constructor for JSON deserialization
         {
             _Cummulative_Asks = new CachedCollection<BookItem>();
@@ -83,8 +85,7 @@ namespace VisualHFT.Model
         }
         private void CalculateMetrics()
         {
-            var lobMetrics = new OrderFlowAnalysis();
-            lobMetrics.LoadData(_Asks.Where(x => x != null).ToList(), _Bids.Where(x => x != null).ToList());
+            lobMetrics.LoadData(_Asks, _Bids);
             this.ImbalanceValue = lobMetrics.Calculate_OrderImbalance();
         }
         public void Clear()
@@ -108,10 +109,15 @@ namespace VisualHFT.Model
             {
                 #region Bids
                 if (bids != null)
-                    _Bids.Update(bids.Where(x => x != null && x.Price.HasValue).OrderByDescending(x => x.Price));
+                {
+                    _Bids.Update(bids
+                        .Where(x => x != null && x.Price.HasValue && x.Size.HasValue)
+                        .OrderByDescending(x => x.Price.Value)
+                    );
+                }
                 _Cummulative_Bids.Clear();
                 double cumSize = 0;
-                foreach (var o in _Bids.Where(x => x.Price.HasValue && x.Size.HasValue).OrderByDescending(x => x.Price))
+                foreach (var o in _Bids)
                 {
                     cumSize += o.Size.Value;
                     _Cummulative_Bids.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = true });
@@ -120,10 +126,15 @@ namespace VisualHFT.Model
 
                 #region Asks
                 if (asks != null)
-                    _Asks.Update(asks.Where(x => x != null && x.Price.HasValue).OrderBy(x => x.Price));
+                {
+                    _Asks.Update(asks
+                        .Where(x => x != null && x.Price.HasValue && x.Size.HasValue)
+                        .OrderBy(x => x.Price.Value)
+                    );
+                }
                 _Cummulative_Asks.Clear();
                 cumSize = 0;
-                foreach (var o in _Asks.Where(x => x.Price.HasValue && x.Size.HasValue).OrderBy(x => x.Price))
+                foreach (var o in _Asks)
                 {
                     cumSize += o.Size.Value;
                     _Cummulative_Asks.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = false });

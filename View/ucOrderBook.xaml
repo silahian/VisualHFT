@@ -49,9 +49,9 @@
             <ColumnDefinition Width="270" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.3*"  />
-            <RowDefinition Height="0.5*" />
-            <RowDefinition Height="0.2*" />
+            <RowDefinition Height="*" MaxHeight="200" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" MaxHeight="100" />
         </Grid.RowDefinitions>
 
         <!--PROVIDER & SYMBOL-->
@@ -189,20 +189,20 @@
                             </Button>
                             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                                 <ContentControl Content="{Binding }" Grid.Row="1">
-                                <ContentControl.Style>
-                                    <Style TargetType="{x:Type ContentControl}">
-                                        <Setter Property="ContentTemplate" Value="{StaticResource View1Template}" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SwitchView}" Value="1">
-                                                <Setter Property="ContentTemplate" Value="{StaticResource View2Template}" />
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding SwitchView}" Value="2">
-                                                <Setter Property="ContentTemplate" Value="{StaticResource View3Template}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ContentControl.Style>
-                            </ContentControl>
+                                    <ContentControl.Style>
+                                        <Style TargetType="{x:Type ContentControl}">
+                                            <Setter Property="ContentTemplate" Value="{StaticResource View1Template}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SwitchView}" Value="1">
+                                                    <Setter Property="ContentTemplate" Value="{StaticResource View2Template}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding SwitchView}" Value="2">
+                                                    <Setter Property="ContentTemplate" Value="{StaticResource View3Template}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ContentControl.Style>
+                                </ContentControl>
                             </ScrollViewer>
                         </Grid>
 

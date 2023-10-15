@@ -128,6 +128,13 @@ namespace VisualHFT.Helpers
                 return _aggregatedData.Count();
             }
         }
+        public bool Any()
+        {
+            lock (_lockObject)
+            {
+                return _aggregatedData.Any();
+            }
+        }
         public IEnumerable<T> ToList()
         {
             lock (_lockObject)
@@ -168,6 +175,27 @@ namespace VisualHFT.Helpers
             lock (_lockObject)
                 return _aggregatedData.Where(predicate);
         }
+        public decimal Min(Func<T, decimal> selector)
+        {
+            lock (_lockObject)
+                return _aggregatedData.Min(selector);
+        }
+        public double Min(Func<T, double> selector)
+        {
+            lock (_lockObject)
+                return _aggregatedData.Min(selector);
+        }
+        public decimal Max(Func<T, decimal> selector)
+        {
+            lock (_lockObject)
+                return _aggregatedData.Max(selector);
+        }
+        public double Max(Func<T, double> selector)
+        {
+            lock (_lockObject)
+                return _aggregatedData.Max(selector);
+        }
+
         private TimeSpan GetAggregationSpan(AggregationLevel level)
         {
             switch (level)

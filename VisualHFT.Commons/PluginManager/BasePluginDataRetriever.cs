@@ -16,6 +16,7 @@ namespace VisualHFT.Commons.PluginManager
         private Dictionary<string, string> parsedNormalizedSymbols;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        private static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
         protected bool _isHandlingConnectionLost = false;
         protected int failedAttempts = 0;
         protected const int maxAttempts = 5;
@@ -71,30 +72,34 @@ namespace VisualHFT.Commons.PluginManager
             // If already handling connection loss, exit
             if (_isHandlingConnectionLost)
                 return;
-
-            _isHandlingConnectionLost = true;
-            while (failedAttempts < maxAttempts)
+            if (await semaphore.WaitAsync(0))
             {
-                try
+                _isHandlingConnectionLost = true;
+                while (failedAttempts < maxAttempts)
                 {
-                    log.Warn($"{this.Name} Reconnection attempt {failedAttempts} of {maxAttempts}");
-                    await StopAsync();  // Close the connection 
-                    await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, failedAttempts))); // Exponential backoff
-                    await StartAsync(); // Start the connection again
-                    log.Warn($"{this.Name} Reconnection attempt {failedAttempts} success.");
-                    failedAttempts = 0; // Reset on successful connection
-                    _isHandlingConnectionLost = false;
-                    return;
+                    try
+                    {
+                        log.Warn($"{this.Name} Reconnection attempt {failedAttempts} of {maxAttempts}");
+                        await StopAsync();  // Close the connection 
+                        await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, failedAttempts))); // Exponential backoff
+                        await StartAsync(); // Start the connection again
+                        log.Warn($"{this.Name} Reconnection attempt {failedAttempts} success.");
+                        failedAttempts = 0; // Reset on successful connection
+                        _isHandlingConnectionLost = false;
+                        semaphore.Release();
+                        return;
+                    }
+                    catch
+                    {
+                        failedAttempts++;
+                        log.Error($"{this.Name} connection failed. Attempt {failedAttempts}");
+                    }
                 }
-                catch
-                {
-                    failedAttempts++;
-                    log.Error($"{this.Name} connection failed. Attempt {failedAttempts}");
-                }
+                _isHandlingConnectionLost = false;
+                failedAttempts = 0;//reset attempts
+                log.Error($"{this.Name} connection Aborted. All attempts failed");
+                semaphore.Release();
             }
-            _isHandlingConnectionLost = false;
-            failedAttempts = 0;//reset attempts
-            log.Error($"{this.Name} connection Aborted. All attempts failed");
         }
         public virtual void RaiseOnError(VisualHFT.PluginManager.ErrorEventArgs args)
         {
