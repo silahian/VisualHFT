@@ -40,21 +40,19 @@ namespace VisualHFT.DataRetriever
 
         private void StartProcessing()
         {
-            Task.Run(async () =>
+            Task.Run(() =>
             {
                 while (!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
                     try
                     {
-                        if (_dataQueue.Count > 1000)
-                            log.Warn("WARNING: DataProcessor Queue is behind: " + _dataQueue.Count.ToString());
-
                         foreach (var data in _dataQueue.GetConsumingEnumerable())
                         {
+                            if (_dataQueue.Count > 1000)
+                                log.Warn("WARNING: DataProcessor Queue is behind: " + _dataQueue.Count.ToString());
                             if (data != null)
                                 HandleData(data);
                         }                                                
-                        await Task.Delay(0); // Prevents tight looping, adjust as needed
                     }
                     catch (Exception ex)
                     {
