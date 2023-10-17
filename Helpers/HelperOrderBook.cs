@@ -8,7 +8,6 @@ using System.Windows.Threading;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Globalization;
-using ControlzEx.Standard;
 
 namespace VisualHFT.Helpers
 {
