@@ -13,7 +13,7 @@ namespace VisualHFT.Helpers
 {
     public class HelperOrderBook : IOrderBookHelper
     {
-        protected ConcurrentQueue<OrderBook> _DataQueue = new ConcurrentQueue<OrderBook>();
+        protected BlockingCollection<OrderBook> _DataQueue = new BlockingCollection<OrderBook>(new ConcurrentQueue<OrderBook>());
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly Task _processingTask;
 
@@ -53,8 +53,8 @@ namespace VisualHFT.Helpers
                         log.Warn($"HelperOrderBook QUEUE is way behind: {_DataQueue.Count}");
                     }
 
-                    while (_DataQueue.TryDequeue(out var ob))
-                        data.Add(ob);
+                    var ob = _DataQueue.Take();
+                    data.Add(ob);                        
 
                     if (data.Any())
                         RaiseOnDataReceived(data);
@@ -77,10 +77,8 @@ namespace VisualHFT.Helpers
         {
             foreach (var e in data)
             {
-                _DataQueue.Enqueue((OrderBook)e.Clone());
+                _DataQueue.Add((OrderBook)e.Clone());
             }
-
         }
-
     }
 }

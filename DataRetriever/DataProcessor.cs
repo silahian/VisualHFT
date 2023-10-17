@@ -14,7 +14,7 @@ namespace VisualHFT.DataRetriever
     public class DataProcessor
     {
         private IDataRetriever _dataRetriever;
-        private ConcurrentQueue<DataEventArgs> _dataQueue = new ConcurrentQueue<DataEventArgs>();
+        BlockingCollection<DataEventArgs> _dataQueue = new BlockingCollection<DataEventArgs>(new ConcurrentQueue<DataEventArgs>());
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private object _LOCK_SYMBOLS = new object();
         private const int MAX_QUEUE_SIZE = 10000; // Define a threshold for max queue size
@@ -35,26 +35,24 @@ namespace VisualHFT.DataRetriever
                 // Apply back pressure by delaying further data ingestion
                 Task.Delay(BACK_PRESSURE_DELAY).Wait();
             }
-            _dataQueue.Enqueue(e);
+            _dataQueue.Add(e);
         }
 
         private void StartProcessing()
         {
-            Task.Run(async () =>
+            Task.Run(() =>
             {
                 while (!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
                     try
                     {
-                        if (_dataQueue.Count > 1000)
-                            log.Warn("WARNING: DataProcessor Queue is behind: " + _dataQueue.Count.ToString());
-
-                        if (_dataQueue.TryDequeue(out var data))
+                        foreach (var data in _dataQueue.GetConsumingEnumerable())
                         {
+                            if (_dataQueue.Count > 1000)
+                                log.Warn("WARNING: DataProcessor Queue is behind: " + _dataQueue.Count.ToString());
                             if (data != null)
                                 HandleData(data);
-                        }
-                        await Task.Delay(0); // Prevents tight looping, adjust as needed
+                        }                                                
                     }
                     catch (Exception ex)
                     {
