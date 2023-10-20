@@ -230,6 +230,16 @@ For project questions use the repository’s forums or any of my social media pr
 
 
 # Release notes
+### Oct 19 2023
+
+**Enhancements**
+- **Memory Optimization with Object Pooling**: Introduced object pooling to reduce memory allocations in ProcessBufferedTrades method by reusing Trade and OrderBook objects.
+- **Optimizing Real-Time Data Processing**: Replaced Task.Delay(0) with more efficient mechanisms like ManualResetEventSlim or BlockingCollection to handle high-frequency real-time data processing with lower latency and CPU usage.
+- **Data Copy Optimization**: Implemented a CopyTo method to efficiently copy data between objects, facilitating object reuse and reducing memory allocations.
+- **Converting Queue to BlockingCollection**: Transitioned from using Queue<IBinanceTrade> to BlockingCollection<IBinanceTrade> for thread-safe and efficient data processing in a multi-threaded environment.
+- **Efficient Data Processing with BlockingCollection**: Utilized BlockingCollection<T> methods like Take and GetConsumingEnumerable to efficiently process data from different threads, ensuring thread-safety and reduced latency in high-frequency real-time analytic systems.
+
+
 ### Oct 02 2023
 
 **New Features**
