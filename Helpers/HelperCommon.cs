@@ -42,11 +42,9 @@ namespace VisualHFT.Helpers
                 return DateTime.Now;
         }
         public static int TimerMillisecondsToGetVariables = 1000 * 10; //10 seconds
-        
+
         public static ObservableCollection<string> ALLSYMBOLS = new ObservableCollection<string>();
         public static HelperProvider PROVIDERS = new HelperProvider();
-        public static HelperOrderBook LIMITORDERBOOK = new HelperOrderBook();
-
         public static IDataTradeRetriever EXECUTEDORDERS = new EmptyTradesRetriever();
         //public static IDataTradeRetriever EXECUTEDORDERS = new MSSQLServerTradesRetriever();
         //public static IDataTradeRetriever EXECUTEDORDERS = new FIXTradesRetriever([path_to_fix_log_file], 1, "CME");
@@ -81,7 +79,7 @@ namespace VisualHFT.Helpers
                     {"confirm", GetConfirmPopup() },
                     {"validation", GetValidationPopup() },
                     {"error", GetErrorPopup() }
-                };        
+                };
         public static void CreateCommonPopUpWindow(FrameworkElement ctrlToSendIntoNewWindow, Button butPopUp, object dataContext, string titleWindow = "New Window", int widthWindow = 800, int heightWindow = 600, ResizeMode resizeMode = ResizeMode.CanResize)
         {
             // Create a new window
@@ -90,7 +88,8 @@ namespace VisualHFT.Helpers
                 Width = widthWindow, // Set the width of the window
                 Height = heightWindow, // Set the height of the window
                 Title = titleWindow // Set the title of the window
-                ,ResizeMode= resizeMode
+                ,
+                ResizeMode = resizeMode
             };
 
             Grid parent = (Grid)ctrlToSendIntoNewWindow.Parent;

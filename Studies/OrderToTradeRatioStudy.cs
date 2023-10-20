@@ -36,9 +36,9 @@ namespace VisualHFT.Studies
 
 
         private AggregatedCollection<BaseStudyModel> _rollingValues;//to maintain rolling window of study's values
-        private decimal total_L2OrderSize_Ini=0;
+        private decimal total_L2OrderSize_Ini = 0;
         private decimal total_L2OrderSize_End = 0;
-        private decimal totalExecutedTradeSize=0;
+        private decimal totalExecutedTradeSize = 0;
         private AggregationLevel _aggregationLevel;
 
 
@@ -54,7 +54,7 @@ namespace VisualHFT.Studies
             if (string.IsNullOrEmpty(symbol))
                 throw new Exception("Symbol cannot be null or empty.");
 
-            EventAggregator.Instance.OnOrderBookDataReceived += LIMITORDERBOOK_OnDataReceived;
+            HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
             HelperCommon.TRADES.OnDataReceived += TRADES_OnDataReceived;
             _symbol = symbol;
             _providerId = providerId;
@@ -64,7 +64,7 @@ namespace VisualHFT.Studies
             _rollingValues.OnRemoved += _rollingValues_OnRemoved;
 
             CalculateO2TRatio(); //initial value
-            
+
         }
 
         private void _rollingValues_OnRemoved(object sender, int e)
@@ -105,7 +105,7 @@ namespace VisualHFT.Studies
             CalculateO2TRatio();
         }
 
-        private void LIMITORDERBOOK_OnDataReceived(object sender, OrderBook e)
+        private void LIMITORDERBOOK_OnDataReceived(OrderBook e)
         {
             if (e == null)
                 return;
@@ -134,7 +134,7 @@ namespace VisualHFT.Studies
 
             if (totalExecutedTradeSize == 0)
                 t2oRatio = 0;  // Avoid division by zero
-            else 
+            else
                 t2oRatio = delta / totalExecutedTradeSize;
 
 
@@ -143,7 +143,7 @@ namespace VisualHFT.Studies
             {
                 Value = t2oRatio,
                 ValueFormatted = t2oRatio.ToString("N0"),
-                MarketMidPrice = _lastMarketMidPrice, 
+                MarketMidPrice = _lastMarketMidPrice,
                 Timestamp = DateTime.Now,
             };
             bool addSuccess = _rollingValues.Add(newItem);
@@ -170,7 +170,7 @@ namespace VisualHFT.Studies
                     _symbol = "";
 
                     // Dispose managed resources here
-                    HelperCommon.LIMITORDERBOOK.OnDataReceived -= LIMITORDERBOOK_OnDataReceived;
+                    HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
                     HelperCommon.TRADES.OnDataReceived -= TRADES_OnDataReceived;
                     _orderBook = null;
 

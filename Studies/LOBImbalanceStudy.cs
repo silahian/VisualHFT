@@ -16,7 +16,7 @@ using VisualHFT.View;
 
 namespace VisualHFT.Studies
 {
-    public class LOBImbalanceStudy: IDisposable
+    public class LOBImbalanceStudy : IDisposable
     {
         private bool _disposed = false; // to track whether the object has been disposed
         private OrderBook _orderBook; //to hold last market data tick
@@ -37,12 +37,12 @@ namespace VisualHFT.Studies
             if (string.IsNullOrEmpty(symbol))
                 throw new Exception("Symbol cannot be null or empty.");
 
-            EventAggregator.Instance.OnOrderBookDataReceived += LIMITORDERBOOK_OnDataReceived;
+            HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
             _symbol = symbol;
             _providerId = providerId;
             _aggregationLevel = aggregationLevel;
             _rollingValues = new AggregatedCollection<BaseStudyModel>(aggregationLevel, rollingWindowSize, x => x.Timestamp, AggregateData);
-            _rollingValues.OnRemoved += _rollingValues_OnRemoved;            
+            _rollingValues.OnRemoved += _rollingValues_OnRemoved;
         }
         ~LOBImbalanceStudy()
         {
@@ -60,7 +60,7 @@ namespace VisualHFT.Studies
             get => _aggregationLevel;
             set => _aggregationLevel = value;
         }
-        private void LIMITORDERBOOK_OnDataReceived(object sender, OrderBook e)
+        private void LIMITORDERBOOK_OnDataReceived(OrderBook e)
         {
             //Thread.Sleep(1000000000);
             if (e == null)
@@ -74,7 +74,7 @@ namespace VisualHFT.Studies
 
             if (!_orderBook.LoadData(e.Asks, e.Bids))
                 return; //if nothing to update, then exit
-            
+
             if (_orderBook.MidPrice != 0)
                 CalculateStudy();
         }
@@ -98,7 +98,7 @@ namespace VisualHFT.Studies
             }
             catch (Exception ex)
             {
-                
+
             }
         }
         private void _rollingValues_OnRemoved(object sender, int e)
@@ -115,7 +115,7 @@ namespace VisualHFT.Studies
                     _symbol = "";
 
                     // Dispose managed resources here
-                    HelperCommon.LIMITORDERBOOK.OnDataReceived -= LIMITORDERBOOK_OnDataReceived;
+                    HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
                     _orderBook = null;
 
                     _rollingValues.OnRemoved -= _rollingValues_OnRemoved;

@@ -22,20 +22,20 @@ namespace VisualHFT.ViewModel
         private AggregationLevel _aggregationLevelSelection;
         private int _MAX_ITEMS = 500;
         private Dictionary<int, double> _latesPrice;
-        private UIUpdater uiUpdater; 
+        private UIUpdater uiUpdater;
         public vmMultiVenuePrices()
         {
             _symbols = new ObservableCollection<string>(HelperCommon.ALLSYMBOLS.ToList());
             RaisePropertyChanged(nameof(Symbols));
             HelperCommon.ALLSYMBOLS.CollectionChanged += ALLSYMBOLS_CollectionChanged;
-            EventAggregator.Instance.OnOrderBookDataReceived += LIMITORDERBOOK_OnDataReceived;
-            
+            HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
+
             AggregationLevels = new ObservableCollection<Tuple<string, AggregationLevel>>();
             foreach (AggregationLevel level in Enum.GetValues(typeof(AggregationLevel)))
             {
                 AggregationLevels.Add(new Tuple<string, AggregationLevel>(HelperCommon.GetEnumDescription(level), level));
             }
-            AggregationLevelSelection = AggregationLevel.Ms100;            
+            AggregationLevelSelection = AggregationLevel.Ms100;
             uiUpdater = new UIUpdater(uiUpdaterAction);
 
             _allDataSeries = new Dictionary<int, AggregatedCollection<PlotInfo>>();
@@ -50,7 +50,7 @@ namespace VisualHFT.ViewModel
             existing.Date = newItem.Date;
             existing.Value = newItem.Value;
         }
-        public ObservableCollection<string> Symbols { get => _symbols; set => _symbols = value; }        
+        public ObservableCollection<string> Symbols { get => _symbols; set => _symbols = value; }
 
         public string SelectedSymbol
         {
@@ -78,9 +78,9 @@ namespace VisualHFT.ViewModel
             _symbols = new ObservableCollection<string>(HelperCommon.ALLSYMBOLS.ToList());
             RaisePropertyChanged(nameof(Symbols));
         }
-        private void LIMITORDERBOOK_OnDataReceived(object? sender, OrderBook e)
+        private void LIMITORDERBOOK_OnDataReceived(OrderBook e)
         {
-            if (_selectedSymbol  == "" || _selectedSymbol == "-- All symbols --" || _selectedSymbol != e.Symbol)
+            if (_selectedSymbol == "" || _selectedSymbol == "-- All symbols --" || _selectedSymbol != e.Symbol)
                 return;
 
 
@@ -117,22 +117,23 @@ namespace VisualHFT.ViewModel
                         TitleColor = OxyColors.White,
                         TextColor = OxyColors.White,
                         StringFormat = "N2",
-                        
+
                         AxislineColor = OxyColors.White,
                         TitleFontSize = 16,
                     };
-                    
+
                     MyPlotModel.Axes.Add(xAxe);
                     MyPlotModel.Axes.Add(yAxe);
 
                 }
                 OxyColor serieColor = MapProviderCodeToOxyColor(e.ProviderID);
-                MyPlotModel.Legends.Add(new Legend { 
+                MyPlotModel.Legends.Add(new Legend
+                {
                     LegendSymbolPlacement = LegendSymbolPlacement.Right,
                     LegendTextColor = serieColor,
                     LegendItemAlignment = HorizontalAlignment.Right,
                     TextColor = serieColor,
-                });                
+                });
                 series.Color = serieColor;
                 MyPlotModel.Series.Add(series);
                 MyPlotModel.InvalidatePlot(true); // This refreshes the plot
@@ -140,12 +141,12 @@ namespace VisualHFT.ViewModel
             if (e.LoadData())
             {
                 _latesPrice[e.ProviderID] = e.MidPrice;
-                
+
 
                 foreach (var key in _allDataSeries.Keys)
                     _allDataSeries[key].Add(new PlotInfo() { Date = DateTime.Now, Value = _latesPrice[key] });
 
-                
+
                 var currentSerie = MyPlotModel.Series.Where(x => x.Title == e.ProviderName).FirstOrDefault();
                 if (currentSerie != null)
                 {
@@ -197,10 +198,12 @@ namespace VisualHFT.ViewModel
             {
                 if (disposing)
                 {
+                    HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
+                    HelperCommon.ALLSYMBOLS.CollectionChanged -= ALLSYMBOLS_CollectionChanged;
+
                     Clear();
                     uiUpdater.Dispose();
 
-                    HelperCommon.ALLSYMBOLS.CollectionChanged -= ALLSYMBOLS_CollectionChanged;
                 }
                 _disposed = true;
             }

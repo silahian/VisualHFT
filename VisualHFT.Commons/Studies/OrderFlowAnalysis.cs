@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using VisualHFT.Model;
@@ -97,9 +98,13 @@ namespace VisualHFT.Studies
             It can provide insights into the supply and demand dynamics in the market. 
             A positive order imbalance (more buy orders than sell orders) can indicate upward pressure on prices, while a negative order imbalance (more sell orders than buy orders) can indicate downward pressure on prices.
             */
-            double totalAskSize = asks.Sum(a => a.Size.Value);
-            double totalBidSize = bids.Sum(b => b.Size.Value);
-            return (totalBidSize - totalAskSize) / (totalBidSize + totalAskSize);
+            if (asks != null && bids != null && asks.Any() && bids.Any())
+            {
+                double totalAskSize = asks.Sum(a => a.Size.Value);
+                double totalBidSize = bids.Sum(b => b.Size.Value);
+                return (totalBidSize - totalAskSize) / (totalBidSize + totalAskSize);
+            }
+            return 0;
         }
         public double CalculateOrderBookKurtosis()
         {

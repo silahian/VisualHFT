@@ -21,7 +21,7 @@ namespace VisualHFT.Studies
     ///     1: This indicates a complete imbalance, meaning all the trades in the bucket are either all buys or all sells.
     /// Most of the time, the VPIN value will be somewhere between these two extremes, indicating some level of imbalance between buy and sell trades. The closer the VPIN value is to 1, the greater the imbalance, and vice versa.
     /// </summary>
-    public class VPINStudy: IDisposable
+    public class VPINStudy : IDisposable
     {
         private bool _disposed = false; // to track whether the object has been disposed
         private OrderBook _orderBook; //to hold last market data tick
@@ -56,7 +56,7 @@ namespace VisualHFT.Studies
             if (string.IsNullOrEmpty(symbol))
                 throw new Exception("Symbol cannot be null or empty.");
 
-            EventAggregator.Instance.OnOrderBookDataReceived += LIMITORDERBOOK_OnDataReceived;
+            HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
             HelperCommon.TRADES.OnDataReceived += TRADES_OnDataReceived;
             _symbol = symbol;
             _providerId = providerId;
@@ -69,7 +69,7 @@ namespace VisualHFT.Studies
             _rollingValues.OnRemoved += _rollingValues_OnRemoved;
 
             CalculateStudy(true); //initial value
-            
+
         }
         ~VPINStudy()
         {
@@ -126,7 +126,7 @@ namespace VisualHFT.Studies
                 CalculateStudy(false);
             }
         }
-        private void LIMITORDERBOOK_OnDataReceived(object sender, OrderBook e)
+        private void LIMITORDERBOOK_OnDataReceived(OrderBook e)
         {
             //Thread.Sleep(1000000000);
             if (e == null)
@@ -192,7 +192,7 @@ namespace VisualHFT.Studies
                     _symbol = "";
 
                     // Dispose managed resources here
-                    HelperCommon.LIMITORDERBOOK.OnDataReceived -= LIMITORDERBOOK_OnDataReceived;
+                    HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
                     HelperCommon.TRADES.OnDataReceived -= TRADES_OnDataReceived;
                     _orderBook = null;
                     _rollingValues.OnRemoved -= _rollingValues_OnRemoved;

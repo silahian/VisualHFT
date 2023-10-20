@@ -28,6 +28,5 @@ namespace VisualHFT.Helpers
         {
             RaiseOnDataReceived(trades.ToList());
         }
-
     }
 }

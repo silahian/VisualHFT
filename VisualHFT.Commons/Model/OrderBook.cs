@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using VisualHFT.Commons.Pools;
 using VisualHFT.Helpers;
 using VisualHFT.Studies;
 
@@ -85,7 +86,6 @@ namespace VisualHFT.Model
         }
         private void CalculateMetrics()
         {
-            lobMetrics.LoadData(_Asks, _Bids);
             this.ImbalanceValue = lobMetrics.Calculate_OrderImbalance();
         }
         public void Clear()
@@ -199,20 +199,37 @@ namespace VisualHFT.Model
 
             return Tuple.Create(minOrderSize, maxOrderSize);
         }
+
+
+        private readonly ObjectPool<OrderBook> orderBookPool = new ObjectPool<OrderBook>();
+
         public object Clone()
         {
-            var clone = new OrderBook
-            {
-                DecimalPlaces = DecimalPlaces,
-                ProviderID = ProviderID,
-                ProviderName = ProviderName,
-                Symbol = Symbol,
-                SymbolMultiplier = SymbolMultiplier,
-                ImbalanceValue = ImbalanceValue,
-                ProviderStatus = ProviderStatus,
-            };
+            var clone = orderBookPool.Get();  // Get a pooled instance instead of creating a new one
+            clone.DecimalPlaces = DecimalPlaces;
+            clone.ProviderID = ProviderID;
+            clone.ProviderName = ProviderName;
+            clone.Symbol = Symbol;
+            clone.SymbolMultiplier = SymbolMultiplier;
+            clone.ImbalanceValue = ImbalanceValue;
+            clone.ProviderStatus = ProviderStatus;
+
             clone.LoadData(Asks, Bids);
             return clone;
+        }
+        public void CopyTo(OrderBook target)
+        {
+            if (target == null) throw new ArgumentNullException(nameof(target));
+
+            target.DecimalPlaces = this.DecimalPlaces;
+            target.ProviderID = this.ProviderID;
+            target.ProviderName = this.ProviderName;
+            target.Symbol = this.Symbol;
+            target.SymbolMultiplier = this.SymbolMultiplier;
+            target.ImbalanceValue = this.ImbalanceValue;
+            target.ProviderStatus = this.ProviderStatus;
+
+            target.LoadData(this.Asks, this.Bids);
         }
 
 
@@ -268,6 +285,8 @@ namespace VisualHFT.Model
 
                     _bidTOP = null;
                     _askTOP = null;
+
+                    orderBookPool.Return(this);  // Return to the pool
                 }
                 _disposed = true;
             }

@@ -4,7 +4,6 @@ using Bitfinex.Net.Objects.Models;
 using Bitfinex.Net.Enums;
 
 using CryptoExchange.Net.Authentication;
-using CryptoExchange.Net.Interfaces;
 using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.Sockets;
 using MarketConnectors.Bitfinex.Model;
@@ -17,9 +16,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using VisualHFT.Commons.PluginManager;
 using VisualHFT.DataRetriever;
-using VisualHFT.DataTradeRetriever;
 using VisualHFT.UserSettings;
-
+using VisualHFT.Commons.Pools;
+using System.Collections.Concurrent;
 
 namespace MarketConnectors.Bitfinex
 {
@@ -31,20 +30,24 @@ namespace MarketConnectors.Bitfinex
         private BitfinexSocketClient _socketClient;
         private BitfinexRestClient _restClient;
         private Dictionary<string, VisualHFT.Model.OrderBook> _localOrderBooks = new Dictionary<string, VisualHFT.Model.OrderBook>();
-        private Dictionary<string, Queue<Tuple<DateTime, BitfinexOrderBookEntry>>> _eventBuffers = new Dictionary<string, Queue<Tuple<DateTime, BitfinexOrderBookEntry>>>();
-        private Dictionary<string, Queue<BitfinexTradeSimple>> _tradesBuffers = new Dictionary<string, Queue<BitfinexTradeSimple>>();
+        private Dictionary<string, BlockingCollection<Tuple<DateTime, BitfinexOrderBookEntry>>> _eventBuffers = new Dictionary<string, BlockingCollection<Tuple<DateTime, BitfinexOrderBookEntry>>>();
+        private Dictionary<string, BlockingCollection<BitfinexTradeSimple>> _tradesBuffers = new Dictionary<string, BlockingCollection<BitfinexTradeSimple>>();
+
 
         private Dictionary<string, CancellationTokenSource> _ctDeltas = new Dictionary<string, CancellationTokenSource>();
         private Dictionary<string, CancellationTokenSource> _ctTrades = new Dictionary<string, CancellationTokenSource>();
 
-        private object _lock_eventBuffers = new object();
-        private object _lock_tradeBuffers = new object();
 
         private Timer _heartbeatTimer;
         private CallResult<UpdateSubscription> deltaSubscription;
         private CallResult<UpdateSubscription> tradesSubscription;
 
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        private readonly ObjectPool<VisualHFT.Model.Trade> tradePool = new ObjectPool<VisualHFT.Model.Trade>();//pool of Trade objects
+        private DataEventArgs tradeDataEvent = new DataEventArgs() { DataType = "Trades" }; //reusable object. So we avoid allocations
+        private DataEventArgs marketDataEvent = new DataEventArgs() { DataType = "Market" };//reusable object. So we avoid allocations
+        private DataEventArgs heartbeatDataEvent = new DataEventArgs() { DataType = "HeartBeats" };//reusable object. So we avoid allocations
 
 
         public override string Name { get; set; } = "Bitfinex Plugin";
@@ -86,10 +89,8 @@ namespace MarketConnectors.Bitfinex
                 {
                     var symbol = GetNormalizedSymbol(sym);
                     // Initialize event buffer for each symbol
-                    lock (_lock_eventBuffers)
-                        _eventBuffers.Add(symbol, new Queue<Tuple<DateTime, BitfinexOrderBookEntry>>());
-                    lock (_lock_tradeBuffers)
-                        _tradesBuffers.Add(symbol, new Queue<BitfinexTradeSimple>());
+                    _eventBuffers.Add(symbol, new BlockingCollection<Tuple<DateTime, BitfinexOrderBookEntry>>());
+                    _tradesBuffers.Add(symbol, new BlockingCollection<BitfinexTradeSimple>());
                 }
 
                 await InitializeTradesAsync();
@@ -148,16 +149,13 @@ namespace MarketConnectors.Bitfinex
                         {
                             try
                             {
-                                lock (_lock_tradeBuffers)
+                                foreach (var item in trade.Data)
                                 {
-                                    foreach (var item in trade.Data)
-                                    {
-                                        var _symbol = GetNormalizedSymbol(symbol);
-                                        if (_ctTrades[_symbol].IsCancellationRequested)
-                                            return;
+                                    var _symbol = GetNormalizedSymbol(symbol);
+                                    if (!_ctTrades.ContainsKey(_symbol) || _ctTrades[_symbol].IsCancellationRequested)
+                                        return;
 
-                                        _tradesBuffers[_symbol].Enqueue(item);
-                                    }
+                                    _tradesBuffers[_symbol].Add(item);
                                 }
                             }
                             catch (Exception ex)
@@ -192,12 +190,7 @@ namespace MarketConnectors.Bitfinex
                 //launch Task. in a new thread with _ct as cancellation
                 Task.Run(async () =>
                 {
-                    while (!_ctTrades[symbol].IsCancellationRequested)
-                    {
-                        // Process buffered events
-                        ProcessBufferedTrades(symbol);
-                        await Task.Delay(0); // Prevents tight looping, adjust as needed
-                    }
+                    ProcessBufferedTrades(symbol);
                 });
             }
         }
@@ -216,12 +209,14 @@ namespace MarketConnectors.Bitfinex
                         if (data.Data != null)
                         {
                             var normalizedSymbol = GetNormalizedSymbol(symbol);
-                            lock (_lock_eventBuffers)
+                            if (!_ctDeltas.ContainsKey(normalizedSymbol) || _ctDeltas[normalizedSymbol].IsCancellationRequested)
+                                return;
+                            if (_eventBuffers.ContainsKey(normalizedSymbol))
                             {
                                 foreach (var item in data.Data)
                                 {
-                                    if (_eventBuffers.ContainsKey(normalizedSymbol))
-                                        _eventBuffers[normalizedSymbol].Enqueue(new Tuple<DateTime, BitfinexOrderBookEntry>(data.Timestamp.ToLocalTime(), item));
+
+                                    _eventBuffers[normalizedSymbol].Add(new Tuple<DateTime, BitfinexOrderBookEntry>(data.Timestamp.ToLocalTime(), item));
                                 }
                             }
                         }
@@ -259,12 +254,11 @@ namespace MarketConnectors.Bitfinex
                     //launch Task. in a new thread with _ct as cancellation
                     _ = Task.Run(async () =>
                     {
-                        while (!_ctDeltas[normalizedSymbol].IsCancellationRequested)
+                        foreach (var eventData in _eventBuffers[normalizedSymbol].GetConsumingEnumerable(_ctDeltas[normalizedSymbol].Token))
                         {
-                            // Process buffered events
-                            ProcessBufferedEvents(normalizedSymbol);
-                            await Task.Delay(0); // Prevents tight looping, adjust as needed
+                            UpdateOrderBook(eventData.Item2, normalizedSymbol, eventData.Item1);
                         }
+
                     });
                 }
                 else
@@ -334,56 +328,25 @@ namespace MarketConnectors.Bitfinex
         #endregion
         private void ProcessBufferedTrades(string symbol)
         {
-            lock (_lock_tradeBuffers)
+            foreach (var eventData in _tradesBuffers[symbol].GetConsumingEnumerable(_ctTrades[symbol].Token))
             {
-                List<VisualHFT.Model.Trade> _trades = new List<VisualHFT.Model.Trade>();
-                while (_tradesBuffers[symbol].Count > 0)
-                {
-                    var eventData = _tradesBuffers[symbol].Dequeue();
-                    try
-                    {
-                        var typeEvent = eventData.UpdateType;
-                        _trades.Add(new VisualHFT.Model.Trade()
-                        {
-                            Price = eventData.Price,
-                            Size = Math.Abs(eventData.Quantity),
-                            Symbol = symbol,
-                            Timestamp = eventData.Timestamp.ToLocalTime(),
-                            ProviderId = _settings.ProviderId,
-                            ProviderName = _settings.ProviderName,
-                            IsBuy = eventData.Quantity > 0,
-                        }); ;
+                var typeEvent = eventData.UpdateType;
+                var trade = tradePool.Get();
+                trade.Price = eventData.Price;
+                trade.Size = Math.Abs(eventData.Quantity);
+                trade.Symbol = symbol;
+                trade.Timestamp = eventData.Timestamp.ToLocalTime();
+                trade.ProviderId = _settings.ProviderId;
+                trade.ProviderName = _settings.ProviderName;
+                trade.IsBuy = eventData.Quantity > 0;
 
-                    }
-                    catch (Exception ex)
-                    {
+                tradeDataEvent.ParsedModel = new List<VisualHFT.Model.Trade>() { trade };
+                RaiseOnDataReceived(tradeDataEvent);
 
-                    }
-                }
-                if (_trades.Any())
-                    RaiseOnDataReceived(new DataEventArgs() { DataType = "Trades", ParsedModel = _trades, RawData = "" });
+                tradePool.Return(trade);
             }
         }
-        private void ProcessBufferedEvents(string normalizedSymbol)
-        {
-            List<Tuple<DateTime, BitfinexOrderBookEntry>> eventsToProcess = new List<Tuple<DateTime, BitfinexOrderBookEntry>>();
-            lock (_lock_eventBuffers)
-            {
-                while (_eventBuffers[normalizedSymbol].Count > 0)
-                    eventsToProcess.Add(_eventBuffers[normalizedSymbol].Dequeue());
-            }
 
-            foreach (var eventData in eventsToProcess)
-            {
-                try
-                {
-                    UpdateOrderBook(eventData.Item2, normalizedSymbol, eventData.Item1);
-                }
-                catch (Exception ex)
-                { }
-
-            }
-        }
         private void UpdateOrderBook(BitfinexOrderBookEntry lob_update, string symbol, DateTime ts)
         {
             if (!_localOrderBooks.ContainsKey(symbol))
@@ -462,21 +425,20 @@ namespace MarketConnectors.Bitfinex
 
             }
 
-
-
-
-
             local_lob.LoadData(
                 _asks.OrderBy(x => x.Price).Take(_settings.DepthLevels),
                 _bids.OrderByDescending(x => x.Price).Take(_settings.DepthLevels)
             );
 
-            RaiseOnDataReceived(new DataEventArgs() { DataType = "Market", ParsedModel = new List<VisualHFT.Model.OrderBook>() { local_lob }, RawData = "" });
+            marketDataEvent.ParsedModel = new List<VisualHFT.Model.OrderBook>() { local_lob };
+            RaiseOnDataReceived(marketDataEvent);
+
         }
         private void CheckConnectionStatus(object state)
         {
             bool isConnected = _socketClient.CurrentConnections > 0;
-            RaiseOnDataReceived(new DataEventArgs() { DataType = "HeartBeats", ParsedModel = new List<VisualHFT.Model.Provider>() { ToHeartBeatModel(isConnected) }, RawData = "" });
+            heartbeatDataEvent.ParsedModel = new List<VisualHFT.Model.Provider>() { ToHeartBeatModel(isConnected) };
+            RaiseOnDataReceived(heartbeatDataEvent);
         }
         private VisualHFT.Model.OrderBook ToOrderBookModel(BitfinexOrderBook data, string symbol)
         {

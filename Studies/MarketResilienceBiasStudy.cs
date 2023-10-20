@@ -26,8 +26,8 @@ namespace VisualHFT.Studies
         private Trade _lastTrade;
 
         private List<BookItem> CONDITION1_LEVELS_CONSUMED;
-        private bool    CONDITION2_LEVELS_CONSUMED_AT_BID;
-        private double  CONDITION3_SPREAD_INCREASE = 0;
+        private bool CONDITION2_LEVELS_CONSUMED_AT_BID;
+        private double CONDITION3_SPREAD_INCREASE = 0;
 
         private decimal _resilienceValue;
         private AggregatedCollection<double> _recentSpreads;
@@ -45,7 +45,7 @@ namespace VisualHFT.Studies
         {
             if (string.IsNullOrEmpty(symbol)) throw new Exception("Symbol cannot be null or empty.");
 
-            EventAggregator.Instance.OnOrderBookDataReceived += LIMITORDERBOOK_OnDataReceived;
+            HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
             HelperCommon.TRADES.OnDataReceived += TRADES_OnDataReceived;
 
             _symbol = symbol;
@@ -79,7 +79,7 @@ namespace VisualHFT.Studies
             set => _aggregationLevel = value;
         }
 
-        private void LIMITORDERBOOK_OnDataReceived(object sender, OrderBook e)
+        private void LIMITORDERBOOK_OnDataReceived(OrderBook e)
         {
             if (e == null) return;
             if (_providerId != e.ProviderID || _symbol == "-- All symbols --" || _symbol != e.Symbol) return;
@@ -90,14 +90,14 @@ namespace VisualHFT.Studies
             // Update average spread
             _recentSpreads.Add(e.Spread);
 
-            
+
             bool levelsHasBeenConsumed = false;
             bool spreadHasBeenWiden = false;
             if (!_largeTradeStopwatch.IsRunning)
             {
                 levelsHasBeenConsumed = PostTradeLOBLevelsConsumed(e);
                 spreadHasBeenWiden = PostTradeLOBSpreadIsIncreased(e);
-                
+
                 _previousOrderBook = (OrderBook)e.Clone();
             }
             else
@@ -112,8 +112,8 @@ namespace VisualHFT.Studies
             {
                 _largeTradeStopwatch = Stopwatch.StartNew();    // Capture the time of the large trade
             }
-            
-            
+
+
         }
 
         private void TRADES_OnDataReceived(object sender, Trade e)
@@ -185,14 +185,15 @@ namespace VisualHFT.Studies
 
         private void TriggerOnCalculatedEvent(OrderBook currentOrderBook)
         {
-            var newItem = new BaseStudyModel() { 
+            var newItem = new BaseStudyModel()
+            {
                 Value = _resilienceValue,
-                ValueFormatted = _resilienceValue == 1 ? "↑" : "↓",                
+                ValueFormatted = _resilienceValue == 1 ? "↑" : "↓",
                 ValueColor = _resilienceValue == 1 ? "Green" : "Red",
-                Timestamp = DateTime.Now, 
-                MarketMidPrice = (decimal)currentOrderBook.MidPrice 
+                Timestamp = DateTime.Now,
+                MarketMidPrice = (decimal)currentOrderBook.MidPrice
             };
-            
+
             bool addSuccess = _rollingValues.Add(newItem);
             if (addSuccess)
                 OnRollingAdded?.Invoke(this, newItem);
@@ -282,7 +283,7 @@ namespace VisualHFT.Studies
                     _providerId = 0;
                     _symbol = "";
 
-                    HelperCommon.LIMITORDERBOOK.OnDataReceived -= LIMITORDERBOOK_OnDataReceived;
+                    HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
                     HelperCommon.TRADES.OnDataReceived -= TRADES_OnDataReceived;
                     _largeTradeStopwatch.Reset();
                     _largeTradeStopwatch = null;

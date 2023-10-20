@@ -9,16 +9,19 @@ using MarketConnectors.Binance.Model;
 using MarketConnectors.Binance.UserControls;
 using MarketConnectors.Binance.ViewModel;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using VisualHFT.Commons.PluginManager;
+using VisualHFT.Commons.Pools;
 using VisualHFT.DataRetriever;
 using VisualHFT.UserSettings;
 
 namespace MarketConnectors.Binance
 {
+
     public class BinancePlugin : BasePluginDataRetriever
     {
         private bool _disposed = false; // to track whether the object has been disposed
@@ -27,11 +30,8 @@ namespace MarketConnectors.Binance
         private BinanceSocketClient _socketClient;
         private BinanceRestClient _restClient;
         private Dictionary<string, VisualHFT.Model.OrderBook> _localOrderBooks = new Dictionary<string, VisualHFT.Model.OrderBook>();
-        private Dictionary<string, Queue<IBinanceEventOrderBook>> _eventBuffers = new Dictionary<string, Queue<IBinanceEventOrderBook>>();
-        private Dictionary<string, Queue<IBinanceTrade>> _tradesBuffers = new Dictionary<string, Queue<IBinanceTrade>>();
-
-        private object _lock_eventBuffers = new object();
-        private object _lock_tradeBuffers = new object();
+        private Dictionary<string, BlockingCollection<IBinanceEventOrderBook>> _eventBuffers = new Dictionary<string, BlockingCollection<IBinanceEventOrderBook>>();
+        private Dictionary<string, BlockingCollection<IBinanceTrade>> _tradesBuffers = new Dictionary<string, BlockingCollection<IBinanceTrade>>();
 
         private Dictionary<string, CancellationTokenSource> _ctDeltas = new Dictionary<string, CancellationTokenSource>();
         private Dictionary<string, CancellationTokenSource> _ctTrades = new Dictionary<string, CancellationTokenSource>();
@@ -40,8 +40,13 @@ namespace MarketConnectors.Binance
         private Timer _heartbeatTimer;
         private CallResult<UpdateSubscription> deltaSubscription;
         private CallResult<UpdateSubscription> tradesSubscription;
+
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        private readonly ObjectPool<VisualHFT.Model.Trade> tradePool = new ObjectPool<VisualHFT.Model.Trade>();//pool of Trade objects
+        private DataEventArgs tradeDataEvent = new DataEventArgs() { DataType = "Trades" }; //reusable object. So we avoid allocations
+        private DataEventArgs marketDataEvent = new DataEventArgs() { DataType = "Market" };//reusable object. So we avoid allocations
+        private DataEventArgs heartbeatDataEvent = new DataEventArgs() { DataType = "HeartBeats" };//reusable object. So we avoid allocations
 
         public override string Name { get; set; } = "Binance.US Plugin";
         public override string Version { get; set; } = "1.0.0";
@@ -80,8 +85,8 @@ namespace MarketConnectors.Binance
             {
                 foreach (var sym in GetAllNormalizedSymbols())
                 {
-                    _tradesBuffers.Add(sym, new Queue<IBinanceTrade>());
-                    _eventBuffers.Add(sym, new Queue<IBinanceEventOrderBook>());
+                    _tradesBuffers.Add(sym, new BlockingCollection<IBinanceTrade>());
+                    _eventBuffers.Add(sym, new BlockingCollection<IBinanceEventOrderBook>());
                 }
 
 
@@ -120,10 +125,11 @@ namespace MarketConnectors.Binance
             if (_socketClient != null)
                 await _socketClient.UnsubscribeAllAsync();
 
-
+            marketDataEvent.ParsedModel = new List<VisualHFT.Model.OrderBook>();
+            heartbeatDataEvent.ParsedModel = new List<VisualHFT.Model.Provider>();
             //reset models
-            RaiseOnDataReceived(new DataEventArgs() { DataType = "Market", ParsedModel = new List<VisualHFT.Model.OrderBook>(), RawData = "" });
-            RaiseOnDataReceived(new DataEventArgs() { DataType = "HeartBeats", ParsedModel = new List<VisualHFT.Model.Provider>() { ToHeartBeatModel(false) }, RawData = "" });
+            RaiseOnDataReceived(marketDataEvent);
+            RaiseOnDataReceived(heartbeatDataEvent);
 
             _eventBuffers.Clear();
             _tradesBuffers.Clear();
@@ -141,10 +147,7 @@ namespace MarketConnectors.Binance
                     {
                         try
                         {
-                            lock (_lock_tradeBuffers)
-                            {
-                                _tradesBuffers[GetNormalizedSymbol(trade.Data.Symbol)].Enqueue(trade.Data);
-                            }
+                            _tradesBuffers[GetNormalizedSymbol(trade.Data.Symbol)].Add(trade.Data);
                         }
                         catch (Exception ex)
                         {
@@ -176,12 +179,26 @@ namespace MarketConnectors.Binance
                 //launch Task. in a new thread with _ct as cancellation
                 Task.Run(async () =>
                 {
-                    while (!_ctTrades[symbol].IsCancellationRequested)
+                    foreach (var eventData in _tradesBuffers[symbol].GetConsumingEnumerable(_ctTrades[symbol].Token))
                     {
-                        // Process buffered events
-                        ProcessBufferedTrades(symbol);
-                        await Task.Delay(0); // Prevents tight looping, adjust as needed
+                        // Get a Trade object from the pool.
+                        var trade = tradePool.Get();
+                        // Populate the Trade object with the necessary data.
+                        trade.Price = eventData.Price;
+                        trade.Size = eventData.Quantity;
+                        trade.Symbol = symbol;
+                        trade.Timestamp = eventData.TradeTime.ToLocalTime();
+                        trade.ProviderId = _settings.ProviderId;
+                        trade.ProviderName = _settings.ProviderName;
+                        trade.IsBuy = eventData.BuyerIsMaker;
+
+                        // Add the populated Trade object to the _trades list.
+                        tradeDataEvent.ParsedModel = new List<VisualHFT.Model.Trade>() { trade };
+                        RaiseOnDataReceived(tradeDataEvent);
+
+                        tradePool.Return(trade);
                     }
+
                 });
 
             }
@@ -208,10 +225,9 @@ namespace MarketConnectors.Binance
                             log.Warn("Rates coming late?");
                         }
                         var normalizedSymbol = GetNormalizedSymbol(data.Data.Symbol);
-                        lock (_lock_eventBuffers)
-                        {
-                            _eventBuffers[normalizedSymbol].Enqueue(data.Data);
-                        }
+                        if (!_ctDeltas.ContainsKey(normalizedSymbol) || _ctDeltas[normalizedSymbol].IsCancellationRequested)
+                            return;
+                        _eventBuffers[normalizedSymbol].Add(data.Data);
                     }
                 }, new CancellationToken());
             if (deltaSubscription.Success)
@@ -249,12 +265,8 @@ namespace MarketConnectors.Binance
                     //launch Task. in a new thread with _ct as cancellation
                     _ = Task.Run(async () =>
                     {
-                        while (!_ctDeltas[normalizedSymbol].IsCancellationRequested)
-                        {
-                            // Process buffered events
-                            ProcessBufferedEvents(normalizedSymbol);
-                            await Task.Delay(0); // Prevents tight looping, adjust as needed
-                        }
+                        // Process buffered events
+                        ProcessBufferedEvents(normalizedSymbol);
                     });
                 }
                 else
@@ -322,56 +334,15 @@ namespace MarketConnectors.Binance
             Task.Run(HandleConnectionLost);
         }
         #endregion
-        private void ProcessBufferedTrades(string symbol)
-        {
-            lock (_lock_tradeBuffers)
-            {
-                List<VisualHFT.Model.Trade> _trades = new List<VisualHFT.Model.Trade>();
-                while (_tradesBuffers[symbol].Count > 0)
-                {
-                    var eventData = _tradesBuffers[symbol].Dequeue();
-                    try
-                    {
 
-                        _trades.Add(new VisualHFT.Model.Trade()
-                        {
-                            Price = eventData.Price,
-                            Size = eventData.Quantity,
-                            Symbol = symbol,
-                            Timestamp = eventData.TradeTime.ToLocalTime(),
-                            ProviderId = _settings.ProviderId,
-                            ProviderName = _settings.ProviderName,
-                            IsBuy = eventData.BuyerIsMaker
-                        }); ;
-
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                }
-                if (_trades.Any())
-                    RaiseOnDataReceived(new DataEventArgs() { DataType = "Trades", ParsedModel = _trades, RawData = "" });
-            }
-        }
         private void ProcessBufferedEvents(string normalizedSymbol)
         {
             var lastUpdateId = _localOrderBooks_LastUpdate[normalizedSymbol];
-            List<IBinanceEventOrderBook> eventsToProces = new List<IBinanceEventOrderBook>();
-            lock (_lock_eventBuffers)
-            {
-                while (_eventBuffers[normalizedSymbol].Count > 0)
-                    eventsToProces.Add(_eventBuffers[normalizedSymbol].Dequeue());
-            }
-            foreach (var eventData in eventsToProces)
+
+            foreach (var eventData in _eventBuffers[normalizedSymbol].GetConsumingEnumerable(_ctDeltas[normalizedSymbol].Token))
             {
                 if (eventData.LastUpdateId <= lastUpdateId) continue;
-                try
-                {
-                    UpdateOrderBook(eventData, normalizedSymbol);
-                }
-                catch (Exception ex)
-                { }
+                UpdateOrderBook(eventData, normalizedSymbol);
                 lastUpdateId = eventData.LastUpdateId;
             }
             _localOrderBooks_LastUpdate[normalizedSymbol] = lastUpdateId;
@@ -451,13 +422,14 @@ namespace MarketConnectors.Binance
                 _asks.OrderBy(x => x.Price).Take(_settings.DepthLevels),
                 _bids.OrderByDescending(x => x.Price).Take(_settings.DepthLevels)
             );
-
-            RaiseOnDataReceived(new DataEventArgs() { DataType = "Market", ParsedModel = new List<VisualHFT.Model.OrderBook>() { local_lob }, RawData = "" });
+            marketDataEvent.ParsedModel = new List<VisualHFT.Model.OrderBook>() { local_lob };
+            RaiseOnDataReceived(marketDataEvent);
         }
         private void CheckConnectionStatus(object state)
         {
             bool isConnected = _socketClient.CurrentConnections > 0;
-            RaiseOnDataReceived(new DataEventArgs() { DataType = "HeartBeats", ParsedModel = new List<VisualHFT.Model.Provider>() { ToHeartBeatModel(isConnected) }, RawData = "" });
+            heartbeatDataEvent.ParsedModel = new List<VisualHFT.Model.Provider>() { ToHeartBeatModel(isConnected) };
+            RaiseOnDataReceived(heartbeatDataEvent);
         }
         private VisualHFT.Model.OrderBook ToOrderBookModel(BinanceOrderBook data)
         {

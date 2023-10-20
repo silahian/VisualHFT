@@ -7,7 +7,8 @@ namespace VisualHFT.ViewModel.Model
     {
         public Trade(VisualHFT.Model.Trade t)
         {
-
+            if (t == null)
+                return;
             this.ProviderId = t.ProviderId;
             this.ProviderName = t.ProviderName;
             this.IsBuy = t.IsBuy;

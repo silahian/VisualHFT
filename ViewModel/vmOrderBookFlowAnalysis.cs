@@ -31,7 +31,7 @@ namespace VisualHFT.ViewModel
         public vmOrderBookFlowAnalysis(Dictionary<string, Func<string, string, bool>> dialogs)
         {
             this._dialogs = dialogs;
-            EventAggregator.Instance.OnOrderBookDataReceived += LIMITORDERBOOK_OnDataReceived;
+            HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
 
             timerUI.Interval = TimeSpan.FromMilliseconds(1);
             timerUI.Tick += TimerUI_Tick;
@@ -49,7 +49,7 @@ namespace VisualHFT.ViewModel
         public void Dispose()
         {
             this.timerUI.Stop(); //stop timer
-            HelperCommon.LIMITORDERBOOK.OnDataReceived -= LIMITORDERBOOK_OnDataReceived; //unsubscribe
+            HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
         }
 
         private void TimerUI_Tick(object sender, EventArgs e)
@@ -63,7 +63,7 @@ namespace VisualHFT.ViewModel
             }
 
         }
-        private void LIMITORDERBOOK_OnDataReceived(object sender, OrderBook e)
+        private void LIMITORDERBOOK_OnDataReceived(OrderBook e)
         {
             if (e == null)
                 return;
