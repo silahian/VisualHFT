@@ -19,6 +19,8 @@ namespace VisualHFT.ViewModels
         private bool _disposed = false; // to track whether the object has been disposed
         private TradeToOrderRatioStudy _ttoStudy;
         private IReadOnlyList<BaseStudyModel> _chartData;
+        private readonly object _locker = new object();
+
         private ObservableCollection<VisualHFT.ViewModel.Model.Provider> _providers;
         private ObservableCollection<string> _symbols;
         private VisualHFT.ViewModel.Model.Provider _selectedProvider;
@@ -38,7 +40,7 @@ namespace VisualHFT.ViewModels
             HelperCommon.ALLSYMBOLS.CollectionChanged += ALLSYMBOLS_CollectionChanged;
 
 
-            
+
             AggregationLevels = new ObservableCollection<Tuple<string, AggregationLevel>>();
             foreach (AggregationLevel level in Enum.GetValues(typeof(AggregationLevel)))
             {
@@ -54,14 +56,16 @@ namespace VisualHFT.ViewModels
         }
         public IReadOnlyList<BaseStudyModel> ChartData
         {
-            get 
+            get
             {
-                return _chartData; 
+                lock (_locker)
+                    return _chartData;
             }
             set
             {
-                SetProperty(ref _chartData, value);
-            }            
+                lock (_locker)
+                    SetProperty(ref _chartData, value);
+            }
         }
         public ObservableCollection<VisualHFT.ViewModel.Model.Provider> Providers { get => _providers; set => _providers = value; }
         public ObservableCollection<string> Symbols { get => _symbols; set => _symbols = value; }
@@ -103,14 +107,15 @@ namespace VisualHFT.ViewModels
         }
         private void _ttoStudy_OnRollingAdded(object sender, BaseStudyModel e)
         {
-            _chartData = _ttoStudy.Data;
+            lock (_locker)
+                _chartData = _ttoStudy.Data;
         }
         private void Clear()
         {
             if (string.IsNullOrEmpty(_selectedSymbol) || _selectedProvider == null)
                 return;
 
-            if (_ttoStudy != null) 
+            if (_ttoStudy != null)
                 _ttoStudy.Dispose();
             _ttoStudy = null;
             _ttoStudy = new TradeToOrderRatioStudy(_selectedSymbol, _selectedProvider.ProviderCode, _aggregationLevelSelection, _MAX_ITEMS);

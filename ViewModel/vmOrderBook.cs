@@ -352,8 +352,8 @@ namespace VisualHFT.ViewModel
 
 
                     //calculate min/max axis
-                    _realTimeYAxisMinimum = _realTimePrices.Min(x => x.BidPrice) * 0.9999; // midPrice * 0.9; //-20%
-                    _realTimeYAxisMaximum = _realTimePrices.Max(x => x.AskPrice) * 1.0001; // midPrice * 1.1; //+20%
+                    _realTimeYAxisMinimum = _realTimePrices.Min(x => Math.Min(x.AskPrice, x.BidPrice)) * 0.9999; // midPrice * 0.9; //-20%
+                    _realTimeYAxisMaximum = _realTimePrices.Max(x => Math.Max(x.AskPrice, x.BidPrice)) * 1.0001; // midPrice * 1.1; //+20%
                 }
                 #endregion
 

@@ -22,6 +22,8 @@ namespace VisualHFT.ViewModels
         private bool _disposed = false; // to track whether the object has been disposed
         private VPINStudy _vpinStudy;
         private IReadOnlyList<BaseStudyModel> _vpinChartData;
+        private readonly object _locker = new object();
+
         private ObservableCollection<VisualHFT.ViewModel.Model.Provider> _providers;
         private ObservableCollection<string> _symbols;
         private VisualHFT.ViewModel.Model.Provider _selectedProvider;
@@ -58,14 +60,16 @@ namespace VisualHFT.ViewModels
         }
         public IReadOnlyList<BaseStudyModel> VPINChartData
         {
-            get 
+            get
             {
-                return _vpinChartData; 
+                lock (_locker)
+                    return _vpinChartData;
             }
             set
             {
-                SetProperty(ref _vpinChartData, value);
-            }            
+                lock (_locker)
+                    SetProperty(ref _vpinChartData, value);
+            }
         }
         public ObservableCollection<VisualHFT.ViewModel.Model.Provider> Providers { get => _providers; set => _providers = value; }
         public ObservableCollection<string> Symbols { get => _symbols; set => _symbols = value; }
@@ -113,7 +117,8 @@ namespace VisualHFT.ViewModels
 
         private void _vpinStudy_OnRollingAdded(object sender, BaseStudyModel e)
         {
-            _vpinChartData = _vpinStudy.VpinData;
+            lock (_locker)
+                _vpinChartData = _vpinStudy.VpinData;
         }
 
         private void Clear()
@@ -121,7 +126,7 @@ namespace VisualHFT.ViewModels
             if (string.IsNullOrEmpty(_selectedSymbol) || _selectedProvider == null)
                 return;
 
-            if (_vpinStudy != null) 
+            if (_vpinStudy != null)
                 _vpinStudy.Dispose();
             _vpinStudy = null;
             _vpinStudy = new VPINStudy(_selectedSymbol, _selectedProvider.ProviderCode, _aggregationLevelSelection, _bucketVolumeSize, _MAX_ITEMS);

@@ -33,6 +33,7 @@ namespace VisualHFT.Studies
         private decimal _currentSellVolume = 0; // Current volume of sell trades in the bucket
         private decimal _lastMarketMidPrice = 0; //keep track of market price
         private decimal _lastVPIN = 0;
+        private object _locker = new object();
 
         private readonly int _rollingWindowSize; // Number of buckets to consider for rolling calculation
         private const decimal VPIN_THRESHOLD = 0.7M; // ALERT Example threshold
@@ -100,30 +101,32 @@ namespace VisualHFT.Studies
                 return;
             if (_providerId != e.ProviderId || _symbol == "-- All symbols --" || _symbol != e.Symbol)
                 return;
-
-            // Set the start time for the current bucket if it's a new bucket
-            if (_currentBuyVolume == 0 && _currentSellVolume == 0)
+            lock (_locker)
             {
-                _currentBucketStartTime = e.Timestamp;
-            }
+                // Set the start time for the current bucket if it's a new bucket
+                if (_currentBuyVolume == 0 && _currentSellVolume == 0)
+                {
+                    _currentBucketStartTime = e.Timestamp;
+                }
 
-            if (e.IsBuy)
-                _currentBuyVolume += e.Size;
-            else
-                _currentSellVolume += e.Size;
+                if (e.IsBuy)
+                    _currentBuyVolume += e.Size;
+                else
+                    _currentSellVolume += e.Size;
 
-            // Check if the bucket is filled
-            if (_currentBuyVolume + _currentSellVolume >= _bucketVolumeSize)
-            {
-                _currentBucketStartTime = e.Timestamp;
-                _currentBucketEndTime = e.Timestamp; // Set the end time for the current bucket
-                CalculateStudy(true);
-                ResetBucket();
-            }
-            else
-            {
-                _currentBucketEndTime = e.Timestamp; // Set the end time for the current bucket
-                CalculateStudy(false);
+                // Check if the bucket is filled
+                if (_currentBuyVolume + _currentSellVolume >= _bucketVolumeSize)
+                {
+                    _currentBucketStartTime = e.Timestamp;
+                    _currentBucketEndTime = e.Timestamp; // Set the end time for the current bucket
+                    CalculateStudy(true);
+                    ResetBucket();
+                }
+                else
+                {
+                    _currentBucketEndTime = e.Timestamp; // Set the end time for the current bucket
+                    CalculateStudy(false);
+                }
             }
         }
         private void LIMITORDERBOOK_OnDataReceived(OrderBook e)
@@ -133,17 +136,21 @@ namespace VisualHFT.Studies
                 return;
             if (_providerId != e.ProviderID || _symbol == "-- All symbols --" || _symbol != e.Symbol)
                 return;
-            if (_orderBook == null)
+
+            lock (_locker)
             {
-                _orderBook = new OrderBook(_symbol, e.DecimalPlaces);
+                if (_orderBook == null)
+                {
+                    _orderBook = new OrderBook(_symbol, e.DecimalPlaces);
+                }
+
+                if (!_orderBook.LoadData(e.Asks, e.Bids))
+                    return; //if nothing to update, then exit
+                _lastMarketMidPrice = (decimal)_orderBook.MidPrice;
+
+                if (_lastMarketMidPrice != 0)
+                    CalculateStudy(false);
             }
-
-            if (!_orderBook.LoadData(e.Asks, e.Bids))
-                return; //if nothing to update, then exit
-            _lastMarketMidPrice = (decimal)_orderBook.MidPrice;
-
-            if (_lastMarketMidPrice != 0)
-                CalculateStudy(false);
         }
         private void CalculateStudy(bool isNewBucket)
         {

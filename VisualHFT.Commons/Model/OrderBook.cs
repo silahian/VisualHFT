@@ -86,6 +86,7 @@ namespace VisualHFT.Model
         }
         private void CalculateMetrics()
         {
+            lobMetrics.LoadData(_Asks, _Bids);
             this.ImbalanceValue = lobMetrics.Calculate_OrderImbalance();
         }
         public void Clear()

@@ -14,11 +14,13 @@ using System.Collections.Generic;
 
 namespace VisualHFT.ViewModels
 {
-    public class vmMarketResilienceBias: BindableBase, IDisposable
+    public class vmMarketResilienceBias : BindableBase, IDisposable
     {
         private bool _disposed = false; // to track whether the object has been disposed
         private MarketResilienceBiasStudy _Study;
         private IReadOnlyList<BaseStudyModel> _chartData;
+        private readonly object _locker = new object();
+
         private ObservableCollection<VisualHFT.ViewModel.Model.Provider> _providers;
         private ObservableCollection<string> _symbols;
         private VisualHFT.ViewModel.Model.Provider _selectedProvider;
@@ -38,7 +40,7 @@ namespace VisualHFT.ViewModels
             HelperCommon.ALLSYMBOLS.CollectionChanged += ALLSYMBOLS_CollectionChanged;
 
 
-            
+
             AggregationLevels = new ObservableCollection<Tuple<string, AggregationLevel>>();
             foreach (AggregationLevel level in Enum.GetValues(typeof(AggregationLevel)))
             {
@@ -54,14 +56,16 @@ namespace VisualHFT.ViewModels
         }
         public IReadOnlyList<BaseStudyModel> ChartData
         {
-            get 
+            get
             {
-                return _chartData; 
+                lock (_locker)
+                    return _chartData;
             }
             set
             {
-                SetProperty(ref _chartData, value);
-            }            
+                lock (_locker)
+                    SetProperty(ref _chartData, value);
+            }
         }
         public ObservableCollection<VisualHFT.ViewModel.Model.Provider> Providers { get => _providers; set => _providers = value; }
         public ObservableCollection<string> Symbols { get => _symbols; set => _symbols = value; }
@@ -103,7 +107,8 @@ namespace VisualHFT.ViewModels
         }
         private void _Study_OnRollingAdded(object sender, BaseStudyModel e)
         {
-            _chartData = _Study.Data;
+            lock (_locker)
+                _chartData = _Study.Data;
         }
         private void Clear()
         {

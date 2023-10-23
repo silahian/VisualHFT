@@ -16,7 +16,7 @@ namespace VisualHFT.ViewModel
     public class vmMultiVenuePrices : BindableBase, IDisposable
     {
         private bool _disposed = false; // to track whether the object has been disposed
-        private Dictionary<int, AggregatedCollection<PlotInfo>> _allDataSeries;
+        private Dictionary<int, Tuple<AggregatedCollection<PlotInfo>, OxyPlot.Series.LineSeries>> _allDataSeries;
         private ObservableCollection<string> _symbols;
         private string _selectedSymbol;
         private AggregationLevel _aggregationLevelSelection;
@@ -38,7 +38,7 @@ namespace VisualHFT.ViewModel
             AggregationLevelSelection = AggregationLevel.Ms100;
             uiUpdater = new UIUpdater(uiUpdaterAction);
 
-            _allDataSeries = new Dictionary<int, AggregatedCollection<PlotInfo>>();
+            _allDataSeries = new Dictionary<int, Tuple<AggregatedCollection<PlotInfo>, OxyPlot.Series.LineSeries>>();
             _latesPrice = new Dictionary<int, double>();
         }
         ~vmMultiVenuePrices()
@@ -86,7 +86,8 @@ namespace VisualHFT.ViewModel
 
             if (!_allDataSeries.ContainsKey(e.ProviderID))
             {
-                _allDataSeries.Add(e.ProviderID, new AggregatedCollection<PlotInfo>(_aggregationLevelSelection, _MAX_ITEMS, x => x.Date, Aggregation));
+
+
                 _latesPrice.Add(e.ProviderID, 0);
                 var series = new OxyPlot.Series.LineSeries
                 {
@@ -137,21 +138,19 @@ namespace VisualHFT.ViewModel
                 series.Color = serieColor;
                 MyPlotModel.Series.Add(series);
                 MyPlotModel.InvalidatePlot(true); // This refreshes the plot
+
+
+                _allDataSeries.Add(e.ProviderID, new Tuple<AggregatedCollection<PlotInfo>, OxyPlot.Series.LineSeries>(
+                    new AggregatedCollection<PlotInfo>(_aggregationLevelSelection, _MAX_ITEMS, x => x.Date, Aggregation),
+                    series)
+                    );
             }
-            if (e.LoadData())
+
+            _latesPrice[e.ProviderID] = e.MidPrice;
+            foreach (var key in _allDataSeries.Keys)
             {
-                _latesPrice[e.ProviderID] = e.MidPrice;
-
-
-                foreach (var key in _allDataSeries.Keys)
-                    _allDataSeries[key].Add(new PlotInfo() { Date = DateTime.Now, Value = _latesPrice[key] });
-
-
-                var currentSerie = MyPlotModel.Series.Where(x => x.Title == e.ProviderName).FirstOrDefault();
-                if (currentSerie != null)
-                {
-                    ((OxyPlot.Series.LineSeries)currentSerie).ItemsSource = _allDataSeries[e.ProviderID].AsReadOnly().Select(x => new OxyPlot.DataPoint(x.Date.Ticks, x.Value));
-                }
+                _allDataSeries[key].Item1.Add(new PlotInfo() { Date = DateTime.Now, Value = _latesPrice[key] });
+                _allDataSeries[key].Item2.ItemsSource = _allDataSeries[key].Item1.Select(x => new OxyPlot.DataPoint(x.Date.Ticks, x.Value));
             }
         }
         private OxyColor MapProviderCodeToOxyColor(int providerCode)
