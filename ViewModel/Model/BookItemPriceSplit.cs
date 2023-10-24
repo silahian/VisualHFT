@@ -1,6 +1,7 @@
 ﻿using Prism.Mvvm;
 using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 
 namespace VisualHFT.ViewModel.Model
@@ -13,6 +14,9 @@ namespace VisualHFT.ViewModel.Model
         private string _rest = "";
         private string _size = "";
         private object _locker = new object();
+        private string decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+        private string thousandsSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
+
         public void SetNumber(double price, double size, int symbolDecimalPlaces)
         {
             lock (_locker)
@@ -29,14 +33,14 @@ namespace VisualHFT.ViewModel.Model
                             NextTwoDecimals = sPrice.Substring(sPrice.Length - 3, 2);
                             Rest = sPrice.Substring(0, sPrice.Length - 3);*/
 
-                            _rest = sPrice.Split('.')[0];
-                            _nextTwoDecimals = (sPrice.Split('.')[1] + "00").Substring(0, symbolDecimalPlaces);
+                            _rest = sPrice.Split(decimalSeparator)[0];
+                            _nextTwoDecimals = (sPrice.Split(decimalSeparator)[1] + "00").Substring(0, symbolDecimalPlaces);
                             _lastDecimal = "";
                         }
                         else
                         {
-                            _rest = sPrice.Split(',')[0];
-                            _nextTwoDecimals = sPrice.Split(',')[1];
+                            _rest = sPrice.Split(thousandsSeparator)[0];
+                            _nextTwoDecimals = sPrice.Split(thousandsSeparator)[1];
                         }
                         _size = Helpers.HelperCommon.GetKiloFormatter(size);
 

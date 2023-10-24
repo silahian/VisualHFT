@@ -1,6 +1,5 @@
 ﻿using VisualHFT.Model;
 using System.Collections.Concurrent;
-using System.Globalization;
 using VisualHFT.Commons.Pools;
 
 namespace VisualHFT.Helpers
@@ -85,11 +84,6 @@ namespace VisualHFT.Helpers
         {
             Thread.CurrentThread.IsBackground = true;
 
-            CultureInfo ci_clone = (CultureInfo)Thread.CurrentThread.CurrentCulture.Clone();
-            ci_clone.NumberFormat = CultureInfo.GetCultureInfo("en-US").NumberFormat;
-
-            Thread.CurrentThread.CurrentCulture = ci_clone;
-            Thread.CurrentThread.CurrentUICulture = ci_clone;
             List<OrderBook> data = new List<OrderBook>();
 
             try
