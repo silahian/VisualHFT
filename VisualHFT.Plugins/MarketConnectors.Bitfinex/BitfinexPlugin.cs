@@ -215,7 +215,6 @@ namespace MarketConnectors.Bitfinex
                             {
                                 foreach (var item in data.Data)
                                 {
-
                                     _eventBuffers[normalizedSymbol].Add(new Tuple<DateTime, BitfinexOrderBookEntry>(data.Timestamp.ToLocalTime(), item));
                                 }
                             }

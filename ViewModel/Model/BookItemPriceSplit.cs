@@ -12,8 +12,10 @@ namespace VisualHFT.ViewModel.Model
         private string _nextTwoDecimals = "";
         private string _rest = "";
         private string _size = "";
+        private object _locker = new object();
         public void SetNumber(double price, double size, int symbolDecimalPlaces)
         {
+            lock (_locker)
             {
                 _price = price;
                 if (price != 0)
@@ -60,15 +62,19 @@ namespace VisualHFT.ViewModel.Model
         }
         public void Clear()
         {
-            _price = 0;
-            _lastDecimal = "";
-            _nextTwoDecimals = "";
-            _rest = "";
-            _size = "";
+            lock (_locker)
+            {
+                _price = 0;
+                _lastDecimal = "";
+                _nextTwoDecimals = "";
+                _rest = "";
+                _size = "";
+            }
             RaiseUIThread();
         }
         public void RaiseUIThread()
         {
+            lock (_locker)
             {
                 RaisePropertyChanged(nameof(LastDecimal));
                 RaisePropertyChanged(nameof(NextTwoDecimals));

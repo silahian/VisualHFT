@@ -25,8 +25,8 @@ namespace VisualHFT.ViewModel
         private Dictionary<string, Func<string, string, bool>> _dialogs;
 
         private AggregatedCollection<PlotInfoPriceChart> _realTimePrices;
-        private List<OrderBookLevel> _realTimeOrderLevelsAsk;
-        private List<OrderBookLevel> _realTimeOrderLevelsBid;
+        private IEnumerable<OrderBookLevel> _realTimeOrderLevelsAsk;
+        private IEnumerable<OrderBookLevel> _realTimeOrderLevelsBid;
         private AggregatedCollection<PlotInfoPriceChart> _realTimeSpread;
         private ObservableCollection<VisualHFT.ViewModel.Model.Trade> _realTimeTrades;
         private ObservableCollection<BookItem> _bidsGrid;
@@ -347,8 +347,8 @@ namespace VisualHFT.ViewModel
 
                     #endregion
                     _realTimePrices.Add(objToAdd);
-                    _realTimeOrderLevelsAsk = _realTimePrices.ToList().SelectMany(x => x.AskLevelOrders).ToList();
-                    _realTimeOrderLevelsBid = _realTimePrices.ToList().SelectMany(x => x.BidLevelOrders).ToList();
+                    _realTimeOrderLevelsAsk = _realTimePrices.SelectMany(x => x.AskLevelOrders);
+                    _realTimeOrderLevelsBid = _realTimePrices.SelectMany(x => x.BidLevelOrders);
 
 
                     //calculate min/max axis
@@ -440,10 +440,6 @@ namespace VisualHFT.ViewModel
         {
             if (_selectedProvider != null && e.ProviderCode == _selectedProvider.ProviderCode && (e.Status == eSESSIONSTATUS.PRICE_DSICONNECTED_ORDER_CONNECTED || e.Status == eSESSIONSTATUS.BOTH_DISCONNECTED))
                 Clear();
-        }
-        private DateTime Max(DateTime a, DateTime b)
-        {
-            return a > b ? a : b;
         }
         public OrderBook OrderBook
         {

@@ -159,6 +159,13 @@ namespace VisualHFT.Helpers
                 return _aggregatedData.Select(selector);
             }
         }
+        public IEnumerable<TResult> SelectMany<TResult>(Func<T, IEnumerable<TResult>> selector)
+        {
+            lock (_lockObject)
+            {
+                return _aggregatedData.SelectMany(selector);
+            }
+        }
         public ReadOnlyCollection<T> AsReadOnly()
         {
             lock (_lockObject)
