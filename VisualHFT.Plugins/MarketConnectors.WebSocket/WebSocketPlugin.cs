@@ -70,7 +70,7 @@ namespace MarketConnectors.WebSocket
                     CancellationTokenSource source = new CancellationTokenSource();                    
                     using (_ws = new ClientWebSocket())
                     {
-                        await _ws.ConnectAsync(new Uri("ws://localhost:6900"), CancellationToken.None);
+                        await _ws.ConnectAsync(new UriBuilder("ws", _settings.HostName, _settings.Port).Uri, CancellationToken.None);
                         await base.StartAsync();
                         byte[] buffer = new byte[1024 * 1024];
                         while (_ws.State == WebSocketState.Open)
@@ -212,7 +212,7 @@ namespace MarketConnectors.WebSocket
             }
             if (_settings.Provider == null) //To prevent back compability with older setting formats
             {
-                _settings.Provider = new VisualHFT.Model.Provider() { ProviderID = 2, ProviderName = "Bitfinex" };
+                _settings.Provider = new VisualHFT.Model.Provider() { ProviderID = 3, ProviderName = "WebSocket" };
             }
         }
         protected override void SaveSettings()
