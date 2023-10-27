@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using VisualHFT.ViewModel;
 using VisualHFT.UserSettings;
 using System.Threading.Tasks;
+using System.Globalization;
+using System.Windows.Markup;
 
 namespace VisualHFT
 {
@@ -25,6 +27,9 @@ namespace VisualHFT
     {
         public Dashboard()
         {
+            FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement),
+                new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.Name)));
+
             InitializeComponent();
             this.DataContext = new VisualHFT.ViewModel.vmDashboard(Helpers.HelperCommon.GLOBAL_DIALOGS);
 
