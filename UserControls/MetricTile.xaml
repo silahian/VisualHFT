@@ -18,7 +18,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../../GlobalStyle.xaml" />
+                <ResourceDictionary Source="../GlobalStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -41,47 +41,14 @@
                     <TextBlock FontSize="9" Margin="0 0 0 5" Padding="0" VerticalAlignment="Center" HorizontalAlignment="Center">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="{}{0}: {1}">
-                                <Binding Path="SelectedProvider.ProviderName"/>
+                                <Binding Path="SelectedProviderName"/>
                                 <Binding Path="SelectedSymbol"/>
                             </MultiBinding>
                         </TextBlock.Text>
                     </TextBlock>
                 </StackPanel>
                 <Button Content="📈" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="20" Height="20" Margin="0" Padding="0" ToolTip="Open Chart" Command="{Binding OpenChartCommand}" />
-                <Button Content="⛭" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="20" Height="20" Margin="0" Padding="0" ToolTip="Settings" Click="OnSetupClick" />
-
-
-                <Popup Name="SetupPopup" Placement="Center" IsOpen="{Binding IsSettingsOpen}">
-                    <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" >
-                        <Grid Width="300" Height="180">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" HorizontalAlignment="Center" FontSize="24" >
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0} - SETTINGS">
-                                        <Binding Path="Title" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-
-                            <ComboBox Grid.Row="1" x:Name="ProviderComboBox" ToolTip="Select Provider" Margin="10"
-                                ItemsSource="{Binding Path=Providers}" SelectedItem="{Binding SelectedProvider}" DisplayMemberPath="ProviderName" FontSize="18"/>
-
-                            <ComboBox Grid.Row="2" x:Name="SymbolComboBox" FontSize="18" ToolTip="Select Symbol" Margin="10"
-                                  ItemsSource="{Binding Symbols}" 
-                                  SelectedItem="{Binding SelectedSymbol}"/>
-                            
-                            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
-                                <Button Content="OK" Width="60" Command="{Binding SaveSettingsCommand}" Margin="0,0,5,0" FontSize="12" Padding="5"/>
-                                <Button Content="Cancel" Width="60" Click="OnCancelClick" FontSize="12" Padding="5"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                </Popup>
+                <Button Content="⛭" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="20" Height="20" Margin="0" Padding="0" ToolTip="Settings" Command="{Binding OpenSettingsCommand}" />
             </Grid>
 
         </Border>

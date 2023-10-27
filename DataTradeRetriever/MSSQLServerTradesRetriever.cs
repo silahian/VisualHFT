@@ -71,11 +71,7 @@ namespace VisualHFT.DataTradeRetriever
                             p.PipsPnLInCurrency *= -1;
                         }
                     }
-                    if (!HelperCommon.ALLSYMBOLS.Contains(p.Symbol))
-                    {
-                        //this collection needs to be updated in the UI thread
-                        Application.Current.Dispatcher.Invoke(() => HelperCommon.ALLSYMBOLS.Add(p.Symbol));
-                    }
+                    HelperSymbol.Instance.UpdateData(p.Symbol);
                     _positions.Add(p);
                 }
 

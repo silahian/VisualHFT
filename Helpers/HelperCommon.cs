@@ -43,8 +43,6 @@ namespace VisualHFT.Helpers
         }
         public static int TimerMillisecondsToGetVariables = 1000 * 10; //10 seconds
 
-        public static ObservableCollection<string> ALLSYMBOLS = new ObservableCollection<string>();
-        public static HelperProvider PROVIDERS = new HelperProvider();
         public static IDataTradeRetriever EXECUTEDORDERS = new EmptyTradesRetriever();
         //public static IDataTradeRetriever EXECUTEDORDERS = new MSSQLServerTradesRetriever();
         //public static IDataTradeRetriever EXECUTEDORDERS = new FIXTradesRetriever([path_to_fix_log_file], 1, "CME");
@@ -53,7 +51,7 @@ namespace VisualHFT.Helpers
         public static HelperActiveOrder ACTIVEORDERS = new HelperActiveOrder();
         public static HelperStrategy ACTIVESTRATEGIES = new HelperStrategy();
         public static HelperStrategyParams STRATEGYPARAMS = new HelperStrategyParams();
-        public static HelperTrade TRADES = new HelperTrade();
+
 
         public static Func<string, string, bool> GetPopup()
         {

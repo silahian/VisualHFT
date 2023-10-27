@@ -335,8 +335,8 @@ namespace MarketConnectors.Bitfinex
                 trade.Size = Math.Abs(eventData.Quantity);
                 trade.Symbol = symbol;
                 trade.Timestamp = eventData.Timestamp.ToLocalTime();
-                trade.ProviderId = _settings.ProviderId;
-                trade.ProviderName = _settings.ProviderName;
+                trade.ProviderId = _settings.Provider.ProviderID;
+                trade.ProviderName = _settings.Provider.ProviderName;
                 trade.IsBuy = eventData.Quantity > 0;
 
                 tradeDataEvent.ParsedModel = new List<VisualHFT.Model.Trade>() { trade };
@@ -380,7 +380,7 @@ namespace MarketConnectors.Bitfinex
                             ServerTimeStamp = ts,
                             DecimalPlaces = local_lob.DecimalPlaces,
                             IsBid = isBid,
-                            ProviderID = _settings.ProviderId,
+                            ProviderID = _settings.Provider.ProviderID,
                             Symbol = local_lob.Symbol
                         });
                     }
@@ -404,7 +404,7 @@ namespace MarketConnectors.Bitfinex
                             ServerTimeStamp = ts,
                             DecimalPlaces = local_lob.DecimalPlaces,
                             IsBid = isBid,
-                            ProviderID = _settings.ProviderId,
+                            ProviderID = _settings.Provider.ProviderID,
                             Symbol = local_lob.Symbol
                         });
                     }
@@ -445,8 +445,8 @@ namespace MarketConnectors.Bitfinex
             lob.Symbol = symbol;
             lob.SymbolMultiplier = 2; //???????
             lob.DecimalPlaces = 2; //?????????
-            lob.ProviderID = _settings.ProviderId;
-            lob.ProviderName = _settings.ProviderName;
+            lob.ProviderID = _settings.Provider.ProviderID;
+            lob.ProviderName = _settings.Provider.ProviderName;
 
             var _asks = new List<VisualHFT.Model.BookItem>();
             var _bids = new List<VisualHFT.Model.BookItem>();
@@ -485,9 +485,9 @@ namespace MarketConnectors.Bitfinex
         {
             return new VisualHFT.Model.Provider()
             {
-                ProviderCode = _settings.ProviderId,
-                ProviderID = _settings.ProviderId,
-                ProviderName = _settings.ProviderName,
+                ProviderCode = _settings.Provider.ProviderID,
+                ProviderID = _settings.Provider.ProviderID,
+                ProviderName = _settings.Provider.ProviderName,
                 Status = isConnected ? eSESSIONSTATUS.BOTH_CONNECTED : eSESSIONSTATUS.BOTH_DISCONNECTED,
                 Plugin = this
             };
@@ -531,6 +531,10 @@ namespace MarketConnectors.Bitfinex
             {
                 InitializeDefaultSettings();
             }
+            if (_settings.Provider == null) //To prevent back compability with older setting formats
+            {
+                _settings.Provider = new VisualHFT.Model.Provider() { ProviderID = 2, ProviderName = "Bitfinex" };
+            }
             ParseSymbols(string.Join(',', _settings.Symbols.ToArray())); //Utilize normalization function
         }
 
@@ -546,8 +550,7 @@ namespace MarketConnectors.Bitfinex
                 ApiKey = "",
                 ApiSecret = "",
                 DepthLevels = 25,
-                ProviderId = 2, //must be unique
-                ProviderName = "Bitfinex",
+                Provider = new VisualHFT.Model.Provider() { ProviderID = 2, ProviderName = "Bitfinex" },
                 Symbols = new List<string>() { "tBTCUSD(BTC/USD)", "tETHUSD(ETH/USD)" } // Add more symbols as needed
             };
             SaveToUserSettings(_settings);
@@ -559,16 +562,15 @@ namespace MarketConnectors.Bitfinex
             viewModel.ApiSecret = _settings.ApiSecret;
             viewModel.ApiKey = _settings.ApiKey;
             viewModel.DepthLevels = _settings.DepthLevels;
-            viewModel.ProviderId = _settings.ProviderId;
-            viewModel.ProviderName = _settings.ProviderName;
+            viewModel.ProviderId = _settings.Provider.ProviderID;
+            viewModel.ProviderName = _settings.Provider.ProviderName;
             viewModel.Symbols = _settings.Symbols;
             viewModel.UpdateSettingsFromUI = () =>
             {
                 _settings.ApiSecret = viewModel.ApiSecret;
                 _settings.ApiKey = viewModel.ApiKey;
                 _settings.DepthLevels = viewModel.DepthLevels;
-                _settings.ProviderId = viewModel.ProviderId;
-                _settings.ProviderName = viewModel.ProviderName;
+                _settings.Provider = new VisualHFT.Model.Provider() { ProviderID = viewModel.ProviderId, ProviderName = viewModel.ProviderName };
                 _settings.Symbols = viewModel.Symbols;
                 SaveSettings();
                 ParseSymbols(string.Join(',', _settings.Symbols.ToArray()));

@@ -9,7 +9,6 @@ using System.Windows.Data;
 using System.Windows.Threading;
 using VisualHFT.Helpers;
 using VisualHFT.Model;
-using VisualHFT.ViewModel.Model;
 
 namespace VisualHFT.ViewModel
 {
@@ -45,8 +44,8 @@ namespace VisualHFT.ViewModel
         private BookItem _BidTOB = new BookItem();
         private double _Spread;
 
-        private BookItemPriceSplit _BidTOB_SPLIT = null;
-        private BookItemPriceSplit _AskTOB_SPLIT = null;
+        private Model.BookItemPriceSplit _BidTOB_SPLIT = null;
+        private Model.BookItemPriceSplit _AskTOB_SPLIT = null;
         private double _PercentageWidth = 1;
         private double _realTimeYAxisMinimum = 0;
         private double _realTimeYAxisMaximum = 0;
@@ -69,23 +68,22 @@ namespace VisualHFT.ViewModel
             SetSortDescriptions();
 
 
-            HelperCommon.PROVIDERS.OnDataReceived += PROVIDERS_OnDataReceived;
-            HelperCommon.PROVIDERS.OnHeartBeatFail += PROVIDERS_OnHeartBeatFail;
+            HelperProvider.Instance.OnDataReceived += PROVIDERS_OnDataReceived;
+            HelperProvider.Instance.OnHeartBeatFail += PROVIDERS_OnHeartBeatFail;
             HelperCommon.ACTIVEORDERS.OnDataReceived += ACTIVEORDERS_OnDataReceived;
             HelperCommon.ACTIVEORDERS.OnDataRemoved += ACTIVEORDERS_OnDataRemoved;
-            HelperCommon.TRADES.OnDataReceived += TRADES_OnDataReceived;
-
-            //EventAggregator.Instance.OnOrderBookDataReceived += LIMITORDERBOOK_OnDataReceived;
+            
+            HelperTrade.Instance.Subscribe(TRADES_OnDataReceived);
             HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
-
+            
 
             uiUpdater = new UIUpdater(uiUpdaterAction, 200);
-            _providers = HelperCommon.PROVIDERS.CreateObservableCollection();
+            _providers = VisualHFT.ViewModel.Model.Provider.CreateObservableCollection();
             RaisePropertyChanged(nameof(Providers));
 
 
-            BidTOB_SPLIT = new BookItemPriceSplit();
-            AskTOB_SPLIT = new BookItemPriceSplit();
+            BidTOB_SPLIT = new Model.BookItemPriceSplit();
+            AskTOB_SPLIT = new Model.BookItemPriceSplit();
             RaisePropertyChanged(nameof(BidTOB_SPLIT));
             RaisePropertyChanged(nameof(AskTOB_SPLIT));
 
@@ -406,7 +404,7 @@ namespace VisualHFT.ViewModel
                     _depthGrid.Add(item);
             }
         }
-        private void TRADES_OnDataReceived(object sender, VisualHFT.ViewModel.Model.Trade e)
+        private void TRADES_OnDataReceived(VisualHFT.Model.Trade e)
         {
             if (e == null)
                 return;
@@ -420,26 +418,31 @@ namespace VisualHFT.ViewModel
             {
                 Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
                 {
-                    _realTimeTrades.Insert(0, e);
+                    _realTimeTrades.Insert(0, new Model.Trade(e));
                     while (_realTimeTrades.Count > 100)
                         _realTimeTrades.RemoveAt(_realTimeTrades.Count - 1);
                 }));
             }
         }
-        private void PROVIDERS_OnDataReceived(object sender, VisualHFT.ViewModel.Model.Provider e)
+        private void PROVIDERS_OnDataReceived(object? sender, VisualHFT.Model.Provider e)
         {
             Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
             {
-                _providers.Add(e);
+                var item = new ViewModel.Model.Provider(e);
+                if (!_providers.Any(x => x.ProviderCode == e.ProviderCode))
+                    _providers.Add(item);
                 //if nothing is selected
                 if (_selectedProvider == null) //default provider must be the first who's Active
-                    SelectedProvider = e;
+                    SelectedProvider = item;
             }));
         }
-        private void PROVIDERS_OnHeartBeatFail(object sender, VisualHFT.ViewModel.Model.Provider e)
+        private void PROVIDERS_OnHeartBeatFail(object? sender, VisualHFT.Model.Provider e)
         {
-            if (_selectedProvider != null && e.ProviderCode == _selectedProvider.ProviderCode && (e.Status == eSESSIONSTATUS.PRICE_DSICONNECTED_ORDER_CONNECTED || e.Status == eSESSIONSTATUS.BOTH_DISCONNECTED))
+            if (_selectedProvider != null && e.ProviderCode == _selectedProvider.ProviderCode && _selectedProvider.Status != e.Status && (e.Status == eSESSIONSTATUS.PRICE_DSICONNECTED_ORDER_CONNECTED || e.Status == eSESSIONSTATUS.BOTH_DISCONNECTED))
+            {
+                _selectedProvider.Status = e.Status;
                 Clear();
+            }
         }
         public OrderBook OrderBook
         {
@@ -466,12 +469,12 @@ namespace VisualHFT.ViewModel
         public IEnumerable<OrderBookLevel> RealTimeOrderLevelsBid => _realTimeOrderLevelsBid;
         public ReadOnlyCollection<PlotInfoPriceChart> RealTimeSpread => _realTimeSpread?.AsReadOnly();
         public ObservableCollection<VisualHFT.ViewModel.Model.Provider> Providers => _providers;
-        public BookItemPriceSplit BidTOB_SPLIT
+        public Model.BookItemPriceSplit BidTOB_SPLIT
         {
             get => _BidTOB_SPLIT;
             set => SetProperty(ref _BidTOB_SPLIT, value);
         }
-        public BookItemPriceSplit AskTOB_SPLIT
+        public Model.BookItemPriceSplit AskTOB_SPLIT
         {
             get => _AskTOB_SPLIT;
             set => SetProperty(ref _AskTOB_SPLIT, value);
@@ -553,11 +556,11 @@ namespace VisualHFT.ViewModel
                 if (disposing)
                 {
                     uiUpdater.Dispose();
-                    HelperCommon.PROVIDERS.OnDataReceived -= PROVIDERS_OnDataReceived;
-                    HelperCommon.PROVIDERS.OnHeartBeatFail -= PROVIDERS_OnHeartBeatFail;
+                    HelperProvider.Instance.OnDataReceived -= PROVIDERS_OnDataReceived;
+                    HelperProvider.Instance.OnHeartBeatFail -= PROVIDERS_OnHeartBeatFail;
                     HelperCommon.ACTIVEORDERS.OnDataReceived -= ACTIVEORDERS_OnDataReceived;
                     HelperCommon.ACTIVEORDERS.OnDataRemoved -= ACTIVEORDERS_OnDataRemoved;
-                    HelperCommon.TRADES.OnDataReceived -= TRADES_OnDataReceived;
+                    HelperTrade.Instance.Unsubscribe(TRADES_OnDataReceived);
                     HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
 
                     _orderBook?.Dispose();

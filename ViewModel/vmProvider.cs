@@ -1,16 +1,12 @@
 ﻿using VisualHFT.Helpers;
-using VisualHFT.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using Prism.Mvvm;
 using System.Windows;
 using System.Windows.Threading;
 using System.Windows.Input;
-using System.Runtime.CompilerServices;
-using System.Security.Policy;
 using VisualHFT.DataRetriever;
 using System.Threading.Tasks;
 
@@ -18,8 +14,9 @@ namespace VisualHFT.ViewModel
 {
     public class vmProvider : BindableBase
     {
-        private VisualHFT.ViewModel.Model.Provider _selectedItem;
-        private ObservableCollection<VisualHFT.ViewModel.Model.Provider> _providers;
+        //private VisualHFT.Model.Provider _selectedItem;
+        private ObservableCollection<ViewModel.Model.Provider> _providers;
+        
         private ICommand _cmdUpdateStatus;
         private Dictionary<string, Func<string, string, bool>> _dialogs;
         private DateTime? _lastHeartBeatReceived = null;
@@ -31,14 +28,15 @@ namespace VisualHFT.ViewModel
             this._dialogs = dialogs;
             _cmdUpdateStatus = new RelayCommand<object>(DoUpdateStatus);
 
-            _providers = new ObservableCollection<VisualHFT.ViewModel.Model.Provider>();
-            RaisePropertyChanged(nameof(Providers));
+            _providers = VisualHFT.ViewModel.Model.Provider.CreateObservableCollection();
 
-            HelperCommon.PROVIDERS.OnDataReceived += PROVIDERS_OnDataReceived;
-            HelperCommon.PROVIDERS.OnHeartBeatFail += PROVIDERS_OnHeartBeatFail;
+            HelperProvider.Instance.OnDataReceived += PROVIDERS_OnDataReceived;
+            HelperProvider.Instance.OnHeartBeatFail += PROVIDERS_OnHeartBeatFail;
+
+            RaisePropertyChanged(nameof(Providers));
         }
 
-        private void PROVIDERS_OnDataReceived(object sender, VisualHFT.ViewModel.Model.Provider e)
+        private void PROVIDERS_OnDataReceived(object? sender, VisualHFT.Model.Provider e)
         {
             if (e == null || e.ProviderCode == -1)
                 return;
@@ -48,6 +46,9 @@ namespace VisualHFT.ViewModel
             {
                 _status = e.Status;
                 _lastHeartBeatReceived = e.LastUpdated;
+                existingProv.Status = e.Status;
+                existingProv.LastUpdated = e.LastUpdated;
+                existingProv.UpdateUI();
             }
             else
             {
@@ -55,18 +56,22 @@ namespace VisualHFT.ViewModel
                 Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
                 {
                     lock (_lock)
-                        _providers.Add(e);
+                    {
+                        if (!_providers.Any(x => x.ProviderCode == e.ProviderCode))
+                        {
+                            _providers.Add(new Model.Provider(e));
+                        }
+                    }
                 }));
             }
         }
-        private void PROVIDERS_OnHeartBeatFail(object sender, VisualHFT.ViewModel.Model.Provider e)
+        private void PROVIDERS_OnHeartBeatFail(object? sender, VisualHFT.Model.Provider e)
         {
             var itemToUpdate = _providers.Where(x => x.ProviderCode == e.ProviderCode).FirstOrDefault();
             if (itemToUpdate != null)
             {
                 itemToUpdate.LastUpdated = e.LastUpdated;
                 itemToUpdate.Status = e.Status;
-                itemToUpdate.CheckValuesUponHeartbeatReceived();
             }
             else
             {
@@ -76,8 +81,7 @@ namespace VisualHFT.ViewModel
                     {
                         if (!_providers.Any(x => x.ProviderCode == e.ProviderCode))
                         {
-                            _providers.Add(e);
-                            e.CheckValuesUponHeartbeatReceived();
+                            _providers.Add(new Model.Provider(e));
                         }
                     }
                 }));
@@ -86,7 +90,7 @@ namespace VisualHFT.ViewModel
 
         private void DoUpdateStatus(object obj)
         {
-            _selectedItem = obj as VisualHFT.ViewModel.Model.Provider;
+            var _selectedItem = obj as VisualHFT.ViewModel.Model.Provider;
             if (_selectedItem != null)
             {
                 eSESSIONSTATUS statusToSend;
@@ -107,9 +111,6 @@ namespace VisualHFT.ViewModel
                             else
                                 _linkToPlugIn.StopAsync();
                         });
-
-
-
                     }
                 }
             }
@@ -126,11 +127,11 @@ namespace VisualHFT.ViewModel
             set => SetProperty(ref _cmdUpdateStatus, value);
         }
 
-        public VisualHFT.ViewModel.Model.Provider SelectedItem
+        /*public VisualHFT.ViewModel.Model.Provider SelectedItem
         {
             get => _selectedItem;
             set => SetProperty(ref _selectedItem, value);
-        }
+        }*/
 
 
     }

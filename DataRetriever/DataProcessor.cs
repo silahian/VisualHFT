@@ -105,26 +105,12 @@ namespace VisualHFT.DataRetriever
         #region Parsing Methods        
         private void ParseSymbols(IEnumerable<string> symbols)
         {
-            if (HelperCommon.ALLSYMBOLS == null)
-                HelperCommon.ALLSYMBOLS = new System.Collections.ObjectModel.ObservableCollection<string>();
-            if (Application.Current == null)
-                return;
-            foreach (var s in symbols)
-            {
-                if (!HelperCommon.ALLSYMBOLS.Contains(s))
-                {
-                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
-                    {
-                        if (!HelperCommon.ALLSYMBOLS.Contains(s))
-                            HelperCommon.ALLSYMBOLS.Add(s);
-                    }));
-                }
-            }
-
+            HelperSymbol.Instance.UpdateData(symbols);
         }
         private void ParseOrderBook(IEnumerable<OrderBook> orderBooks)
         {
             HelperOrderBook.Instance.UpdateData(orderBooks);
+            
         }
         private void ParseExposures(IEnumerable<Exposure> exposures)
         {
@@ -145,11 +131,11 @@ namespace VisualHFT.DataRetriever
         }
         private void ParseHeartBeat(IEnumerable<VisualHFT.Model.Provider> providers)
         {
-            HelperCommon.PROVIDERS.UpdateData(providers.ToList());
+            HelperProvider.Instance.UpdateData(providers.ToList());
         }
         private void ParseTrades(IEnumerable<Trade> trades)
         {
-            HelperCommon.TRADES.UpdateData(trades);
+            HelperTrade.Instance.UpdateData(trades);
         }
         #endregion
 

@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Globalization;
 using VisualHFT.Commons.Pools;
+using VisualHFT.Commons.SubscriberBuffers;
 
 namespace VisualHFT.Helpers
 {
@@ -75,7 +76,7 @@ namespace VisualHFT.Helpers
             {
                 if (subscriber.Count > 500)  // or some threshold value
                 {
-                    log.Warn($"Subscriber buffer is growing large: {subscriber.Count}");
+                    log.Warn($"OrderBook Subscriber buffer is growing large: {subscriber.Count}");
                     // Additional actions as needed: Pause, Alert, Disconnect
                 }
             }

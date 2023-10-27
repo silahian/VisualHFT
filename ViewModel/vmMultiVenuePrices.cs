@@ -25,10 +25,12 @@ namespace VisualHFT.ViewModel
         private UIUpdater uiUpdater;
         public vmMultiVenuePrices()
         {
-            _symbols = new ObservableCollection<string>(HelperCommon.ALLSYMBOLS.ToList());
+            _symbols = new ObservableCollection<string>(HelperSymbol.Instance);
+            HelperSymbol.Instance.OnCollectionChanged += ALLSYMBOLS_CollectionChanged;
             RaisePropertyChanged(nameof(Symbols));
-            HelperCommon.ALLSYMBOLS.CollectionChanged += ALLSYMBOLS_CollectionChanged;
+
             HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
+
 
             AggregationLevels = new ObservableCollection<Tuple<string, AggregationLevel>>();
             foreach (AggregationLevel level in Enum.GetValues(typeof(AggregationLevel)))
@@ -73,9 +75,9 @@ namespace VisualHFT.ViewModel
             if (MyPlotModel != null)
                 MyPlotModel.InvalidatePlot(true);
         }
-        private void ALLSYMBOLS_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void ALLSYMBOLS_CollectionChanged(object? sender, EventArgs e)
         {
-            _symbols = new ObservableCollection<string>(HelperCommon.ALLSYMBOLS.ToList());
+            _symbols = new ObservableCollection<string>(HelperSymbol.Instance);
             RaisePropertyChanged(nameof(Symbols));
         }
         private void LIMITORDERBOOK_OnDataReceived(OrderBook e)
@@ -198,7 +200,7 @@ namespace VisualHFT.ViewModel
                 if (disposing)
                 {
                     HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
-                    HelperCommon.ALLSYMBOLS.CollectionChanged -= ALLSYMBOLS_CollectionChanged;
+                    HelperSymbol.Instance.OnCollectionChanged -= ALLSYMBOLS_CollectionChanged;
 
                     Clear();
                     uiUpdater.Dispose();

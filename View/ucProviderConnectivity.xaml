@@ -6,6 +6,7 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
 
              xmlns:local="clr-namespace:VisualHFT.View"
+            xmlns:behaviors="clr-namespace:VisualHFT.Helpers"
 
             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
             TextElement.FontWeight="Regular"
@@ -27,13 +28,10 @@
     </UserControl.Resources>
     <Grid>
         <GroupBox Header="Providers' Status" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5" Padding="5">
-            <ListView x:Name="lstItem" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Providers}" >
+            <ListView x:Name="lstItem" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Providers}" 
+                      behaviors:ListViewItemSelectedBehavior.Command="{Binding CmdUpdateStatus}"
+                      >
 
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
-                        <i:InvokeCommandAction Command="{Binding CmdUpdateStatus}" CommandParameter="{Binding SelectedItem, ElementName=lstItem}"/>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
 
                 <ListView.ItemsPanel>
                     <ItemsPanelTemplate>

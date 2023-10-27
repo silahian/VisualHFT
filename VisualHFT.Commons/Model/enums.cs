@@ -66,13 +66,3 @@ public enum PositionManagerCalculationMethod
     FIFO,
     LIFO
 }
-
-public enum eTILES_TYPE
-{
-    STUDY_LOB_IMBALANCE,
-    STUDY_VPIN,
-    STUDY_TTO,
-    STUDY_OTT,
-    STUDY_MARKETRESILIENCE,
-    STUDY_MARKETRESILIENCEBIAS
-}

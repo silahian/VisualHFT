@@ -4,13 +4,16 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Prism.Mvvm;
-using VisualHFT.ViewModel.Studies;
 using System.Windows.Documents;
 using System.Windows.Ink;
 using VisualHFT.Model;
 using System.Net.Sockets;
 using System.Windows.Media;
 using VisualHFT.ViewModels;
+using System.Linq;
+using VisualHFT.Commons.Studies;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace VisualHFT.ViewModel
 {
@@ -24,7 +27,7 @@ namespace VisualHFT.ViewModel
         protected vmStrategyParameterFirmMM _vmStrategyParamsFirmMM;
         protected vmPosition _vmPosition;
         protected vmOrderBook _vmOrderBook;
-        public ObservableCollection<Studies.MetricTileViewModel> Tiles { get; set; }
+        public ObservableCollection<vmTile> Tiles { get; set; }
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 
@@ -33,46 +36,51 @@ namespace VisualHFT.ViewModel
             this._dialogs = dialogs;
             CmdAbort = new RelayCommand<object>(DoAbort);
 
-            HelperCommon.ALLSYMBOLS.CollectionChanged += ALLSYMBOLS_CollectionChanged;
+            HelperSymbol.Instance.OnCollectionChanged += ALLSYMBOLS_CollectionChanged;
 
             this.StrategyParamsFirmMM = new vmStrategyParameterFirmMM(Helpers.HelperCommon.GLOBAL_DIALOGS);
             this.Positions = new vmPosition(Helpers.HelperCommon.GLOBAL_DIALOGS);
             this.OrderBook = new vmOrderBook(Helpers.HelperCommon.GLOBAL_DIALOGS);
 
-            LoadTiles();
+            Task.Run(LoadTilesAsync);
         }
 
-        private void LoadTiles()
+        private async Task LoadTilesAsync()
         {
-            Tiles = new ObservableCollection<MetricTileViewModel>();
-            Tiles.Add(new MetricTileViewModel(eTILES_TYPE.STUDY_LOB_IMBALANCE, "dashboard_LOB_Imbalance")
+            while (!PluginManager.PluginManager.AllPluginsReloaded)
+                await Task.Delay(1000); // allow plugins to be loaded in
+
+            Tiles = new ObservableCollection<vmTile>();
+            try
             {
-                Title = "LOB Imbalance",
-                Tooltip = "The <b>Limit Order Book Imbalance</b> represents the disparity between buy and sell orders at a specific price level.<br/><br/>" +
-                "It highlights the difference in demand and supply in the order book, providing insights into potential price movements.<br/>" +
-                "A significant imbalance can indicate a strong buying or selling interest at that price."                
-            });
-            Tiles.Add(new MetricTileViewModel(eTILES_TYPE.STUDY_VPIN, "dashboard_VPIN")
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    foreach (var study in PluginManager.PluginManager.AllPlugins.Where(x => x is IStudy))
+                        Tiles.Add(new vmTile(study as IStudy));
+                });
+            }
+            catch (Exception ex)
             {
-                Title = "VPIN",
-                Tooltip = "The <b>VPIN</b> (Volume - Synchronized Probability of Informed Trading) value is a measure of the imbalance between buy and sell volumes in a given bucket.<br/><br/>" +
-                "It's calculated as the absolute difference between buy and sell volumes divided by the total volume (buy + sell) for that bucket.<br/>"
-            });
-            Tiles.Add(new MetricTileViewModel(eTILES_TYPE.STUDY_TTO, "dashboard_TTO")
+
+                throw;
+            }
+
+            /*
+            Tiles.Add(new vmMetricTile(eTILES_TYPE.STUDY_TTO, "dashboard_TTO")
             {
                 Title = "TTO",
                 Tooltip = "The <b>TTO</b> (Volume - Trade To Order Ratio) value is a key metric that measures the efficiency of trading by comparing the number of executed trades to the number of orders placed.<br/><br/>" +
                 "<b>TTO</b> is calculation as follows: <i>TTO Ratio=Number of Executed Trades / Number of Orders Placed</i><br/>" +
                 ""
             });
-            Tiles.Add(new MetricTileViewModel(eTILES_TYPE.STUDY_OTT, "dashboard_OTT")
+            Tiles.Add(new vmMetricTile(eTILES_TYPE.STUDY_OTT, "dashboard_OTT")
             {
                 Title = "OTT",
                 Tooltip = "The <b>OTT</b> (Volume - Order To Trade Ratio) is a key metric used to evaluate trading behavior. <br/> It measures the number of orders placed relative to the number of trades executed. This ratio is often <b>monitored by regulatory bodies</b> to identify potentially manipulative or disruptive trading activities.<br/><br/>" +
                 "<b>OTT</b> is calculation as follows: <i>OTT Ratio  = Number of Orders Placed / Number of Executed Trades</i><br/>" +
                 ""
             });
-            Tiles.Add(new MetricTileViewModel(eTILES_TYPE.STUDY_MARKETRESILIENCE, "dashboard_MKTRESIL")
+            Tiles.Add(new vmMetricTile(eTILES_TYPE.STUDY_MARKETRESILIENCE, "dashboard_MKTRESIL")
             {
                 Title = "MR",
                 Tooltip = "<b>Market Resilience</b> (MR) is a real-time metric that quantifies how quickly a market rebounds after experiencing a large trade. <br/> It's an invaluable tool for traders to gauge market stability and sentiment.<br/><br/>" +
@@ -82,7 +90,7 @@ namespace VisualHFT.ViewModel
                 "<br/>" +
                 "The <b>MR</b> score is the average of these two normalized metrics, ranging from 0 (no recovery) to 1 (full recovery)."
             });
-            Tiles.Add(new MetricTileViewModel(eTILES_TYPE.STUDY_MARKETRESILIENCEBIAS, "dashboard_MKTRESILBIAS")
+            Tiles.Add(new vmMetricTile(eTILES_TYPE.STUDY_MARKETRESILIENCEBIAS, "dashboard_MKTRESILBIAS")
             {
                 Title = "MBR",
                 Tooltip = "<b>Market Resilience Bias</b> (MRB) is a real-time metric that quantifies the directional tendency of the market following a large trade. <br/> It provides insights into the prevailing sentiment among market participants, enhancing traders' understanding of market dynamics.<br/><br/>" +
@@ -93,6 +101,7 @@ namespace VisualHFT.ViewModel
                 "The <b>MRB</b> score indicates the market's bias, with a value of 1 representing a bullish sentiment (sentiment up) and 0 representing a bearish sentiment (sentiment down)."
 
              });
+            */
         }
 
 
@@ -114,7 +123,7 @@ namespace VisualHFT.ViewModel
 
         public RelayCommand<object> CmdAbort { get; set; }
 
-        private void ALLSYMBOLS_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void ALLSYMBOLS_CollectionChanged(object? sender, EventArgs e)
         {
             RefreshSymbolList();
         }
@@ -223,7 +232,7 @@ namespace VisualHFT.ViewModel
             }
         }
 
-        public ObservableCollection<string> SymbolList => HelperCommon.ALLSYMBOLS;
+        public ObservableCollection<string> SymbolList => new ObservableCollection<string>(HelperSymbol.Instance);
 
     }
 }

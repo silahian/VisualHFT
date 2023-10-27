@@ -15,6 +15,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{EDFE
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarketConnectors.Bitfinex", "VisualHFT.Plugins\MarketConnectors.Bitfinex\MarketConnectors.Bitfinex.csproj", "{06AD6F6B-BBFA-458E-ACA4-EEA5AF1F3AE0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Studies.VPIN", "VisualHFT.Plugins\Studies.VPIN\Studies.VPIN.csproj", "{77A17B04-2914-4DB5-874C-C533D437B176}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisualHFT.Commons.WPF", "VisualHFT.Commons.WPF\VisualHFT.Commons.WPF.csproj", "{62BF162D-118E-426C-8B96-1A1612E0A346}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studies.LOBImbalance", "VisualHFT.Plugins\Studies.LOBImbalance\Studies.LOBImbalance.csproj", "{74B08F14-A2A1-43A1-8DBF-CA9F19F9B8E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studies.MarketResilience", "VisualHFT.Plugins\Studies.MarketResilience\Studies.MarketResilience.csproj", "{AE79F03E-98FF-4730-BEFE-76204BFD7707}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studies.MarketRatios", "VisualHFT.Plugins\Studies.MarketRatios\Studies.MarketRatios.csproj", "{23E6F0D7-139B-48B7-8234-3D415D06B35A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +51,26 @@ Global
 		{06AD6F6B-BBFA-458E-ACA4-EEA5AF1F3AE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06AD6F6B-BBFA-458E-ACA4-EEA5AF1F3AE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06AD6F6B-BBFA-458E-ACA4-EEA5AF1F3AE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77A17B04-2914-4DB5-874C-C533D437B176}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77A17B04-2914-4DB5-874C-C533D437B176}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77A17B04-2914-4DB5-874C-C533D437B176}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77A17B04-2914-4DB5-874C-C533D437B176}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62BF162D-118E-426C-8B96-1A1612E0A346}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62BF162D-118E-426C-8B96-1A1612E0A346}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62BF162D-118E-426C-8B96-1A1612E0A346}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62BF162D-118E-426C-8B96-1A1612E0A346}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74B08F14-A2A1-43A1-8DBF-CA9F19F9B8E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74B08F14-A2A1-43A1-8DBF-CA9F19F9B8E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74B08F14-A2A1-43A1-8DBF-CA9F19F9B8E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74B08F14-A2A1-43A1-8DBF-CA9F19F9B8E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE79F03E-98FF-4730-BEFE-76204BFD7707}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE79F03E-98FF-4730-BEFE-76204BFD7707}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE79F03E-98FF-4730-BEFE-76204BFD7707}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE79F03E-98FF-4730-BEFE-76204BFD7707}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23E6F0D7-139B-48B7-8234-3D415D06B35A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23E6F0D7-139B-48B7-8234-3D415D06B35A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23E6F0D7-139B-48B7-8234-3D415D06B35A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23E6F0D7-139B-48B7-8234-3D415D06B35A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,6 +78,10 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{94E440F7-C9B4-41B4-B7F2-631361BB15C2} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
 		{06AD6F6B-BBFA-458E-ACA4-EEA5AF1F3AE0} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
+		{77A17B04-2914-4DB5-874C-C533D437B176} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
+		{74B08F14-A2A1-43A1-8DBF-CA9F19F9B8E2} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
+		{AE79F03E-98FF-4730-BEFE-76204BFD7707} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
+		{23E6F0D7-139B-48B7-8234-3D415D06B35A} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9EDE643D-268A-4BB9-85A6-F32F11E40516}

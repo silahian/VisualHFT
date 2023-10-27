@@ -20,5 +20,19 @@
         public DateTime Timestamp { get => _timestamp; set => _timestamp = value; }
         public bool IsBuy { get => _isBuy; set => _isBuy = value; }
         public string Flags { get => _flags; set => _flags = value; }
+
+        internal void CopyTo(Trade target)
+        {
+            if (target == null) throw new ArgumentNullException(nameof(target));
+            target.Symbol = Symbol;
+            target.Price = Price;
+            target.Size = Size;
+            target.Timestamp = Timestamp;
+            target.IsBuy = IsBuy;
+            target.Flags = Flags;
+            target.ProviderId = ProviderId;
+            target.ProviderName = ProviderName;
+
+        }
     }
 }

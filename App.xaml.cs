@@ -38,9 +38,10 @@ namespace VisualHFT
 
         private async Task LoadPlugins()
         {
+            PluginManager.PluginManager.AllPluginsReloaded = false;
             PluginManager.PluginManager.LoadPlugins();
             PluginManager.PluginManager.StartPlugins();
-
+            PluginManager.PluginManager.AllPluginsReloaded = true;
         }
         private async Task GCCleanupAsync()
         {

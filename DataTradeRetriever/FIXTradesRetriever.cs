@@ -68,11 +68,7 @@ namespace VisualHFT.DataTradeRetriever
                     {
                         foreach( var symbol in symbols)
                         {
-                            if (!HelperCommon.ALLSYMBOLS.Contains(symbol))
-                            {
-                                //this collection needs to be updated in the UI thread
-                                Application.Current.Dispatcher.Invoke(() => HelperCommon.ALLSYMBOLS.Add(symbol));
-                            }
+                            HelperSymbol.Instance.UpdateData(symbol);
                         }
                     }
 

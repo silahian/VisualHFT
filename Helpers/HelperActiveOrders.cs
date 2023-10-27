@@ -81,8 +81,6 @@ namespace VisualHFT.Helpers
                 if (!this.ContainsKey(order.ClOrdId))
                 {
                     order.CreationTimeStamp = DateTime.Now;
-                    if (HelperCommon.PROVIDERS.ContainsKey(order.ProviderId))
-                        order.ProviderName = HelperCommon.PROVIDERS[order.ProviderId].ProviderName;
                     return this.TryAdd(order.ClOrdId, order);
                 }
                 else

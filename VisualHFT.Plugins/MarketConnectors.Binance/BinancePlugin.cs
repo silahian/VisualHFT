@@ -12,6 +12,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime;
 using System.Threading;
 using System.Threading.Tasks;
 using VisualHFT.Commons.PluginManager;
@@ -188,8 +189,8 @@ namespace MarketConnectors.Binance
                         trade.Size = eventData.Quantity;
                         trade.Symbol = symbol;
                         trade.Timestamp = eventData.TradeTime.ToLocalTime();
-                        trade.ProviderId = _settings.ProviderId;
-                        trade.ProviderName = _settings.ProviderName;
+                        trade.ProviderId = _settings.Provider.ProviderID;
+                        trade.ProviderName = _settings.Provider.ProviderName;
                         trade.IsBuy = eventData.BuyerIsMaker;
 
                         // Add the populated Trade object to the _trades list.
@@ -370,7 +371,7 @@ namespace MarketConnectors.Binance
                         ServerTimeStamp = ts,
                         DecimalPlaces = local_lob.DecimalPlaces,
                         IsBid = true,
-                        ProviderID = _settings.ProviderId,
+                        ProviderID = _settings.Provider.ProviderID,
                         Symbol = local_lob.Symbol
                     });
                 }
@@ -400,7 +401,7 @@ namespace MarketConnectors.Binance
                         ServerTimeStamp = ts,
                         DecimalPlaces = local_lob.DecimalPlaces,
                         IsBid = false,
-                        ProviderID = _settings.ProviderId,
+                        ProviderID = _settings.Provider.ProviderID,
                         Symbol = local_lob.Symbol
                     });
                 }
@@ -437,8 +438,8 @@ namespace MarketConnectors.Binance
             lob.Symbol = GetNormalizedSymbol(data.Symbol);
             lob.SymbolMultiplier = 2; //???????
             lob.DecimalPlaces = 2; //?????????
-            lob.ProviderID = _settings.ProviderId;
-            lob.ProviderName = _settings.ProviderName;
+            lob.ProviderID = _settings.Provider.ProviderID;
+            lob.ProviderName = _settings.Provider.ProviderName;
 
             var _asks = new List<VisualHFT.Model.BookItem>();
             var _bids = new List<VisualHFT.Model.BookItem>();
@@ -477,9 +478,9 @@ namespace MarketConnectors.Binance
         {
             return new VisualHFT.Model.Provider()
             {
-                ProviderCode = _settings.ProviderId,
-                ProviderID = _settings.ProviderId,
-                ProviderName = _settings.ProviderName,
+                ProviderCode = _settings.Provider.ProviderID,
+                ProviderID = _settings.Provider.ProviderID,
+                ProviderName = _settings.Provider.ProviderName,
                 Status = isConnected ? eSESSIONSTATUS.BOTH_CONNECTED : eSESSIONSTATUS.BOTH_DISCONNECTED,
                 Plugin = this
             };
@@ -522,6 +523,10 @@ namespace MarketConnectors.Binance
             {
                 InitializeDefaultSettings();
             }
+            if (_settings.Provider == null) //To prevent back compability with older setting formats
+            {
+                _settings.Provider = new VisualHFT.Model.Provider() { ProviderID = 1, ProviderName = "Binance.US" };
+            }
             ParseSymbols(string.Join(',', _settings.Symbols.ToArray())); //Utilize normalization function
         }
         protected override void SaveSettings()
@@ -537,8 +542,7 @@ namespace MarketConnectors.Binance
                 ApiSecret = "",
                 DepthLevels = 10,
                 UpdateIntervalMs = 100,
-                ProviderId = 1,
-                ProviderName = "Binance.US",
+                Provider = new VisualHFT.Model.Provider() { ProviderID = 1, ProviderName = "Binance.US" },
                 Symbols = new List<string>() { "BTCUSDT(BTC/USD)", "ETHUSDT(ETH/USD)" } // Add more symbols as needed
             };
             SaveToUserSettings(_settings);
@@ -551,8 +555,8 @@ namespace MarketConnectors.Binance
             viewModel.ApiKey = _settings.ApiKey;
             viewModel.UpdateIntervalMs = _settings.UpdateIntervalMs;
             viewModel.DepthLevels = _settings.DepthLevels;
-            viewModel.ProviderId = _settings.ProviderId;
-            viewModel.ProviderName = _settings.ProviderName;
+            viewModel.ProviderId = _settings.Provider.ProviderID;
+            viewModel.ProviderName = _settings.Provider.ProviderName;
             viewModel.Symbols = _settings.Symbols;
             viewModel.UpdateSettingsFromUI = () =>
             {
@@ -560,8 +564,7 @@ namespace MarketConnectors.Binance
                 _settings.ApiKey = viewModel.ApiKey;
                 _settings.UpdateIntervalMs = viewModel.UpdateIntervalMs;
                 _settings.DepthLevels = viewModel.DepthLevels;
-                _settings.ProviderId = viewModel.ProviderId;
-                _settings.ProviderName = viewModel.ProviderName;
+                _settings.Provider = new VisualHFT.Model.Provider() { ProviderID = viewModel.ProviderId, ProviderName = viewModel.ProviderName };
                 _settings.Symbols = viewModel.Symbols;
                 SaveSettings();
                 ParseSymbols(string.Join(',', _settings.Symbols.ToArray()));

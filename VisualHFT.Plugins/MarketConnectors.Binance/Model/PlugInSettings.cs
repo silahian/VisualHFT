@@ -15,7 +15,9 @@ namespace MarketConnectors.Binance.Model
         public List<string> Symbols { get; set; }
         public int DepthLevels { get; set; }
         public int UpdateIntervalMs { get; set; }
-        public int ProviderId { get; set; }
-        public string ProviderName { get; set; }
+
+        public string Symbol { get; set; }
+        public VisualHFT.Model.Provider Provider { get; set; }
+        public AggregationLevel AggregationLevel { get; set; }
     }
 }

@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using VisualHFT.Model;
 
 namespace VisualHFT.UserSettings
 {
     public interface ISetting
     {
-
+        string Symbol { get; set; }
+        Provider Provider { get; set; }
+        AggregationLevel AggregationLevel { get; set; }
     }
+
 }

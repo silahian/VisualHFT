@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.ServiceModel.Channels;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using VisualHFT.Commons.Studies;
 using VisualHFT.DataRetriever;
 using VisualHFT.UserSettings;
 
@@ -16,13 +18,15 @@ namespace VisualHFT.PluginManager
     public static class PluginManager
     {
         private static List<IPlugin> ALL_PLUGINS = new List<IPlugin>();
+        private static object _locker = new object();
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public static void LoadPlugins()
         {
             // 1. By default load all dll's in current Folder. 
             var pluginsDirectory = AppDomain.CurrentDomain.BaseDirectory; // This gets the directory where your WPF app is running
-            LoadPluginsByDirectory(pluginsDirectory);
+            lock (_locker)
+                LoadPluginsByDirectory(pluginsDirectory);
 
             // 3. Load Other Plugins in different folders
 
@@ -31,14 +35,18 @@ namespace VisualHFT.PluginManager
             // 5. If empty or Stopped. Do nothing.
 
         }
-        public static List<IPlugin> AllPlugins { get => ALL_PLUGINS; }
+        public static List<IPlugin> AllPlugins { get { lock (_locker) return ALL_PLUGINS; } }
+        public static bool AllPluginsReloaded { get; internal set; }
 
         public static void StartPlugins()
         {
-            if (ALL_PLUGINS.Count == 0) { return; }
-            foreach (var plugin in ALL_PLUGINS)
+            lock (_locker)
             {
-                StartPlugin(plugin);
+                if (ALL_PLUGINS.Count == 0) { return; }
+                foreach (var plugin in ALL_PLUGINS)
+                {
+                    StartPlugin(plugin);
+                }
             }
         }
 
@@ -53,6 +61,10 @@ namespace VisualHFT.PluginManager
                         //DATA RETRIEVER = WEBSOCKETS
                         var processor = new VisualHFT.DataRetriever.DataProcessor(dataRetriever);
                         dataRetriever.StartAsync();
+                    }
+                    else if (plugin is IStudy study)
+                    {
+                        study.StartAsync();
                     }
                 }
             }
@@ -101,7 +113,9 @@ namespace VisualHFT.PluginManager
                     }
                     formSettings.MainGrid.Children.Add(_ucSettings);
                     formSettings.Title = $"{plugin.Name} Settings";
-                    formSettings.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+                    formSettings.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
+                    formSettings.Topmost = true;
+                    formSettings.ShowInTaskbar = false;
                     formSettings.ShowDialog();
                 }
 
@@ -115,10 +129,13 @@ namespace VisualHFT.PluginManager
 
         public static void UnloadPlugins()
         {
-            if (ALL_PLUGINS.Count == 0) { return; }
-            foreach (var plugin in ALL_PLUGINS.OfType<IDisposable>())
+            lock (_locker)
             {
-                plugin.Dispose();
+                if (ALL_PLUGINS.Count == 0) { return; }
+                foreach (var plugin in ALL_PLUGINS.OfType<IDisposable>())
+                {
+                    plugin.Dispose();
+                }
             }
         }
 

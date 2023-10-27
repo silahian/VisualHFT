@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using VisualHFT.DataRetriever;
 using VisualHFT.PluginManager;
 using VisualHFT.UserSettings;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace VisualHFT.Commons.PluginManager
 {
@@ -105,10 +100,7 @@ namespace VisualHFT.Commons.PluginManager
         {
             OnError?.Invoke(this, args);
         }
-        protected virtual void Dispose(bool disposing)
-        {
-            // Common disposal logic if any
-        }
+
         protected void SaveToUserSettings(ISetting settings)
         {
             UserSettings.SettingsManager.Instance.SetSetting(SettingKey.PLUGIN, GetPluginUniqueID(), settings);
@@ -188,6 +180,10 @@ namespace VisualHFT.Commons.PluginManager
         }
         #endregion
 
+        protected virtual void Dispose(bool disposing)
+        {
+            // Common disposal logic if any
+        }
         public void Dispose()
         {
             Dispose(true);
