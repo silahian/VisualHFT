@@ -230,6 +230,12 @@ For project questions use the repository’s forums or any of my social media pr
 
 
 # Release notes
+### Oct 27 2023
+**Enhancements**
+- **Plugin Architecture**: Revamped the entire plug-in architecture. It is very easy to add new plugins to increase functionality.
+- **Performance**: Improved performance by 200%. Refactored events and queues.
+
+
 ### Oct 19 2023
 
 **Enhancements**
