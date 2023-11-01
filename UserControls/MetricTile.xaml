@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:VisualHFT.UserControls"
+             xmlns:local="clr-namespace:VisualHFT.Converters" xmlns:viewmodel="clr-namespace:VisualHFT.ViewModel" d:DataContext="{d:DesignInstance Type=viewmodel:vmTile}"
              mc:Ignorable="d" 
             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
             TextElement.FontWeight="Regular"
@@ -20,6 +20,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../GlobalStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <local:BoolToVisibilityConverter x:Key="convBoolToVisibility"/>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -34,7 +35,10 @@
                 </Grid.ToolTip>
                 <TextBox Visibility="Collapsed" Text="{Binding Tooltip, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_TextChanged" />
 
-                <TextBlock Grid.Row="0" Text="{Binding Value}" Foreground="{Binding ValueColor}"  FontSize="58" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+                <Viewbox Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform">
+                    <TextBlock Text="{Binding Value}" Foreground="{Binding ValueColor}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                </Viewbox>
+
                 <StackPanel Orientation="Vertical" Grid.Row="1">
                     <Separator HorizontalAlignment="Stretch"  Height="10" BorderBrush="White"/>
                     <TextBlock Text="{Binding Title}" FontSize="16" Margin="0 0 0 5 " VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -47,8 +51,8 @@
                         </TextBlock.Text>
                     </TextBlock>
                 </StackPanel>
-                <Button Content="📈" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="20" Height="20" Margin="0" Padding="0" ToolTip="Open Chart" Command="{Binding OpenChartCommand}" />
-                <Button Content="⛭" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="20" Height="20" Margin="0" Padding="0" ToolTip="Settings" Command="{Binding OpenSettingsCommand}" />
+                <Button Content="📈" Visibility="{Binding ChartButtonVisibility}" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="20" Height="20" Margin="0" Padding="0" ToolTip="Open Chart" Command="{Binding OpenChartCommand}" />
+                <Button Content="⛭" Visibility="{Binding SettingButtonVisibility}"  Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="20" Height="20" Margin="0" Padding="0" ToolTip="Settings" Command="{Binding OpenSettingsCommand}" />
             </Grid>
 
         </Border>

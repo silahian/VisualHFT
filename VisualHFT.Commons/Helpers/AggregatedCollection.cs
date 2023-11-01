@@ -248,8 +248,6 @@ namespace VisualHFT.Helpers
                 return GetAggregationSpan(AggregationLevel.S3);
             else
                 return GetAggregationSpan(AggregationLevel.S5);
-
-
         }
 
         protected virtual void Dispose(bool disposing)

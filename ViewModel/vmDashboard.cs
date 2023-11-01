@@ -2,14 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using Prism.Mvvm;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using VisualHFT.Model;
-using System.Net.Sockets;
-using System.Windows.Media;
-using VisualHFT.ViewModels;
 using System.Linq;
 using VisualHFT.Commons.Studies;
 using System.Threading.Tasks;
@@ -23,11 +16,12 @@ namespace VisualHFT.ViewModel
         private string _selectedSymbol;
         private string _selectedLayer;
         private string _selectedStrategy;
+        private ObservableCollection<vmTile> _tiles;
 
         protected vmStrategyParameterFirmMM _vmStrategyParamsFirmMM;
         protected vmPosition _vmPosition;
         protected vmOrderBook _vmOrderBook;
-        public ObservableCollection<vmTile> Tiles { get; set; }
+
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 
@@ -55,56 +49,30 @@ namespace VisualHFT.ViewModel
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
+                    //first, load single studies
                     foreach (var study in PluginManager.PluginManager.AllPlugins.Where(x => x is IStudy))
+                    {
                         Tiles.Add(new vmTile(study as IStudy));
+                    }
+                    //then, load multi-studies
+                    foreach (var study in PluginManager.PluginManager.AllPlugins.Where(x => x is IMultiStudy))
+                    {
+                        Tiles.Add(new vmTile(study as IMultiStudy));
+                    }
                 });
             }
             catch (Exception ex)
             {
-
                 throw;
             }
-
-            /*
-            Tiles.Add(new vmMetricTile(eTILES_TYPE.STUDY_TTO, "dashboard_TTO")
-            {
-                Title = "TTO",
-                Tooltip = "The <b>TTO</b> (Volume - Trade To Order Ratio) value is a key metric that measures the efficiency of trading by comparing the number of executed trades to the number of orders placed.<br/><br/>" +
-                "<b>TTO</b> is calculation as follows: <i>TTO Ratio=Number of Executed Trades / Number of Orders Placed</i><br/>" +
-                ""
-            });
-            Tiles.Add(new vmMetricTile(eTILES_TYPE.STUDY_OTT, "dashboard_OTT")
-            {
-                Title = "OTT",
-                Tooltip = "The <b>OTT</b> (Volume - Order To Trade Ratio) is a key metric used to evaluate trading behavior. <br/> It measures the number of orders placed relative to the number of trades executed. This ratio is often <b>monitored by regulatory bodies</b> to identify potentially manipulative or disruptive trading activities.<br/><br/>" +
-                "<b>OTT</b> is calculation as follows: <i>OTT Ratio  = Number of Orders Placed / Number of Executed Trades</i><br/>" +
-                ""
-            });
-            Tiles.Add(new vmMetricTile(eTILES_TYPE.STUDY_MARKETRESILIENCE, "dashboard_MKTRESIL")
-            {
-                Title = "MR",
-                Tooltip = "<b>Market Resilience</b> (MR) is a real-time metric that quantifies how quickly a market rebounds after experiencing a large trade. <br/> It's an invaluable tool for traders to gauge market stability and sentiment.<br/><br/>" +
-                "The <b>MR</b> score is a composite index derived from two key market behaviors:<br/>" +
-                "1. <b>Spread Recovery:</b> Measures how quickly the gap between buying and selling prices returns to its normal state after a large trade.<br/>" +
-                "2. <b>Depth Recovery:</b>  Assesses how fast the consumed levels of the Limit Order Book (LOB) are replenished post-trade.<br/>" +
-                "<br/>" +
-                "The <b>MR</b> score is the average of these two normalized metrics, ranging from 0 (no recovery) to 1 (full recovery)."
-            });
-            Tiles.Add(new vmMetricTile(eTILES_TYPE.STUDY_MARKETRESILIENCEBIAS, "dashboard_MKTRESILBIAS")
-            {
-                Title = "MBR",
-                Tooltip = "<b>Market Resilience Bias</b> (MRB) is a real-time metric that quantifies the directional tendency of the market following a large trade. <br/> It provides insights into the prevailing sentiment among market participants, enhancing traders' understanding of market dynamics.<br/><br/>" +
-                "The <b>MRB</b> score is derived from the behavior of the Limit Order Book (LOB) post-trade:<br/>" +
-                "1. <b>Volume Addition Rate:</b> Analyzes the rate at which volume is added to the bid and ask sides of the LOB after a trade.<br/>" +
-                "2. <b>Directional Inclination:</b> Determines whether the market is leaning towards a bullish or bearish stance based on the volume addition rate.<br/>" +
-                "<br/>" +
-                "The <b>MRB</b> score indicates the market's bias, with a value of 1 representing a bullish sentiment (sentiment up) and 0 representing a bearish sentiment (sentiment down)."
-
-             });
-            */
         }
 
 
+        public ObservableCollection<vmTile> Tiles
+        {
+            get => _tiles;
+            set => SetProperty(ref _tiles, value);
+        }
         public vmStrategyParameterFirmMM StrategyParamsFirmMM
         {
             get => _vmStrategyParamsFirmMM;

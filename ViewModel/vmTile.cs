@@ -1,25 +1,16 @@
 ﻿using Prism.Mvvm;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows;
-using System.Windows.Threading;
 using VisualHFT.Helpers;
 using VisualHFT.Model;
-using VisualHFT.Studies;
 using VisualHFT.UserSettings;
-using Prism.Commands;
 using VisualHFT.ViewModels;
 using System.Windows.Media;
 using VisualHFT.Commons.Studies;
-using log4net.Plugin;
-using VisualHFT.PluginManager;
 using VisualHFT.View;
-using Microsoft.EntityFrameworkCore.Metadata;
+using System.Collections.ObjectModel;
+using QuickFix.Fields;
 
 namespace VisualHFT.ViewModel
 {
@@ -29,26 +20,61 @@ namespace VisualHFT.ViewModel
         private string _tile_id;
         private string _value;
         private string _title;
-        private string _tooltip;        
+        private string _tooltip;
+        private bool _isGroup;
         private UIUpdater uiUpdater;
+        private System.Windows.Visibility _settingButtonVisibility;
+        private System.Windows.Visibility _chartButtonVisibility;
 
         //*********************************************************
         //*********************************************************
         private IStudy _study;
+        private IMultiStudy _multiStudy;
         //*********************************************************
         //*********************************************************
 
         private TileSettings _settings;
         private SolidColorBrush _valueColor = Brushes.White;
 
+        public vmTile(IMultiStudy multiStudy)
+        {
+            IsGroup = true;
+
+            _multiStudy = multiStudy;
+            ChildTiles = new ObservableCollection<vmTile>();
+            foreach (var study in _multiStudy.Studies)
+            {
+                ChildTiles.Add(new vmTile(study) { SettingButtonVisibility = Visibility.Hidden, ChartButtonVisibility = Visibility.Hidden });
+            }
+
+            _tile_id = ((PluginManager.IPlugin)_multiStudy).GetPluginUniqueID();
+            _title = _multiStudy.TileTitle;
+            _tooltip = _multiStudy.TileToolTip;
+            _value = ".";
+
+            OpenSettingsCommand = new RelayCommand<vmTile>(OpenSettings);
+            OpenChartCommand = new RelayCommand<vmTile>(OpenChartClick);
+            uiUpdater = new UIUpdater(uiUpdaterAction, 300);
+
+            RaisePropertyChanged(nameof(SelectedSymbol));
+            RaisePropertyChanged(nameof(SelectedProviderName));
+
+            RaisePropertyChanged(nameof(Title));
+            RaisePropertyChanged(nameof(Tooltip));
+            RaisePropertyChanged(nameof(IsGroup));
+            SettingButtonVisibility = Visibility.Hidden;
+            ChartButtonVisibility = Visibility.Hidden;
+        }
         public vmTile(IStudy study)
         {
-            _study = study;
+            IsGroup = false;
 
+            _study = study;
             _tile_id = ((PluginManager.IPlugin)_study).GetPluginUniqueID();
             _title = _study.TileTitle;
             _tooltip = _study.TileToolTip;
             _value = ".";
+
             _study.OnCalculated += _study_OnCalculated;
 
             OpenSettingsCommand = new RelayCommand<vmTile>(OpenSettings);
@@ -57,6 +83,12 @@ namespace VisualHFT.ViewModel
 
             RaisePropertyChanged(nameof(SelectedSymbol));
             RaisePropertyChanged(nameof(SelectedProviderName));
+
+            RaisePropertyChanged(nameof(Title));
+            RaisePropertyChanged(nameof(Tooltip));
+            RaisePropertyChanged(nameof(IsGroup));
+            SettingButtonVisibility = Visibility.Visible;
+            ChartButtonVisibility = Visibility.Visible;
         }
 
         private void _study_OnCalculated(object? sender, BaseStudyModel e)
@@ -80,7 +112,12 @@ namespace VisualHFT.ViewModel
             RaisePropertyChanged(nameof(Value));
             RaisePropertyChanged(nameof(ValueColor));
         }
-
+        public void UpdateAllUI()
+        {
+            uiUpdaterAction();
+            RaisePropertyChanged(nameof(SelectedSymbol));
+            RaisePropertyChanged(nameof(SelectedProviderName));
+        }
 
         public ICommand OpenSettingsCommand { get; set; }
         public ICommand OpenChartCommand { get; private set; }
@@ -89,8 +126,43 @@ namespace VisualHFT.ViewModel
         public SolidColorBrush ValueColor { get => _valueColor; }
         public string Title { get => _title; set => SetProperty(ref _title, value); }
         public string Tooltip { get => _tooltip; set => SetProperty(ref _tooltip, value); }
-        public string SelectedSymbol { get => ((VisualHFT.PluginManager.IPlugin)_study).Settings.Symbol; }
-        public string SelectedProviderName { get => ((VisualHFT.PluginManager.IPlugin)_study).Settings.Provider.ProviderName; }
+        public string SelectedSymbol
+        {
+            get
+            {
+                if (_study != null)
+                    return ((VisualHFT.PluginManager.IPlugin)_study).Settings.Symbol;
+                else if (_multiStudy != null)
+                    return ((VisualHFT.PluginManager.IPlugin)_multiStudy).Settings.Symbol;
+                else
+                    return "";
+            }
+        }
+        public string SelectedProviderName
+        {
+            get
+            {
+                if (_study != null)
+                    return ((VisualHFT.PluginManager.IPlugin)_study).Settings.Provider.ProviderName;
+                else if (_multiStudy != null)
+                    return ((VisualHFT.PluginManager.IPlugin)_multiStudy).Settings.Provider.ProviderName;
+                else
+                    return "";
+            }
+        }
+        public bool IsGroup { get => _isGroup; set => SetProperty(ref _isGroup, value); }
+        public System.Windows.Visibility SettingButtonVisibility
+        {
+            get { return _settingButtonVisibility; }
+            set { SetProperty(ref _settingButtonVisibility, value); }
+        }
+        public System.Windows.Visibility ChartButtonVisibility
+        {
+            get { return _chartButtonVisibility; }
+            set { SetProperty(ref _chartButtonVisibility, value); }
+        }
+
+        public ObservableCollection<vmTile> ChildTiles { get; set; }
 
         private void OpenChartClick(object obj)
         {
@@ -99,14 +171,29 @@ namespace VisualHFT.ViewModel
                 var winChart = new ChartStudy();
                 winChart.DataContext = new vmChartStudy(_study);
                 winChart.Show();
-
+            }
+            else if (_multiStudy != null)
+            {
+                var winChart = new ChartStudy();
+                winChart.DataContext = new vmChartStudy(_multiStudy);
+                winChart.Show();
             }
         }
         private void OpenSettings(object obj)
         {
-            PluginManager.PluginManager.SettingPlugin((PluginManager.IPlugin)_study);
+            if (_study != null)
+                PluginManager.PluginManager.SettingPlugin((PluginManager.IPlugin)_study);
+            else if (_multiStudy != null)
+            {
+                PluginManager.PluginManager.SettingPlugin((PluginManager.IPlugin)_multiStudy);
+                foreach (var child in ChildTiles)
+                {
+                    child.UpdateAllUI();
+                }
+            }
             RaisePropertyChanged(nameof(SelectedSymbol));
             RaisePropertyChanged(nameof(SelectedProviderName));
+
         }
 
         protected virtual void Dispose(bool disposing)
