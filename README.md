@@ -2,55 +2,52 @@
 See details [here](#release-notes-1)
 
 # Coming Soon
-- ability to connect to any market data source, including, equities, futures, forex, and even news.
-- open plug-in architecture, to allow 3rd party developers to create their own analytics, data sources, and more
+- ability to connect to any market data source, including, equities, futures, forex, and even news feeds.
+- open plug-in architecture, to allow 3rd party developers to create their analytics, data sources, and more
+- new advanced studies around market microstructure.
+- trading surveillance & infra monitoring
 - and much more...
 
-We are open tho hearing from the community to add more features. Make sure you open new Issues with suggestions.
+We are open to hearing from the community to add more features. Make sure you open new Issues with suggestions.
 
 
 # VisualHFT
 
-VisualHFT is a GUI for enterprise-level high-frequency trading systems. It focuses on visualizing market microstructure analytics, such as Limit Order Book dynamics, latencies, execution quality, and other analytics. This project is built with WPF and C# and is designed to support a high-frequency trading operation.
-
+**VisualHFT** is a cutting-edge GUI platform for market analysis, focusing on real-time visualization of market microstructure. Built with WPF & C#, it displays key metrics like Limit Order Book dynamics and execution quality. Its modular design ensures adaptability for developers and traders, enabling tailored analytical solutions.
 
 ![Limit Order Book Visualization](https://github.com/silahian/VisualHFT/blob/master/docImages/LOB_imbalances_2.gif)
-For this specific example we had the following:
+
 - built with #wpf (desktop app)
 - 10 or more levels of depth on each side
-- market data is coming from Binance, Okex (btc/usd) (soon plugins to add other sources)
-- red/green bubbles are selling/buying orders on the LOB
-- light green/red bubbles are our orders (market making)
-- bottom chart in blue, is the spread
+- market data from any market data source
+- ready to use from Binance, Okex (btc/usd) (soon plugins to add other sources)
 
 ## Getting started
 To install and run the project, you need to:
 
-1. Ensure the server app sends the required websocket messages.
-2. Create a SQL Server database using the provided script.
-3. Feed the system with the defined collection of JSON data.
-4. Read positions and executions information from the database.
-5. Run the core trading system located in the "demoTradingCore" folder.
-
-Also, you can follow the detailed steps listed in [here](https://github.com/silahian/VisualHFT/issues/3)
+1. Download the project
+2. When compiling, make sure to reference the included plug-ins
+3. Execute the solution.
+4. You will need to choose the Provider (venue) and Symbol from the dropdowns.
 
 ## Long Description
-VisualHFT is a comprehensive graphical user interface (GUI) designed to provide real-time insights into the operations of high-frequency trading systems. Built with WPF and C#, it serves as a powerful tool for visualizing market microstructure analytics, including Limit Order Book dynamics, latencies, execution quality, and other key metrics.
+**VisualHFT** is a state-of-the-art GUI platform engineered for sophisticated market analysis, emphasizing the real-time visualization of market microstructure. It is specifically designed to cater to the needs of both developers and traders seeking a deeper understanding of market dynamics.
 
-The primary function of VisualHFT is to offer a clear, real-time view of trading operations. It visualizes depth up to 5 levels on each side, displays real-time market data from many data sources, and provides a visualization of selling/buying orders on the Limit Order Book (LOB). It also shows the user's orders (market making) and provides a spread chart visualization.
+Developed using WPF & C#, **VisualHFT** stands out for its ability to vividly display critical trading metrics such as Limit Order Book movements, transaction latencies, and execution quality. These features provide users with an unparalleled view into the intricacies of market behavior, aiding in strategic decision-making.
 
-VisualHFT operates by receiving a specific collection of JSON messages via WebSocket. These messages contain the real-time trading data that the GUI visualizes. The system requires a server application configured to send these messages, which include market data, order information, execution reports, position updates, and control messages.
+The platform's strength lies in its modular architecture, which allows for a high degree of customization through plugins. This flexibility makes **VisualHFT** an ideal solution for creating tailored market analysis tools that can adapt to various trading strategies and requirements.
 
-The core trading system, located in the "demoTradingCore" folder, feeds data to VisualHFT. This system must have a REST and WebSocket server and be capable of persisting position data into the database. Please note that this console application is currently under development.
+**VisualHFT** not only delivers powerful analytics but also focuses on user accessibility. Its intuitive interface is designed to make complex data understandable, enabling users to quickly interpret and act on market insights.
 
-VisualHFT was open-sourced with the aim of contributing to the broader trading community and fostering innovation in the field of high-frequency trading. By providing a clear, real-time view of trading operations, VisualHFT enables users to make informed decisions and maintain control over their trading strategies.
+Whether for monitoring trading performance, analyzing algorithmic strategies, or gaining comprehensive market insights, **VisualHFT** equips users with the tools necessary for a refined and informed trading experience.
 
 ## Features
-- Market Depth visualization.
-- Real-time market data from any source (see websocket incoming format).
-- Visualization of your selling/buying orders on the LOB.
-- Display your orders (market making).
-- Spread chart visualization.
+- **Real-time market data from any source**: Add multiple market data using plugins.
+- **Real-Time Market Microstructure Visualization**: Detailed view of market dynamics, including Limit Order Book movements.
+- **Advanced Execution Quality Analysis**: Tools to assess and optimize trade execution and reduce slippage.
+- **Interactive Charts and Graphs**: Dynamic and interactive visual representations of market data.
+- **User-Centric Design**: An intuitive interface designed for ease of use, making complex data accessible.
+- **Performance Metrics and Reporting**: Robust reporting tools to track and analyze trading performance metrics.
 - more coming...
 
 ## About me
@@ -58,133 +55,33 @@ I’ve been building high-frequency trading software for the past 10 years. Prim
 
 I'm a passionate software engineer with a deep interest in the world of electronic trading. With extensive experience in the field, I have developed a keen understanding of the complexities and challenges that traders face in today's fast-paced, high-frequency trading environment.
 
-My journey in electronic trading began with my work at a proprietary trading firm, where I was involved in developing and optimizing high-frequency trading systems. This experience gave me a firsthand look at the need for tools that provide real-time insights into trading operations, leading to the creation of VisualHFT.
+My journey in electronic trading began with my work at a proprietary trading firm, where I was involved in developing and optimizing high-frequency trading systems. This experience gave me a firsthand look at the need for tools that provide real-time insights into trading operations, leading to the creation of **VisualHFT**.
 
 In addition to my work in electronic trading, I have a broad background in software development, with skills in a range of programming languages and technologies. I am always eager to learn and explore new areas, and I believe in the power of open-source software to drive innovation and collaboration.
 
-Through VisualHFT, I hope to contribute to the trading community and provide a valuable tool for traders and developers alike. I welcome feedback and contributions to the project and look forward to seeing how it evolves with the input of the community.
+Through **VisualHFT**, I hope to contribute to the trading community and provide a valuable tool for traders and developers alike. I welcome feedback and contributions to the project and look forward to seeing how it evolves with the input of the community.
 
 
 ## History
-The inception of VisualHFT was driven by a need for transparency and control in high-frequency trading operations. As the core high-frequency trading system operates in a collocated server with minimal human interaction, it was crucial to develop a mechanism that could provide real-time insights into the system's operations.
+The inception of **VisualHFT** was driven by a need for transparency and control in high-frequency trading operations. As the core high-frequency trading system operates in a collocated server with minimal human interaction, it was crucial to develop a mechanism that could provide real-time insights into the system's operations.
 
-VisualHFT was designed as a visualization dashboard to fulfill this need. It provides a real-time view of the trading system's operations, including the volume and nature of orders being sent, the state of the market, and the ability to control some strategy parameters.
+**VisualHFT** was designed as a visualization dashboard to fulfill this need. It provides a real-time view of the trading system's operations, including the volume and nature of orders being sent, the state of the market, and the ability to control some strategy parameters.
 
 The goal was to create a tool that could offer a quick, comprehensive snapshot of what was happening in the trading system at any given moment. This allowed for more informed decision-making and improved operational control, even in a high-speed, automated trading environment.
 
-Over time, VisualHFT has evolved to support a broader range of trading operations, not just high-frequency trading. However, its core purpose remains the same: to provide a clear, real-time view of trading operations, enabling users to make informed decisions and maintain control over their trading strategies.
+Over time, **VisualHFT** has evolved to support a broader range of trading operations, not just high-frequency trading. However, its core purpose remains the same: to provide a clear, real-time view of trading operations, enabling users to make informed decisions and maintain control over their trading strategies.
 
 ## How to Install and Run the project
 
 1. Prerequisites: Ensure you have the following software installed on your machine:
-- .NET Framework 4.7.2 or later
-- SQL Server 2019 or later
-2. Clone the Repository: Clone the VisualHFT repository to your local machine using the following command in your terminal: git clone https://github.com/silahian/VisualHFT.git
-3. Set Up the Database: Create a SQL Server database using the provided script located in the "database" folder of the project. Make sure to update the connection string in the project configuration to match your database settings. [SQL script](https://github.com/silahian/VisualHFT/blob/master/SQL%20scripts/table%20creation.sql)
-4. Data Feeding: The system requires a specific collection of JSON data to operate. Ensure your server application is configured to send the required WebSocket messages.
-5. Run the Core Trading System: Navigate to the "demoTradingCore" folder and run the core trading system. This system reads positions and executions information from the database and sends it to the GUI.
-6. Start the GUI: Finally, navigate back to the root directory of the project and run the VisualHFT GUI. You should now be able to see real-time trading data in the GUI.
-
-Please note that this project is designed to support a high-frequency trading operation. Make sure your trading system is compatible with VisualHFT before running the project.
-### Data Feeding and WebSocket Messages
-VisualHFT operates by receiving a specific collection of JSON messages via WebSocket. These messages contain the real-time trading data that the GUI visualizes.
-
-To ensure the correct operation of VisualHFT, your server application must be configured to send the following types of WebSocket messages:
-- Market Data Messages: These messages contain real-time market data from your trading system. They should include information such as the current bid and ask prices, the volume of orders at each price level, and any recent trades. [Market json](https://github.com/silahian/VisualHFT/blob/master/WS_input_json/Market.json)
-- Order Messages: These messages provide information about the orders that your trading system is sending to the market. They should include details such as the order type (buy or sell), the order size, and the order price. [Active Orders json](https://github.com/silahian/VisualHFT/blob/master/WS_input_json/ActiveOrders.json)
-- Exposure Messages: These messages provide updates on your trading system's current exposure. [Exposures json](https://github.com/silahian/VisualHFT/blob/master/WS_input_json/Exposures.json)
-- Heartbeat Messages: These messages are sent at regular intervals to indicate that the trading system is running and connected. They typically don't contain any data but serve to confirm that the system is operational. [Heartbeat json](https://github.com/silahian/VisualHFT/blob/master/WS_input_json/HeartBeat.json)
-- Strategy Messages: These messages provide information about the current state of your trading strategies. [Strategies json](https://github.com/silahian/VisualHFT/blob/master/WS_input_json/Strategies.json)
-
-VisualHFT operates by receiving a specific collection of JSON messages via WebSocket for real-time data. This data includes market data messages, exposures, and active orders statuses. In addition to this real-time data, VisualHFT also requires access to positions and executions data, which are read from a Microsoft SQL Server database. 
-
-Together, these data sources allow VisualHFT to function correctly and provide a comprehensive view of trading operations."
-
-
-In addition to receiving data, VisualHFT also can communicate with the core trading system via REST. This allows VisualHFT to send specific commands back to the core system, enabling it to control various aspects of the trading operation. For instance, VisualHFT can instruct the core system to start or stop trading, or to modify parameters of active strategies. 
-
-This two-way communication ensures that VisualHFT not only visualizes trading operations but also has the ability to influence them based on user inputs or predefined conditions.
-
-The **demoTradingCore** is a crucial component of this project, serving as a demo trading engine. Its primary function is to feed data to the main system, **VisualHFT**. It's important to understand that **demoTradingCore** is not an actual trading system, but a tool designed to simulate and provide data for VisualHFT. This console application, which is currently under development, must be equipped with a REST and WebSocket server and should be capable of persisting position data into the database. 
-
-To use it, navigate to the **demoTradingCore** folder and run the system. It will then start generating and sending data to VisualHFT, enabling you to visualize and analyze real-time trading operations in the main system. 
-
-Remember, the spotlight of this project is on **VisualHFT** and its real-time analytics capabilities, with **demoTradingCore** serving as a supportive tool to feed it with necessary data."
-
-
-![Architecture Diagram](/docImages/Aspose.Words.5b849bdf-d96d-4013-ad76-8c3daba3aead.002.png)
+- .NET Framework 7.0
+2. Clone the Repository: Clone the **VisualHFT** repository to your local machine using the following command in your terminal: git clone https://github.com/silahian/VisualHFT.git
+3. Start the GUI: Finally, navigate to the root of the project and run the **VisualHFT** GUI. You should now be able to see real-time trading data in the GUI.
 
 
 ## Enterprise-Level Data Feed Integrations
 
 VisualHFT is architecturally designed with a modular and extensible framework, making it an ideal solution for enterprise-level systems that rely on diverse data sources. Whether your infrastructure leverages sophisticated messaging systems like [Kafka](https://kafka.apache.org/), [RabbitMQ](https://www.rabbitmq.com/), the [FIX protocol via QuickFIX](http://www.quickfixengine.org/), or any other advanced data transmission method, VisualHFT stands ready to assimilate and visualize the data with precision. It's pertinent to note that, in this modular integration mode, the primary focus is on the visualization of market data.
-
-### Key Features:
-
-- **Modular Architecture**: VisualHFT's core is built around a plug-and-play model, allowing for seamless integration of new data feeds without disrupting existing functionalities.
-  
-- **Pre-built Data Retrievers**: We've incorporated robust data retrievers for industry-standard platforms such as [FIX](http://www.quickfixengine.org/) and [ZeroMQ](https://zeromq.org/), showcasing the platform's readiness for high-demand scenarios.
-
-- **Order Retrieval & Trade History**: We've added a feature that allows the retrieval of past and current orders from the trading system, the history of trades executed. This could be in batch, or in real-time, depending on the implementation.
-
-### Integration Steps for New Data Feeds (usually market data):
-
-1. **Interface Implementation**: Begin by implementing the `IDataRetriever` interface. [See IDataRetriever.cs](https://github.com/silahian/VisualHFT/blob/master/DataRetriever/IDataSource.cs)
-   
-2. **Data Model Definition**: Craft a precise data model tailored to your specific feed, ensuring data integrity and compatibility.
-   
-3. **Data Processing & Event Handling**: Efficiently process the incoming data streams and subsequently invoke the `OnDataReceived` event to ensure real-time data visualization.
-
-For enterprises looking to delve deeper and integrate custom solutions, our detailed implementations serve as comprehensive guides:
-- [FIXDataRetriever](https://github.com/silahian/VisualHFT/blob/master/DataRetriever/FIXDataRetriever.cs)
-- [ZeroMQDataRetriever](https://github.com/silahian/VisualHFT/blob/master/DataRetriever/ZeroMQDataRetriever.cs)
-- [Apache Kafka](https://github.com/silahian/VisualHFT/blob/master/DataRetriever/KafkaDataRetriever.cs)
-
-### Instantiating New Data Retrievers:
-
-To integrate these data retrievers into your VisualHFT platform:
-
-1. Navigate to the constructor of [Dashboard.xaml.cs](https://github.com/silahian/VisualHFT/blob/master/View/Dashboard.xaml.cs).
-2. Instantiate your chosen data retriever, for example:
-   ```csharp
-   IDataRetriever fixDataRetriever = new FIXDataRetriever();
-   ```
-3. Ensure that the data retriever is started and stopped appropriately within the lifecycle of the `Dashboard` class.
-
-### Integration Steps for New Order Retrievers (orders/trades):
-
-To integrate a new source for order and trade retrieval, you'll need to follow these steps:
-
-1. **Understand the Interface**: The `IDataTradeRetriever` interface is the cornerstone for integrating new order and trade sources. This interface provides two main events, `OnInitialLoad` and `OnDataReceived`, which are triggered when initial data is loaded and when new data is received, respectively.
-
-2. **Choose an Existing Implementation**: We already provide three built-in implementations for this interface:
-    - `EmptyTradesRetriever`: A no-op implementation that doesn't retrieve any data.
-    - `MSSQLServerTradesRetriever`: Retrieves data from an MSSQL database.
-    - `FIXTradesRetriever`: Reads and parses a FIX log continuously.
-
-3. **Create Your Own Implementation**: If the existing implementations don't meet your needs, you can create your own by implementing the `IDataTradeRetriever` interface. Make sure to raise the `OnInitialLoad` and `OnDataReceived` events appropriately.
-
-### Instantiating New Order Retrievers (orders/trades):
-
-To use your new or existing order retriever, you'll need to instantiate it in the `HelperCommon.cs` file. Here's how:
-
-1. **Open `HelperCommon.cs`**: Navigate to the `HelperCommon.cs` file where all settings are configured.
-
-2. **Comment Out Existing Instantiation**: If there's an existing instantiation of `IDataTradeRetriever`, comment it out.
-    ```csharp
-    // public static IDataTradeRetriever EXECUTEDORDERS = new EmptyTradesRetriever();
-    ```
-
-3. **Add Your Implementation**: Instantiate your own implementation of `IDataTradeRetriever`.
-    ```csharp
-    public static IDataTradeRetriever EXECUTEDORDERS = new YourOwnTradeRetriever();
-    ```
-
-4. **Compile and Run**: After making these changes, compile and run the application to see your new data source in action.
-
-   
-**By leveraging VisualHFT's modular design, enterprises can ensure a streamlined integration process, making it a formidable tool in any high-frequency trading environment.**
-
 
 ## Screenshots
 
