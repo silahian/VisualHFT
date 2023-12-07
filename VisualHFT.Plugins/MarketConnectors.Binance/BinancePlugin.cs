@@ -500,8 +500,8 @@ namespace MarketConnectors.Binance
                     foreach (var token in _ctTrades.Values)
                         token.Cancel();
 
-                    UnattachEventHandlers(tradesSubscription.Data);
-                    UnattachEventHandlers(deltaSubscription.Data);
+                    UnattachEventHandlers(tradesSubscription?.Data);
+                    UnattachEventHandlers(deltaSubscription?.Data);
 
                     _localOrderBooks?.Clear();
                     _eventBuffers?.Clear();

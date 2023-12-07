@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
+using VisualHFT.Commons.Model;
 using VisualHFT.Helpers;
 
 namespace VisualHFT.Model
 {
-    public partial class PlotInfoPriceChart
+    public partial class PlotInfoPriceChart : IResettable
     {
         public PlotInfoPriceChart()
         {
@@ -53,5 +54,18 @@ namespace VisualHFT.Model
         public List<OrderBookLevel> AskLevelOrders { get; set; }
         public List<OrderBookLevel> BidLevelOrders { get; set; }
 
+        public void Reset()
+        {
+            Date = DateTime.MinValue;
+            Volume = 0;
+            _midPrice = 0;
+            _bidPrice = 0;
+            _askPrice = 0;
+            _buyActiveOrder = 0;
+            _sellActiveOrder = 0;
+
+            AskLevelOrders?.Clear();
+            BidLevelOrders?.Clear();
+        }
     }
 }

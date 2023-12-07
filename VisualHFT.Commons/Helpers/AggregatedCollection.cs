@@ -6,11 +6,12 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VisualHFT.Commons.Pools;
 using VisualHFT.Model;
 
 namespace VisualHFT.Helpers
 {
-    public class AggregatedCollection<T> : IDisposable
+    public class AggregatedCollection<T> : IDisposable where T : class, new()
     {
         private bool _disposed = false; // to track whether the object has been disposed
         private TimeSpan _aggregationSpan;
@@ -23,6 +24,8 @@ namespace VisualHFT.Helpers
         private readonly object _lockObject = new object();
         private int _maxPoints = 0; // Maximum number of points
         private DateTime lastItemDate = DateTime.MinValue;
+        private readonly ObjectPool<T> _objectPool;
+
 
         //AUTOMATED Aggregation
         private const int WINDOW_SIZE = 10; // Number of items to consider for frequency calculation
@@ -39,6 +42,7 @@ namespace VisualHFT.Helpers
             _dynamicAggregationSpan = _aggregationSpan; // Initialize with the same value
             _dateSelector = dateSelector;
             _aggregator = aggregator;
+            _objectPool = new ObjectPool<T>();
         }
         public AggregatedCollection(AggregationLevel level, int maxItems, Func<T, DateTime> dateSelector, Action<T, T> aggregator)
             : this(new List<T>(), level, maxItems, dateSelector, aggregator)
@@ -48,6 +52,9 @@ namespace VisualHFT.Helpers
             Dispose(false);
         }
 
+
+        public ObjectPool<T> GetObjectPool() { return _objectPool; }
+
         public bool Add(T item)
         {
             lock (_lockObject)
@@ -56,9 +63,23 @@ namespace VisualHFT.Helpers
                 {
                     _aggregatedData.Add(item);
                     OnAdded?.Invoke(this, item);
-                    while (_aggregatedData.Count() > _maxPoints)
+                    if (_aggregatedData.Count() > _maxPoints)
                     {
-                        _aggregatedData.RemoveAt(0);
+                        T itemToRemove = _aggregatedData.First();
+                        // If 'itemToRemove' is disposable, dispose it before returning to the pool
+                        if (_objectPool == null && itemToRemove is IDisposable disposableItem)
+                        {
+                            disposableItem.Dispose();
+                        }
+
+                        // Remove the item from the collection
+                        _aggregatedData.Remove(itemToRemove);
+
+                        // Return the removed item to the pool
+                        if (_objectPool != null)
+                            _objectPool.Return(itemToRemove);
+
+                        // Trigger any remove events or perform additional logic as required
                         OnRemoved?.Invoke(this, 0);
                     }
                     return true;
@@ -99,17 +120,26 @@ namespace VisualHFT.Helpers
                     {
                         _aggregatedData.Add(item);
                         OnAdded?.Invoke(this, item);
-                        while (_aggregatedData.Count() > _maxPoints)
+                        if (_aggregatedData.Count() > _maxPoints)
                         {
-                            var itemToRemove = _aggregatedData.FirstOrDefault();
-                            if (itemToRemove is IDisposable disposableItem)
+                            T itemToRemove = _aggregatedData.First();
+                            // If 'itemToRemove' is disposable, dispose it before returning to the pool
+                            if (_objectPool == null && itemToRemove is IDisposable disposableItem)
                             {
                                 disposableItem.Dispose();
                             }
-                            _aggregatedData.RemoveAt(0);
 
+                            // Remove the item from the collection
+                            _aggregatedData.Remove(itemToRemove);
+
+                            // Return the removed item to the pool
+                            if (_objectPool != null)
+                                _objectPool.Return(itemToRemove);
+
+                            // Trigger any remove events or perform additional logic as required
                             OnRemoved?.Invoke(this, 0);
                         }
+
                         return true;
                     }
                 }
@@ -210,7 +240,7 @@ namespace VisualHFT.Helpers
                 return _aggregatedData.Max(selector);
         }
 
-        private TimeSpan GetAggregationSpan(AggregationLevel level)
+        public TimeSpan GetAggregationSpan(AggregationLevel level)
         {
             switch (level)
             {
@@ -222,6 +252,7 @@ namespace VisualHFT.Helpers
                 case AggregationLevel.S1: return TimeSpan.FromSeconds(1);
                 case AggregationLevel.S3: return TimeSpan.FromSeconds(3);
                 case AggregationLevel.S5: return TimeSpan.FromSeconds(5);
+                case AggregationLevel.D1: return TimeSpan.FromDays(1);
                 case AggregationLevel.Automatic: return TimeSpan.Zero; // Default behavior for Automatic. It will be recalculated.
                 default: throw new ArgumentException("Unsupported aggregation level", nameof(level));
             }
@@ -246,8 +277,10 @@ namespace VisualHFT.Helpers
                 return GetAggregationSpan(AggregationLevel.S1);
             else if (averageElapsed <= TimeSpan.FromSeconds(3))
                 return GetAggregationSpan(AggregationLevel.S3);
-            else
+            else if (averageElapsed <= TimeSpan.FromSeconds(5))
                 return GetAggregationSpan(AggregationLevel.S5);
+            else
+                return GetAggregationSpan(AggregationLevel.D1);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -256,6 +289,15 @@ namespace VisualHFT.Helpers
             {
                 if (disposing)
                 {
+                    if (_objectPool != null)
+                    {
+                        // Return all objects to the pool.
+                        foreach (var item in _aggregatedData)
+                        {
+                            _objectPool.Return(item);
+                        }
+                        _aggregatedData.Clear();
+                    }
                     if (_aggregatedData != null)
                         _aggregatedData.Clear();
                 }

@@ -113,7 +113,7 @@ namespace VisualHFT.Studies
             var newItem = new BaseStudyModel()
             {
                 Value = t2oRatio,
-                ValueFormatted = t2oRatio.ToString("N0"),
+                ValueFormatted = t2oRatio.ToString("N1"),
                 MarketMidPrice = _lastMarketMidPrice,
                 Timestamp = DateTime.Now,
             };

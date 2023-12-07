@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using VisualHFT.Commons.Model;
 
 namespace VisualHFT.Model
 {
-    public partial class BookItem : IEquatable<BookItem>, IEqualityComparer<BookItem>
+    public partial class BookItem : IEquatable<BookItem>, IEqualityComparer<BookItem>, IResettable
     {
 
         private string _Symbol;
@@ -61,6 +62,21 @@ namespace VisualHFT.Model
         public int GetHashCode(BookItem obj)
         {
             return obj.Price.GetHashCode();
+        }
+
+        public void Reset()
+        {
+            Symbol = "";
+            ProviderID = 0;
+            EntryID = "";
+            LayerName = "";
+            LocalTimeStamp = DateTime.MinValue;
+            ServerTimeStamp = DateTime.MinValue;
+            Price = 0;
+            Size = 0;
+            IsBid = false;
+            DecimalPlaces = 0;
+            ActiveSize = 0;
         }
 
         public int DecimalPlaces { get; set; }

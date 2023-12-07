@@ -28,6 +28,7 @@ namespace VisualHFT.Model
         private BookItem _bidTOP = null;
         private BookItem _askTOP = null;
         OrderFlowAnalysis lobMetrics = new OrderFlowAnalysis();
+        private readonly Commons.Pools.ObjectPool<BookItem> _cummObjectPool = new Commons.Pools.ObjectPool<BookItem>();
 
         public OrderBook() //emtpy constructor for JSON deserialization
         {
@@ -56,16 +57,12 @@ namespace VisualHFT.Model
             List<BookItem> outAdds;
             List<BookItem> outUpdates;
             List<BookItem> outRemoves;
-            /*outRemoves = inputExisting.Where(e => !inputNew.Any(i => i.Price == e.Price && i.Size == e.Size && i.ProviderID == e.ProviderID && i.Symbol == e.Symbol)).ToList();
-            outUpdates = inputNew.Where(e => inputExisting.Any(i => i.Size != e.Size && i.Price == e.Price && i.ProviderID == e.ProviderID && i.Symbol == e.Symbol)).ToList();
-            outAdds = inputNew.Where(e => !inputExisting.Any(i => i.Price == e.Price && i.Size == e.Size && i.ProviderID == e.ProviderID && i.Symbol == e.Symbol)).ToList();
-            return true;*/
 
             var existingSet = inputExisting; // new HashSet<BookItem>(inputExisting);
             var newSet = inputNew; // new HashSet<BookItem>(inputNew);
 
             outRemoves = inputExisting.Where(e => !newSet.Contains(e)).ToList();
-            outUpdates = inputNew.Where(e => existingSet.Contains(e) && e.Size != existingSet.First(i => i.Equals(e)).Size).ToList();
+            outUpdates = inputNew.Where(e => existingSet.Contains(e) && e.Size != existingSet.FirstOrDefault(i => i.Equals(e)).Size).ToList();
             outAdds = inputNew.Where(e => !existingSet.Contains(e)).ToList();
 
             foreach (var b in outRemoves)
@@ -116,12 +113,20 @@ namespace VisualHFT.Model
                         .OrderByDescending(x => x.Price.Value)
                     );
                 }
+
+                foreach (var item in _Cummulative_Bids)
+                    _cummObjectPool.Return(item);
                 _Cummulative_Bids.Clear();
+
                 double cumSize = 0;
                 foreach (var o in _Bids)
                 {
                     cumSize += o.Size.Value;
-                    _Cummulative_Bids.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = true });
+                    var _item = _cummObjectPool.Get();
+                    _item.Price = o.Price;
+                    _item.Size = cumSize;
+                    _item.IsBid = true;
+                    _Cummulative_Bids.Add(_item);
                 }
                 #endregion
 
@@ -133,12 +138,19 @@ namespace VisualHFT.Model
                         .OrderBy(x => x.Price.Value)
                     );
                 }
+
+                foreach (var item in _Cummulative_Asks)
+                    _cummObjectPool.Return(item);
                 _Cummulative_Asks.Clear();
                 cumSize = 0;
                 foreach (var o in _Asks)
                 {
                     cumSize += o.Size.Value;
-                    _Cummulative_Asks.Add(new BookItem() { Price = o.Price, Size = cumSize, IsBid = false });
+                    var _item = _cummObjectPool.Get();
+                    _item.Price = o.Price;
+                    _item.Size = cumSize;
+                    _item.IsBid = false;
+                    _Cummulative_Asks.Add(_item);
                 }
                 #endregion
 
@@ -232,7 +244,6 @@ namespace VisualHFT.Model
 
             target.LoadData(this.Asks, this.Bids);
         }
-
 
         public ReadOnlyCollection<BookItem> Asks
         {

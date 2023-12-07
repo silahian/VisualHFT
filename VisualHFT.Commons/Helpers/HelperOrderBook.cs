@@ -14,7 +14,6 @@ namespace VisualHFT.Helpers
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly Task _processingTask;
         private readonly object _lockObj = new object();
-        private readonly ObjectPool<OrderBook> orderBookPool = new ObjectPool<OrderBook>();
 
 
         // This timer will be used for performance monitoring
@@ -120,9 +119,7 @@ namespace VisualHFT.Helpers
         {
             foreach (var e in data)
             {
-                var pooledOrderBook = orderBookPool.Get();
-                e.CopyTo(pooledOrderBook);
-                _DataQueue.Add(pooledOrderBook);
+                _DataQueue.Add(e);
             }
         }
     }

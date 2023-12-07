@@ -35,7 +35,7 @@ namespace VisualHFT.Studies
         private double CONDITION3_SPREAD_INCREASE = 0;
 
         private decimal _resilienceValue;
-        private AggregatedCollection<double> _recentSpreads;
+        private List<double> _recentSpreads;
         private const int recentSpreadWindowSize = 50;
 
 
@@ -65,7 +65,7 @@ namespace VisualHFT.Studies
             HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
             HelperTrade.Instance.Subscribe(TRADES_OnDataReceived);
 
-            _recentSpreads = new AggregatedCollection<double>(AggregationLevel.None, recentSpreadWindowSize, null, null);
+            _recentSpreads = new List<double>();
             _largeTradeStopwatch = new Stopwatch();
 
         }
@@ -84,6 +84,8 @@ namespace VisualHFT.Studies
 
             // Update average spread
             _recentSpreads.Add(e.Spread);
+            if (_recentSpreads.Count > recentSpreadWindowSize)
+                _recentSpreads.RemoveAt(0);
 
 
             bool levelsHasBeenConsumed = false;
@@ -231,7 +233,7 @@ namespace VisualHFT.Studies
                 return false;
             }
 
-            var averageSpread = _recentSpreads.ToList().Average();
+            var averageSpread = _recentSpreads.Average();
             bool spreadCondition = currentOrderBook.Spread > averageSpread * (1 + SPREAD_INCREASED_BY);
 
             if (spreadCondition)

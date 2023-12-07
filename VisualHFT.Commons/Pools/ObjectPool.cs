@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.ObjectPool;
+using System.ComponentModel.DataAnnotations;
+using VisualHFT.Commons.Model;
 
 namespace VisualHFT.Commons.Pools
 {
@@ -18,7 +20,9 @@ namespace VisualHFT.Commons.Pools
 
         public void Return(T obj)
         {
-            _pool.Return(obj);            
+            (obj as IResettable)?.Reset();
+
+            _pool.Return(obj);
         }
     }
 

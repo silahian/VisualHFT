@@ -152,6 +152,8 @@ namespace VisualHFT.PluginManager
                         if (!type.IsAbstract && type.GetInterfaces().Contains(typeof(IPlugin)))
                         {
                             var plugin = Activator.CreateInstance(type) as IPlugin;
+                            if (string.IsNullOrEmpty(plugin.Name))
+                                continue;
                             ALL_PLUGINS.Add(plugin);
                             plugin.OnError += Plugin_OnError;
                             log.Info("Plugins: " + plugin.Name + " loaded OK.");

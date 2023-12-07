@@ -72,10 +72,10 @@ namespace VisualHFT.ViewModel
             HelperProvider.Instance.OnHeartBeatFail += PROVIDERS_OnHeartBeatFail;
             HelperCommon.ACTIVEORDERS.OnDataReceived += ACTIVEORDERS_OnDataReceived;
             HelperCommon.ACTIVEORDERS.OnDataRemoved += ACTIVEORDERS_OnDataRemoved;
-            
+
             HelperTrade.Instance.Subscribe(TRADES_OnDataReceived);
             HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
-            
+
 
             uiUpdater = new UIUpdater(uiUpdaterAction, 200);
             _providers = VisualHFT.ViewModel.Model.Provider.CreateObservableCollection();
@@ -285,14 +285,14 @@ namespace VisualHFT.ViewModel
                 if (_realTimePrices != null && tobAsk != null && tobBid != null)
                 {
                     DateTime maxDateIncoming = DateTime.Now;// Max(tobAsk.LocalTimeStamp, tobBid.LocalTimeStamp);
-                    var objToAdd = new PlotInfoPriceChart()
-                    {
-                        Date = maxDateIncoming,
-                        MidPrice = MidPoint,
-                        AskPrice = tobAsk.Price.Value,
-                        BidPrice = tobBid.Price.Value,
-                        Volume = tobAsk.Size.Value + tobBid.Size.Value
-                    };
+
+                    var objToAdd = _realTimePrices.GetObjectPool().Get();
+                    objToAdd.Date = maxDateIncoming;
+                    objToAdd.MidPrice = MidPoint;
+                    objToAdd.AskPrice = tobAsk.Price.Value;
+                    objToAdd.BidPrice = tobBid.Price.Value;
+                    objToAdd.Volume = tobAsk.Size.Value + tobBid.Size.Value;
+
 
                     if (HelperCommon.ACTIVEORDERS.Any(x => x.Value.ProviderId == _selectedProvider.ProviderCode && x.Value.Symbol == _selectedSymbol))
                     {
@@ -363,7 +363,12 @@ namespace VisualHFT.ViewModel
                     if (AskTOB != null && BidTOB != null && lastAddedFromPrice != null)
                     {
                         if (lastSpread == null || lastSpread.Date != lastAddedFromPrice.Date)
-                            _realTimeSpread.Add(new PlotInfoPriceChart() { Date = lastAddedFromPrice.Date, MidPrice = Spread });
+                        {
+                            var _spreadPlot = _realTimeSpread.GetObjectPool().Get();
+                            _spreadPlot.Date = lastAddedFromPrice.Date;
+                            _spreadPlot.MidPrice = Spread;
+                            _realTimeSpread.Add(_spreadPlot);
+                        }
                     }
                 }
                 #endregion

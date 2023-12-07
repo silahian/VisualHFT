@@ -6,7 +6,8 @@ public enum ePOSITIONSTATUS { NONE, SENT, NEW, CANCELED, REJECTED, PARTIALFILLED
 public enum eTIMEINFORCE { FOK, IOC, GTC };
 public enum eINFORMEDSTATUS { INFORMEDSTATUS_NONE, INFORMEDSTATUS_SENT, INFORMEDSTATUS_ACK };
 
-public enum eORDERSIDE {
+public enum eORDERSIDE
+{
     Buy,
     Sell,
     None
@@ -56,6 +57,9 @@ public enum AggregationLevel
 
     [Description("5 Seconds")]
     S5,
+
+    [Description("Daily")]
+    D1,
 
     [Description("Automatic Aggregation")]
     Automatic

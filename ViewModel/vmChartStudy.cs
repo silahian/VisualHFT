@@ -9,6 +9,8 @@ using VisualHFT.UserSettings;
 using VisualHFT.ViewModel;
 using System.Windows.Input;
 using OxyPlot;
+using VisualHFT.Commons.Pools;
+using Microsoft.Extensions.ObjectPool;
 
 namespace VisualHFT.ViewModels
 {
@@ -29,7 +31,6 @@ namespace VisualHFT.ViewModels
                 new Dictionary<IStudy, AggregatedCollection<BaseStudyModel>>();
 
         private readonly object _locker = new object();
-
 
         private int _MAX_ITEMS = 500;
         private UIUpdater uiUpdater;
@@ -87,7 +88,10 @@ namespace VisualHFT.ViewModels
 
             //need to link the incoming study with the _allDataSeries
             string key = ((IStudy)sender).TileTitle;
-            _allDataSeries[key].Item1.Add(new PlotInfo() { Date = e.Timestamp, Value = (double)e.Value });
+            var item = _allDataSeries[key].Item1.GetObjectPool().Get();
+            item.Date = e.Timestamp;
+            item.Value = (double)e.Value;
+            _allDataSeries[key].Item1.Add(item);
             _allDataSeries[key].Item2.ItemsSource = _allDataSeries[key].Item1.Select(x => new OxyPlot.DataPoint(x.Date.Ticks, x.Value));
 
 
