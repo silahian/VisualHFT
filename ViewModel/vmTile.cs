@@ -19,6 +19,7 @@ namespace VisualHFT.ViewModel
         private bool _disposed = false; // to track whether the object has been disposed
         private string _tile_id;
         private string _value;
+        private string _valueToolTip;
         private string _title;
         private string _tooltip;
         private bool _isGroup;
@@ -51,6 +52,7 @@ namespace VisualHFT.ViewModel
             _title = _multiStudy.TileTitle;
             _tooltip = _multiStudy.TileToolTip;
             _value = ".";
+            _valueToolTip = "Waiting for data...";
 
             OpenSettingsCommand = new RelayCommand<vmTile>(OpenSettings);
             OpenChartCommand = new RelayCommand<vmTile>(OpenChartClick);
@@ -74,6 +76,7 @@ namespace VisualHFT.ViewModel
             _title = _study.TileTitle;
             _tooltip = _study.TileToolTip;
             _value = ".";
+            _valueToolTip = "Waiting for data...";
 
             _study.OnCalculated += _study_OnCalculated;
 
@@ -94,6 +97,13 @@ namespace VisualHFT.ViewModel
         private void _study_OnCalculated(object? sender, BaseStudyModel e)
         {
             _value = e.ValueFormatted;
+            if (_value == ".")
+                _valueToolTip = "Waiting for data...";
+            else if (!string.IsNullOrEmpty(e.Tooltip))
+                _valueToolTip = e.Tooltip;
+            else
+                _valueToolTip = null;
+
             if (e.ValueColor != null)
             {
                 Application.Current.Dispatcher.Invoke(() =>
@@ -110,6 +120,7 @@ namespace VisualHFT.ViewModel
         private void uiUpdaterAction()
         {
             RaisePropertyChanged(nameof(Value));
+            RaisePropertyChanged(nameof(ValueTooltip));
             RaisePropertyChanged(nameof(ValueColor));
         }
         public void UpdateAllUI()
@@ -123,6 +134,7 @@ namespace VisualHFT.ViewModel
         public ICommand OpenChartCommand { get; private set; }
 
         public string Value { get => _value; }
+        public string ValueTooltip { get => _valueToolTip; }
         public SolidColorBrush ValueColor { get => _valueColor; }
         public string Title { get => _title; set => SetProperty(ref _title, value); }
         public string Tooltip { get => _tooltip; set => SetProperty(ref _tooltip, value); }

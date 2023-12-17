@@ -39,5 +39,6 @@ namespace VisualHFT.Model
             get => _marketMidPrice;
             set => _marketMidPrice = value;
         }
+        public string Tooltip { get; set; }
     }
 }

@@ -38,7 +38,7 @@ namespace VisualHFT.Helpers
             _aggregatedData = new CachedCollection<T>(items);
             _maxPoints = maxItems;
             _level = level;
-            _aggregationSpan = GetAggregationSpan(level);
+            _aggregationSpan = level.ToTimeSpan();
             _dynamicAggregationSpan = _aggregationSpan; // Initialize with the same value
             _dateSelector = dateSelector;
             _aggregator = aggregator;
@@ -91,7 +91,7 @@ namespace VisualHFT.Helpers
                     T existingBucket = default(T);
 
                     // If AggregationLevel is set to Automatic, adjust the dynamic aggregation span based on recent data frequency.
-                    if (_aggregationSpan == GetAggregationSpan(AggregationLevel.Automatic))
+                    if (_aggregationSpan == AggregationLevel.Automatic.ToTimeSpan())
                     {
                         _dynamicAggregationSpan = CalculateAutomaticAggregationSpan(itemDate);
                         if (_dynamicAggregationSpan.Ticks > 0)
@@ -240,23 +240,7 @@ namespace VisualHFT.Helpers
                 return _aggregatedData.Max(selector);
         }
 
-        public TimeSpan GetAggregationSpan(AggregationLevel level)
-        {
-            switch (level)
-            {
-                case AggregationLevel.None: return TimeSpan.Zero;
-                case AggregationLevel.Ms1: return TimeSpan.FromMilliseconds(1);
-                case AggregationLevel.Ms10: return TimeSpan.FromMilliseconds(10);
-                case AggregationLevel.Ms100: return TimeSpan.FromMilliseconds(100);
-                case AggregationLevel.Ms500: return TimeSpan.FromMilliseconds(500);
-                case AggregationLevel.S1: return TimeSpan.FromSeconds(1);
-                case AggregationLevel.S3: return TimeSpan.FromSeconds(3);
-                case AggregationLevel.S5: return TimeSpan.FromSeconds(5);
-                case AggregationLevel.D1: return TimeSpan.FromDays(1);
-                case AggregationLevel.Automatic: return TimeSpan.Zero; // Default behavior for Automatic. It will be recalculated.
-                default: throw new ArgumentException("Unsupported aggregation level", nameof(level));
-            }
-        }
+
         private TimeSpan CalculateAutomaticAggregationSpan(DateTime currentItemDate)
         {
             if (_aggregatedData.Count() < WINDOW_SIZE)
@@ -265,22 +249,23 @@ namespace VisualHFT.Helpers
             var averageElapsed = new TimeSpan((currentItemDate - lastItemDate).Ticks / WINDOW_SIZE);
             lastItemDate = currentItemDate;
 
+
             if (averageElapsed <= TimeSpan.FromMilliseconds(1))
-                return GetAggregationSpan(AggregationLevel.Ms1);
+                return AggregationLevel.Ms1.ToTimeSpan();
             else if (averageElapsed <= TimeSpan.FromMilliseconds(10))
-                return GetAggregationSpan(AggregationLevel.Ms10);
+                return AggregationLevel.Ms10.ToTimeSpan();
             else if (averageElapsed <= TimeSpan.FromMilliseconds(100))
-                return GetAggregationSpan(AggregationLevel.Ms100);
+                return AggregationLevel.Ms100.ToTimeSpan();
             else if (averageElapsed <= TimeSpan.FromMilliseconds(500))
-                return GetAggregationSpan(AggregationLevel.Ms500);
+                return AggregationLevel.Ms500.ToTimeSpan();
             else if (averageElapsed <= TimeSpan.FromSeconds(1))
-                return GetAggregationSpan(AggregationLevel.S1);
+                return AggregationLevel.S1.ToTimeSpan();
             else if (averageElapsed <= TimeSpan.FromSeconds(3))
-                return GetAggregationSpan(AggregationLevel.S3);
+                return AggregationLevel.S3.ToTimeSpan();
             else if (averageElapsed <= TimeSpan.FromSeconds(5))
-                return GetAggregationSpan(AggregationLevel.S5);
+                return AggregationLevel.S5.ToTimeSpan();
             else
-                return GetAggregationSpan(AggregationLevel.D1);
+                return AggregationLevel.D1.ToTimeSpan( );
         }
 
         protected virtual void Dispose(bool disposing)

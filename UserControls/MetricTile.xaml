@@ -36,7 +36,7 @@
                 <TextBox Visibility="Collapsed" Text="{Binding Tooltip, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_TextChanged" />
 
                 <Viewbox Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform">
-                    <TextBlock Text="{Binding Value}" Foreground="{Binding ValueColor}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2 0 2 0"/>
+                    <TextBlock Text="{Binding Value}" Foreground="{Binding ValueColor}" ToolTip="{Binding ValueTooltip}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2 0 2 0"/>
                 </Viewbox>
 
                 <StackPanel Orientation="Vertical" Grid.Row="1">

@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using VisualHFT.Commons.PluginManager;
-using VisualHFT.Commons.Pools;
 using VisualHFT.Helpers;
 using VisualHFT.Model;
 using VisualHFT.PluginManager;
@@ -34,7 +31,7 @@ namespace VisualHFT.Studies
         private bool CONDITION2_LEVELS_CONSUMED_AT_BID;
         private double CONDITION3_SPREAD_INCREASE = 0;
 
-        private decimal _resilienceValue;
+        private decimal? _resilienceValue;
         private List<double> _recentSpreads;
         private const int recentSpreadWindowSize = 50;
 
@@ -45,6 +42,7 @@ namespace VisualHFT.Studies
         public override event EventHandler<decimal> OnAlertTriggered;
         public override event EventHandler<BaseStudyModel> OnCalculated;
         public override event EventHandler<ErrorEventArgs> OnError;
+        public event EventHandler<(BaseStudyModel model, eLOBSIDE recoverySide)> OnTradeRecovered;
 
         public override string Name { get; set; } = "Market Resiliecence Study Plugin";
         public override string Version { get; set; } = "1.0.0";
@@ -94,7 +92,11 @@ namespace VisualHFT.Studies
             {
                 levelsHasBeenConsumed = PostTradeLOBLevelsConsumed(e);
                 spreadHasBeenWiden = PostTradeLOBSpreadIsIncreased(e);
-
+                // If large trade detected, start resilience calculation
+                if (levelsHasBeenConsumed && spreadHasBeenWiden)
+                {
+                    _largeTradeStopwatch = Stopwatch.StartNew();    // Capture the time of the large trade
+                }
                 _previousOrderBook = (OrderBook)e.Clone();
             }
             else
@@ -102,12 +104,6 @@ namespace VisualHFT.Studies
                 CalculateResilience(e);
             }
             TriggerOnCalculatedEvent(e);
-
-            // If large trade detected, start resilience calculation
-            if (levelsHasBeenConsumed && spreadHasBeenWiden)
-            {
-                _largeTradeStopwatch = Stopwatch.StartNew();    // Capture the time of the large trade
-            }
         }
         private void TRADES_OnDataReceived(Trade e)
         {
@@ -128,6 +124,9 @@ namespace VisualHFT.Studies
                 TimeSpan timeSinceLargeTrade = _largeTradeStopwatch.Elapsed;
                 _resilienceValue = CalculateResilienceValue(timeSinceLargeTrade, currentOrderBook);
 
+                TriggerOnTradeRecovered(currentOrderBook); // this will invoke when the trade has been recovered.
+                                                            // It can be used for other metrics: for example, Market Resillience Bias
+
 
                 ResetPreTradeState();
             }
@@ -144,36 +143,55 @@ namespace VisualHFT.Studies
 
             // Create an instance of BookItem to use its comparison logic
             BookItem comparer = new BookItem();
+            bool bookHasPriceRecovered = false;
+
 
             // Check if the prices of the levels have recovered
-            bool asksHaveRecoveredPrice =
-                // Scenario 1: Levels have shifted up but count is maintained
-                currentOrderBook.Asks.Take(LEVELS_TO_CONSUME).SequenceEqual(_previousOrderBook.Asks.Skip(LEVELS_TO_CONSUME).Take(LEVELS_TO_CONSUME), comparer) ||
-                // Scenario 2: Levels have jumped significantly
-                !currentOrderBook.Asks.Take(LEVELS_TO_CONSUME).Any(ask => _previousOrderBook.Asks.Any(a => comparer.Equals(a, ask))) ||
-                // Scenario 3: Levels have returned to their original state
-                currentOrderBook.Asks.Take(LEVELS_TO_CONSUME).SequenceEqual(_previousOrderBook.Asks.Take(LEVELS_TO_CONSUME), comparer);
-
-            return asksHaveRecoveredCount && bidsHaveRecoveredCount && spreadRecovered && asksHaveRecoveredPrice;
+            if (!CONDITION2_LEVELS_CONSUMED_AT_BID)
+            {
+                bookHasPriceRecovered =
+                    // Scenario 1: Levels have shifted up but count is maintained
+                    currentOrderBook.Asks.Take(LEVELS_TO_CONSUME).SequenceEqual(_previousOrderBook.Asks.Skip(LEVELS_TO_CONSUME).Take(LEVELS_TO_CONSUME), comparer) ||
+                    // Scenario 2: Levels have jumped significantly
+                    !currentOrderBook.Asks.Take(LEVELS_TO_CONSUME).Any(ask => _previousOrderBook.Asks.Any(a => comparer.Equals(a, ask))) ||
+                    // Scenario 3: Levels have returned to their original state
+                    currentOrderBook.Asks.Take(LEVELS_TO_CONSUME).SequenceEqual(_previousOrderBook.Asks.Take(LEVELS_TO_CONSUME), comparer);
+            }
+            else
+            {
+                bookHasPriceRecovered =
+                    // Scenario 1: Levels have shifted up but count is maintained
+                    currentOrderBook.Bids.Take(LEVELS_TO_CONSUME).SequenceEqual(_previousOrderBook.Bids.Skip(LEVELS_TO_CONSUME).Take(LEVELS_TO_CONSUME), comparer) ||
+                    // Scenario 2: Levels have jumped significantly
+                    !currentOrderBook.Bids.Take(LEVELS_TO_CONSUME).Any(bid => _previousOrderBook.Bids.Any(a => comparer.Equals(a, bid))) ||
+                    // Scenario 3: Levels have returned to their original state
+                    currentOrderBook.Bids.Take(LEVELS_TO_CONSUME).SequenceEqual(_previousOrderBook.Bids.Take(LEVELS_TO_CONSUME), comparer);
+            }
+            return asksHaveRecoveredCount && bidsHaveRecoveredCount && spreadRecovered && bookHasPriceRecovered;
         }
         private decimal CalculateResilienceValue(TimeSpan timeSinceLargeTrade, OrderBook currentOrderBook)
         {
-            // Define a threshold for maximum acceptable recovery time (e.g., 1 minutes)
+            // Define a threshold for maximum acceptable recovery time (e.g., timeframe set by user settings)            
             TimeSpan maxRecoveryTime = TimeSpan.FromMinutes(1);
+            if (_settings != null)
+                maxRecoveryTime = _settings.AggregationLevel.ToTimeSpan();
 
             // Calculate normalized time recovery
-            double normalizedTimeRecovery = 1 - (timeSinceLargeTrade.TotalSeconds / maxRecoveryTime.TotalSeconds);
-            normalizedTimeRecovery = Math.Max(0, normalizedTimeRecovery); // Ensure it's not negative
+            double normalizedTimeRecovery = 1.00 - (timeSinceLargeTrade.TotalMicroseconds / maxRecoveryTime.TotalMicroseconds);
+            normalizedTimeRecovery = Math.Max(0.0, normalizedTimeRecovery); // Ensure it's not negative
 
             // Calculate normalized depth recovery (as previously discussed)
             double normalizedSpreadRecovery = (_previousOrderBook.Spread - currentOrderBook.Spread) / _previousOrderBook.Spread;
             double normalizedDepthRecovery = (double)(currentOrderBook.Asks.Count + currentOrderBook.Bids.Count) / (_previousOrderBook.Asks.Count + _previousOrderBook.Bids.Count);
 
             // Weighted average of the metrics
-            double weightTime = 0.7; // Assign a weight to time recovery (can be adjusted)
-            double weightDepth = 0.3; // Assign a weight to depth recovery (can be adjusted)
+            double weightTime = 0.5; // Assign a weight to time recovery (can be adjusted)
+            double weightDepth = 0.2; // Assign a weight to depth recovery (can be adjusted)
+            double weightSpread = 0.3;
 
-            decimal resilienceValue = (decimal)(weightTime * normalizedTimeRecovery + weightDepth * normalizedDepthRecovery);
+            decimal resilienceValue = (decimal)(weightTime * normalizedTimeRecovery
+                + weightDepth * normalizedDepthRecovery
+                + weightSpread * normalizedSpreadRecovery);
 
             return resilienceValue;
         }
@@ -181,14 +199,29 @@ namespace VisualHFT.Studies
         {
             var newItem = new BaseStudyModel()
             {
-                Value = _resilienceValue,
-                ValueFormatted = _resilienceValue.ToString("N1"),
+                Value = _resilienceValue.HasValue? _resilienceValue.Value : 0,
+                ValueFormatted = _resilienceValue.HasValue ? _resilienceValue.Value.ToString("N1") : ".",
+                Tooltip = _resilienceValue.HasValue ? "" :"Waiting for data...",
                 Timestamp = DateTime.Now,
                 MarketMidPrice = (decimal)currentOrderBook.MidPrice
             };
             OnCalculated?.Invoke(this, newItem);
         }
-        private void ResetPreTradeState()
+        private void TriggerOnTradeRecovered(OrderBook currentOrderBook)
+        {
+            var newItem = new BaseStudyModel()
+            {
+                Value = _resilienceValue.HasValue ? _resilienceValue.Value : 0,
+                ValueFormatted = _resilienceValue.HasValue ? _resilienceValue.Value.ToString("N1") : ".",
+                Tooltip = _resilienceValue.HasValue ? "" : "Waiting for data...",
+                Timestamp = DateTime.Now,
+                MarketMidPrice = (decimal)currentOrderBook.MidPrice
+            };
+            OnTradeRecovered?.Invoke(this, (newItem, CONDITION2_LEVELS_CONSUMED_AT_BID? eLOBSIDE.BID : eLOBSIDE.ASK));
+        }
+
+
+        public void ResetPreTradeState()
         {
             _previousOrderBook = null;
             CONDITION1_LEVELS_CONSUMED = null;
@@ -205,11 +238,11 @@ namespace VisualHFT.Studies
 
             int consumedAskLevels = _previousOrderBook.Asks
                 .Take(LEVELS_TO_CONSUME)
-                .Count(ask => !currentOrderBook.Asks.Any(a => a.Price == ask.Price));
+                .Count(ask => !currentOrderBook.Asks.Any(a => a.Price <= ask.Price));
 
             int consumedBidLevels = _previousOrderBook.Bids
                 .Take(LEVELS_TO_CONSUME)
-                .Count(bid => !currentOrderBook.Bids.Any(b => b.Price == bid.Price));
+                .Count(bid => !currentOrderBook.Bids.Any(b => b.Price >= bid.Price));
 
             if (consumedAskLevels >= LEVELS_TO_CONSUME)
             {
@@ -288,7 +321,7 @@ namespace VisualHFT.Studies
             {
                 Symbol = "",
                 Provider = new Provider(),
-                AggregationLevel = AggregationLevel.Automatic
+                AggregationLevel = AggregationLevel.Ms500
             };
             SaveToUserSettings(_settings);
         }
@@ -308,6 +341,8 @@ namespace VisualHFT.Studies
 
                 SaveSettings();
 
+                //reset 
+                _resilienceValue = null;
             };
             // Display the view, perhaps in a dialog or a new window.
             view.DataContext = viewModel;

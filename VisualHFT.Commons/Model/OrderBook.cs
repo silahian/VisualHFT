@@ -263,7 +263,17 @@ namespace VisualHFT.Model
         {
             get { lock (LOCK_OBJECT) return _Cummulative_Asks.ToList().AsReadOnly(); }
         }
-
+        public void PrintLOB(bool isBid)
+        {
+            lock (LOCK_OBJECT)
+            {
+                int _level = 0;
+                foreach(var item in isBid? _Bids: _Asks) {
+                    Console.WriteLine($"{_level} - {item.FormattedPrice} [{item.Size}]");
+                    _level++;
+                }
+            }
+        }
         public string Symbol { get => _Symbol; set => _Symbol = value; }
         public int DecimalPlaces { get => _DecimalPlaces; set => _DecimalPlaces = value; }
         public double SymbolMultiplier { get => _SymbolMultiplier; set => _SymbolMultiplier = value; }
