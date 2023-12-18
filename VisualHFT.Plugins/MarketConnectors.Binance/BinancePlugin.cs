@@ -90,7 +90,7 @@ namespace MarketConnectors.Binance
                     _eventBuffers.Add(sym, new BlockingCollection<IBinanceEventOrderBook>());
                 }
 
-
+                await Task.Delay(1000);
                 await InitializeTradesAsync();
                 await InitializeDeltasAsync();
                 await Task.Delay(1000); // allow deltas to come in
