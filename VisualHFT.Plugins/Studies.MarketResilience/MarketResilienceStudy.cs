@@ -123,9 +123,8 @@ namespace VisualHFT.Studies
             {
                 TimeSpan timeSinceLargeTrade = _largeTradeStopwatch.Elapsed;
                 _resilienceValue = CalculateResilienceValue(timeSinceLargeTrade, currentOrderBook);
-
                 TriggerOnTradeRecovered(currentOrderBook); // this will invoke when the trade has been recovered.
-                                                            // It can be used for other metrics: for example, Market Resillience Bias
+                                                           // It can be used for other metrics: for example, Market Resillience Bias
 
 
                 ResetPreTradeState();
@@ -167,7 +166,7 @@ namespace VisualHFT.Studies
                     // Scenario 3: Levels have returned to their original state
                     currentOrderBook.Bids.Take(LEVELS_TO_CONSUME).SequenceEqual(_previousOrderBook.Bids.Take(LEVELS_TO_CONSUME), comparer);
             }
-            return asksHaveRecoveredCount && bidsHaveRecoveredCount && spreadRecovered && bookHasPriceRecovered;
+            return bookHasPriceRecovered;
         }
         private decimal CalculateResilienceValue(TimeSpan timeSinceLargeTrade, OrderBook currentOrderBook)
         {
@@ -181,7 +180,7 @@ namespace VisualHFT.Studies
             normalizedTimeRecovery = Math.Max(0.0, normalizedTimeRecovery); // Ensure it's not negative
 
             // Calculate normalized depth recovery (as previously discussed)
-            double normalizedSpreadRecovery = (_previousOrderBook.Spread - currentOrderBook.Spread) / _previousOrderBook.Spread;
+            double normalizedSpreadRecovery = _previousOrderBook.Spread > 0 ? (_previousOrderBook.Spread - currentOrderBook.Spread) / _previousOrderBook.Spread : 0;
             double normalizedDepthRecovery = (double)(currentOrderBook.Asks.Count + currentOrderBook.Bids.Count) / (_previousOrderBook.Asks.Count + _previousOrderBook.Bids.Count);
 
             // Weighted average of the metrics
@@ -199,9 +198,9 @@ namespace VisualHFT.Studies
         {
             var newItem = new BaseStudyModel()
             {
-                Value = _resilienceValue.HasValue? _resilienceValue.Value : 0,
+                Value = _resilienceValue.HasValue ? _resilienceValue.Value : 0,
                 ValueFormatted = _resilienceValue.HasValue ? _resilienceValue.Value.ToString("N1") : ".",
-                Tooltip = _resilienceValue.HasValue ? "" :"Waiting for data...",
+                Tooltip = _resilienceValue.HasValue ? "" : "Waiting for data...",
                 Timestamp = DateTime.Now,
                 MarketMidPrice = (decimal)currentOrderBook.MidPrice
             };
@@ -217,7 +216,7 @@ namespace VisualHFT.Studies
                 Timestamp = DateTime.Now,
                 MarketMidPrice = (decimal)currentOrderBook.MidPrice
             };
-            OnTradeRecovered?.Invoke(this, (newItem, CONDITION2_LEVELS_CONSUMED_AT_BID? eLOBSIDE.BID : eLOBSIDE.ASK));
+            OnTradeRecovered?.Invoke(this, (newItem, CONDITION2_LEVELS_CONSUMED_AT_BID ? eLOBSIDE.BID : eLOBSIDE.ASK));
         }
 
 
