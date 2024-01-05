@@ -1,17 +1,12 @@
-﻿using NetMQ.Sockets;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.ServiceModel.Channels;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using VisualHFT.Commons.Studies;
 using VisualHFT.DataRetriever;
-using VisualHFT.UserSettings;
 
 namespace VisualHFT.PluginManager
 {
@@ -25,15 +20,17 @@ namespace VisualHFT.PluginManager
         {
             // 1. By default load all dll's in current Folder. 
             var pluginsDirectory = AppDomain.CurrentDomain.BaseDirectory; // This gets the directory where your WPF app is running
-            lock (_locker)
-                LoadPluginsByDirectory(pluginsDirectory);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                lock (_locker)
+                    LoadPluginsByDirectory(pluginsDirectory);
+            });
 
             // 3. Load Other Plugins in different folders
 
             // 4. If is Started, then Start
 
             // 5. If empty or Stopped. Do nothing.
-
         }
         public static List<IPlugin> AllPlugins { get { lock (_locker) return ALL_PLUGINS; } }
         public static bool AllPluginsReloaded { get; internal set; }
@@ -170,7 +167,6 @@ namespace VisualHFT.PluginManager
             }
 
         }
-
         private static void Plugin_OnError(object? sender, ErrorEventArgs e)
         {
             if (e.IsCritical)

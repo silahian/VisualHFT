@@ -135,6 +135,10 @@ namespace VisualHFT.Commons.PluginManager
             }
         }
         public abstract object GetUISettings(); //using object type because this csproj doesn't support UI
+        public virtual object GetCustomUI()
+        {
+            throw new NotImplementedException();
+        }
 
 
         #region Symbol Normalization functions

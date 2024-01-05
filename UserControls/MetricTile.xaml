@@ -27,7 +27,7 @@
         <Border BorderThickness="1" BorderBrush="White">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="150"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ToolTip>
@@ -35,7 +35,7 @@
                 </Grid.ToolTip>
                 <TextBox Visibility="Collapsed" Text="{Binding Tooltip, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_TextChanged" />
 
-                <Viewbox Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform">
+                <Viewbox Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Visibility="{Binding ValueVisibility}">
                     <TextBlock Text="{Binding Value}" Foreground="{Binding ValueColor}" ToolTip="{Binding ValueTooltip}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2 0 2 0"/>
                 </Viewbox>
 
@@ -58,3 +58,4 @@
         </Border>
     </Grid>
 </UserControl>
+

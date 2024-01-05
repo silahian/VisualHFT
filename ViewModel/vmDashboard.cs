@@ -7,6 +7,7 @@ using System.Linq;
 using VisualHFT.Commons.Studies;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Data;
 
 namespace VisualHFT.ViewModel
 {
@@ -50,14 +51,19 @@ namespace VisualHFT.ViewModel
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     //first, load single studies
-                    foreach (var study in PluginManager.PluginManager.AllPlugins.Where(x => x is IStudy))
+                    foreach (var study in PluginManager.PluginManager.AllPlugins.Where(x => x is IStudy && x.GetCustomUI() == null))
                     {
                         Tiles.Add(new vmTile(study as IStudy));
                     }
                     //then, load multi-studies
-                    foreach (var study in PluginManager.PluginManager.AllPlugins.Where(x => x is IMultiStudy))
+                    foreach (var study in PluginManager.PluginManager.AllPlugins.Where(x => x is IMultiStudy && x.GetCustomUI() == null))
                     {
                         Tiles.Add(new vmTile(study as IMultiStudy));
+                    }
+                    //then, load custom UIs
+                    foreach (var study in PluginManager.PluginManager.AllPlugins.Where(x => x is PluginManager.IPlugin && x.GetCustomUI() != null))
+                    {
+                        Tiles.Add(new vmTile(study as PluginManager.IPlugin));
                     }
                 });
             }

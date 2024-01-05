@@ -10,7 +10,7 @@ using System.Windows.Media;
 using VisualHFT.Commons.Studies;
 using VisualHFT.View;
 using System.Collections.ObjectModel;
-using QuickFix.Fields;
+using System.Windows.Controls;
 
 namespace VisualHFT.ViewModel
 {
@@ -23,20 +23,47 @@ namespace VisualHFT.ViewModel
         private string _title;
         private string _tooltip;
         private bool _isGroup;
+        private bool _isUserControl;
         private UIUpdater uiUpdater;
         private System.Windows.Visibility _settingButtonVisibility;
         private System.Windows.Visibility _chartButtonVisibility;
+        private System.Windows.Visibility _valueVisibility = Visibility.Visible;
+        private System.Windows.Visibility _ucVisibility = Visibility.Hidden;
 
         //*********************************************************
         //*********************************************************
         private IStudy _study;
         private IMultiStudy _multiStudy;
+        private PluginManager.IPlugin _plugin;
         //*********************************************************
         //*********************************************************
 
         private TileSettings _settings;
         private SolidColorBrush _valueColor = Brushes.White;
+        private UserControl _customControl;
 
+        public vmTile(PluginManager.IPlugin plugin)
+        {
+            _plugin = plugin;
+            _customControl = _plugin.GetCustomUI() as UserControl;
+            IsUserControl = _customControl != null;
+
+            _tile_id = _plugin.GetPluginUniqueID();
+            Title = _plugin.Name;
+            Tooltip = _plugin.Description;
+            if (IsUserControl)
+            {
+                IsGroup = true;
+                ValueVisibility = Visibility.Hidden;
+                UCVisibility = Visibility.Visible;
+                ChartButtonVisibility = Visibility.Hidden;
+                SettingButtonVisibility = Visibility.Visible;
+                ChartButtonVisibility = Visibility.Hidden;
+
+                OpenSettingsCommand = new RelayCommand<vmTile>(OpenSettings);
+            }
+
+        }
         public vmTile(IMultiStudy multiStudy)
         {
             IsGroup = true;
@@ -163,6 +190,8 @@ namespace VisualHFT.ViewModel
             }
         }
         public bool IsGroup { get => _isGroup; set => SetProperty(ref _isGroup, value); }
+        public bool IsUserControl { get => _isUserControl; set => SetProperty(ref _isUserControl, value); }
+
         public System.Windows.Visibility SettingButtonVisibility
         {
             get { return _settingButtonVisibility; }
@@ -173,7 +202,21 @@ namespace VisualHFT.ViewModel
             get { return _chartButtonVisibility; }
             set { SetProperty(ref _chartButtonVisibility, value); }
         }
-
+        public UserControl CustomControl
+        {
+            get => _customControl;
+            set => SetProperty(ref _customControl, value);
+        }
+        public System.Windows.Visibility UCVisibility
+        {
+            get { return _ucVisibility; }
+            set { SetProperty(ref _ucVisibility, value); }
+        }
+        public System.Windows.Visibility ValueVisibility
+        {
+            get { return _valueVisibility; }
+            set { SetProperty(ref _valueVisibility, value); }
+        }
         public ObservableCollection<vmTile> ChildTiles { get; set; }
 
         private void OpenChartClick(object obj)
@@ -202,6 +245,10 @@ namespace VisualHFT.ViewModel
                 {
                     child.UpdateAllUI();
                 }
+            }
+            else if (_plugin != null)
+            {
+                PluginManager.PluginManager.SettingPlugin(_plugin);
             }
             RaisePropertyChanged(nameof(SelectedSymbol));
             RaisePropertyChanged(nameof(SelectedProviderName));

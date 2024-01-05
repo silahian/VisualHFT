@@ -73,7 +73,7 @@
 
             <ScrollViewer VerticalAlignment="Stretch" Margin="10 0 0 20">
                 <StackPanel Orientation="Vertical" Margin="0" >
-                    <ItemsControl ItemsSource="{Binding Tiles}"  >
+                    <ItemsControl ItemsSource="{Binding Tiles}">
                         <ItemsControl.Resources>
                             <DataTemplate x:Key="MetricTileTemplate">
                                 <uc:MetricTile Width="150" Height="150" DataContext="{Binding}" Padding="10"/>
@@ -81,7 +81,9 @@
                             <DataTemplate x:Key="MetricTileGroupTemplate">
                                 <uc:MetricTileGroup DataContext="{Binding}" />
                             </DataTemplate>
-
+                            <DataTemplate x:Key="MetricTileUserControl">
+                                <uc:MetricTileCustomUI DataContext="{Binding}" Padding="10"/>
+                            </DataTemplate>
                         </ItemsControl.Resources>
 
                         <ItemsControl.ItemsPanel>
@@ -100,6 +102,9 @@
                                                 <!-- Conditional Template based on IsGroup -->
                                                 <DataTrigger Binding="{Binding IsGroup}" Value="True">
                                                     <Setter Property="ContentTemplate" Value="{StaticResource MetricTileGroupTemplate}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsUserControl}" Value="True">
+                                                    <Setter Property="ContentTemplate" Value="{StaticResource MetricTileUserControl}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>

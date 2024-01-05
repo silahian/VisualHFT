@@ -1,10 +1,5 @@
-﻿using log4net.Plugin;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using VisualHFT.Commons.Studies;
 using VisualHFT.Model;
 using VisualHFT.PluginManager;
@@ -12,7 +7,7 @@ using VisualHFT.UserSettings;
 
 namespace VisualHFT.Commons.PluginManager
 {
-    public abstract class BasePluginStudy: IStudy, VisualHFT.PluginManager.IPlugin, IDisposable
+    public abstract class BasePluginStudy : IStudy, VisualHFT.PluginManager.IPlugin, IDisposable
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         protected bool _disposed = false; // to track whether the object has been disposed
@@ -41,7 +36,7 @@ namespace VisualHFT.Commons.PluginManager
         public abstract Action CloseSettingWindow { get; set; }
         public abstract string TileTitle { get; set; }
         public abstract string TileToolTip { get; set; }
-        
+
 
         protected abstract void LoadSettings();
         protected abstract void SaveSettings();
@@ -95,6 +90,10 @@ namespace VisualHFT.Commons.PluginManager
             }
         }
         public abstract object GetUISettings(); //using object type because this csproj doesn't support UI
+        public virtual object GetCustomUI()
+        {
+            throw new NotImplementedException();
+        }
 
         protected virtual void Dispose(bool disposing)
         {
