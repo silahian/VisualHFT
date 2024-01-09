@@ -77,3 +77,4 @@ public enum PositionManagerCalculationMethod
     FIFO,
     LIFO
 }
+public enum eMDUpdateAction { New, Change, Delete }
