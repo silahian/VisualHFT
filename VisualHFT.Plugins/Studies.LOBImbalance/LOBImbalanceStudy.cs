@@ -64,7 +64,7 @@ namespace VisualHFT.Studies
             var newItem = new BaseStudyModel();
             newItem.Value = (decimal)_orderBook.ImbalanceValue;
             newItem.ValueFormatted = _orderBook.ImbalanceValue.ToString("N1");
-            newItem.Timestamp = DateTime.Now;
+            newItem.Timestamp = HelperTimeProvider.Now;
             newItem.MarketMidPrice = (decimal)_orderBook.MidPrice;
             OnCalculated?.Invoke(this, newItem);
         }

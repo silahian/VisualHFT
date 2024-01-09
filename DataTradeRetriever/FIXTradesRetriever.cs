@@ -180,7 +180,7 @@ namespace VisualHFT.DataTradeRetriever
                         order.ProviderId = _providerId;
                         order.ProviderName = _providerName;
                         order.Executions = new List<VisualHFT.Model.Execution>();
-                        order.LastUpdated = System.DateTime.Now;
+                        order.LastUpdated = HelperTimeProvider.Now;
                         parsedOrders.Add(order.ClOrdId, order);
                     }
                     else if (dicFIX[Tags.MsgType] == MsgType.ORDER_CANCEL_REPLACE_REQUEST)
@@ -203,7 +203,7 @@ namespace VisualHFT.DataTradeRetriever
                             exec.Side = (int)order.Side;
                             exec.Price = 0;
                             exec.QtyFilled = 0;
-                            order.LastUpdated = System.DateTime.Now;
+                            order.LastUpdated = HelperTimeProvider.Now;
                             order.Executions.Add(new VisualHFT.Model.Execution(exec, order.Symbol));
                         }
                         else
@@ -238,7 +238,7 @@ namespace VisualHFT.DataTradeRetriever
                             order.Executions.Add(new Execution(exec, order.Symbol));
 
                             order.Status = ParseOrderStatus(dicFIX[Tags.OrdStatus]);
-                            order.LastUpdated = System.DateTime.Now;
+                            order.LastUpdated = HelperTimeProvider.Now;
 
                             if (order.Status == eORDERSTATUS.REPLACED)
                             {                                

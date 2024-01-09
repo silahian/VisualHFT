@@ -77,7 +77,7 @@ namespace VisualHFT.Studies
                 Value = _valueBias,
                 ValueFormatted = _valueFormatted,
                 ValueColor = _valueColor,
-                Timestamp = DateTime.Now,
+                Timestamp = HelperTimeProvider.Now,
                 MarketMidPrice = e.model.MarketMidPrice
             };
 

@@ -151,7 +151,7 @@ namespace VisualHFT.ViewModel
             _latesPrice[e.ProviderID] = e.MidPrice;
             foreach (var key in _allDataSeries.Keys)
             {
-                _allDataSeries[key].Item1.Add(new PlotInfo() { Date = DateTime.Now, Value = _latesPrice[key] });
+                _allDataSeries[key].Item1.Add(new PlotInfo() { Date = HelperTimeProvider.Now, Value = _latesPrice[key] });
                 _allDataSeries[key].Item2.ItemsSource = _allDataSeries[key].Item1.Select(x => new OxyPlot.DataPoint(x.Date.Ticks, x.Value));
             }
         }

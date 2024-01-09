@@ -63,7 +63,7 @@ namespace VisualHFT.DataRetriever
 
 
 
-            var provider = new VisualHFT.ViewModel.Model.Provider() { LastUpdated = DateTime.Now, ProviderID = 1, ProviderName = "ZeroMQ", Status = eSESSIONSTATUS.BOTH_CONNECTED };
+            var provider = new VisualHFT.ViewModel.Model.Provider() { LastUpdated = HelperTimeProvider.Now, ProviderID = 1, ProviderName = "ZeroMQ", Status = eSESSIONSTATUS.BOTH_CONNECTED };
             // Raise the OnDataReceived event
             OnDataReceived?.Invoke(this, new DataEventArgs { DataType = "HeartBeats", RawData = message, ParsedModel = model });
 

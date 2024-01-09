@@ -100,7 +100,7 @@ namespace VisualHFT.Model
             GetQuantity = order.GetQuantity;
 
 
-            LastUpdated = DateTime.Now;
+            LastUpdated = HelperTimeProvider.Now;
         }
 
         public double PendingQuantity => Quantity - FilledQuantity;

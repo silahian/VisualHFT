@@ -26,7 +26,7 @@ namespace VisualHFT.Helpers
         {
             foreach (var x in this)
             {
-                if (DateTime.Now.Subtract(x.Value.LastUpdated).TotalMilliseconds > _MILLISECONDS_HEART_BEAT)
+                if (HelperTimeProvider.Now.Subtract(x.Value.LastUpdated).TotalMilliseconds > _MILLISECONDS_HEART_BEAT)
                 {
                     x.Value.Status = eSESSIONSTATUS.BOTH_DISCONNECTED;
                     OnHeartBeatFail?.Invoke(this, x.Value);
@@ -68,12 +68,12 @@ namespace VisualHFT.Helpers
                 //Check provider
                 if (!this.ContainsKey(provider.ProviderCode))
                 {
-                    provider.LastUpdated = DateTime.Now;
+                    provider.LastUpdated = HelperTimeProvider.Now;
                     return this.TryAdd(provider.ProviderCode, provider);
                 }
                 else
                 {
-                    this[provider.ProviderCode].LastUpdated = DateTime.Now;
+                    this[provider.ProviderCode].LastUpdated = HelperTimeProvider.Now;
                     this[provider.ProviderCode].Status = provider.Status;
                     this[provider.ProviderCode].Plugin = provider.Plugin;
                     if (provider.Status == eSESSIONSTATUS.BOTH_DISCONNECTED || provider.Status == eSESSIONSTATUS.PRICE_DSICONNECTED_ORDER_CONNECTED)

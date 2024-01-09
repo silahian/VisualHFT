@@ -43,7 +43,7 @@ namespace VisualHFT.ViewModel
             this._dialogs = dialogs;
             PositionsManager = new ObservableCollection<PositionManager>();            
             FilterCommand = new RelayCommand<string>(OnFilterChanged);
-            this.SelectedDate = DateTime.Now; //new DateTime(2022, 10, 6); 
+            this.SelectedDate = HelperTimeProvider.Now; //new DateTime(2022, 10, 6); 
 
             lock (_locker)
             {

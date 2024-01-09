@@ -13,9 +13,9 @@ namespace VisualHFT.Helpers
     {
         public static DateTime GetCurrentSessionIni(DateTime? currentSessionDate)
         {
-            currentSessionDate = currentSessionDate.ToDate().AddHours(DateTime.Now.Hour).AddMinutes(DateTime.Now.Minute);
+            currentSessionDate = currentSessionDate.ToDate().AddHours(HelperTimeProvider.Now.Hour).AddMinutes(HelperTimeProvider.Now.Minute);
             if (!currentSessionDate.HasValue)
-                currentSessionDate = DateTime.Now;
+                currentSessionDate = HelperTimeProvider.Now;
             DateTime DateAt00 = currentSessionDate.ToDate();
             DateTime DateAt500PM = DateAt00.AddHours(17);
             DateTime DateAt530PM = DateAt00.AddHours(17).AddMinutes(30);
@@ -24,13 +24,13 @@ namespace VisualHFT.Helpers
             else if (currentSessionDate > DateAt00 && currentSessionDate < DateAt500PM)
                 return DateAt530PM.AddDays(-1);
             else
-                return DateTime.Now;
+                return HelperTimeProvider.Now;
         }
         public static DateTime GetCurrentSessionEnd(DateTime? currentSessionDate)
         {
-            currentSessionDate = currentSessionDate.ToDate().AddHours(DateTime.Now.Hour).AddMinutes(DateTime.Now.Minute);
+            currentSessionDate = currentSessionDate.ToDate().AddHours(HelperTimeProvider.Now.Hour).AddMinutes(HelperTimeProvider.Now.Minute);
             if (!currentSessionDate.HasValue)
-                currentSessionDate = DateTime.Now;
+                currentSessionDate = HelperTimeProvider.Now;
             DateTime DateAt00 = currentSessionDate.ToDate();
             DateTime DateAt500PM = DateAt00.AddHours(17);
             DateTime DateAt530PM = DateAt00.AddHours(17).AddMinutes(30);
@@ -39,7 +39,7 @@ namespace VisualHFT.Helpers
             else if (currentSessionDate > DateAt00 && currentSessionDate < DateAt500PM)
                 return DateAt500PM;
             else
-                return DateTime.Now;
+                return HelperTimeProvider.Now;
         }
         public static int TimerMillisecondsToGetVariables = 1000 * 10; //10 seconds
 

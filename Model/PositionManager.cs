@@ -44,7 +44,7 @@ namespace VisualHFT.Model
 
             PLRealized = CalculateRealizedPnL();
             PLTot = PLRealized + PLOpen;
-            LastUpdated = DateTime.Now;
+            LastUpdated = HelperTimeProvider.Now;
         }
         private List<VisualHFT.Model.Order> Buys {
             get => _buys;
@@ -149,7 +149,7 @@ namespace VisualHFT.Model
             PLRealized = CalculateRealizedPnL();
             PLOpen = CalculateOpenPnl();
             PLTot = _plRealized + _plOpen;
-            LastUpdated = DateTime.Now;
+            LastUpdated = HelperTimeProvider.Now;
             UpdateUI();
         }
         public void UpdateLastMidPrice(double newMidPrice)
@@ -158,7 +158,7 @@ namespace VisualHFT.Model
             PLOpen = CalculateOpenPnl();
             PLTot = _plRealized + _plOpen;
             UpdateUI();
-            LastUpdated = DateTime.Now;
+            LastUpdated = HelperTimeProvider.Now;
         }
     }
 }

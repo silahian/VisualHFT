@@ -284,7 +284,7 @@ namespace VisualHFT.ViewModel
                 #region REAL TIME PRICES
                 if (_realTimePrices != null && tobAsk != null && tobBid != null)
                 {
-                    DateTime maxDateIncoming = DateTime.Now;// Max(tobAsk.LocalTimeStamp, tobBid.LocalTimeStamp);
+                    DateTime maxDateIncoming = HelperTimeProvider.Now;// Max(tobAsk.LocalTimeStamp, tobBid.LocalTimeStamp);
 
                     var objToAdd = _realTimePrices.GetObjectPool().Get();
                     objToAdd.Date = maxDateIncoming;

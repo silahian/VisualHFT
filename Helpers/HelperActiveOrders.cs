@@ -80,7 +80,7 @@ namespace VisualHFT.Helpers
                 //Check provider
                 if (!this.ContainsKey(order.ClOrdId))
                 {
-                    order.CreationTimeStamp = DateTime.Now;
+                    order.CreationTimeStamp = HelperTimeProvider.Now;
                     return this.TryAdd(order.ClOrdId, order);
                 }
                 else

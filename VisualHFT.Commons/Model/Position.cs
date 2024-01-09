@@ -204,7 +204,7 @@
                 //*************o.TimeInForce = 
 
                 //o.UnrealizedPnL               
-                o.LastUpdated = System.DateTime.Now;
+                o.LastUpdated = HelperTimeProvider.Now;
                 o.FilledPercentage = 100 * (o.FilledQuantity / o.Quantity);
                 return o;
             }

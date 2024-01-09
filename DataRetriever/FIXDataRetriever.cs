@@ -170,8 +170,8 @@ namespace VisualHFT.DataRetriever
                     Size = size.ToDouble(),
                     IsBid = type == '0',
                     EntryID = entryId.ToString(),
-                    LocalTimeStamp = DateTime.Now,
-                    ServerTimeStamp = DateTime.Now,
+                    LocalTimeStamp = HelperTimeProvider.Now,
+                    ServerTimeStamp = HelperTimeProvider.Now,
                     DecimalPlaces = decimalPlaces.Value,
                     ProviderID = 12, //FXCM
                     Symbol = symbol,
@@ -202,7 +202,7 @@ namespace VisualHFT.DataRetriever
         }
         private void HandleHeartBeat()
         {
-            var provider = new VisualHFT.ViewModel.Model.Provider() { LastUpdated = DateTime.Now, ProviderCode = 12, ProviderID = 12, ProviderName = "FXCM", Status = eSESSIONSTATUS.BOTH_CONNECTED };
+            var provider = new VisualHFT.ViewModel.Model.Provider() { LastUpdated = HelperTimeProvider.Now, ProviderCode = 12, ProviderID = 12, ProviderName = "FXCM", Status = eSESSIONSTATUS.BOTH_CONNECTED };
             var model = new List<VisualHFT.ViewModel.Model.Provider>() { provider };
             // Raise an event or further process the data as needed
             OnDataReceived?.Invoke(this, new DataEventArgs { DataType = "HeartBeats", ParsedModel = model, RawData = "" });

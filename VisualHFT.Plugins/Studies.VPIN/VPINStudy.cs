@@ -147,7 +147,7 @@ namespace VisualHFT.Studies
             var newItem = new BaseStudyModel();
             newItem.Value = _lastVPIN;
             newItem.ValueFormatted = _lastVPIN.ToString("N1");
-            newItem.Timestamp = DateTime.Now;
+            newItem.Timestamp = HelperTimeProvider.Now;
             newItem.MarketMidPrice = _lastMarketMidPrice;
             OnCalculated?.Invoke(this, newItem);
         }

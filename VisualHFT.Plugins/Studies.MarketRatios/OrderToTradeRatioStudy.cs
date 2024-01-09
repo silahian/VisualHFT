@@ -115,7 +115,7 @@ namespace VisualHFT.Studies
                 Value = t2oRatio,
                 ValueFormatted = t2oRatio.ToString("N1"),
                 MarketMidPrice = _lastMarketMidPrice,
-                Timestamp = DateTime.Now,
+                Timestamp = HelperTimeProvider.Now,
             };
 
             OnCalculated?.Invoke(this, newItem);

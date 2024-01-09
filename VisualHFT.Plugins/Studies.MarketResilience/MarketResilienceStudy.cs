@@ -201,7 +201,7 @@ namespace VisualHFT.Studies
                 Value = _resilienceValue.HasValue ? _resilienceValue.Value : 0,
                 ValueFormatted = _resilienceValue.HasValue ? _resilienceValue.Value.ToString("N1") : ".",
                 Tooltip = _resilienceValue.HasValue ? "" : "Waiting for data...",
-                Timestamp = DateTime.Now,
+                Timestamp = HelperTimeProvider.Now,
                 MarketMidPrice = (decimal)currentOrderBook.MidPrice
             };
             OnCalculated?.Invoke(this, newItem);
@@ -213,7 +213,7 @@ namespace VisualHFT.Studies
                 Value = _resilienceValue.HasValue ? _resilienceValue.Value : 0,
                 ValueFormatted = _resilienceValue.HasValue ? _resilienceValue.Value.ToString("N1") : ".",
                 Tooltip = _resilienceValue.HasValue ? "" : "Waiting for data...",
-                Timestamp = DateTime.Now,
+                Timestamp = HelperTimeProvider.Now,
                 MarketMidPrice = (decimal)currentOrderBook.MidPrice
             };
             OnTradeRecovered?.Invoke(this, (newItem, CONDITION2_LEVELS_CONSUMED_AT_BID ? eLOBSIDE.BID : eLOBSIDE.ASK));
