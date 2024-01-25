@@ -47,7 +47,7 @@
                     </TextBlock.ToolTip>
             </TextBlock>
             </StackPanel>
-            <TextBox Text="{Binding DepthLevels, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Margin="0,5" />
+            <TextBox Text="{Binding BucketVolumeSize, ValidatesOnDataErrors=True}" Margin="0,5" />
 
 
 
@@ -57,9 +57,9 @@
                   SelectedValuePath="Item2" 
                   SelectedValue="{Binding AggregationLevelSelection}" 
                   FontSize="18"/>
-            
-            
-            
+
+
+
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10">
                 <Label Content="{Binding ValidationMessage}" Foreground="Red" HorizontalAlignment="Left" Margin="0 0 20 0" />
                 <Button Content="OK" Command="{Binding OkCommand}" Margin="0,0,5,0" Width="80" />

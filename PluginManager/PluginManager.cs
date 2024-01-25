@@ -42,7 +42,20 @@ namespace VisualHFT.PluginManager
                 if (ALL_PLUGINS.Count == 0) { return; }
                 foreach (var plugin in ALL_PLUGINS)
                 {
-                    StartPlugin(plugin);
+                    try
+                    {
+                        StartPlugin(plugin);
+                    }
+                    catch (Exception ex)
+                    {
+                        string msg = $"Plugin {plugin.Name} cannot be loaded: ";
+                        log.Error(msg, ex);
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            // Display popup message
+                            MessageBox.Show(msg + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                    }
                 }
             }
         }
@@ -55,7 +68,7 @@ namespace VisualHFT.PluginManager
                 {
                     if (plugin is IDataRetriever dataRetriever)
                     {
-                        //DATA RETRIEVER = WEBSOCKETS
+                        //DATA RETRIEVER
                         var processor = new VisualHFT.DataRetriever.DataProcessor(dataRetriever);
                         dataRetriever.StartAsync();
                     }
@@ -78,8 +91,6 @@ namespace VisualHFT.PluginManager
                 {
                     if (plugin is IDataRetriever dataRetriever)
                     {
-                        //DATA RETRIEVER = WEBSOCKETS
-                        var processor = new VisualHFT.DataRetriever.DataProcessor(dataRetriever);
                         dataRetriever.StopAsync();
                     }
                 }

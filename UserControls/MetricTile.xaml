@@ -14,7 +14,7 @@
             FontFamily="{StaticResource MaterialDesignFont}"
 
              
-             d:DesignHeight="150" d:DesignWidth="300">
+             d:DesignHeight="250" d:DesignWidth="300">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -27,7 +27,7 @@
         <Border BorderThickness="1" BorderBrush="White">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="150"/>
+                    <RowDefinition Height="70"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ToolTip>

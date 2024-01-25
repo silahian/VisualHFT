@@ -77,6 +77,23 @@ namespace VisualHFT.Helpers
                 return result;
             }
         }
+        public bool Remove(Func<T, bool> predicate)
+        {
+            lock (_lock)
+            {
+                T itemFound = _internalList.FirstOrDefault(predicate);
+                if (itemFound != null)
+                {
+                    var result = _internalList.Remove(itemFound);
+                    if (result)
+                    {
+                        _cachedReadOnlyCollection = null; // Invalidate the cache
+                    }
+                    return result;
+                }
+                return false;
+            }
+        }
         public void RemoveAt(int index)
         {
             lock (_lock)
@@ -103,6 +120,34 @@ namespace VisualHFT.Helpers
                     return _cachedReadOnlyCollection.ToList().GetEnumerator();
                 else
                     return _internalList.ToList().GetEnumerator(); // Create a copy to ensure thread safety during enumeration
+            }
+        }
+
+
+        public bool Update(Func<T, bool> predicate, Action<T> actionUpdate)
+        {
+            lock (_lock)
+            {
+                T itemFound = _internalList.FirstOrDefault(predicate);
+                if (itemFound != null)
+                {
+                    //execute actionUpdate
+                    actionUpdate(itemFound);
+                    InvalidateCache();
+                    return true;
+                }
+
+                return false;
+            }
+        }
+        public long IndexOf(T element)
+        {
+            lock (_lock)
+            {
+                if (_cachedReadOnlyCollection != null)
+                    return _cachedReadOnlyCollection.IndexOf(element);
+                else
+                    return _internalList.IndexOf(element);
             }
         }
         public void InvalidateCache()

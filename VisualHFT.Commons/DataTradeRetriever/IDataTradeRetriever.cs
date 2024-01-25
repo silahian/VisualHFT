@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using VisualHFT.Model;
 
 namespace VisualHFT.DataTradeRetriever
@@ -12,9 +7,13 @@ namespace VisualHFT.DataTradeRetriever
     {
         event EventHandler<IEnumerable<Order>> OnInitialLoad;
         event EventHandler<IEnumerable<Order>> OnDataReceived;
+        event EventHandler<Order> OnDataUpdated;
+
         DateTime? SessionDate { get; set; }
 
         ReadOnlyCollection<Order> Orders { get; }
         ReadOnlyCollection<Position> Positions { get; }
+
+        void AddOrder(Order? order);
     }
 }

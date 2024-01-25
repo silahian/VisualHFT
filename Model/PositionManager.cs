@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using VisualHFT.Helpers;
 using VisualHFT.ViewModel;
 
@@ -37,16 +38,26 @@ namespace VisualHFT.Model
             _sells = orders.Where(x => x.Side == eORDERSIDE.Sell).DefaultIfEmpty(new VisualHFT.Model.Order()).ToList();
 
             Symbol = orders.First().Symbol;
+
+            Recalculate();
+        }
+        private void Recalculate()
+        {
             TotBuy = _buys.Sum(x => x.FilledQuantity);
             TotSell = _sells.Sum(x => x.FilledQuantity);
-            WrkBuy = orders.Where(x => x.Side == eORDERSIDE.Buy).DefaultIfEmpty(new VisualHFT.Model.Order()).Sum(x => x.PendingQuantity);
-            WrkSell = orders.Where(x => x.Side == eORDERSIDE.Sell).DefaultIfEmpty(new VisualHFT.Model.Order()).Sum(x => x.PendingQuantity);
+
+            WrkBuy = _buys.Sum(x => x.PendingQuantity);
+            WrkSell = _sells.Sum(x => x.PendingQuantity);
 
             PLRealized = CalculateRealizedPnL();
+            PLOpen = CalculateOpenPnl();
             PLTot = PLRealized + PLOpen;
+
             LastUpdated = HelperTimeProvider.Now;
+
         }
-        private List<VisualHFT.Model.Order> Buys {
+        private List<VisualHFT.Model.Order> Buys
+        {
             get => _buys;
             set => SetProperty(ref _buys, value);
         }
@@ -54,7 +65,7 @@ namespace VisualHFT.Model
         {
             get => _sells;
             set => SetProperty(ref _sells, value);
-        }        
+        }
         private PositionManagerCalculationMethod Method
         {
             get => _method;
@@ -122,9 +133,9 @@ namespace VisualHFT.Model
         {
             return HelperPnLCalculator.CalculateRealizedPnL(_buys, _sells, _method);
         }
-        private  double CalculateOpenPnl()
+        private double CalculateOpenPnl()
         {
-             return HelperPnLCalculator.CalculateOpenPnL(_buys, _sells, _method, _currentMidPrice);
+            return HelperPnLCalculator.CalculateOpenPnL(_buys, _sells, _method, _currentMidPrice);
         }
         private void UpdateUI()
         {
@@ -135,21 +146,25 @@ namespace VisualHFT.Model
         {
             if (newOrder.Side == eORDERSIDE.Buy)
             {
-                Buys.Add(newOrder);
-                TotBuy += newOrder.FilledQuantity;
-                WrkBuy += newOrder.PendingQuantity;
+                if (_buys == null)
+                    _buys = new List<Order>();
+                var existingOrder = _buys.Where(x => x.OrderID == newOrder.OrderID).FirstOrDefault();
+                if (existingOrder == null)
+                    _buys.Add(newOrder);
+                else
+                    existingOrder = newOrder;
             }
             else
             {
-                Sells.Add(newOrder);
-                TotSell += newOrder.FilledQuantity;
-                WrkSell += newOrder.PendingQuantity;
+                if (_sells == null)
+                    _sells = new List<Order>();
+                var existingOrder = _sells.Where(x => x.OrderID == newOrder.OrderID).FirstOrDefault();
+                if (existingOrder == null)
+                    _sells.Add(newOrder);
+                else
+                    existingOrder = newOrder;
             }
-
-            PLRealized = CalculateRealizedPnL();
-            PLOpen = CalculateOpenPnl();
-            PLTot = _plRealized + _plOpen;
-            LastUpdated = HelperTimeProvider.Now;
+            Recalculate();
             UpdateUI();
         }
         public void UpdateLastMidPrice(double newMidPrice)

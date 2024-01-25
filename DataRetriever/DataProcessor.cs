@@ -25,11 +25,11 @@ namespace VisualHFT.DataRetriever
         public DataProcessor(IDataRetriever dataRetriever)
         {
             _dataRetriever = dataRetriever;
-            _dataRetriever.OnDataReceived += async (sender, e) => await EnqueueDataAsync(sender, e);
+            _dataRetriever.OnDataReceived += (sender, e) => EnqueueData(sender, e);
             StartProcessing();
         }
 
-        private async Task EnqueueDataAsync(object sender, DataEventArgs e)
+        private void EnqueueData(object sender, DataEventArgs e)
         {
             if (_dataQueue.Count < MAX_QUEUE_SIZE)
             {
@@ -37,7 +37,7 @@ namespace VisualHFT.DataRetriever
             }
             else
             {
-                await Task.Delay(BACK_PRESSURE_DELAY);
+                Task.Delay(BACK_PRESSURE_DELAY);
             }
         }
 
@@ -83,14 +83,14 @@ namespace VisualHFT.DataRetriever
                         ParseOrderBook(orderBook);
                     }
                     break;
-                case "ActiveOrders":
-                    ParseActiveOrders(e.ParsedModel as List<VisualHFT.Model.Order>);
+                case "ExecutedOrder":
+                    ParseExecutedOrder(e.ParsedModel as VisualHFT.Model.Order);
                     break;
+                //case "Execution":
+                //    ParseExecution(e.ParsedModel as VisualHFT.Model.Execution);
+                //    break;
                 case "Strategies":
                     ParseActiveStrategies(e.ParsedModel as List<StrategyVM>);
-                    break;
-                case "Exposures":
-                    ParseExposures(e.ParsedModel as List<Exposure>);
                     break;
                 case "HeartBeats":
                     ParseHeartBeat(e.ParsedModel as List<VisualHFT.Model.Provider>);
@@ -102,6 +102,10 @@ namespace VisualHFT.DataRetriever
                     break;
             }
         }
+        private void ParseExecutedOrder(Order? order)
+        {
+            HelperCommon.EXECUTEDORDERS.AddOrder(order);
+        }
         #region Parsing Methods        
         private void ParseSymbols(IEnumerable<string> symbols)
         {
@@ -110,15 +114,7 @@ namespace VisualHFT.DataRetriever
         private void ParseOrderBook(IEnumerable<OrderBook> orderBooks)
         {
             HelperOrderBook.Instance.UpdateData(orderBooks);
-            
-        }
-        private void ParseExposures(IEnumerable<Exposure> exposures)
-        {
-            HelperCommon.EXPOSURES.UpdateData(exposures);
-        }
-        private void ParseActiveOrders(IEnumerable<VisualHFT.Model.Order> activeOrders)
-        {
-            HelperCommon.ACTIVEORDERS.UpdateData(activeOrders.ToList());
+
         }
         private void ParseActiveStrategies(IEnumerable<StrategyVM> activeStrategies)
         {

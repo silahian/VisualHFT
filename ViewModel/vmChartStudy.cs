@@ -134,8 +134,8 @@ namespace VisualHFT.ViewModels
                 Key = "yAxe",
                 Position = OxyPlot.Axes.AxisPosition.Left,
                 Title = this.StudyAxisTitle,
-                TitleColor = OxyPlot.OxyColors.Blue,
-                TextColor = OxyPlot.OxyColors.Blue,
+                TitleColor = OxyPlot.OxyColors.Green,
+                TextColor = OxyPlot.OxyColors.Green,
                 StringFormat = "N2",
 
                 AxislineColor = OxyPlot.OxyColors.White,
@@ -178,7 +178,8 @@ namespace VisualHFT.ViewModels
                     DataFieldX = "Date",
                     DataFieldY = "Value",
                     Title = study.TileTitle,
-                    YAxisKey = "yAxe"
+                    YAxisKey = "yAxe",
+                    Color = OxyColors.Green
                 };
 
                 _allDataSeries.Add(study.TileTitle, new Tuple<AggregatedCollection<PlotInfo>, OxyPlot.Series.LineSeries>(

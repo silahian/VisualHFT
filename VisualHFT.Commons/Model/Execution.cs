@@ -61,5 +61,7 @@ namespace VisualHFT.Model
             get { return base.Status == null ? ePOSITIONSTATUS.NONE : (ePOSITIONSTATUS)base.Status; }
             set { base.Status = (int)value; }
         }
+
+        public string OrigClOrdID { get; set; }
     }
 }

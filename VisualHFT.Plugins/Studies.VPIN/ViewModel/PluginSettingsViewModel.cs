@@ -27,7 +27,7 @@ namespace VisualHFT.Studies.VPIN.ViewModel
         private Action _actionCloseWindow;
         public ICommand OkCommand { get; private set; }
         public ICommand CancelCommand { get; private set; }
-        public Action UpdateSettingsFromUI{ get; set; }
+        public Action UpdateSettingsFromUI { get; set; }
 
         public PluginSettingsViewModel(Action actionCloseWindow)
         {
@@ -61,7 +61,7 @@ namespace VisualHFT.Studies.VPIN.ViewModel
 
         public int? SelectedProviderID
         {
-            get { return _selectedProviderID;  }
+            get { return _selectedProviderID; }
             set
             {
                 _selectedProviderID = value;
@@ -117,7 +117,7 @@ namespace VisualHFT.Studies.VPIN.ViewModel
         public string ValidationMessage
         {
             get { return _validationMessage; }
-            set { _validationMessage = value; OnPropertyChanged(nameof(ValidationMessage));}
+            set { _validationMessage = value; OnPropertyChanged(nameof(ValidationMessage)); }
         }
 
         public string SuccessMessage
@@ -134,8 +134,8 @@ namespace VisualHFT.Studies.VPIN.ViewModel
                 switch (columnName)
                 {
                     case nameof(BucketVolumeSize):
-                        if (BucketVolumeSize <= 0)
-                            return "Bucket Volume Size should be a positive integer.";
+                        if (BucketVolumeSize < 0)
+                            return "Bucket Volume Size should be a positive number.";
                         break;
 
                     case nameof(SelectedProvider):
@@ -155,7 +155,7 @@ namespace VisualHFT.Studies.VPIN.ViewModel
         }
 
         private void ExecuteOkCommand(object obj)
-        {            
+        {
             SuccessMessage = "Settings saved successfully!";
             UpdateSettingsFromUI?.Invoke();
             _actionCloseWindow?.Invoke();
@@ -167,10 +167,10 @@ namespace VisualHFT.Studies.VPIN.ViewModel
         private bool CanExecuteOkCommand(object obj)
         {
             // This checks if any validation message exists for any of the properties
-            return string.IsNullOrWhiteSpace(this[nameof(BucketVolumeSize)]) &&
+            return /*string.IsNullOrWhiteSpace(this[nameof(BucketVolumeSize)]) &&*/
                    string.IsNullOrWhiteSpace(this[nameof(SelectedProvider)]) &&
                    string.IsNullOrWhiteSpace(this[nameof(SelectedSymbol)]);
-                   
+
         }
         private void RaiseCanExecuteChanged()
         {

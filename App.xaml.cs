@@ -18,7 +18,7 @@ namespace VisualHFT
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            
+
             //Initialize logging
             log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo("log4net.config"));
 
@@ -26,7 +26,21 @@ namespace VisualHFT
             Task.Run(async () => { await GCCleanupAsync(); });
 
             //Load Plugins
-            Task.Run(async () => { await LoadPlugins(); });
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await LoadPlugins();
+                }
+                catch (Exception ex)
+                {
+                    // Handle the exception
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        MessageBox.Show("ERROR LOADING Plugins: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    });
+                }
+            });
 
         }
 

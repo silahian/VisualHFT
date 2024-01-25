@@ -70,8 +70,6 @@ namespace VisualHFT.ViewModel
 
             HelperProvider.Instance.OnDataReceived += PROVIDERS_OnDataReceived;
             HelperProvider.Instance.OnHeartBeatFail += PROVIDERS_OnHeartBeatFail;
-            HelperCommon.ACTIVEORDERS.OnDataReceived += ACTIVEORDERS_OnDataReceived;
-            HelperCommon.ACTIVEORDERS.OnDataRemoved += ACTIVEORDERS_OnDataRemoved;
 
             HelperTrade.Instance.Subscribe(TRADES_OnDataReceived);
             HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
@@ -179,58 +177,6 @@ namespace VisualHFT.ViewModel
             existing.BuyActiveOrder = newItem.BuyActiveOrder;
             existing.SellActiveOrder = newItem.SellActiveOrder;
         }
-        private void ACTIVEORDERS_OnDataRemoved(object sender, VisualHFT.Model.Order e)
-        {
-            if (_selectedProvider == null || string.IsNullOrEmpty(_selectedSymbol) || _selectedProvider.ProviderCode != e.ProviderId)
-                return;
-            if (string.IsNullOrEmpty(_selectedSymbol) || _selectedSymbol == "-- All symbols --")
-                return;
-
-            lock (MTX_ORDERBOOK)
-            {
-                if (_orderBook != null)
-                {
-                    var comp = 1.0 / Math.Pow(10, e.SymbolDecimals);
-                    var o = _orderBook.Asks.Where(x => x.Price.HasValue && Math.Abs(x.Price.Value - e.PricePlaced) < comp).FirstOrDefault();
-                    if (o == null)
-                        o = _orderBook.Bids.Where(x => x.Price.HasValue && Math.Abs(x.Price.Value - e.PricePlaced) < comp).FirstOrDefault();
-
-                    if (o != null)
-                    {
-                        if (o.ActiveSize != null && o.ActiveSize - e.Quantity > 0)
-                            o.ActiveSize -= e.Quantity;
-                        else
-                            o.ActiveSize = null;
-                    }
-                }
-            }
-        }
-        private void ACTIVEORDERS_OnDataReceived(object sender, VisualHFT.Model.Order e)
-        {
-            if (_selectedProvider == null || string.IsNullOrEmpty(_selectedSymbol) || _selectedProvider.ProviderCode != e.ProviderId)
-                return;
-            if (string.IsNullOrEmpty(_selectedSymbol) || _selectedSymbol == "-- All symbols --")
-                return;
-            lock (MTX_ORDERBOOK)
-            {
-                if (_orderBook != null)
-                {
-                    var comp = 1.0 / Math.Pow(10, e.SymbolDecimals);
-
-                    var o = _orderBook.Asks.Where(x => x.Price.HasValue && Math.Abs(x.Price.Value - e.PricePlaced) < comp).FirstOrDefault();
-                    if (o == null)
-                        o = _orderBook.Bids.Where(x => x.Price.HasValue && Math.Abs(x.Price.Value - e.PricePlaced) < comp).FirstOrDefault();
-
-                    if (o != null)
-                    {
-                        if (o.ActiveSize != null)
-                            o.ActiveSize += e.Quantity;
-                        else
-                            o.ActiveSize = e.Quantity;
-                    }
-                }
-            }
-        }
         private void LIMITORDERBOOK_OnDataReceived(OrderBook e)
         {
             if (e == null)
@@ -246,7 +192,7 @@ namespace VisualHFT.ViewModel
                 {
                     _maxOrderSize = 0; //reset
                     _minOrderSize = 0; //reset
-                    _orderBook = e;
+                    _orderBook = (OrderBook)e.Clone();
                     _orderBook.DecimalPlaces = e.DecimalPlaces;
                     _orderBook.SymbolMultiplier = e.SymbolMultiplier;
 
@@ -294,13 +240,13 @@ namespace VisualHFT.ViewModel
                     objToAdd.Volume = tobAsk.Size.Value + tobBid.Size.Value;
 
 
-                    if (HelperCommon.ACTIVEORDERS.Any(x => x.Value.ProviderId == _selectedProvider.ProviderCode && x.Value.Symbol == _selectedSymbol))
+                    /*if (HelperCommon.ACTIVEORDERS.Any(x => x.Value.ProviderId == _selectedProvider.ProviderCode && x.Value.Symbol == _selectedSymbol))
                     {
                         objToAdd.BuyActiveOrder = HelperCommon.ACTIVEORDERS.Where(x => x.Value.Side == eORDERSIDE.Buy).Select(x => x.Value).DefaultIfEmpty(new VisualHFT.Model.Order()).OrderByDescending(x => x.PricePlaced).FirstOrDefault().PricePlaced;
                         objToAdd.SellActiveOrder = HelperCommon.ACTIVEORDERS.Where(x => x.Value.Side == eORDERSIDE.Sell).Select(x => x.Value).DefaultIfEmpty(new VisualHFT.Model.Order()).OrderBy(x => x.PricePlaced).FirstOrDefault().PricePlaced;
                         objToAdd.BuyActiveOrder = objToAdd.BuyActiveOrder == 0 ? null : objToAdd.BuyActiveOrder;
                         objToAdd.SellActiveOrder = objToAdd.SellActiveOrder == 0 ? null : objToAdd.SellActiveOrder;
-                    }
+                    }*/
 
                     #region Resting Orders at different levels [SCATTER BUBBLES]
                     var sizeMinMax = _orderBook.GetMinMaxSizes();
@@ -563,8 +509,6 @@ namespace VisualHFT.ViewModel
                     uiUpdater.Dispose();
                     HelperProvider.Instance.OnDataReceived -= PROVIDERS_OnDataReceived;
                     HelperProvider.Instance.OnHeartBeatFail -= PROVIDERS_OnHeartBeatFail;
-                    HelperCommon.ACTIVEORDERS.OnDataReceived -= ACTIVEORDERS_OnDataReceived;
-                    HelperCommon.ACTIVEORDERS.OnDataRemoved -= ACTIVEORDERS_OnDataRemoved;
                     HelperTrade.Instance.Unsubscribe(TRADES_OnDataReceived);
                     HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
 

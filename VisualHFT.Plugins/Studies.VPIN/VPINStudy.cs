@@ -28,11 +28,10 @@ namespace VisualHFT.Studies
         private OrderBook _orderBook; //to hold last market data tick
 
         //variables for calculation
-        private readonly decimal _bucketVolumeSize; // The volume size of each bucket
+        private decimal _bucketVolumeSize; // The volume size of each bucket
         private decimal _currentBuyVolume = 0; // Current volume of buy trades in the bucket
         private decimal _currentSellVolume = 0; // Current volume of sell trades in the bucket
         private decimal _lastMarketMidPrice = 0; //keep track of market price
-        private decimal _lastVPIN = 0;
         private object _locker = new object();
 
         private const decimal VPIN_THRESHOLD = 0.7M; // ALERT Example threshold
@@ -53,14 +52,17 @@ namespace VisualHFT.Studies
         public override ISetting Settings { get => _settings; set => _settings = (PlugInSettings)value; }
         public override Action CloseSettingWindow { get; set; }
         public override string TileTitle { get; set; } = "VPIN";
-        public override string TileToolTip { get; set; } = "The <b>VPIN</b> (Volume - Synchronized Probability of Informed Trading) value is a measure of the imbalance between buy and sell volumes in a given bucket.<br/><br/>" +
-                "It's calculated as the absolute difference between buy and sell volumes divided by the total volume (buy + sell) for that bucket.<br/>";
-        public decimal BucketVolumeSize => _bucketVolumeSize;
+        public override string TileToolTip { get; set; } = "<b>Volume-Synchronized Probability of Informed Trading</b> (VPIN) is a real-time metric that measures the imbalance between buy and sell volumes, reflecting potential market risk or instability. <br/>VPIN is crucial for traders and analysts to gauge market sentiment and anticipate liquidity and volatility shifts.<br/><br/>" +
+                "VPIN is calculated through the accumulation of trade volumes into fixed-size buckets. Each bucket captures a snapshot of trading activity, enabling ongoing analysis of market dynamics:<br/>" +
+                "1. <b>Trade Classification:</b> Trades are categorized as buys or sells based on their relation to the market mid-price at execution.<br/>" +
+                "2. <b>Volume Accumulation:</b> Buy and sell volumes are accumulated separately until reaching a pre-set bucket size.<br/>" +
+                "3. <b>VPIN Calculation:</b> VPIN is the absolute difference between buy and sell volumes in a bucket, normalized to total volume, ranging from 0 (balanced trading) to 1 (high imbalance).<br/><br/>" +
+                "To enhance real-time relevance, VPIN values are updated with 'Interim Updates' during the filling of each bucket, providing a more current view of market conditions. These updates offer a dynamic and timely insight into market liquidity and informed trading activity. VPIN serves as an early warning indicator of market turbulence, particularly valuable in high-frequency trading environments.";
 
+        public decimal BucketVolumeSize => _bucketVolumeSize;
 
         public VPINStudy()
         {
-
             HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
             HelperTrade.Instance.Subscribe(TRADES_OnDataReceived);
 
@@ -92,14 +94,12 @@ namespace VisualHFT.Studies
                     _currentBuyVolume += e.Size;
                 else
                     _currentSellVolume += e.Size;
-
                 // Check if the bucket is filled
                 if (_currentBuyVolume + _currentSellVolume >= _bucketVolumeSize)
                 {
                     _currentBucketStartTime = e.Timestamp;
                     _currentBucketEndTime = e.Timestamp; // Set the end time for the current bucket
                     CalculateStudy(true);
-                    ResetBucket();
                 }
                 else
                 {
@@ -132,23 +132,30 @@ namespace VisualHFT.Studies
         }
         private void CalculateStudy(bool isNewBucket)
         {
+            string valueColor = "White";
             if (Status != VisualHFT.PluginManager.ePluginStatus.STARTED) return;
+            if (_bucketVolumeSize == 0)
+                _bucketVolumeSize = (decimal)_settings.BucketVolSize;
+
             decimal vpin = 0;
             if ((_currentBuyVolume + _currentSellVolume) > 0)
                 vpin = (decimal)Math.Abs(_currentBuyVolume - _currentSellVolume) / (_currentBuyVolume + _currentSellVolume);
+
             if (isNewBucket)
             {
+                valueColor = "Green";
                 // Check against threshold and trigger alert
                 if (vpin > VPIN_THRESHOLD)
                     OnAlertTriggered?.Invoke(this, vpin);
-                _lastVPIN = vpin;
+                ResetBucket();
             }
             // Add to rolling window and remove oldest if size exceeded
             var newItem = new BaseStudyModel();
-            newItem.Value = _lastVPIN;
-            newItem.ValueFormatted = _lastVPIN.ToString("N1");
+            newItem.Value = vpin;
+            newItem.ValueFormatted = vpin.ToString("N1");
             newItem.Timestamp = HelperTimeProvider.Now;
             newItem.MarketMidPrice = _lastMarketMidPrice;
+            newItem.ValueColor = valueColor;
             OnCalculated?.Invoke(this, newItem);
         }
         private void ResetBucket()
@@ -169,7 +176,7 @@ namespace VisualHFT.Studies
 
                     _orderBook?.Dispose();
                     _orderBook = null;
-                    
+
                 }
 
                 // Dispose unmanaged resources here, if any
@@ -222,7 +229,7 @@ namespace VisualHFT.Studies
                 _settings.Symbol = viewModel.SelectedSymbol;
                 _settings.Provider = viewModel.SelectedProvider;
                 _settings.AggregationLevel = viewModel.AggregationLevelSelection;
-
+                _bucketVolumeSize = (decimal)_settings.BucketVolSize;
                 SaveSettings();
 
                 // Start the Reconnection 

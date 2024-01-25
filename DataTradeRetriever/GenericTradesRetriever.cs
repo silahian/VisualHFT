@@ -1,25 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Timers;
-using VisualHFT.Helpers;
 using VisualHFT.Model;
-using QuickFix.Fields;
-using QuickFix.DataDictionary;
-using System.Windows.Shapes;
 
 
 namespace VisualHFT.DataTradeRetriever
 {
-    public class EmptyTradesRetriever : IDataTradeRetriever, IDisposable
+    public class GenericTradesRetriever : IDataTradeRetriever, IDisposable
     {
         private List<VisualHFT.Model.Position> _positions;
         private List<VisualHFT.Model.Order> _orders;
+        private object _locker = new object();
+
         int _providerId;
         string _providerName;
         DateTime? _sessionDate = null;
@@ -28,17 +21,26 @@ namespace VisualHFT.DataTradeRetriever
 
         public event EventHandler<IEnumerable<VisualHFT.Model.Order>> OnInitialLoad;
         public event EventHandler<IEnumerable<VisualHFT.Model.Order>> OnDataReceived;
-        protected virtual void RaiseOnInitialLoad(IEnumerable<VisualHFT.Model.Order> ord) => OnInitialLoad?.Invoke(this, ord);
-        protected virtual void RaiseOnDataReceived(IEnumerable<VisualHFT.Model.Order> ord) => OnDataReceived?.Invoke(this, ord);
-        public EmptyTradesRetriever()
+        public event EventHandler<VisualHFT.Model.Execution> OnExecutionReceived;
+        public event EventHandler<Order> OnDataUpdated;
+
+        public GenericTradesRetriever()
         {
             _positions = new List<VisualHFT.Model.Position>();
             _orders = new List<VisualHFT.Model.Order>();
+
+            HelperTimeProvider.OnSetFixedTime += HelperTimeProvider_OnSetFixedTime;
         }
-        ~EmptyTradesRetriever()
+        ~GenericTradesRetriever()
         {
             Dispose(false);
         }
+        private void HelperTimeProvider_OnSetFixedTime(object? sender, EventArgs e)
+        {
+            if (_sessionDate != HelperTimeProvider.Now.Date)
+                SessionDate = HelperTimeProvider.Now.Date;
+        }
+
         public DateTime? SessionDate
         {
             get { return _sessionDate; }
@@ -48,7 +50,8 @@ namespace VisualHFT.DataTradeRetriever
                 {
                     _sessionDate = value;
                     _orders.Clear();
-                    RaiseOnInitialLoad(this.Orders);
+                    _positions.Clear();
+                    OnInitialLoad?.Invoke(this, this.Orders);
                 }
             }
         }
@@ -66,7 +69,10 @@ namespace VisualHFT.DataTradeRetriever
             if (!_disposed)
             {
                 if (disposing)
-                {}
+                {
+
+
+                }
                 _disposed = true;
             }
         }
@@ -74,6 +80,26 @@ namespace VisualHFT.DataTradeRetriever
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+        public void AddOrder(Order? order)
+        {
+            if (order == null)
+                return;
+            lock (_locker)
+            {
+                var existingOrder = _orders.FirstOrDefault(x => x.OrderID == order.OrderID);
+                if (existingOrder == null)
+                {
+                    _orders.Add(order);
+                    OnDataReceived?.Invoke(this, new List<Order> { order });
+                }
+                else
+                {
+                    existingOrder = order;
+                    OnDataUpdated?.Invoke(this, order);
+                }
+            }
+
         }
     }
 }

@@ -43,12 +43,12 @@ namespace VisualHFT.Helpers
         }
         public static int TimerMillisecondsToGetVariables = 1000 * 10; //10 seconds
 
-        public static IDataTradeRetriever EXECUTEDORDERS = new EmptyTradesRetriever();
+        public static IDataTradeRetriever EXECUTEDORDERS = new GenericTradesRetriever();
         //public static IDataTradeRetriever EXECUTEDORDERS = new MSSQLServerTradesRetriever();
         //public static IDataTradeRetriever EXECUTEDORDERS = new FIXTradesRetriever([path_to_fix_log_file], 1, "CME");
 
-        public static HelperExposure EXPOSURES = new HelperExposure();
-        public static HelperActiveOrder ACTIVEORDERS = new HelperActiveOrder();
+        //public static HelperExposure EXPOSURES = new HelperExposure();
+        //public static HelperActiveOrder ACTIVEORDERS = new HelperActiveOrder();
         public static HelperStrategy ACTIVESTRATEGIES = new HelperStrategy();
         public static HelperStrategyParams STRATEGYPARAMS = new HelperStrategyParams();
 

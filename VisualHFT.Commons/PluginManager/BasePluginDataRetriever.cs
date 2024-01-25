@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using VisualHFT.Commons.Helpers;
 using VisualHFT.DataRetriever;
 using VisualHFT.PluginManager;
 using VisualHFT.UserSettings;
@@ -15,7 +16,7 @@ namespace VisualHFT.Commons.PluginManager
         protected bool _isHandlingConnectionLost = false;
         protected int failedAttempts = 0;
         protected const int maxAttempts = 5;
-
+        protected static bool _ARE_ALL_DATA_RETRIEVERS_ENABLE = true;
 
         public abstract string Name { get; set; }
         public abstract string Version { get; set; }
@@ -58,9 +59,10 @@ namespace VisualHFT.Commons.PluginManager
             log.Info("Plugins: " + Name + " has stopped.");
         }
 
-        protected virtual void RaiseOnDataReceived(DataEventArgs args)
+        protected virtual void RaiseOnDataReceived(DataEventArgs args, bool overrideDisabiityFromOtherDataRetrievers = false)
         {
-            OnDataReceived?.Invoke(this, args);
+            if (_ARE_ALL_DATA_RETRIEVERS_ENABLE || overrideDisabiityFromOtherDataRetrievers)
+                OnDataReceived?.Invoke(this, args);
         }
         protected virtual async Task HandleConnectionLost()
         {

@@ -33,6 +33,8 @@ namespace VisualHFT.DataTradeRetriever
 
         public event EventHandler<IEnumerable<VisualHFT.Model.Order>> OnInitialLoad;
         public event EventHandler<IEnumerable<VisualHFT.Model.Order>> OnDataReceived;
+        public event EventHandler<Order> OnDataUpdated;
+
         protected virtual void RaiseOnInitialLoad(IEnumerable<VisualHFT.Model.Order> ord) => OnInitialLoad?.Invoke(this, ord);
         protected virtual void RaiseOnDataReceived(IEnumerable<VisualHFT.Model.Order> ord) => OnDataReceived?.Invoke(this, ord);
         public FIXTradesRetriever(string logFilePath, int providerId, string providerName)
@@ -66,7 +68,7 @@ namespace VisualHFT.DataTradeRetriever
                     var symbols = parsedTrades.Select(x => x.Symbol).Distinct().ToList();
                     if (symbols.Any())
                     {
-                        foreach( var symbol in symbols)
+                        foreach (var symbol in symbols)
                         {
                             HelperSymbol.Instance.UpdateData(symbol);
                         }
@@ -241,7 +243,7 @@ namespace VisualHFT.DataTradeRetriever
                             order.LastUpdated = HelperTimeProvider.Now;
 
                             if (order.Status == eORDERSTATUS.REPLACED)
-                            {                                
+                            {
                                 order.ClOrdId = _clordId;
                                 parsedOrders.Add(_clordId, order);
                                 parsedOrders.Remove(_orig_clordId);
@@ -283,7 +285,7 @@ namespace VisualHFT.DataTradeRetriever
             const int bufferSize = 8192; // 8 KB
             char[] buffer = new char[bufferSize];
             StringBuilder sb = new StringBuilder();
-            List<string> newLines = new List<string>();  
+            List<string> newLines = new List<string>();
 
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var sr = new StreamReader(fs, Encoding.Default))
@@ -322,25 +324,26 @@ namespace VisualHFT.DataTradeRetriever
 
         private eORDERSTATUS ParseOrderStatus(string fixStatus)
         {
+
             // Convert the FIX status to your application's order status
             switch (fixStatus[0])
             {
-                case OrdStatus.NEW:                 return eORDERSTATUS.NEW;
-                case OrdStatus.PARTIALLY_FILLED:    return eORDERSTATUS.PARTIALFILLED;
-                case OrdStatus.FILLED:              return eORDERSTATUS.FILLED;
-                case OrdStatus.CANCELED:            return eORDERSTATUS.CANCELED;
-                case OrdStatus.REJECTED:            return eORDERSTATUS.REJECTED;
-                case OrdStatus.REPLACED:            return eORDERSTATUS.REPLACED;
-                case OrdStatus.EXPIRED:             return eORDERSTATUS.REJECTED;
-                case OrdStatus.PENDING_REPLACE:     return eORDERSTATUS.REPLACESENT;
-                case OrdStatus.PENDING_CANCEL:      return eORDERSTATUS.CANCELEDSENT;
+                case OrdStatus.NEW: return eORDERSTATUS.NEW;
+                case OrdStatus.PARTIALLY_FILLED: return eORDERSTATUS.PARTIALFILLED;
+                case OrdStatus.FILLED: return eORDERSTATUS.FILLED;
+                case OrdStatus.CANCELED: return eORDERSTATUS.CANCELED;
+                case OrdStatus.REJECTED: return eORDERSTATUS.REJECTED;
+                case OrdStatus.REPLACED: return eORDERSTATUS.REPLACED;
+                case OrdStatus.EXPIRED: return eORDERSTATUS.REJECTED;
+                case OrdStatus.PENDING_REPLACE: return eORDERSTATUS.REPLACESENT;
+                case OrdStatus.PENDING_CANCEL: return eORDERSTATUS.CANCELEDSENT;
                 default:
                     return eORDERSTATUS.NONE;
             }
         }
         private eORDERTYPE ParseOrderType(string fixOrdType)
         {
-            switch(fixOrdType[0])
+            switch (fixOrdType[0])
             {
                 case OrdType.MARKET: return eORDERTYPE.MARKET;
                 case OrdType.LIMIT: return eORDERTYPE.LIMIT;
@@ -349,7 +352,7 @@ namespace VisualHFT.DataTradeRetriever
         }
         private eORDERTIMEINFORCE ParseOrderTIF(string fixTIF)
         {
-            switch(fixTIF[0])
+            switch (fixTIF[0])
             {
                 case QuickFix.Fields.TimeInForce.IMMEDIATE_OR_CANCEL: return eORDERTIMEINFORCE.IOC;
                 case QuickFix.Fields.TimeInForce.FILL_OR_KILL: return eORDERTIMEINFORCE.FOK;
@@ -397,6 +400,16 @@ namespace VisualHFT.DataTradeRetriever
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        public void AddExecution(Execution? execution)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddOrder(Order? order)
+        {
+            throw new NotImplementedException();
         }
     }
 }

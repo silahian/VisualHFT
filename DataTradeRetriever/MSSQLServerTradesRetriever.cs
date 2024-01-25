@@ -29,6 +29,8 @@ namespace VisualHFT.DataTradeRetriever
 
         public event EventHandler<IEnumerable<VisualHFT.Model.Order>> OnInitialLoad;
         public event EventHandler<IEnumerable<VisualHFT.Model.Order>> OnDataReceived;
+        public event EventHandler<Order> OnDataUpdated;
+
         protected virtual void RaiseOnInitialLoad(IEnumerable<VisualHFT.Model.Order> ord) => OnInitialLoad?.Invoke(this, ord);
         protected virtual void RaiseOnDataReceived(IEnumerable<VisualHFT.Model.Order> ord) => OnDataReceived?.Invoke(this, ord);
 
@@ -36,7 +38,7 @@ namespace VisualHFT.DataTradeRetriever
         public MSSQLServerTradesRetriever()
         {
             _positions = new List<VisualHFT.Model.Position>();
-            _orders =  new List<VisualHFT.Model.Order>();
+            _orders = new List<VisualHFT.Model.Order>();
             _timer = new System.Timers.Timer(POLLING_INTERVAL);
             _timer.Elapsed += _timer_Elapsed;
             _timer.Start();
@@ -145,7 +147,7 @@ namespace VisualHFT.DataTradeRetriever
                             _LAST_POSITION_ID = result.Max(x => x.ID);
 
                             var ret = result.Select(x => new VisualHFT.Model.Position(x)).ToList(); //convert to our model
-                                                                                      //find provider's name
+                                                                                                    //find provider's name
                             ret.ForEach(x =>
                             {
                                 x.CloseProviderName = allProviders.Where(p => p.ProviderCode == x.CloseProviderId).DefaultIfEmpty(new Provider()).FirstOrDefault().ProviderName;
@@ -191,6 +193,16 @@ namespace VisualHFT.DataTradeRetriever
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        public void AddExecution(Execution? execution)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddOrder(Order? order)
+        {
+            throw new NotImplementedException();
         }
     }
 }
