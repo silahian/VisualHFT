@@ -5,7 +5,7 @@ VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisualHFT", "VisualHFT.csproj", "{3AA46013-0547-4717-9747-E0467EE60142}"
 	ProjectSection(ProjectDependencies) = postProject
-		{CCC8EF2E-EEE3-4F5C-8A06-F07947D8BCFA} = {CCC8EF2E-EEE3-4F5C-8A06-F07947D8BCFA}
+				{CCC8EF2E-EEE3-4F5C-8A06-F07947D8BCFA} = {CCC8EF2E-EEE3-4F5C-8A06-F07947D8BCFA}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "demoTradingCore", "demoTradingCore\demoTradingCore.csproj", "{932E0DD0-256E-4480-97BC-E0A291D8F3E0}"
@@ -29,6 +29,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studies.MarketResilience", "VisualHFT.Plugins\Studies.MarketResilience\Studies.MarketResilience.csproj", "{AE79F03E-98FF-4730-BEFE-76204BFD7707}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studies.MarketRatios", "VisualHFT.Plugins\Studies.MarketRatios\Studies.MarketRatios.csproj", "{23E6F0D7-139B-48B7-8234-3D415D06B35A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarketConnectors.KuCoin", "VisualHFT.Plugins\MarketConnectors.KuCoin\MarketConnectors.KuCoin.csproj", "{2A978C8E-F375-4874-A658-150DA643070F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketConnectors.KuCoin.Tests", "VisualHFT.Plugins\MarketConnectors.KuCoin.Tests\MarketConnectors.KuCoin.Tests.csproj", "{513E5016-9ECB-4512-BDEC-A8E40F7167B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,6 +84,14 @@ Global
 		{23E6F0D7-139B-48B7-8234-3D415D06B35A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23E6F0D7-139B-48B7-8234-3D415D06B35A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23E6F0D7-139B-48B7-8234-3D415D06B35A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A978C8E-F375-4874-A658-150DA643070F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A978C8E-F375-4874-A658-150DA643070F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A978C8E-F375-4874-A658-150DA643070F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A978C8E-F375-4874-A658-150DA643070F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{513E5016-9ECB-4512-BDEC-A8E40F7167B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{513E5016-9ECB-4512-BDEC-A8E40F7167B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{513E5016-9ECB-4512-BDEC-A8E40F7167B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{513E5016-9ECB-4512-BDEC-A8E40F7167B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,6 +104,8 @@ Global
 		{74B08F14-A2A1-43A1-8DBF-CA9F19F9B8E2} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
 		{AE79F03E-98FF-4730-BEFE-76204BFD7707} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
 		{23E6F0D7-139B-48B7-8234-3D415D06B35A} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
+		{2A978C8E-F375-4874-A658-150DA643070F} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
+		{513E5016-9ECB-4512-BDEC-A8E40F7167B6} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9EDE643D-268A-4BB9-85A6-F32F11E40516}
