@@ -98,6 +98,7 @@
     <ProjectReference Include="VisualHFT.Commons\VisualHFT.Commons.csproj" />
     <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Binance\MarketConnectors.Binance.csproj" />
     <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Bitfinex\MarketConnectors.Bitfinex.csproj" />
+    <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Bitstamp\MarketConnectors.Bitstamp.csproj" />
     <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.KuCoin\MarketConnectors.KuCoin.csproj" />
     <ProjectReference Include="VisualHFT.Plugins\Studies.LOBImbalance\Studies.LOBImbalance.csproj" />
     <ProjectReference Include="VisualHFT.Plugins\Studies.MarketRatios\Studies.MarketRatios.csproj" />
