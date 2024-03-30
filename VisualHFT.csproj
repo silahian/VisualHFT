@@ -99,6 +99,7 @@
     <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Binance\MarketConnectors.Binance.csproj" />
     <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Bitfinex\MarketConnectors.Bitfinex.csproj" />
     <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Bitstamp\MarketConnectors.Bitstamp.csproj" />
+    <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Coinbase\MarketConnectors.Coinbase.csproj" />
     <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Gemini\MarketConnectors.Gemini.csproj" />
     <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Kraken\MarketConnectors.Kraken.csproj" />
     <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.KuCoin\MarketConnectors.KuCoin.csproj" />

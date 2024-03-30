@@ -46,6 +46,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketConnectors.Gemini", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketConnectors.Gemini.Tests", "VisualHFT.Plugins\MarketConnectors.Gemini.Tests\MarketConnectors.Gemini.Tests.csproj", "{D4290BBB-3857-4D5B-A5C6-978414B0A2D2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketConnectors.Coinbase", "VisualHFT.Plugins\MarketConnectors.Coinbase\MarketConnectors.Coinbase.csproj", "{D58A2C1E-EAAF-441F-A902-DC353198F259}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketConnectors.Coinbase.Tests", "VisualHFT.Plugins\MarketConnectors.Coinbase.Tests\MarketConnectors.Coinbase.Tests.csproj", "{8B61606F-57D4-488C-964E-0F775B1A3935}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -128,6 +132,14 @@ Global
 		{D4290BBB-3857-4D5B-A5C6-978414B0A2D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4290BBB-3857-4D5B-A5C6-978414B0A2D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4290BBB-3857-4D5B-A5C6-978414B0A2D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D58A2C1E-EAAF-441F-A902-DC353198F259}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D58A2C1E-EAAF-441F-A902-DC353198F259}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D58A2C1E-EAAF-441F-A902-DC353198F259}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D58A2C1E-EAAF-441F-A902-DC353198F259}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B61606F-57D4-488C-964E-0F775B1A3935}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B61606F-57D4-488C-964E-0F775B1A3935}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B61606F-57D4-488C-964E-0F775B1A3935}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B61606F-57D4-488C-964E-0F775B1A3935}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -148,6 +160,8 @@ Global
 		{4586A1C1-F4AF-41D7-BACD-74FB175475B4} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
 		{EF564FDE-2288-41E7-90B8-B9F712EB8B4F} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
 		{D4290BBB-3857-4D5B-A5C6-978414B0A2D2} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
+		{D58A2C1E-EAAF-441F-A902-DC353198F259} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
+		{8B61606F-57D4-488C-964E-0F775B1A3935} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9EDE643D-268A-4BB9-85A6-F32F11E40516}
