@@ -11,7 +11,7 @@ namespace MarketConnectors.Kraken.Model
     public class PlugInSettings : ISetting
     {
         public string ApiKey { get; set; }
-        public string ApiSecret { get; set; }
+        public string PrivateKey { get; set; }
         public List<string> Symbols { get; set; }
         public int DepthLevels { get; set; }
         public int UpdateIntervalMs { get; set; }
