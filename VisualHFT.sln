@@ -42,6 +42,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarketConnectors.Kraken", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarketConnectors.Kraken.Tests", "VisualHFT.Plugins\MarketConnectors.Kraken.Tests\MarketConnectors.Kraken.Tests.csproj", "{4586A1C1-F4AF-41D7-BACD-74FB175475B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketConnectors.Gemini", "VisualHFT.Plugins\MarketConnectors.Gemini\MarketConnectors.Gemini.csproj", "{EF564FDE-2288-41E7-90B8-B9F712EB8B4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketConnectors.Gemini.Tests", "VisualHFT.Plugins\MarketConnectors.Gemini.Tests\MarketConnectors.Gemini.Tests.csproj", "{D4290BBB-3857-4D5B-A5C6-978414B0A2D2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -116,6 +120,14 @@ Global
 		{4586A1C1-F4AF-41D7-BACD-74FB175475B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4586A1C1-F4AF-41D7-BACD-74FB175475B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4586A1C1-F4AF-41D7-BACD-74FB175475B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF564FDE-2288-41E7-90B8-B9F712EB8B4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF564FDE-2288-41E7-90B8-B9F712EB8B4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF564FDE-2288-41E7-90B8-B9F712EB8B4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF564FDE-2288-41E7-90B8-B9F712EB8B4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4290BBB-3857-4D5B-A5C6-978414B0A2D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4290BBB-3857-4D5B-A5C6-978414B0A2D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4290BBB-3857-4D5B-A5C6-978414B0A2D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4290BBB-3857-4D5B-A5C6-978414B0A2D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -134,6 +146,8 @@ Global
 		{DC442666-6464-4065-8152-95B1F4B909E1} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
 		{FF67AEAB-61A4-4CE4-919D-A8A64DBDE9CC} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
 		{4586A1C1-F4AF-41D7-BACD-74FB175475B4} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
+		{EF564FDE-2288-41E7-90B8-B9F712EB8B4F} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
+		{D4290BBB-3857-4D5B-A5C6-978414B0A2D2} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9EDE643D-268A-4BB9-85A6-F32F11E40516}

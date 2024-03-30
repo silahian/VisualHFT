@@ -18,7 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\VisualHFT.Commons\VisualHFT.Commons.csproj" />
-    <ProjectReference Include="..\MarketConnectors.Kraken\MarketConnectors.Kraken.csproj" />
+    <ProjectReference Include="..\MarketConnectors.Gemini\MarketConnectors.Gemini.csproj" />
   </ItemGroup>
 
   <ItemGroup>
