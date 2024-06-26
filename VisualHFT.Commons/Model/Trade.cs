@@ -10,7 +10,7 @@
         private DateTime _timestamp;
         private bool? _isBuy;
         private string _flags;
-
+        private double _midMarketPrice;
 
         public int ProviderId { get => _providerId; set => _providerId = value; }
         public string ProviderName { get => _providerName; set => _providerName = value; }
@@ -20,7 +20,8 @@
         public DateTime Timestamp { get => _timestamp; set => _timestamp = value; }
         public bool? IsBuy { get => _isBuy; set => _isBuy = value; }
         public string Flags { get => _flags; set => _flags = value; }
-
+        public double MarketMidPrice { get => _midMarketPrice; set => _midMarketPrice = value; }
+        
         internal void CopyTo(Trade target)
         {
             if (target == null) throw new ArgumentNullException(nameof(target));
