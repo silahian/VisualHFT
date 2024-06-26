@@ -8,7 +8,7 @@
         private decimal _price;
         private decimal _size;
         private DateTime _timestamp;
-        private bool _isBuy;
+        private bool? _isBuy;
         private string _flags;
 
 
@@ -18,7 +18,7 @@
         public decimal Price { get => _price; set => _price = value; }
         public decimal Size { get => _size; set => _size = value; }
         public DateTime Timestamp { get => _timestamp; set => _timestamp = value; }
-        public bool IsBuy { get => _isBuy; set => _isBuy = value; }
+        public bool? IsBuy { get => _isBuy; set => _isBuy = value; }
         public string Flags { get => _flags; set => _flags = value; }
 
         internal void CopyTo(Trade target)

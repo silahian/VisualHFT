@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using VisualHFT.Commons.Model;
+using VisualHFT.Enums;
 
 namespace VisualHFT.Model
 {
-    public partial class Execution : OpenExecution
+    public partial class Execution : OpenExecution, IResettable
     {
 
         public Execution(OpenExecution exec, string symbol)
@@ -23,8 +20,10 @@ namespace VisualHFT.Model
             this.ProviderID = exec.ProviderID;
             this.QtyFilled = exec.QtyFilled;
             this.ServerTimeStamp = exec.ServerTimeStamp;
-            this.Side = (ePOSITIONSIDE)exec.Side;
-            this.Status = (ePOSITIONSTATUS)exec.Status;
+            if (exec.Side != null)
+                this.Side = (ePOSITIONSIDE)exec.Side;
+            if (exec.Status != null)
+                this.Status = (ePOSITIONSTATUS)exec.Status;
             this.Symbol = symbol;
         }
         public Execution(CloseExecution exec, string symbol)
@@ -41,8 +40,10 @@ namespace VisualHFT.Model
             this.ProviderID = exec.ProviderID;
             this.QtyFilled = exec.QtyFilled;
             this.ServerTimeStamp = exec.ServerTimeStamp;
-            this.Side = (ePOSITIONSIDE)exec.Side;
-            this.Status = (ePOSITIONSTATUS)exec.Status;
+            if (exec.Side != null)
+                this.Side = (ePOSITIONSIDE)exec.Side;
+            if (exec.Status != null)
+                this.Status = (ePOSITIONSTATUS)exec.Status;
             this.Symbol = symbol;
         }
         public string ProviderName { get; set; }
@@ -63,5 +64,22 @@ namespace VisualHFT.Model
         }
 
         public string OrigClOrdID { get; set; }
+
+        public void Reset()
+        {
+            this.ClOrdId = "";
+            this.ExecID = "";
+            this.ExecutionID = 0;
+            this.IsOpen = true;
+            this.LocalTimeStamp = DateTime.MinValue;
+            this.PositionID = 0;
+            this.Price = 0;
+            this.ProviderID = 0;
+            this.QtyFilled = 0;
+            this.ServerTimeStamp = DateTime.MinValue;
+            this.Side = ePOSITIONSIDE.None;
+            this.Status = ePOSITIONSTATUS.NONE;
+            this.Symbol = "";
+        }
     }
 }

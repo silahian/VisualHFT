@@ -1,9 +1,4 @@
-﻿using log4net.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using VisualHFT.Enums;
 
 namespace System
 {
@@ -22,7 +17,7 @@ namespace System
                 case AggregationLevel.S3: return TimeSpan.FromSeconds(3);
                 case AggregationLevel.S5: return TimeSpan.FromSeconds(5);
                 case AggregationLevel.D1: return TimeSpan.FromDays(1);
-                case AggregationLevel.Automatic: return TimeSpan.Zero; // Default behavior for Automatic. It will be recalculated.
+                //case AggregationLevel.Automatic: return TimeSpan.Zero; // Default behavior for Automatic. It will be recalculated.
                 default: throw new ArgumentException("Unsupported aggregation level", nameof(aggregationLevel));
             }
         }

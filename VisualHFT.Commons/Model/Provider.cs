@@ -1,9 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using VisualHFT.Commons.Helpers;
+using VisualHFT.Enums;
 
 namespace VisualHFT.Model
 {
@@ -18,32 +15,39 @@ namespace VisualHFT.Model
         public string ProviderName { get; set; }
         public eSESSIONSTATUS Status { get; set; }
         public DateTime LastUpdated { get; set; }
-        public string StatusImage
-        {
-            get
-            {
-                if (Status == eSESSIONSTATUS.BOTH_CONNECTED)
-                    return "/Images/imgGreenBall.png";
-                else if (Status == eSESSIONSTATUS.BOTH_DISCONNECTED)
-                    return "/Images/imgRedBall.png";
-                else
-                    return "/Images/imgYellowBall.png";
-            }
-        }
+
         public string Tooltip
         {
             get
             {
-                if (Status == eSESSIONSTATUS.BOTH_CONNECTED)
+                string lastNotificationText = "";
+                try
+                {
+                    var lastNonReadNotification = HelperNotificationManager.Instance.GetAllNotifications()
+                        .OrderByDescending(x => x.Timestamp)
+                        .ThenBy(x => x.NotificationType)
+                        .FirstOrDefault(x => x.Title.IndexOf(this.ProviderName) > -1);
+                    if (lastNonReadNotification != null)
+                        lastNotificationText = lastNonReadNotification.Title + " " + lastNonReadNotification.Message;
+                }
+                catch (Exception ex)
+                {
+                    lastNotificationText = "[[Err reading notifications]]" + ex.ToString();
+                }
+
+                if (Status == eSESSIONSTATUS.CONNECTING)
+                    return "Connecting...";
+                if (Status == eSESSIONSTATUS.CONNECTED)
                     return "Connected";
-                else if (Status == eSESSIONSTATUS.BOTH_DISCONNECTED)
+                if (Status == eSESSIONSTATUS.CONNECTED_WITH_WARNINGS)
+                    return "Connected with limitations" + (string.IsNullOrEmpty(lastNotificationText) ? "" : $": ({lastNotificationText})");
+                if (Status == eSESSIONSTATUS.DISCONNECTED_FAILED)
+                    return "Failure Disconnection" + (string.IsNullOrEmpty(lastNotificationText) ? "" : $": ({lastNotificationText})");
+                if (Status == eSESSIONSTATUS.DISCONNECTED)
                     return "Disconnected";
-                else if (Status == eSESSIONSTATUS.PRICE_CONNECTED_ORDER_DISCONNECTED)
-                    return "Price connected. Order disconnected";
-                else if (Status == eSESSIONSTATUS.PRICE_DSICONNECTED_ORDER_CONNECTED)
-                    return "Price disconnected. Order connected";
-                else
-                    return "";
+
+
+                return "";
             }
         }
 
