@@ -127,6 +127,27 @@ For project questions use the repository’s forums or any of my social media pr
 
 
 # Release notes
+### Jun 26 2024
+**Enhancements**
+- **Performance Improvements:**
+  - Incorporated custom queues that improve performance and throughput by 40%.
+  - Implemented custom object pools, enhancing memory allocation throughout the system.
+- **Limit Order Book:**
+  - Re-organized data structures and code for better usage, with significant improvements in performance and memory handling.
+  - Optimized order book data structures for faster lookups and updates.
+- **Plugins:**
+  - Improved plugin lifecycle, allowing each plugin to have its own autonomy without affecting the core system (reconnection, auto stopping, etc.).
+  - Enhanced error handling within plugins.
+- **Notification Center:**
+  - Introduced a new module to handle all exceptions and notifications from plugins and the core system without disrupting operations.
+  - Improved UI experience for notifications.
+- **Code Cleanup:**
+  - Removed unused third-party packages and modules.
+  - Refactored code to remove unnecessary database access from the core, now handled by plugins if needed.
+
+These updates focus on enhancing system performance, reliability, and maintainability. For detailed changes, refer to [pull request #36](https://github.com/silahian/VisualHFT/pull/36).
+
+
 ### Oct 27 2023
 **Enhancements**
 - **Plugin Architecture**: Revamped the entire plug-in architecture. It is very easy to add new plugins to increase functionality.
