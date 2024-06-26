@@ -1,4 +1,5 @@
-﻿using VisualHFT.Model;
+﻿using VisualHFT.Enums;
+using VisualHFT.Model;
 
 namespace VisualHFT.UserSettings
 {

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace VisualHFT.UserSettings
+﻿namespace VisualHFT.UserSettings
 {
     public enum SettingKey
     {
@@ -18,12 +12,16 @@ namespace VisualHFT.UserSettings
 
 }
 namespace VisualHFT.PluginManager
-{ 
+{
     public enum ePluginStatus
     {
+        LOADING,
         LOADED,
+        STARTING,
         STARTED,
         STOPPED,
-        MALFUNCTIONING
+        STOPPED_FAILED,
+        MALFUNCTIONING, //running with failures
+        STOPPING
     }
 }
