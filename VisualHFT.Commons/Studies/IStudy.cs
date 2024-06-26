@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VisualHFT.Model;
-using VisualHFT.UserSettings;
+﻿using VisualHFT.Model;
 
 namespace VisualHFT.Commons.Studies
 {
-    public interface IStudy: IDisposable
+    public interface IStudy : IDisposable
     {
         public event EventHandler<decimal> OnAlertTriggered;
         public event EventHandler<BaseStudyModel> OnCalculated;
