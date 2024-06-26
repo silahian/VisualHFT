@@ -4,19 +4,22 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using VisualHFT.Helpers;
 using VisualHFT.Model;
 
 namespace VisualHFT.Studies
 {
     public class OrderFlowAnalysis
     {
-        private IEnumerable<BookItem> asks;
-        private IEnumerable<BookItem> bids;
+        private CachedCollection<BookItem> asks;
+        private CachedCollection<BookItem> bids;
+        private int _bookDepth;
 
-        public void LoadData(IEnumerable<BookItem> pAsks, IEnumerable<BookItem> pBids)
+        public void LoadData(CachedCollection<BookItem> pAsks, CachedCollection<BookItem> pBids, int bookDepth)
         {
             asks = pAsks;
             bids = pBids;
+            _bookDepth = bookDepth;
         }
 
         private void Calculate_TradeImbalance()
@@ -36,6 +39,8 @@ namespace VisualHFT.Studies
             /*
              VWAP is the average price a security has traded at throughout the day, based on both volume and price. It is important because it provides traders with insight into both the trend and value of a security.
              */
+            throw new Exception(
+                "Must be calculated taking the maxDepth in cosideration. Check Calculate_OrderImbalance()");
             double totalAskValue = asks.Sum(a => a.Price.Value * a.Size.Value);
             double totalBidValue = bids.Sum(b => b.Price.Value * b.Size.Value);
             double totalValue = totalAskValue + totalBidValue;
@@ -47,6 +52,8 @@ namespace VisualHFT.Studies
             /*
              This metric measures the number of open buy and sell orders at different price levels. It can provide insights into the liquidity and depth of the market.
              */
+            throw new Exception(
+                "Must be calculated taking the maxDepth in cosideration. Check Calculate_OrderImbalance()");
             return asks.Count() + bids.Count();
         }
         private void Calculate_OrderSizeAndFrequency()
@@ -74,7 +81,8 @@ namespace VisualHFT.Studies
             /*
              The slope of the order book (i.e., the relationship between price and cumulative order size) can provide insights into market participants' expectations about future price movements. A steeper slope on the bid side might indicate bullish sentiment, while a steeper slope on the ask side might indicate bearish sentiment.
              */
-
+            throw new Exception(
+                "Must be calculated taking the maxDepth in cosideration. Check Calculate_OrderImbalance()");
             // Calculate the cumulative size for bids and asks
             double cumulativeBidSize = bids.Sum(b => b.Size.Value);
             double cumulativeAskSize = asks.Sum(a => a.Size.Value);
@@ -98,11 +106,22 @@ namespace VisualHFT.Studies
             It can provide insights into the supply and demand dynamics in the market. 
             A positive order imbalance (more buy orders than sell orders) can indicate upward pressure on prices, while a negative order imbalance (more sell orders than buy orders) can indicate downward pressure on prices.
             */
-            if (asks != null && bids != null && asks.Any() && bids.Any())
+
+            if (asks != null && bids != null && asks.Count() > 0 && bids.Count() > 0)
             {
-                double totalAskSize = asks.Sum(a => a.Size.Value);
-                double totalBidSize = bids.Sum(b => b.Size.Value);
-                return (totalBidSize - totalAskSize) / (totalBidSize + totalAskSize);
+                double totalAskSize = 0;
+                double totalBidSize = 0;
+
+                for (int i = 0; i < _bookDepth; i++)
+                {
+                    if (i < asks.Count())
+                        totalAskSize += asks[i].Size.Value;
+                    if (i < bids.Count())
+                        totalBidSize += bids[i].Size.Value;
+                }
+
+                if ((totalBidSize + totalAskSize) != 0)
+                    return (totalBidSize - totalAskSize) / (totalBidSize + totalAskSize);
             }
             return 0;
         }
@@ -110,7 +129,8 @@ namespace VisualHFT.Studies
         {
             // Calculate Order Book Kurtosis
             // This metric measures the "tailedness" of the order book. High kurtosis (a lot of volume far from the mid-price) might indicate the presence of large limit orders or stop orders, which could impact price movements.
-
+            throw new Exception(
+                "Must be calculated taking the maxDepth in cosideration. Check Calculate_OrderImbalance()");
             double midPrice = (asks.Min(a => a.Price.Value) + bids.Max(b => b.Price.Value)) / 2;
             double fourthMoment = asks.Average(a => Math.Pow(a.Price.Value - midPrice, 4)) + bids.Average(b => Math.Pow(b.Price.Value - midPrice, 4));
             double variance = asks.Average(a => Math.Pow(a.Price.Value - midPrice, 2)) + bids.Average(b => Math.Pow(b.Price.Value - midPrice, 2));
@@ -118,6 +138,8 @@ namespace VisualHFT.Studies
         }
         public double CalculatePriceLevelClustering()
         {
+            throw new Exception(
+                "Must be calculated taking the maxDepth in cosideration. Check Calculate_OrderImbalance()");
             // Calculate Price Level Clustering
             // This metric measures the extent to which orders are clustered at certain price levels. Clustering can indicate the presence of significant support or resistance levels.
             var priceLevels = asks.Select(a => a.Price.Value).Concat(bids.Select(b => b.Price.Value)).Distinct().Count();
@@ -125,6 +147,8 @@ namespace VisualHFT.Studies
         }
         public double CalculateLiquidityConsumption()
         {
+            throw new Exception(
+                "Must be calculated taking the maxDepth in cosideration. Check Calculate_OrderImbalance()");
             // Calculate Liquidity Consumption
             // This is a measure of how much the order book "moves" for each unit of volume traded. It can provide insights into market liquidity and efficiency.
             double volumeWeightedPrice = asks.Sum(a => a.Price.Value * a.Size.Value) + bids.Sum(b => b.Price.Value * b.Size.Value);

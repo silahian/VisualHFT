@@ -13,7 +13,44 @@
             <Label Content="Provider Name"/>
             <TextBox Text="{Binding ProviderName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Margin="0,5" />
 
-            <Label Content="API Key" Margin="0,20,0,0"/>
+            <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                <Label Content="API Key" />
+                <TextBlock Text="❓Why API keys are needed?" Foreground="Red" Cursor="Hand" Margin="10 5 0 0" MouseEnter="ShowTooltip">
+                </TextBlock>
+                <Popup PopupAnimation="Fade" Placement="Mouse" AllowsTransparency="True" StaysOpen="False" x:Name="TooltipPopup" >
+                    <Border Background="White" BorderBrush="Gray" CornerRadius="3" BorderThickness="1">
+                        <StackPanel Margin="10" Orientation="Horizontal" >
+                            <StackPanel>
+                                <TextBlock TextWrapping="Wrap" Width="350" Foreground="Black" FontSize="12">
+                                    <Run FontWeight="Bold">Why API keys are needed?</Run>
+                                    <LineBreak />
+                                    <Run>API keys allow us to access detailed market data from exchanges. If you prefer not to provide this, only publicly available data will be used. For more information, visit the API creation page of the exchange.</Run>
+                                    <LineBreak />
+                                    <LineBreak />
+                                    <Hyperlink NavigateUri="https://setting.bitfinex.com/api#new-key" RequestNavigate="Hyperlink_RequestNavigate" Cursor="Hand">
+                                        API Creation Page
+                                    </Hyperlink>
+                                </TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Popup>
+
+                <TextBlock Text="🔒 Privacy and Responsibility" Cursor="Hand" Margin="10 5 0 0">
+                    <TextBlock.ToolTip>
+                        <ToolTip>
+                            <StackPanel>
+                                <TextBlock TextWrapping="Wrap" Width="350">
+                                    <Run FontWeight="Bold">Privacy and Responsibility</Run>
+                                    <LineBreak />
+                                    <Run>All information, including API keys, is stored locally on your computer and is not shared with anyone. VisualHFT is not responsible for any misuse of this information.</Run>
+                                </TextBlock>
+                            </StackPanel>
+                        </ToolTip>
+                    </TextBlock.ToolTip>
+                </TextBlock>
+
+            </StackPanel>
             <TextBox Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}" Margin="0,5" />
 
             <Label Content="API Secret" Margin="0,20,0,0"/>

@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using VisualHFT.Enums;
 using VisualHFT.Helpers;
 using VisualHFT.ViewModel.Model;
 
@@ -26,7 +26,7 @@ namespace VisualHFT.Studies.MarketResilience.ViewModel
         private Action _actionCloseWindow;
         public ICommand OkCommand { get; private set; }
         public ICommand CancelCommand { get; private set; }
-        public Action UpdateSettingsFromUI{ get; set; }
+        public Action UpdateSettingsFromUI { get; set; }
 
         public PluginSettingsViewModel(Action actionCloseWindow)
         {
@@ -46,11 +46,8 @@ namespace VisualHFT.Studies.MarketResilience.ViewModel
             AggregationLevels = new ObservableCollection<Tuple<string, AggregationLevel>>();
             foreach (AggregationLevel level in Enum.GetValues(typeof(AggregationLevel)))
             {
-                AggregationLevels.Add(new Tuple<string, AggregationLevel>(HelperCommon.GetEnumDescription(level), level));
+                AggregationLevels.Add(new Tuple<string, AggregationLevel>(Commons.Helpers.HelperCommon.GetEnumDescription(level), level));
             }
-            AggregationLevelSelection = AggregationLevel.Automatic;
-
-
             LoadSelectedProviderID();
         }
 
@@ -60,7 +57,7 @@ namespace VisualHFT.Studies.MarketResilience.ViewModel
 
         public int? SelectedProviderID
         {
-            get { return _selectedProviderID;  }
+            get { return _selectedProviderID; }
             set
             {
                 _selectedProviderID = value;
@@ -107,7 +104,7 @@ namespace VisualHFT.Studies.MarketResilience.ViewModel
         public string ValidationMessage
         {
             get { return _validationMessage; }
-            set { _validationMessage = value; OnPropertyChanged(nameof(ValidationMessage));}
+            set { _validationMessage = value; OnPropertyChanged(nameof(ValidationMessage)); }
         }
 
         public string SuccessMessage
@@ -140,7 +137,7 @@ namespace VisualHFT.Studies.MarketResilience.ViewModel
         }
 
         private void ExecuteOkCommand(object obj)
-        {            
+        {
             SuccessMessage = "Settings saved successfully!";
             UpdateSettingsFromUI?.Invoke();
             _actionCloseWindow?.Invoke();
@@ -154,7 +151,7 @@ namespace VisualHFT.Studies.MarketResilience.ViewModel
             // This checks if any validation message exists for any of the properties
             return string.IsNullOrWhiteSpace(this[nameof(SelectedProvider)]) &&
                    string.IsNullOrWhiteSpace(this[nameof(SelectedSymbol)]);
-                   
+
         }
         private void RaiseCanExecuteChanged()
         {
@@ -174,7 +171,7 @@ namespace VisualHFT.Studies.MarketResilience.ViewModel
             }
         }
 
-        private void ALLSYMBOLS_CollectionChanged(object? sender, EventArgs e)
+        private void ALLSYMBOLS_CollectionChanged(object? sender, string e)
         {
             _symbols = new ObservableCollection<string>(HelperSymbol.Instance);
             OnPropertyChanged(nameof(Symbols));
@@ -186,7 +183,7 @@ namespace VisualHFT.Studies.MarketResilience.ViewModel
                 var item = new VisualHFT.ViewModel.Model.Provider(e);
                 if (!_providers.Any(x => x.ProviderCode == e.ProviderCode))
                     _providers.Add(item);
-                if (_selectedProvider == null && e.Status == eSESSIONSTATUS.BOTH_CONNECTED) //default provider must be the first who's Active
+                if (_selectedProvider == null && e.Status == eSESSIONSTATUS.CONNECTED) //default provider must be the first who's Active
                     SelectedProvider = item;
             }));
         }

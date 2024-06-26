@@ -3,7 +3,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:contrib="clr-namespace:OxyPlot.Wpf;assembly=OxyPlot.Contrib.Wpf"
     x:Class="VisualHFT.View.StatisticsView.ucStrategyOverview"
     TextElement.Foreground="{DynamicResource MaterialDesignBody}"
             TextElement.FontWeight="Regular"
@@ -106,7 +105,7 @@
                 <Label Content="{Binding PnLAmount}" ContentStringFormat="C0" Style="{StaticResource CardItems}" FontSize="18"/>
             </StackPanel>
         </Grid>
-        <!--CHART WINNING RATE-->
+        <!--CHART WINNING RATE
         <Grid Grid.Row="0" Grid.Column="4" VerticalAlignment="Stretch" >
             <StackPanel Orientation="Vertical" Panel.ZIndex="9999"  HorizontalAlignment="Center" VerticalAlignment="Center" >
                 <TextBlock  TextWrapping="NoWrap" TextAlignment="Center" FontSize="35" Text="{Binding WinningRate, StringFormat=P0}" />
@@ -132,9 +131,9 @@
                     ItemsSource="{Binding WinningRateChartPoints}"
                     ValueField="Value" IsExplodedField="IsExploded"  Margin="0,0,0,0" />
             </contrib:Plot>
-        </Grid>
+        </Grid>-->
 
-        <!--CHART-->
+        <!--CHART
         <contrib:Plot Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" >
             <contrib:Plot.Resources>
                 <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
@@ -152,6 +151,6 @@
                 <contrib:DateTimeAxis IntervalType="Hours" IntervalLength="50"/>
             </contrib:Plot.Axes>
             <contrib:LinearBarSeries ItemsSource="{Binding EquityChartPoints, Mode=TwoWay}" DataFieldX="Date" DataFieldY="Value" FillColor="#454CAF50" StrokeColor="#4CAF50" StrokeThickness="1" BarWidth="5"/>
-        </contrib:Plot>
+        </contrib:Plot>-->
     </Grid>
 </UserControl>

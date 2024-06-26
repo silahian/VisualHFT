@@ -1,10 +1,16 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
+using VisualHFT.DataTradeRetriever;
+using VisualHFT.Helpers;
 
-namespace VisualHFT.Helpers
+namespace VisualHFT.Commons.Helpers
 {
     public class HelperCommon
     {
+        public static IDataTradeRetriever EXECUTEDORDERS = new GenericTradesRetriever();
+        public static HelperStrategy ACTIVESTRATEGIES = new HelperStrategy();
+
+
         /*public static double GetCurrencyRate(string currencySymbol, bool getBid)
         {
             var stock = HelperYahoo.GetStock(currencySymbol);
@@ -21,10 +27,10 @@ namespace VisualHFT.Helpers
         {
             return GetKiloFormatter((double)num);
         }
-        public static string GetKiloFormatter(double num)
+        public static string GetKiloFormatter(double num, int decimalPlaces = 2)
         {
             if (num < 500)
-                return num.ToString("N");
+                return num.ToString("N" + decimalPlaces.ToString());
             if (num < 10000)
                 return num.ToString("N0");
 

@@ -11,7 +11,9 @@ using System.Threading.Tasks;
 using VisualHFT.Commons.PluginManager;
 using VisualHFT.DataRetriever;
 using VisualHFT.DataRetriever.DataParsers;
+using VisualHFT.Enums;
 using VisualHFT.Model;
+using VisualHFT.PluginManager;
 using VisualHFT.UserSettings;
 
 namespace MarketConnectors.WebSocket
@@ -63,6 +65,9 @@ namespace MarketConnectors.WebSocket
         }
         public override async Task StartAsync()
         {
+            await base.StartAsync();//call the base first
+
+
             try
             {
                 await Task.Run(async () =>
@@ -86,26 +91,30 @@ namespace MarketConnectors.WebSocket
                             }
                         }
                     }
+                    log.Info($"Plugin has successfully started.");
+                    RaiseOnDataReceived(GetProviderModel(eSESSIONSTATUS.CONNECTED));
+                    Status = ePluginStatus.STARTED;
+
                 });                
             }
             catch (Exception ex)
             {
-                if (log.IsErrorEnabled)
-                    log.Error($"{this.Name} WebSocket has been closed. " + ex.Message);
-                if (failedAttempts == 0)
-                    RaiseOnError(new VisualHFT.PluginManager.ErrorEventArgs() { IsCritical = true, PluginName = Name, Exception = ex });
-                await HandleConnectionLost();
-                throw;
+                var _error = ex.Message;
+                log.Error(_error, ex);
+                await HandleConnectionLost(_error, ex);
             }
         }
         public override async Task StopAsync()
         {
-            //reset models
-            RaiseOnDataReceived(new DataEventArgs() { DataType = "Market", ParsedModel = new List<VisualHFT.Model.OrderBook>(), RawData = "" });
-            RaiseOnDataReceived(new DataEventArgs() { DataType = "HeartBeats", ParsedModel = new List<VisualHFT.Model.Provider>() { ToHeartBeatModel(false) }, RawData = "" });
+            Status = ePluginStatus.STOPPING;
+            log.Info($"{this.Name} is stopping.");
 
-            if(_ws != null && _ws.State == WebSocketState.Open)
+
+            if (_ws != null && _ws.State == WebSocketState.Open)
                 await _ws.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+            //reset models
+            RaiseOnDataReceived(new List<VisualHFT.Model.OrderBook>());
+            RaiseOnDataReceived(GetProviderModel(eSESSIONSTATUS.DISCONNECTED));
 
             await base.StopAsync();
         }
@@ -153,19 +162,16 @@ namespace MarketConnectors.WebSocket
         private void CheckConnectionStatus(object state)
         {
             bool isConnected = _ws != null && _ws.State == WebSocketState.Open;
-            heartbeatDataEvent.ParsedModel = new List<VisualHFT.Model.Provider>() { ToHeartBeatModel(isConnected) };
-            RaiseOnDataReceived(heartbeatDataEvent);
-        }
-        private VisualHFT.Model.Provider ToHeartBeatModel(bool isConnected = true)
-        {
-            return new VisualHFT.Model.Provider()
+            if (isConnected)
             {
-                ProviderCode = _settings.ProviderId,
-                ProviderID = _settings.ProviderId,
-                ProviderName = _settings.ProviderName,
-                Status = isConnected ? eSESSIONSTATUS.BOTH_CONNECTED : eSESSIONSTATUS.BOTH_DISCONNECTED,
-                Plugin = this
-            };
+                RaiseOnDataReceived(GetProviderModel(eSESSIONSTATUS.CONNECTED));
+            }
+            else
+            {
+                RaiseOnDataReceived(GetProviderModel(eSESSIONSTATUS.DISCONNECTED));
+
+            }
+
         }
         public override object GetUISettings()
         {
@@ -183,9 +189,10 @@ namespace MarketConnectors.WebSocket
                 _settings.ProviderName = viewModel.ProviderName;
                 SaveSettings();
 
-                // Start the HandleConnectionLost task without awaiting it
                 //run this because it will allow to reconnect with the new values
-                Task.Run(HandleConnectionLost);
+                RaiseOnDataReceived(GetProviderModel(eSESSIONSTATUS.CONNECTING));
+                Status = ePluginStatus.STARTING;
+                Task.Run(async () => await HandleConnectionLost($"{this.Name} is starting (from reloading settings).", null, true));
 
             };
             // Display the view, perhaps in a dialog or a new window.

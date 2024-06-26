@@ -1,31 +1,52 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 using System.Collections.ObjectModel;
+using VisualHFT.Commons.Model;
+using VisualHFT.Commons.Pools;
 
 namespace VisualHFT.Helpers
 {
-    public class CachedCollection<T> : IEnumerable<T>
+    public class CachedCollection<T> : IDisposable, IEnumerable<T> where T : class, new()
     {
         private readonly object _lock = new object();
         private List<T> _internalList;
-        private ReadOnlyCollection<T> _cachedReadOnlyCollection;
+        private List<T> _cachedReadOnlyCollection;
+        private CachedCollection<T> _takeList;
+        private Comparison<T> _comparison;
 
         public CachedCollection(IEnumerable<T> initialData = null)
         {
             _internalList = initialData?.ToList() ?? new List<T>();
         }
+        public CachedCollection(Comparison<T> comparison = null, int listSize = 0)
+        {
+            if (listSize > 0)
+                _internalList = new List<T>(listSize);
+            else
+                _internalList = new List<T>();
+            _comparison = comparison;
+        }
+
+        public CachedCollection(IEnumerable<T> initialData = null, Comparison<T> comparison = null)
+        {
+            _internalList = initialData?.ToList() ?? new List<T>();
+            _comparison = comparison;
+            if (_comparison != null)
+            {
+                _internalList.Sort(_comparison);
+            }
+        }
+
 
         public ReadOnlyCollection<T> AsReadOnly()
         {
             lock (_lock)
             {
-                if (_cachedReadOnlyCollection == null)
+                if (_cachedReadOnlyCollection != null)
                 {
-                    _cachedReadOnlyCollection = _internalList.AsReadOnly();
+                    return _cachedReadOnlyCollection.AsReadOnly();
                 }
-                return _cachedReadOnlyCollection;
+                else
+                    return _internalList.AsReadOnly();
             }
         }
 
@@ -34,6 +55,7 @@ namespace VisualHFT.Helpers
             lock (_lock)
             {
                 _internalList = new List<T>(newData);
+                Sort();
                 _cachedReadOnlyCollection = null; // Invalidate the cache
             }
         }
@@ -61,10 +83,10 @@ namespace VisualHFT.Helpers
             lock (_lock)
             {
                 _internalList.Add(item);
+                Sort();
                 _cachedReadOnlyCollection = null; // Invalidate the cache
             }
         }
-
         public bool Remove(T item)
         {
             lock (_lock)
@@ -77,29 +99,40 @@ namespace VisualHFT.Helpers
                 return result;
             }
         }
-        public bool Remove(Func<T, bool> predicate)
+        public bool RemoveAll(Predicate<T> predicate)
+        {
+            return Remove(predicate);
+        }
+        public bool Remove(Predicate<T> predicate)
         {
             lock (_lock)
             {
-                T itemFound = _internalList.FirstOrDefault(predicate);
-                if (itemFound != null)
+                bool removed = false;
+                for (int i = _internalList.Count - 1; i >= 0; i--)
                 {
-                    var result = _internalList.Remove(itemFound);
-                    if (result)
+                    if (predicate(_internalList[i]))
                     {
-                        _cachedReadOnlyCollection = null; // Invalidate the cache
+                        var item = _internalList[i];
+                        _internalList.RemoveAt(i);
+                        removed = true;
                     }
-                    return result;
                 }
-                return false;
+                if (removed)
+                {
+                    _cachedReadOnlyCollection = null; // Invalidate the cache
+                }
+                return removed;
             }
         }
-        public void RemoveAt(int index)
+
+        public T FirstOrDefault()
         {
             lock (_lock)
             {
-                _internalList.RemoveAt(index);
-                _cachedReadOnlyCollection = null; // Invalidate the cache
+                if (_cachedReadOnlyCollection != null)
+                    return _cachedReadOnlyCollection.FirstOrDefault();
+                else
+                    return _internalList.FirstOrDefault();
             }
         }
         public T FirstOrDefault(Func<T, bool> predicate)
@@ -112,18 +145,116 @@ namespace VisualHFT.Helpers
                     return _internalList.FirstOrDefault(predicate);
             }
         }
+
+
+        public CachedCollection<T> Take(int count)
+        {
+            lock (_lock)
+            {
+                if (count <= 0)
+                {
+                    return null;
+                }
+
+                if (_takeList == null)
+                    _takeList = new CachedCollection<T>(_comparison);
+
+                _takeList.Clear();
+                if (_cachedReadOnlyCollection != null)
+                {
+                    for (int i = 0; i < Math.Min(count, _cachedReadOnlyCollection.Count); i++)
+                    {
+                        _takeList.Add(_cachedReadOnlyCollection[i]);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < Math.Min(count, _internalList.Count); i++)
+                    {
+                        _takeList.Add(_internalList[i]);
+                    }
+                }
+
+                return _takeList;
+            }
+        }
+
         public IEnumerator<T> GetEnumerator()
         {
             lock (_lock)
             {
                 if (_cachedReadOnlyCollection != null)
-                    return _cachedReadOnlyCollection.ToList().GetEnumerator();
+                    return _cachedReadOnlyCollection.GetEnumerator();
                 else
-                    return _internalList.ToList().GetEnumerator(); // Create a copy to ensure thread safety during enumeration
+                    return _internalList.GetEnumerator(); // Create a copy to ensure thread safety during enumeration
             }
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
 
+        private class TakeEnumerable : IEnumerable<T>
+        {
+            private readonly List<T> _source;
+            private readonly int _count;
+
+            public TakeEnumerable(List<T> source, int count)
+            {
+                _source = source;
+                _count = count;
+            }
+
+            public IEnumerator<T> GetEnumerator()
+            {
+                for (int i = 0; i < _count && i < _source.Count; i++)
+                {
+                    yield return _source[i];
+                }
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
+        public override bool Equals(object? obj)
+        {
+            if (obj == null)
+                return false;
+            var coll = (obj as CachedCollection<T>);
+            if (coll == null)
+                return false;
+
+            for (int i = 0; i < coll.Count(); i++)
+            {
+                if (!_internalList[i].Equals(coll[i]))
+                    return false;
+            }
+
+
+            return true;
+        }
+
+        public T this[int index]
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    if (_cachedReadOnlyCollection != null)
+                    {
+                        return _cachedReadOnlyCollection[index];
+                    }
+                    else
+                    {
+                        return _internalList[index];
+                    }
+                }
+            }
+
+        }
         public bool Update(Func<T, bool> predicate, Action<T> actionUpdate)
         {
             lock (_lock)
@@ -133,6 +264,7 @@ namespace VisualHFT.Helpers
                 {
                     //execute actionUpdate
                     actionUpdate(itemFound);
+                    Sort();
                     InvalidateCache();
                     return true;
                 }
@@ -154,9 +286,93 @@ namespace VisualHFT.Helpers
         {
             _cachedReadOnlyCollection = null; // Invalidate the cache
         }
-        IEnumerator IEnumerable.GetEnumerator()
+        public void Sort()
         {
-            return GetEnumerator();
+            lock (_lock)
+            {
+                if (_comparison != null)
+                {
+                    _internalList.Sort(_comparison);
+                    InvalidateCache();
+                }
+            }
+        }
+
+        public void ShallowCopyFrom(CachedCollection<T> sourceList)
+        {
+            ShallowCopyFrom(sourceList, null);
+        }
+        public void ShallowCopyFrom(CachedCollection<T> sourceList, CustomObjectPool<T> pool = null)
+        {
+            if (sourceList == null)
+                return;
+            lock (_lock)
+            {
+                Clear();
+                if (sourceList.Count() > _internalList.Count) //add empty items to match the source list
+                {
+                    for (int i = 0; i < sourceList.Count(); i++)
+                    {
+                        if (pool != null)
+                            _internalList.Add(pool.Get());
+                        else
+                            _internalList.Add(new T());
+                    }
+                }
+
+                for (int i = 0; i < _internalList.Count; i++)
+                {
+                    if (i < sourceList.Count())
+                    {
+                        if (!_internalList[i].Equals(sourceList[i]))
+                            (_internalList[i] as ICopiable<T>)?.CopyFrom(sourceList[i]);
+                    }
+                    else
+                        (_internalList[i] as IResettable)?.Reset();
+                }
+                Sort();
+            }
+        }
+        /// <summary>
+        /// ShallowUpdateFrom
+        /// Will update an existing list that will never change.
+        /// This is very useful when keeping a Collection locally and want to avoid swapping and allocations
+        /// One place that is being used is in vmOrderBook, to keep the Grids updated.
+        /// </summary>
+        /// <param name="sourceList">The source list.</param>
+        public void ShallowUpdateFrom(CachedCollection<T> sourceList)
+        {
+            if (sourceList == null)
+                return;
+            lock (_lock)
+            {
+                if (sourceList.Count() > _internalList.Count) //add empty items to match the source list
+                {
+                    for (int i = 0; i < sourceList.Count() - _internalList.Count + 1; i++)
+                    {
+                        _internalList.Add(new T());
+                    }
+                }
+
+                for (int i = 0; i < _internalList.Count; i++)
+                {
+                    if (i < sourceList.Count())
+                    {
+                        if (!_internalList[i].Equals(sourceList[i]))
+                            (_internalList[i] as ICopiable<T>)?.CopyFrom(sourceList[i]);
+                    }
+                    else
+                        (_internalList[i] as IResettable)?.Reset();
+                }
+                Sort();
+            }
+        }
+
+        public void Dispose()
+        {
+            _internalList.Clear();
+            _cachedReadOnlyCollection?.Clear();
+            _takeList.Dispose();
         }
     }
 }

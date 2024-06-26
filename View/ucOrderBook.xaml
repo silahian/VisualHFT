@@ -3,28 +3,30 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:VisualHFT.View"
              xmlns:Formatters="clr-namespace:VisualHFT.Converters"
              xmlns:ViewModel="clr-namespace:VisualHFT.ViewModel"
-             xmlns:contrib="http://oxyplot.org/wpf/contrib" 
-             xmlns:model="clr-namespace:VisualHFT.Model"
+             xmlns:oxyplot="http://oxyplot.org/wpf"
+             xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+             xmlns:userControls="clr-namespace:VisualHFT.UserControls"
+             d:DataContext="{d:DesignInstance Type=ViewModel:vmOrderBook}"
              mc:Ignorable="d" 
     
-            TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-            Background="{DynamicResource MaterialDesignPaper}"
+            TextElement.Foreground="{StaticResource MaterialDesignBody}"
+            Background="{StaticResource MaterialDesignPaper}"
             FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
-
+            d:DesignHeight="776" d:DesignWidth="873" MinWidth="300" 
              
-             d:DesignHeight="776" d:DesignWidth="873" MinWidth="300">
-
+             >
 
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../GlobalStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
             <Formatters:ConverterValueToWidth x:Key="ValueToWidthConverter" />
+
             <DataTemplate x:Key="View1Template" DataType="{x:Type ViewModel:vmOrderBook}">
                 <local:ucDepth />
             </DataTemplate>
@@ -34,9 +36,21 @@
             <DataTemplate x:Key="View3Template" DataType="{x:Type ViewModel:vmOrderBook}">
                 <local:ucDepth2 />
             </DataTemplate>
-        </ResourceDictionary>
 
+            <CollectionViewSource x:Key="ProviderView" Source="{Binding Providers}">
+                <CollectionViewSource.SortDescriptions>
+                    <componentModel:SortDescription PropertyName="ProviderName" />
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
+            <CollectionViewSource x:Key="SymbolView" Source="{Binding SymbolList}">
+                <CollectionViewSource.SortDescriptions>
+                    <componentModel:SortDescription PropertyName="SymbolName" />
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
+
+        </ResourceDictionary>
     </UserControl.Resources>
+
 
     <Grid VerticalAlignment="Stretch">
         <Grid.Resources>
@@ -54,12 +68,25 @@
             <RowDefinition Height="*" MaxHeight="100" />
         </Grid.RowDefinitions>
 
+
         <!--PROVIDER & SYMBOL-->
         <Grid Grid.Column="0" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}">
             <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto">
                 <!--SELECT PROVIDER-->
-                <GroupBox Style="{DynamicResource MaterialDesignCardGroupBox}" Header="Provider" BorderBrush="#DBD0C6" VerticalAlignment="Top" DockPanel.Dock="Top">
-                    <ComboBox ItemsSource="{Binding Path=Providers}" SelectedItem="{Binding SelectedProvider}" DisplayMemberPath="ProviderName" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
+                <GroupBox Style="{StaticResource MaterialDesignCardGroupBox}" Header="Provider/Symbol" BorderBrush="#DBD0C6" VerticalAlignment="Top" DockPanel.Dock="Top" >
+                    <StackPanel>
+                        <TextBlock Text="Aggregation:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <ComboBox ItemsSource="{Binding AggregationLevels}" 
+                                  DisplayMemberPath="Item1" 
+                                  SelectedValuePath="Item2" 
+                                  SelectedValue="{Binding AggregationLevelSelection}" 
+                                  HorizontalAlignment="Stretch" Margin="10,10,0,10" VerticalAlignment="Top" FontSize="18"
+                                  />
+
+
+                        <ComboBox ItemsSource="{Binding Source={StaticResource ProviderView}}" SelectedItem="{Binding SelectedProvider}" DisplayMemberPath="ProviderName" HorizontalAlignment="Stretch" Margin="10,10,0,10" VerticalAlignment="Top" FontSize="18"/>
+                        <ComboBox ItemsSource="{Binding Source={StaticResource SymbolView}}" SelectedItem="{Binding SelectedSymbol}" HorizontalAlignment="Stretch" Margin="10,10,0,10" VerticalAlignment="Top" FontSize="18"/>
+                    </StackPanel>
                 </GroupBox>
                 <Grid>
                     <Button x:Name="butPopSymbol" ToolTip="Open this section into a new popup-Window" Click="butPopSymbol_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="999" Margin="0" Padding="0" Height="20" Width="20">
@@ -73,7 +100,7 @@
                         </Grid.RowDefinitions>
                         <!--BID/ASK Prices BOX-->
                         <GroupBox x:Name="grpSymbol" Grid.Row="0" 
-                                  Style="{DynamicResource MaterialDesignCardGroupBox}" 
+                                  Style="{StaticResource MaterialDesignCardGroupBox}" 
                                   Header="{Binding SelectedSymbol}" BorderBrush="#DBD0C6" FontSize="26" 
                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <Grid >
@@ -100,10 +127,10 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="20" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding BidTOB_SPLIT.Rest}" FontFamily="Verdana" FontWeight="Bold" FontSize="25"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="5,0,0,0" />
-                                    <TextBlock Text="{Binding BidTOB_SPLIT.NextTwoDecimals}" FontFamily="Verdana" FontWeight="Bold" FontSize="54" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
-                                    <TextBlock Text="{Binding BidTOB_SPLIT.LastDecimal}"  FontFamily="Verdana" FontWeight="Bold" FontSize="26"  Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,3,8" />
-                                    <TextBlock Text="{Binding BidTOB_SPLIT.Size}"  FontFamily="Verdana" FontWeight="Bold" FontSize="18"  Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom"  />
+                                    <TextBlock Text="{Binding BidTOB_SPLIT.Rest, Mode=OneWay}" FontFamily="Verdana" FontWeight="Bold" FontSize="25"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="5,0,0,0" />
+                                    <TextBlock Text="{Binding BidTOB_SPLIT.NextTwoDecimals, Mode=OneWay}" FontFamily="Verdana" FontWeight="Bold" FontSize="54" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+                                    <TextBlock Text="{Binding BidTOB_SPLIT.LastDecimal, Mode=OneWay}"  FontFamily="Verdana" FontWeight="Bold" FontSize="26"  Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,3,8" />
+                                    <TextBlock Text="{Binding BidTOB_SPLIT.Size, Mode=OneWay}"  FontFamily="Verdana" FontWeight="Bold" FontSize="18"  Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom"  />
                                 </Grid>
                                 <!--ASK-->
                                 <Grid Margin="5" Grid.Column="1" Background="#434D4C">
@@ -121,10 +148,10 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="20" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding AskTOB_SPLIT.Rest}" FontFamily="Verdana" FontWeight="Bold" FontSize="25"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="5,0,0,0"/>
-                                    <TextBlock Text="{Binding AskTOB_SPLIT.NextTwoDecimals}" FontFamily="Verdana" FontWeight="Bold" FontSize="54" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
-                                    <TextBlock Text="{Binding AskTOB_SPLIT.LastDecimal}"  FontFamily="Verdana" FontWeight="Bold" FontSize="26"  Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,3,8" />
-                                    <TextBlock Text="{Binding AskTOB_SPLIT.Size}" FontFamily="Verdana" FontWeight="Bold" FontSize="18"  Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom"  />
+                                    <TextBlock Text="{Binding AskTOB_SPLIT.Rest, Mode=OneWay}" FontFamily="Verdana" FontWeight="Bold" FontSize="25"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="5,0,0,0"/>
+                                    <TextBlock Text="{Binding AskTOB_SPLIT.NextTwoDecimals, Mode=OneWay}" FontFamily="Verdana" FontWeight="Bold" FontSize="54" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+                                    <TextBlock Text="{Binding AskTOB_SPLIT.LastDecimal, Mode=OneWay}"  FontFamily="Verdana" FontWeight="Bold" FontSize="26"  Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,3,8" />
+                                    <TextBlock Text="{Binding AskTOB_SPLIT.Size, Mode=OneWay}" FontFamily="Verdana" FontWeight="Bold" FontSize="18"  Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom"  />
                                 </Grid>
                                 <Grid Grid.Column="0" Grid.ColumnSpan="2" Margin="0 0 0 0" VerticalAlignment="Bottom" >
                                     <Grid.Resources>
@@ -137,7 +164,7 @@
                                         </Style>
                                     </Grid.Resources>
                                     <Border BorderBrush="WhiteSmoke" BorderThickness="2" Height="25" Width="80" Background="#434D4C"  >
-                                        <TextBlock Text="{Binding Spread, StringFormat=N}" />
+                                        <TextBlock Text="{Binding Spread, Mode=OneWay, StringFormat=N}" />
                                     </Border>
 
                                 </Grid>
@@ -165,7 +192,7 @@
                                 <Path Fill="Black" Data="M 0 10 L 5 0 L 10 10 Z">
                                     <Canvas.Left>
                                         <MultiBinding Converter="{StaticResource ValueToWidthConverter}">
-                                            <Binding Path="LOBImbalanceValue" />
+                                            <Binding Path="LOBImbalanceValue" Mode="OneWay" />
                                             <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=Canvas}" />
                                         </MultiBinding>
                                     </Canvas.Left>
@@ -175,35 +202,36 @@
                         <!--DATAGRID BID/ASK-->
                         <Grid Grid.Row="2" Grid.Column="0" VerticalAlignment="Stretch" >
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="28"/>
+                                <RowDefinition Height="28" />
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <Button Grid.Row="0" x:Name="butDepthView1" Command="{Binding}" CommandParameter="DepthView1" ToolTip="Change depth view" HorizontalAlignment="Left" Margin="0,0,0,0" Padding="0" Width="25" Height="25" VerticalAlignment="Top" Click="butDepthView1_Click">
+                            <Button Visibility="Collapsed" Grid.Row="0" x:Name="butDepthView1" Command="{Binding}" CommandParameter="DepthView1" ToolTip="Change depth view" HorizontalAlignment="Left" Margin="0,0,0,0" Padding="0" Width="25" Height="25" VerticalAlignment="Top" Click="butDepthView1_Click">
                                 <Image Source="/Images/imgDepth.png" />
                             </Button>
-                            <Button Grid.Row="0" x:Name="butDepthView2" Command="{Binding}" CommandParameter="DepthView2" ToolTip="Change depth view" HorizontalAlignment="Left" Margin="27,0,0,0" Padding="0" Width="25" Height="25" VerticalAlignment="Top" Click="butDepthView2_Click">
+                            <Button Visibility="Collapsed" Grid.Row="0" x:Name="butDepthView2" Command="{Binding}" CommandParameter="DepthView2" ToolTip="Change depth view" HorizontalAlignment="Left" Margin="27,0,0,0" Padding="0" Width="25" Height="25" VerticalAlignment="Top" Click="butDepthView2_Click">
                                 <Image Source="/Images/imgDepth1.png" />
                             </Button>
-                            <Button Grid.Row="0" x:Name="butDepthView3" Command="{Binding}" CommandParameter="DepthView3" ToolTip="Change depth view" HorizontalAlignment="Left" Margin="54,0,0,0" Padding="0" Width="25" Height="25" VerticalAlignment="Top" Click="butDepthView3_Click">
+                            <Button Visibility="Collapsed" Grid.Row="0" x:Name="butDepthView3" Command="{Binding}" CommandParameter="DepthView3" ToolTip="Change depth view" HorizontalAlignment="Left" Margin="54,0,0,0" Padding="0" Width="25" Height="25" VerticalAlignment="Top" Click="butDepthView3_Click">
                                 <Image Source="/Images/imgDepth2.png" />
                             </Button>
-                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                                <ContentControl Content="{Binding }" Grid.Row="1">
-                                    <ContentControl.Style>
-                                        <Style TargetType="{x:Type ContentControl}">
-                                            <Setter Property="ContentTemplate" Value="{StaticResource View1Template}" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding SwitchView}" Value="1">
-                                                    <Setter Property="ContentTemplate" Value="{StaticResource View2Template}" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding SwitchView}" Value="2">
-                                                    <Setter Property="ContentTemplate" Value="{StaticResource View3Template}" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </ContentControl.Style>
-                                </ContentControl>
-                            </ScrollViewer>
+                            <ContentControl Content="{Binding }" Grid.Row="1">
+                                <ContentControl.Style>
+                                    <Style TargetType="{x:Type ContentControl}">
+
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SwitchView}" Value="0">
+                                                <Setter Property="ContentTemplate" Value="{StaticResource View1Template}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding SwitchView}" Value="1">
+                                                <Setter Property="ContentTemplate" Value="{StaticResource View2Template}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding SwitchView}" Value="2">
+                                                <Setter Property="ContentTemplate" Value="{StaticResource View3Template}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ContentControl.Style>
+                            </ContentControl>
                         </Grid>
 
                     </Grid>
@@ -219,42 +247,24 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <contrib:Plot PlotAreaBorderThickness="0" TextColor="White" DefaultFontSize="8" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="0" IsEnabled="False" >
-                <contrib:Plot.Resources>
-                    <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
-                    <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
-                    <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
-                    <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
-                </contrib:Plot.Resources>
-                <contrib:Plot.Background>
-                    <StaticResource ResourceKey="PlotBackgroundBrush" />
-                </contrib:Plot.Background>
-                <contrib:Plot.Axes>
-                    <contrib:LinearAxis Position="Left" Maximum="{Binding DepthChartMaxY}" />
-                    <contrib:LinearAxis Position="Bottom" StringFormat="N"/>
-                </contrib:Plot.Axes>
-                <contrib:Plot.Series>
-                    <contrib:TwoColorAreaSeries Title="Bids" DataFieldX="Price" DataFieldY="Size" ItemsSource="{Binding BidCummulative}" StrokeThickness="5" Fill="DarkGreen" LineStyle="Solid" Color="LightGreen"/>
-                </contrib:Plot.Series>
-            </contrib:Plot>
-            <contrib:Plot PlotAreaBorderThickness="0" TextColor="White" DefaultFontSize="8" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" IsEnabled="False"  >
-                <contrib:Plot.Resources>
-                    <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
-                    <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
-                    <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
-                    <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
-                </contrib:Plot.Resources>
-                <contrib:Plot.Background>
-                    <StaticResource ResourceKey="PlotBackgroundBrush" />
-                </contrib:Plot.Background>
-                <contrib:Plot.Axes>
-                    <contrib:LinearAxis Position="Right" Maximum="{Binding DepthChartMaxY}" />
-                    <contrib:LinearAxis Position="Bottom" StringFormat="N"/>
-                </contrib:Plot.Axes>
-                <contrib:Plot.Series>
-                    <contrib:TwoColorAreaSeries Title="Asks" DataFieldX="Price" DataFieldY="Size" ItemsSource="{Binding AskCummulative}" StrokeThickness="5" Fill="DarkRed" LineStyle="Solid" Color="Pink"/>
-                </contrib:Plot.Series>
-            </contrib:Plot>
+            <!--CUMMULATIVE BIDS-->
+            <oxyplot:PlotView 
+                Grid.Column="0"
+                HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                IsEnabled="False"
+                IsMouseWheelEnabled="False"
+                Style="{StaticResource BaseChartStyle}"
+                Model="{Binding CummulativeBidsChartModel, Mode=OneWay}" >
+            </oxyplot:PlotView>
+            <!--CUMMULATIVE ASKS-->
+            <oxyplot:PlotView 
+                Grid.Column="1"
+                HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                IsEnabled="False"
+                IsMouseWheelEnabled="False"
+                Style="{StaticResource BaseChartStyle}"
+                Model="{Binding CummulativeAsksChartModel, Mode=OneWay}" >
+            </oxyplot:PlotView>
 
             <Border Margin="0, 10, 0, 120" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" Background="#20FFFFFF" CornerRadius="10" Height="60">
                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" >
@@ -285,30 +295,16 @@
                     </ToolTip>
                 </Grid.ToolTip>
 
-                <contrib:Plot x:Name="chtPrice" 
-                                      Title="Price" TitleColor="White"  TitleFontSize="10" PlotAreaBorderColor="Gray" TextColor="White"  DefaultFontSize="8" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsEnabled="False" >
-                    <contrib:Plot.Resources>
-                        <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
-                        <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
-                        <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
-                        <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
-                    </contrib:Plot.Resources>
-                    <contrib:Plot.Background>
-                        <StaticResource ResourceKey="PlotBackgroundBrush" />
-                    </contrib:Plot.Background>
-                    <contrib:Plot.Axes>
-                        <contrib:LinearAxis Position="Left" Minimum="{Binding RealTimeYAxisMinimum}" Maximum="{Binding RealTimeYAxisMaximum}" StringFormat="N0"/>
-                        <contrib:DateTimeAxis Position="Bottom"/>
-                    </contrib:Plot.Axes>
-                    <contrib:Plot.Series>
-                        <contrib:ScatterSeries DataFieldX="Date" DataFieldY="Price" DataFieldValue="Price" DataFieldSize="Size" ItemsSource="{Binding RealTimeOrderLevelsBid}" Color="Green" MarkerType="Circle" MarkerStrokeThickness="1" MarkerFill="#8000FF00"/>
-                        <contrib:ScatterSeries DataFieldX="Date" DataFieldY="Price" DataFieldValue="Price" DataFieldSize="Size" ItemsSource="{Binding RealTimeOrderLevelsAsk}" Color="Red" MarkerType="Circle" MarkerStrokeThickness="1" MarkerFill="#80FF0000"/>
+                <oxyplot:PlotView 
+                    x:Name="chtPrice" 
+                    Visibility="Visible"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                    IsEnabled="False"
+                    IsMouseWheelEnabled="False" 
+                    Style="{StaticResource BaseChartStyle}" 
+                    Model="{Binding RealTimePricePlotModel, Mode=OneWay}" >
+                </oxyplot:PlotView>
 
-                        <contrib:LineSeries DataFieldX="Date" DataFieldY="MidPrice" ItemsSource="{Binding RealTimePrices}" StrokeThickness="0.5" LineStyle="Solid" Color="Gray" />
-                        <contrib:LineSeries DataFieldX="Date" DataFieldY="AskPrice" ItemsSource="{Binding RealTimePrices}" StrokeThickness="1" LineStyle="Solid" Color="Red"/>
-                        <contrib:LineSeries DataFieldX="Date" DataFieldY="BidPrice" ItemsSource="{Binding RealTimePrices}" StrokeThickness="1" LineStyle="Solid" Color="Green"/>
-                    </contrib:Plot.Series>
-                </contrib:Plot>
 
             </Grid>
         </Grid>
@@ -319,40 +315,38 @@
             <Button x:Name="butPopSpreadChart" ToolTip="Open this section into a new popup-Window" Click="butPopSpreadChart_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="999" Margin="0,0,50,0" Padding="0" Height="20" Width="20">
                 <Image Source="/Images/pop-up.png" />
             </Button>
-            <contrib:Plot x:Name="chtSpread" Title="Spread" TitleColor="White" TitleFontSize="10" PlotAreaBorderThickness="0" TextColor="White" DefaultFontSize="8" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Column="1" IsEnabled="False"  >
-                <contrib:Plot.Resources>
-                    <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
-                    <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
-                    <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
-                    <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
-                </contrib:Plot.Resources>
-                <contrib:Plot.Background>
-                    <StaticResource ResourceKey="PlotBackgroundBrush" />
-                </contrib:Plot.Background>
-                <contrib:Plot.Axes>
-                    <contrib:LinearAxis Position="Left" StringFormat="N2"/>
-                    <contrib:DateTimeAxis Position="Bottom"/>
-                </contrib:Plot.Axes>
-                <contrib:Plot.Series>
-                    <contrib:LineSeries DataFieldX="Date" DataFieldY="MidPrice" ItemsSource="{Binding RealTimeSpread}" StrokeThickness="2" LineStyle="Solid" Color="Blue" LabelMargin="5" IsEnabled="False" />
+            <oxyplot:PlotView 
+                x:Name="chtSpread" 
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                IsEnabled="False" 
+                IsMouseWheelEnabled="False"
+                Style="{StaticResource BaseChartStyle}"
+                Model="{Binding RealTimeSpreadModel, Mode=OneWay}" >
+            </oxyplot:PlotView>
 
-                </contrib:Plot.Series>
-            </contrib:Plot>
+
         </Grid>
         <!--END SPREAD CHART-->
 
 
-        <Grid Grid.Column="2" Grid.RowSpan="3" VerticalAlignment="Stretch">
+
+        <Grid Grid.Column="2" Grid.RowSpan="3" >
             <!--TRADES-->
-            <DataGrid ItemsSource="{Binding Trades}" Style="{DynamicResource MaterialDesignDataGrid}" FontSize="9" FontFamily="Verdana" 
-                      FontWeight="UltraLight" AutoGenerateColumns="False" SelectionUnit="FullRow" CanUserDeleteRows="False" CanUserAddRows="False" 
+            <DataGrid ItemsSource="{Binding Path=TradesDisplay, Mode=OneWay}" 
+                      AutoGenerateColumns="False" 
+                      VerticalAlignment="Top"
+                      FontWeight="UltraLight" FontSize="9" FontFamily="Verdana" 
+
+
+                      Style="{DynamicResource MaterialDesignDataGrid}" 
+                      SelectionUnit="FullRow" CanUserDeleteRows="False" CanUserAddRows="False" 
                       ClipboardCopyMode="IncludeHeader" HeadersVisibility="Column" AlternationCount="2" IsReadOnly="True" BorderThickness="0" 
                       CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" 
                       HorizontalScrollBarVisibility="Hidden" IsHitTestVisible="True" 
                       EnableRowVirtualization="True" 
                       EnableColumnVirtualization="False" 
                       VerticalScrollBarVisibility="Auto" 
-                      MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}"
+                        MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}" 
                       Padding="0" >
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
@@ -382,6 +376,8 @@
                     <DataGridTextColumn Header="Time" Binding="{Binding Timestamp, StringFormat='{}{0:HH:mm:ss}'}" Width="80" ElementStyle="{DynamicResource RightAligned}"  HeaderStyle="{DynamicResource RightAlignedHeader}"/>
                 </DataGrid.Columns>
             </DataGrid>
+
+
             <!--END TRADES-->
         </Grid>
 

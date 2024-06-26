@@ -26,7 +26,92 @@
 
 
         <!--BIDS-->
-        <DataGrid ItemsSource="{Binding Bids}" 
+        <Grid Grid.Column="0" Visibility="Visible">
+            <Grid.RowDefinitions>
+                <!-- Row for headers -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row for data items -->
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Margin" Value="0 7 0 0"></Setter>
+                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="HorizontalAlignment" Value="Right" />
+                        <Setter Property="FontFamily" Value="Verdana"/>
+                        <Setter Property="FontWeight" Value="UltraLight"></Setter>
+                        <Setter Property="FontSize" Value="12"></Setter>
+                    </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="30"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Size" Grid.Column="0" />
+                <TextBlock Text="Price" Grid.Column="1" />
+                <TextBlock Text="A" Grid.Column="2" />
+            </Grid>
+
+            <ItemsControl ItemsSource="{Binding Path=Bids, Mode=OneWay}" Grid.Row="1" >
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="LightGreen"/>
+                                    <Setter Property="FontSize" Value="10"/>
+                                    <Setter Property="FontFamily" Value="Verdana"/>
+                                    <Setter Property="FontWeight" Value="UltraLight"/>
+                                    <Setter Property="TextAlignment" Value="Right"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="HorizontalAlignment" Value="Right"></Setter>
+                                    <Setter Property="Height" Value="22"></Setter>
+                                </Style>
+                            </Grid.Resources>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="80" />
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="50"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- Adding DataTriggers to control visibility -->
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Style.Triggers>
+                                        <!-- Check if Price is 0 or null -->
+                                        <DataTrigger Binding="{Binding Price}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Price}" Value="0">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <!-- Check if Size is 0 or null -->
+                                        <DataTrigger Binding="{Binding Size}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Size}" Value="0">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+
+                            <TextBlock Text="{Binding FormattedSize}" Grid.Column="0" />
+                            <TextBlock Text="{Binding FormattedPrice}" Grid.Column="1" />
+                            <TextBlock Text="{Binding FormattedActiveSize}" Grid.Column="2" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+
+        <!--BIDS
+        <DataGrid Visibility="Hidden" ItemsSource="{Binding Bids, Mode=OneWay}"
                                      Style="{StaticResource MaterialDesignDataGrid}" 
                                      Grid.Column="0" FontSize="9" FontFamily="Verdana" 
                                      FontWeight="UltraLight" AutoGenerateColumns="False" 
@@ -42,31 +127,26 @@
                                      HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" 
                                      IsHitTestVisible="False"
                                      AlternationCount="0"
+                                     EnableRowVirtualization="True"
                                      >
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Setter Property="Height" Value="26" />
                     <Setter Property="Padding" Value="0" />
                     <Setter Property="Margin" Value="0" />
-                    <Style.Triggers>
-                        <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                            <Setter Property="Background" Value="Transparent"/>
-                        </Trigger>
-                        <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                            <Setter Property="Background" Value="Black"/>
-                        </Trigger>
-                    </Style.Triggers>
+                    <Setter Property="Background" Value="Black"/>
+                    <Setter Property="Foreground" Value="LightGreen"></Setter>
                 </Style>
             </DataGrid.RowStyle>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="80" Foreground="LightGreen" ElementStyle="{StaticResource RightAligned}"  HeaderStyle="{StaticResource RightAlignedHeader}"/>
-                <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="100" Foreground="LightGreen" ElementStyle="{StaticResource RightAligned}"  HeaderStyle="{StaticResource RightAlignedHeader}"/>
-                <DataGridTextColumn Header="A" Binding="{Binding FormattedActiveSize}" Width="50" Foreground="DarkGreen" FontWeight="Bold" ElementStyle="{StaticResource RightAligned}"  HeaderStyle="{StaticResource RightAlignedHeader}"/>
+                <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize, Mode=OneWay}" Width="80" ElementStyle="{StaticResource RightAligned}"  HeaderStyle="{StaticResource RightAlignedHeader}"/>
+                <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice, Mode=OneWay}" Width="100" ElementStyle="{StaticResource RightAligned}"  HeaderStyle="{StaticResource RightAlignedHeader}"/>
+                <DataGridTextColumn Header="A" Binding="{Binding FormattedActiveSize, Mode=OneWay}" Width="50" ElementStyle="{StaticResource RightAligned}"  HeaderStyle="{StaticResource RightAlignedHeader}"/>
             </DataGrid.Columns>
-        </DataGrid>
+        </DataGrid>-->
         <!--ENDS BIDS-->
-        <!--ASKS-->
-        <DataGrid ItemsSource="{Binding Asks}" 
+        <!--ASKS
+        <DataGrid ItemsSource="{Binding Asks, Mode=OneWay}" 
                                      Style="{StaticResource MaterialDesignDataGrid}" 
                                      Grid.Column="1" 
                                      FontSize="9" FontFamily="Verdana" FontWeight="UltraLight" 
@@ -80,28 +160,108 @@
                                      CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" 
                                      HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" 
                                      IsHitTestVisible="False"
+                                     EnableRowVirtualization="True"
                                      >
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Setter Property="Height" Value="26" />
                     <Setter Property="Padding" Value="0" />
                     <Setter Property="Margin" Value="0" />
-                    <Style.Triggers>
-                        <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                            <Setter Property="Background" Value="Transparent"/>
-                        </Trigger>
-                        <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                            <Setter Property="Background" Value="Black"/>
-                        </Trigger>
-                    </Style.Triggers>
+                    <Setter Property="Background" Value="Black"/>
+                    <Setter Property="Foreground" Value="Pink"></Setter>
                 </Style>
             </DataGrid.RowStyle>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="A" Binding="{Binding FormattedActiveSize}" Width="50" Foreground="DarkRed" FontWeight="Bold" />
-                <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice}" Width="100"  Foreground="Pink" />
-                <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="80" Foreground="Pink"/>
+                <DataGridTextColumn Header="A" Binding="{Binding FormattedActiveSize, Mode=OneWay}" Width="50" FontWeight="Bold" />
+                <DataGridTextColumn Header="Price" Binding="{Binding FormattedPrice, Mode=OneWay}" Width="100" />
+                <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize, Mode=OneWay}" Width="80" />
             </DataGrid.Columns>
         </DataGrid>
+        -->
+        <Grid Grid.Column="1" Visibility="Visible">
+            <Grid.RowDefinitions>
+                <!-- Row for headers -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row for data items -->
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Margin" Value="0 7 0 0"></Setter>
+                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="HorizontalAlignment" Value="Right" />
+                        <Setter Property="FontFamily" Value="Verdana"/>
+                        <Setter Property="FontWeight" Value="UltraLight"></Setter>
+                        <Setter Property="FontSize" Value="12"></Setter>
+                    </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="30"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="A" Grid.Column="2" />
+                <TextBlock Text="Price" Grid.Column="1" />
+                <TextBlock Text="Size" Grid.Column="0" />
+
+            </Grid>
+
+            <ItemsControl ItemsSource="{Binding Path=Asks, Mode=OneWay}" Grid.Row="1" >
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="Pink"/>
+                                    <Setter Property="FontSize" Value="10"/>
+                                    <Setter Property="FontFamily" Value="Verdana"/>
+                                    <Setter Property="FontWeight" Value="UltraLight"/>
+                                    <Setter Property="TextAlignment" Value="Right"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="HorizontalAlignment" Value="Right"></Setter>
+                                    <Setter Property="Height" Value="22"></Setter>
+                                </Style>
+                            </Grid.Resources>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="80" />
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="50"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- Adding DataTriggers to control visibility -->
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Style.Triggers>
+                                        <!-- Check if Price is 0 or null -->
+                                        <DataTrigger Binding="{Binding Price}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Price}" Value="0">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <!-- Check if Size is 0 or null -->
+                                        <DataTrigger Binding="{Binding Size}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Size}" Value="0">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+                            <TextBlock Text="{Binding FormattedActiveSize}" Grid.Column="2" />
+                            <TextBlock Text="{Binding FormattedPrice}" Grid.Column="1" />
+                            <TextBlock Text="{Binding FormattedSize}" Grid.Column="0" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+
         <!--ENDS ASKS-->
     </Grid>
 

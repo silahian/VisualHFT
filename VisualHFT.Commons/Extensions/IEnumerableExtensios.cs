@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace VisualHFT
+﻿namespace VisualHFT
 {
     public static class IEnumerableExtensios
     {
         public static double Quantile(this IEnumerable<double> sequence, double quantile)
         {
+            if (sequence == null || sequence.Count() == 0)
+                return 0;
             var elements = sequence.ToArray();
             Array.Sort(elements);
             double realIndex = quantile * (elements.Length - 1);
@@ -17,8 +13,8 @@ namespace VisualHFT
             double frac = realIndex - index;
             if (index + 1 < elements.Length)
                 return elements[index] * (1 - frac) + elements[index + 1] * frac;
-            else
-                return elements[index];
+            else if (index >= 0 && index < elements.Length - 1) ;
+            return elements[index];
         }
 
 

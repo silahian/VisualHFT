@@ -9,6 +9,8 @@ using System.Windows.Threading;
 using Prism.Mvvm;
 using System.Windows.Input;
 using System.Windows.Data;
+using HelperCommon = VisualHFT.Commons.Helpers.HelperCommon;
+using VisualHFT.Enums;
 
 namespace VisualHFT.ViewModel
 {
@@ -21,7 +23,8 @@ namespace VisualHFT.ViewModel
         private Dictionary<string, Func<string, string, bool>> _dialogs;
         private ObservableCollection<VisualHFT.Model.Order> _allOrders;
         private ObservableCollection<PositionManager> _positionsManager;
-        private readonly object _locker = new object();
+        private readonly object _lockOrders = new object();
+        private readonly object _lockPosMgr = new object();
         private bool _disposed = false; // to track whether the object has been disposed
         private volatile bool _isDispatcherActionRunning = false;
 
@@ -35,7 +38,7 @@ namespace VisualHFT.ViewModel
             PositionsManager = new ObservableCollection<PositionManager>();
             FilterCommand = new RelayCommand<string>(OnFilterChanged);
             this.SelectedDate = HelperTimeProvider.Now; //new DateTime(2022, 10, 6); 
-            lock (_locker)
+            lock (_lockOrders)
             {
                 _allOrders = new ObservableCollection<VisualHFT.Model.Order>();
                 OrdersView = CollectionViewSource.GetDefaultView(_allOrders);
@@ -73,7 +76,7 @@ namespace VisualHFT.ViewModel
         {
             System.Windows.Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
             {
-                lock (_locker)
+                lock (_lockOrders)
                 {
                     foreach (var ord in e)
                     {
@@ -89,7 +92,7 @@ namespace VisualHFT.ViewModel
             {
                 System.Windows.Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
                 {
-                    lock (_positionsManager)
+                    lock (_lockPosMgr)
                     {
                         var posBySymbol = _positionsManager.Where(x => x.Symbol == e.Symbol).FirstOrDefault();
                         if (posBySymbol == null)
@@ -113,29 +116,41 @@ namespace VisualHFT.ViewModel
         }
         private void LIMITORDERBOOK_OnDataReceived(OrderBook e)
         {
-            lock (_positionsManager)
+            lock (_lockPosMgr)
             {
-                var posMgrBySymbol = _positionsManager.Where(x => x.Symbol == e.Symbol).FirstOrDefault();
-                if (posMgrBySymbol != null)
-                    posMgrBySymbol.UpdateLastMidPrice(e.MidPrice);
+                if (_positionsManager.Count > 0)
+                {
+                    var posMgrBySymbol = _positionsManager.FirstOrDefault(x => x.Symbol == e.Symbol);
+                    if (posMgrBySymbol != null)
+                        posMgrBySymbol.UpdateLastMidPrice(e.MidPrice);
+                }
             }
         }
 
         public ObservableCollection<VisualHFT.Model.Order> AllOrders
         {
-            get => _allOrders;
+            get
+            {
+                lock (_lockOrders)
+                    return _allOrders;
+            }
             set
             {
-                lock (_locker)
+                lock (_lockOrders)
                     SetProperty(ref _allOrders, value);
             }
         }
         public ObservableCollection<PositionManager> PositionsManager
         {
-            get => _positionsManager;
+            get
+            {
+                lock (_lockPosMgr)
+                    return _positionsManager;
+            }
             set
             {
-                SetProperty(ref _positionsManager, value);
+                lock (_lockPosMgr)
+                    SetProperty(ref _positionsManager, value);
             }
         }
         public string SelectedSymbol
@@ -177,16 +192,20 @@ namespace VisualHFT.ViewModel
             var grpSymbols = orders.GroupBy(x => x.Symbol).ToList();
             System.Windows.Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() => {
                 //POSITION MANAGER
-                _positionsManager.Clear();
-                foreach (var grp in grpSymbols)
+                lock (_lockPosMgr)
                 {
-                    var existing_item = _positionsManager.Where(x => x.Symbol == grp.Key).FirstOrDefault();
-                    if (existing_item == null)
-                        _positionsManager.Add(new PositionManager(grp.ToList(), PositionManagerCalculationMethod.FIFO));
-                    else
-                        existing_item = new PositionManager(grp.ToList(), PositionManagerCalculationMethod.FIFO);
+                    _positionsManager.Clear();
+                    foreach (var grp in grpSymbols)
+                    {
+                        var existing_item = _positionsManager.Where(x => x.Symbol == grp.Key).FirstOrDefault();
+                        if (existing_item == null)
+                            _positionsManager.Add(new PositionManager(grp.ToList(), PositionManagerCalculationMethod.FIFO));
+                        else
+                            existing_item = new PositionManager(grp.ToList(), PositionManagerCalculationMethod.FIFO);
+                    }
+
                 }
-                lock (_locker)
+                lock (_lockOrders)
                 {
                     _allOrders.Clear();
                     orders.ForEach(x => _allOrders.Add(x));

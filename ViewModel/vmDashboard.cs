@@ -7,22 +7,22 @@ using System.Linq;
 using VisualHFT.Commons.Studies;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Data;
+using VisualHFT.Commons.Helpers;
+using VisualHFT.ViewModels;
 
 namespace VisualHFT.ViewModel
 {
-    public class vmDashboard : BindableBase
+    public class vmDashboard : BindableBase, IDisposable
     {
+        private bool _disposed = false; // to track whether the object has been disposed
         private Dictionary<string, Func<string, string, bool>> _dialogs;
         private string _selectedSymbol;
         private string _selectedLayer;
         private string _selectedStrategy;
         private ObservableCollection<vmTile> _tiles;
 
-        protected vmStrategyParameterFirmMM _vmStrategyParamsFirmMM;
         protected vmPosition _vmPosition;
         protected vmOrderBook _vmOrderBook;
-
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 
@@ -31,11 +31,9 @@ namespace VisualHFT.ViewModel
             this._dialogs = dialogs;
             CmdAbort = new RelayCommand<object>(DoAbort);
 
-            HelperSymbol.Instance.OnCollectionChanged += ALLSYMBOLS_CollectionChanged;
-
-            this.StrategyParamsFirmMM = new vmStrategyParameterFirmMM(Helpers.HelperCommon.GLOBAL_DIALOGS);
             this.Positions = new vmPosition(Helpers.HelperCommon.GLOBAL_DIALOGS);
             this.OrderBook = new vmOrderBook(Helpers.HelperCommon.GLOBAL_DIALOGS);
+            this.NotificationsViewModel = new vmNotifications();
 
             Task.Run(LoadTilesAsync);
         }
@@ -46,9 +44,9 @@ namespace VisualHFT.ViewModel
                 await Task.Delay(1000); // allow plugins to be loaded in
 
             Tiles = new ObservableCollection<vmTile>();
-            try
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                try
                 {
                     //first, load single studies
                     foreach (var study in PluginManager.PluginManager.AllPlugins.Where(x => x is IStudy && x.GetCustomUI() == null))
@@ -65,25 +63,28 @@ namespace VisualHFT.ViewModel
                     {
                         Tiles.Add(new vmTile(study as PluginManager.IPlugin));
                     }
-                });
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Tiles Loading", ex);
+                    HelperNotificationManager.Instance.AddNotification("Tiles Loading",
+                        ex.Message,
+                        HelprNorificationManagerTypes.ERROR,
+                        HelprNorificationManagerCategories.CORE,
+                        ex);
+                }
+            });
+
         }
 
 
+        public vmNotifications NotificationsViewModel { get; }
         public ObservableCollection<vmTile> Tiles
         {
             get => _tiles;
             set => SetProperty(ref _tiles, value);
         }
-        public vmStrategyParameterFirmMM StrategyParamsFirmMM
-        {
-            get => _vmStrategyParamsFirmMM;
-            set => SetProperty(ref _vmStrategyParamsFirmMM, value);
-        }
+
         public vmPosition Positions
         {
             get => _vmPosition;
@@ -97,22 +98,6 @@ namespace VisualHFT.ViewModel
 
         public RelayCommand<object> CmdAbort { get; set; }
 
-        private void ALLSYMBOLS_CollectionChanged(object? sender, EventArgs e)
-        {
-            RefreshSymbolList();
-        }
-
-        private void RefreshSymbolList()
-        {
-            try
-            {
-                RaisePropertyChanged(nameof(SymbolList));
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex.ToString());
-            }
-        }
 
         private void DoAbort(object item)
         {
@@ -126,7 +111,7 @@ namespace VisualHFT.ViewModel
             {
                 try
                 {
-                    args.Result = RESTFulHelper.SetVariable<string>("ABORTSYSTEM");
+                    //args.Result = RESTFulHelper.SetVariable<string>("ABORTSYSTEM");
                 }
                 catch { /*System.Threading.Thread.Sleep(5000);*/ }
             };
@@ -166,7 +151,6 @@ namespace VisualHFT.ViewModel
                 if (value != "")
                 {
                     _selectedSymbol = "-- All symbols --";
-                    if (_vmStrategyParamsFirmMM != null) _vmStrategyParamsFirmMM.SelectedStrategy = value;
                     if (_vmPosition != null) _vmPosition.SelectedStrategy = value;
 
                     RaisePropertyChanged(nameof(SelectedStrategy));
@@ -183,7 +167,6 @@ namespace VisualHFT.ViewModel
                 if (_selectedSymbol != value)
                 {
                     _selectedSymbol = value;
-                    if (_vmStrategyParamsFirmMM != null) _vmStrategyParamsFirmMM.SelectedSymbol = value;
                     if (_vmPosition != null) _vmPosition.SelectedSymbol = value;
                     if (_vmOrderBook != null) _vmOrderBook.SelectedSymbol = value;
 
@@ -206,7 +189,32 @@ namespace VisualHFT.ViewModel
             }
         }
 
-        public ObservableCollection<string> SymbolList => new ObservableCollection<string>(HelperSymbol.Instance);
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    if (_tiles != null)
+                    {
+                        foreach (var t in _tiles)
+                        {
+                            t.Dispose();
+                        }
+                    }
+                    _tiles?.Clear();
+                    _vmOrderBook?.Dispose();
+                    _vmPosition?.Dispose();
+                }
+                _disposed = true;
+            }
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
     }
 }

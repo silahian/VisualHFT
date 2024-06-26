@@ -1,8 +1,8 @@
-﻿
-using PropertyChanged;
+﻿using PropertyChanged;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using VisualHFT.Enums;
 using VisualHFT.Helpers;
 
 namespace VisualHFT.ViewModel.Model
@@ -20,7 +20,7 @@ namespace VisualHFT.ViewModel.Model
         }
         public Provider()
         {
-            
+
         }
         public Provider(VisualHFT.Model.Provider p)
         {
@@ -34,7 +34,6 @@ namespace VisualHFT.ViewModel.Model
         public void UpdateUI()
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Status"));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("StatusImage"));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Tooltip"));
         }
     }

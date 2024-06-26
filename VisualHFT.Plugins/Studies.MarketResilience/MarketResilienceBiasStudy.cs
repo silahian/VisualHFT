@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO.Packaging;
-using System.Linq;
+using System.Threading.Tasks;
 using VisualHFT.Commons.PluginManager;
-using VisualHFT.Helpers;
+using VisualHFT.Enums;
 using VisualHFT.Model;
 using VisualHFT.PluginManager;
 using VisualHFT.Studies.MarketResilience.Model;
@@ -23,8 +20,6 @@ namespace VisualHFT.Studies
 
         // Event declaration
         public override event EventHandler<decimal> OnAlertTriggered;
-        public override event EventHandler<BaseStudyModel> OnCalculated;
-        public override event EventHandler<ErrorEventArgs> OnError;
 
         public override string Name { get; set; } = "Market Resiliecence Bias Study Plugin";
         public override string Version { get; set; } = "1.0.0";
@@ -43,8 +38,6 @@ namespace VisualHFT.Studies
         public MarketResilienceBiasStudy()
         {
             _MARKETRESILIENCE = new MarketResilienceStudy();
-            _MARKETRESILIENCE.Settings = _settings;
-            _MARKETRESILIENCE.OnTradeRecovered += _MARKETRESILIENCE_OnTradeRecovered;
         }
 
         ~MarketResilienceBiasStudy()
@@ -53,13 +46,37 @@ namespace VisualHFT.Studies
         }
 
 
+        public override async Task StartAsync()
+        {
+            await base.StartAsync();//call the base first
 
+            _MARKETRESILIENCE.Settings = _settings;
+            _MARKETRESILIENCE.OnTradeRecovered += _MARKETRESILIENCE_OnTradeRecovered;
+            await _MARKETRESILIENCE.StartAsync();
 
+            log.Info($"{this.Name} Plugin has successfully started.");
+            Status = ePluginStatus.STARTED;
+        }
 
-        private void _MARKETRESILIENCE_OnTradeRecovered(object? sender, (BaseStudyModel model, eLOBSIDE recoverySide) e)
+        public override async Task StopAsync()
+        {
+            Status = ePluginStatus.STOPPING;
+            log.Info($"{this.Name} is stopping.");
+
+            _MARKETRESILIENCE.OnTradeRecovered -= _MARKETRESILIENCE_OnTradeRecovered;
+
+            await base.StopAsync();
+        }
+
+        private void _MARKETRESILIENCE_OnTradeRecovered(object? sender, (BaseStudyModel model, eLOBSIDE recoverySide, int providerID, string symbol) e)
         {
             //in order to have a strong bias, the "Market Resilience" study must be near to zero.
             // So, to fiand the bias direction, we must have MR < 0.3 and check on wich side the recovery didn't happen.
+
+            if (e.model == null)
+                return;
+            if (_settings.Provider.ProviderID != e.providerID || _settings.Symbol != e.symbol)
+                return;
 
             int _valueBias = 0; //unkonw
             string _valueFormatted = "-"; //unknown
@@ -81,10 +98,15 @@ namespace VisualHFT.Studies
                 MarketMidPrice = e.model.MarketMidPrice
             };
 
-            OnCalculated?.Invoke(this, newItem);
-
+            AddCalculation(newItem);
         }
-
+        protected override void onDataAggregation(BaseStudyModel existing, BaseStudyModel newItem, int counterAggreated)
+        {
+            //Aggregation: last
+            existing.Value = newItem.Value;
+            existing.ValueFormatted = newItem.ValueFormatted;
+            existing.MarketMidPrice = newItem.MarketMidPrice;
+        }
 
 
 
@@ -92,11 +114,13 @@ namespace VisualHFT.Studies
         {
             if (!_disposed)
             {
+                _disposed = true;
+
                 if (disposing)
                 {
                     _MARKETRESILIENCE.Dispose();
                 }
-                _disposed = true;
+
             }
         }
         protected override void LoadSettings()

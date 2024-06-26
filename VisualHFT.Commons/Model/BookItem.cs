@@ -1,11 +1,8 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using VisualHFT.Commons.Model;
-
+﻿using VisualHFT.Commons.Model;
+using VisualHFT.Commons.Helpers;
 namespace VisualHFT.Model
 {
-    public partial class BookItem : IEquatable<BookItem>, IEqualityComparer<BookItem>, IResettable
+    public partial class BookItem : IEquatable<BookItem>, IEqualityComparer<BookItem>, IResettable, ICopiable<BookItem>, IDisposable
     {
 
         private string _Symbol;
@@ -18,25 +15,11 @@ namespace VisualHFT.Model
         private double? _Size;
         private bool _IsBid;
         private double? _ActiveSize;
-
+        private double? _CummulativeSize;
         public BookItem()
         {
         }
 
-        public void Update(BookItem b)
-        {
-            Symbol = b.Symbol;
-            ProviderID = b.ProviderID;
-            EntryID = b.EntryID;
-            LayerName = b.LayerName;
-            LocalTimeStamp = b.LocalTimeStamp;
-            ServerTimeStamp = b.ServerTimeStamp;
-            Price = b.Price;
-            Size = b.Size;
-            IsBid = b.IsBid;
-            DecimalPlaces = b.DecimalPlaces;
-            ActiveSize = b.ActiveSize;
-        }
 
         public bool Equals(BookItem other)
         {
@@ -75,11 +58,33 @@ namespace VisualHFT.Model
             Price = 0;
             Size = 0;
             IsBid = false;
-            DecimalPlaces = 0;
-            ActiveSize = 0;
+            PriceDecimalPlaces = 0;
+            SizeDecimalPlaces = 0;
+            ActiveSize = null;
+            CummulativeSize = 0;
         }
 
-        public int DecimalPlaces { get; set; }
+        public void CopyFrom(BookItem bookItem)
+        {
+            if (bookItem == null) throw new ArgumentNullException();
+            Symbol = bookItem.Symbol;
+            ProviderID = bookItem.ProviderID;
+            EntryID = bookItem.EntryID;
+            LayerName = bookItem.LayerName;
+            LocalTimeStamp = bookItem.LocalTimeStamp;
+            ServerTimeStamp = bookItem.ServerTimeStamp;
+            Price = bookItem.Price;
+            Size = bookItem.Size;
+            IsBid = bookItem.IsBid;
+            PriceDecimalPlaces = bookItem.PriceDecimalPlaces;
+            SizeDecimalPlaces = bookItem.SizeDecimalPlaces;
+            ActiveSize = bookItem.ActiveSize;
+            CummulativeSize = bookItem.CummulativeSize;
+
+        }
+
+        public int PriceDecimalPlaces { get; set; }
+        public int SizeDecimalPlaces { get; set; }
 
 
         public string Symbol
@@ -135,14 +140,26 @@ namespace VisualHFT.Model
             get => _IsBid;
             set => _IsBid = value;
         }
-        public string FormattedPrice => this.Price.HasValue ? this.Price.Value.ToString("N" + DecimalPlaces) : "";
-        public string FormattedSize => this.Size.HasValue ? Helpers.HelperCommon.GetKiloFormatter(this.Size.Value) : "";
-        public string FormattedActiveSize => this.ActiveSize.HasValue ? Helpers.HelperCommon.GetKiloFormatter(this.ActiveSize.Value) : "";
+        public string FormattedPrice => this.Price.HasValue ? this.Price.Value.ToString("N" + PriceDecimalPlaces) : "";
+        public string FormattedSize => this.Size.HasValue ? HelperCommon.GetKiloFormatter(this.Size.Value, SizeDecimalPlaces) : "";
+        public string FormattedActiveSize => this.ActiveSize.HasValue ? HelperCommon.GetKiloFormatter(this.ActiveSize.Value) : "";
+
+        public double? CummulativeSize
+        {
+            get => _CummulativeSize;
+            set => _CummulativeSize = value;
+        }
 
         public double? ActiveSize
         {
             get => _ActiveSize;
             set => _ActiveSize = value;
+        }
+
+
+        public virtual void Dispose()
+        {
+
         }
     }
 }

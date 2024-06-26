@@ -1,7 +1,10 @@
-﻿
+﻿using VisualHFT.Enums;
+
+using VisualHFT.Commons.Model;
+
 namespace VisualHFT.Model
 {
-    public partial class Order
+    public partial class Order : IResettable
     {
         /// <summary>
         /// This override will fire PostedSecondsAgo property change when any other property fires
@@ -100,6 +103,53 @@ namespace VisualHFT.Model
             GetQuantity = order.GetQuantity;
 
 
+            LastUpdated = HelperTimeProvider.Now;
+        }
+
+        public void Reset()
+        {
+            ProviderName = "";
+            OrderID = 0;
+            StrategyCode = "";
+            Symbol = "";
+            ProviderId = 0;
+            ClOrdId = "";
+            Side = eORDERSIDE.None;
+            OrderType = eORDERTYPE.NONE;
+            TimeInForce = eORDERTIMEINFORCE.NONE;
+            Status = eORDERSTATUS.NONE;
+            Quantity = 0;
+            MinQuantity = 0;
+            FilledQuantity = 0;
+            PricePlaced = 0;
+            Currency = "";
+            FutSettDate = "";
+            IsMM = false;
+            IsEmpty = true;
+            LayerName = "";
+            AttemptsToClose = 0;
+            SymbolMultiplier = 1;
+            SymbolDecimals = 0;
+            FreeText = "";
+            OriginPartyID = "";
+            if (Executions != null)
+                Executions.Clear();
+            else
+                Executions = new List<Execution>();
+            QuoteID = 0;
+            QuoteServerTimeStamp = DateTime.MinValue;
+            QuoteLocalTimeStamp = DateTime.MinValue;
+            CreationTimeStamp = DateTime.MinValue;
+            FireSignalTimestamp = DateTime.MinValue;
+            StopLoss = 0;
+            TakeProfit = 0;
+            PipsTrail = false;
+            UnrealizedPnL = 0;
+            MaxDrowdown = 0;
+            BestAsk = 0;
+            BestBid = 0;
+            GetAvgPrice = 0;
+            GetQuantity = 0;
             LastUpdated = HelperTimeProvider.Now;
         }
 
@@ -202,7 +252,7 @@ namespace VisualHFT.Model
         public int AttemptsToClose
         {
             get => _attemptsToClose;
-            set => _attemptsToClose = value ;
+            set => _attemptsToClose = value;
         }
         public int SymbolMultiplier
         {

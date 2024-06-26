@@ -14,7 +14,6 @@ namespace VisualHFT.ViewModel
 {
     public class vmOrderBookFlowAnalysis : BindableBase, IDisposable
     {
-        private OrderBook _orderBook;
         protected object MTX_ORDERBOOK = new object();
         private Dictionary<string, Func<string, string, bool>> _dialogs;
 
@@ -39,9 +38,6 @@ namespace VisualHFT.ViewModel
         }
         public vmOrderBookFlowAnalysis(vmOrderBook vm)
         {
-            //this._providers = vm._providers;
-            //this._dialogs = vm._dialogs;
-            this._orderBook = vm.OrderBook;
             this._selectedSymbol = vm.SelectedSymbol;
             this._selectedProvider = vm.SelectedProvider;
             this._layerName = vm.SelectedLayer;
@@ -73,9 +69,9 @@ namespace VisualHFT.ViewModel
                 return;
             lock (MTX_ORDERBOOK)
             {
-                if (_orderBook == null || _orderBook.ProviderID != e.ProviderID || _orderBook.Symbol != e.Symbol)
+                OrderBook _orderBook = e;
+                if (_selectedProvider == null || _selectedProvider.ProviderID != e.ProviderID || _selectedSymbol != e.Symbol)
                 {
-                    _orderBook = e;
                     _realTimeData = new List<PlotInfoPriceChart>();
                 }
                 if (!_orderBook.LoadData(e.Asks, e.Bids))
@@ -102,7 +98,6 @@ namespace VisualHFT.ViewModel
         private void Clear()
         {
             _realTimeData = null;
-            _orderBook = null;
             RaisePropertyChanged(nameof(RealTimeData));
         }
 
@@ -121,11 +116,6 @@ namespace VisualHFT.ViewModel
                 }
             }
         }
-        public OrderBook OrderBook
-        {
-            get => _orderBook;
-            set => SetProperty(ref _orderBook, value);
-        }
         public string SelectedSymbol
         {
             get => _selectedSymbol;
@@ -135,12 +125,12 @@ namespace VisualHFT.ViewModel
         public Provider SelectedProvider
         {
             get => _selectedProvider;
-            set => SetProperty(ref _selectedProvider, value, onChanged: () => this.OrderBook = null);
+            set => SetProperty(ref _selectedProvider, value, onChanged: () => Clear());
         }
         public string SelectedLayer
         {
             get => _layerName;
-            set => SetProperty(ref _layerName, value, onChanged: () => this.OrderBook = null);
+            set => SetProperty(ref _layerName, value, onChanged: () => Clear());
         }
         public ObservableCollection<Provider> Providers => _providers;
     }

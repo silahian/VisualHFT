@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
+using VisualHFT.Commons.Helpers;
 using VisualHFT.Commons.PluginManager;
+using VisualHFT.Commons.Pools;
+using VisualHFT.Enums;
 using VisualHFT.Helpers;
 using VisualHFT.Model;
 using VisualHFT.PluginManager;
@@ -22,10 +26,9 @@ namespace VisualHFT.Studies
 
         private int LEVELS_TO_CONSUME = 3;
         private double SPREAD_INCREASED_BY = 1.0; //by 100%
-        private OrderBook _previousOrderBook;
-        private Stopwatch _largeTradeStopwatch;
-        private Trade _lastTrade;
 
+        private Stopwatch _largeTradeStopwatch;
+        private OrderBook _previousOrderBook;
         private List<BookItem> CONDITION1_LEVELS_CONSUMED;
         //private int     CONDITION1_LEVELS_CONSUMED = 0;
         private bool CONDITION2_LEVELS_CONSUMED_AT_BID;
@@ -35,14 +38,13 @@ namespace VisualHFT.Studies
         private List<double> _recentSpreads;
         private const int recentSpreadWindowSize = 50;
 
-
-
+        private HelperCustomQueue<OrderBook> _QUEUE;
+        //private CustomObjectPool<OrderBook> _POOL_OB;
+        //private CustomObjectPool<BookItem> _objectPool_BookItem;
 
         // Event declaration
         public override event EventHandler<decimal> OnAlertTriggered;
-        public override event EventHandler<BaseStudyModel> OnCalculated;
-        public override event EventHandler<ErrorEventArgs> OnError;
-        public event EventHandler<(BaseStudyModel model, eLOBSIDE recoverySide)> OnTradeRecovered;
+        public event EventHandler<(BaseStudyModel model, eLOBSIDE recoverySide, int providerID, string symbol)> OnTradeRecovered;
 
         public override string Name { get; set; } = "Market Resiliecence Study Plugin";
         public override string Version { get; set; } = "1.0.0";
@@ -60,25 +62,77 @@ namespace VisualHFT.Studies
 
         public MarketResilienceStudy()
         {
-            HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
-            HelperTrade.Instance.Subscribe(TRADES_OnDataReceived);
-
             _recentSpreads = new List<double>();
             _largeTradeStopwatch = new Stopwatch();
+            _previousOrderBook = new OrderBook();
 
+            _QUEUE = new HelperCustomQueue<OrderBook>(QUEUE_onRead, QUEUE_onError);
         }
         ~MarketResilienceStudy()
         {
             Dispose(false);
         }
 
+        public override async Task StartAsync()
+        {
+            await base.StartAsync();//call the base first
+
+            /*
+            _POOL_OB = new CustomObjectPool<OrderBook>(3000);
+            _objectPool_BookItem = new CustomObjectPool<BookItem>(3000);
+            */
+            _recentSpreads.Clear();
+            _largeTradeStopwatch.Reset();
+            _previousOrderBook.Reset();
+
+            HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
+
+            log.Info($"{this.Name} Plugin has successfully started.");
+            Status = ePluginStatus.STARTED;
+        }
+
+        public override async Task StopAsync()
+        {
+            Status = ePluginStatus.STOPPING;
+            log.Info($"{this.Name} is stopping.");
+
+            _recentSpreads.Clear();
+            _largeTradeStopwatch.Reset();
+            _previousOrderBook.Reset();
+            HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
+            _QUEUE.Clear();
+
+            await base.StopAsync();
+        }
 
         private void LIMITORDERBOOK_OnDataReceived(OrderBook e)
         {
+            /*
+             * ***************************************************************************************************
+             * TRANSFORM the incoming object (decouple it)
+             * DO NOT hold this call back, since other components depends on the speed of this specific call back.
+             * DO NOT BLOCK
+               * IDEALLY, USE QUEUES TO DECOUPLE
+             * ***************************************************************************************************
+             */
+
             if (e == null)
                 return;
             if (_settings.Provider.ProviderID != e.ProviderID || _settings.Symbol != e.Symbol)
                 return;
+
+            /*var currentLOB = _POOL_OB.Get();
+            currentLOB.ShallowCopyFrom(e, _objectPool_BookItem);
+            */
+
+            var currentLOB = new OrderBook();
+            currentLOB.ShallowCopyFrom(e, null);
+            _QUEUE.Add(currentLOB);
+        }
+
+        private void QUEUE_onRead(OrderBook e)
+        {
+            if (e == null) return;
 
             // Update average spread
             _recentSpreads.Add(e.Spread);
@@ -97,22 +151,29 @@ namespace VisualHFT.Studies
                 {
                     _largeTradeStopwatch = Stopwatch.StartNew();    // Capture the time of the large trade
                 }
-                _previousOrderBook = (OrderBook)e.Clone();
+
+                //_previousOrderBook = (OrderBook)e.Clone(); //don't do this: VERY EXPENSIVE
+                _previousOrderBook.ShallowUpdateFrom(e); //still expensive, but much better than Clone
             }
             else
             {
                 CalculateResilience(e);
             }
             TriggerOnCalculatedEvent(e);
-        }
-        private void TRADES_OnDataReceived(Trade e)
-        {
-            if (e == null)
-                return;
-            if (_settings.Provider.ProviderID != e.ProviderId || _settings.Symbol != e.Symbol)
-                return;
 
-            _lastTrade = e;
+
+            /*_objectPool_BookItem.Return(e.Asks);
+            _objectPool_BookItem.Return(e.Bids);
+            _POOL_OB.Return(e);*/
+        }
+        private void QUEUE_onError(Exception ex)
+        {
+            var _error = $"Unhandled error in the Queue: {ex.Message}";
+            log.Error(_error, ex);
+            HelperNotificationManager.Instance.AddNotification(this.Name, _error,
+                HelprNorificationManagerTypes.ERROR, HelprNorificationManagerCategories.PLUGINS, ex);
+
+            Task.Run(() => HandleRestart(_error, ex));
         }
 
 
@@ -125,8 +186,6 @@ namespace VisualHFT.Studies
                 _resilienceValue = CalculateResilienceValue(timeSinceLargeTrade, currentOrderBook);
                 TriggerOnTradeRecovered(currentOrderBook); // this will invoke when the trade has been recovered.
                                                            // It can be used for other metrics: for example, Market Resillience Bias
-
-
                 ResetPreTradeState();
             }
 
@@ -134,8 +193,8 @@ namespace VisualHFT.Studies
         private bool IsDepthRecovered(OrderBook currentOrderBook)
         {
             // Check if the number of levels has recovered
-            bool asksHaveRecoveredCount = currentOrderBook.Asks.Count >= LEVELS_TO_CONSUME;
-            bool bidsHaveRecoveredCount = currentOrderBook.Bids.Count >= LEVELS_TO_CONSUME;
+            bool asksHaveRecoveredCount = currentOrderBook.Asks.Count() >= LEVELS_TO_CONSUME;
+            bool bidsHaveRecoveredCount = currentOrderBook.Bids.Count() >= LEVELS_TO_CONSUME;
 
             // Check if the spread has recovered
             bool spreadRecovered = currentOrderBook.Spread <= _previousOrderBook.Spread * (1 + SPREAD_INCREASED_BY);
@@ -181,7 +240,7 @@ namespace VisualHFT.Studies
 
             // Calculate normalized depth recovery (as previously discussed)
             double normalizedSpreadRecovery = _previousOrderBook.Spread > 0 ? (_previousOrderBook.Spread - currentOrderBook.Spread) / _previousOrderBook.Spread : 0;
-            double normalizedDepthRecovery = (double)(currentOrderBook.Asks.Count + currentOrderBook.Bids.Count) / (_previousOrderBook.Asks.Count + _previousOrderBook.Bids.Count);
+            double normalizedDepthRecovery = (double)(currentOrderBook.Asks.Count() + currentOrderBook.Bids.Count()) / (_previousOrderBook.Asks.Count() + _previousOrderBook.Bids.Count());
 
             // Weighted average of the metrics
             double weightTime = 0.5; // Assign a weight to time recovery (can be adjusted)
@@ -204,7 +263,7 @@ namespace VisualHFT.Studies
                 Timestamp = HelperTimeProvider.Now,
                 MarketMidPrice = (decimal)currentOrderBook.MidPrice
             };
-            OnCalculated?.Invoke(this, newItem);
+            AddCalculation(newItem);
         }
         private void TriggerOnTradeRecovered(OrderBook currentOrderBook)
         {
@@ -216,17 +275,30 @@ namespace VisualHFT.Studies
                 Timestamp = HelperTimeProvider.Now,
                 MarketMidPrice = (decimal)currentOrderBook.MidPrice
             };
-            OnTradeRecovered?.Invoke(this, (newItem, CONDITION2_LEVELS_CONSUMED_AT_BID ? eLOBSIDE.BID : eLOBSIDE.ASK));
-        }
+            OnTradeRecovered?.Invoke(
+                this,
+                (newItem,
+                    CONDITION2_LEVELS_CONSUMED_AT_BID ? eLOBSIDE.BID : eLOBSIDE.ASK,
+                    currentOrderBook.ProviderID,
+                    currentOrderBook.Symbol)
+                );
 
+        }
+        protected override void onDataAggregation(BaseStudyModel existing, BaseStudyModel newItem, int counterAggreated)
+        {
+            //we want to average the aggregations
+            existing.Value = ((existing.Value * (counterAggreated - 1)) + newItem.Value) / counterAggreated;
+            existing.ValueFormatted = existing.Value.ToString("N1");
+            existing.MarketMidPrice = newItem.MarketMidPrice;
+        }
 
         public void ResetPreTradeState()
         {
-            _previousOrderBook = null;
+            _previousOrderBook.Clear();
             CONDITION1_LEVELS_CONSUMED = null;
             CONDITION2_LEVELS_CONSUMED_AT_BID = false;
             CONDITION3_SPREAD_INCREASE = 0;
-            _largeTradeStopwatch.Stop();
+            _largeTradeStopwatch?.Stop();
         }
         private bool PostTradeLOBLevelsConsumed(OrderBook currentOrderBook)
         {
@@ -282,11 +354,12 @@ namespace VisualHFT.Studies
         {
             if (!_disposed)
             {
+                _disposed = true;
                 if (disposing)
                 {
                     HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
-                    HelperTrade.Instance.Unsubscribe(TRADES_OnDataReceived);
-                    _largeTradeStopwatch.Reset();
+                    _QUEUE.Dispose();
+                    _largeTradeStopwatch.Stop();
                     _largeTradeStopwatch = null;
 
                     if (CONDITION1_LEVELS_CONSUMED != null)
@@ -294,8 +367,13 @@ namespace VisualHFT.Studies
                         CONDITION1_LEVELS_CONSUMED.Clear();
                         CONDITION1_LEVELS_CONSUMED = null;
                     }
+                    _previousOrderBook?.Dispose();
+
+                    /*_POOL_OB?.Dispose();
+                    _objectPool_BookItem?.Dispose();*/
+                    base.Dispose();
                 }
-                _disposed = true;
+
             }
         }
         protected override void LoadSettings()
@@ -342,6 +420,10 @@ namespace VisualHFT.Studies
 
                 //reset 
                 _resilienceValue = null;
+
+                //run this because it will allow to restart with the new values
+                Task.Run(async () => await HandleRestart($"{this.Name} is starting (from reloading settings).", null, true));
+
             };
             // Display the view, perhaps in a dialog or a new window.
             view.DataContext = viewModel;

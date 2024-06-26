@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace VisualHFT
+﻿namespace VisualHFT
 {
     public static class HelperTimeProvider
     {
@@ -29,6 +23,24 @@ namespace VisualHFT
         {
             get { return _fixedTime ?? DateTime.Now; }
         }
+        public static void IncrementByMilliseconds(long milliseconds)
+        {
+            if (_fixedTime.HasValue)
+            {
+                _fixedTime = _fixedTime.Value.AddMilliseconds(milliseconds);
+                // Optionally, trigger an event if necessary
+                //OnSetFixedTime?.Invoke(null, new EventArgs());
+            }
 
+        }
+        public static void IncrementByTicks(long ticks)
+        {
+            if (_fixedTime.HasValue)
+            {
+                _fixedTime = _fixedTime.Value.AddTicks(ticks);
+                // Optionally, trigger an event if necessary
+                //OnSetFixedTime?.Invoke(null, new EventArgs());
+            }
+        }
     }
 }

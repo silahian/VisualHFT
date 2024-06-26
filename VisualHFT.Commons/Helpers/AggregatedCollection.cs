@@ -1,150 +1,165 @@
-﻿using log4net.Core;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VisualHFT.Commons.Pools;
-using VisualHFT.Model;
+using VisualHFT.Enums;
 
+
+/*
+ * The AggregatedCollection<T> class is designed to maintain a running window list of items with a specified maximum capacity.
+ * It ensures that as new items are added, the oldest items are removed once the capacity is reached, effectively implementing a Last-In-First-Out (LIFO) collection.
+ * Additionally, it supports aggregation of items based on a specified aggregation level (e.g., 10 milliseconds, 20 milliseconds).
+ * Each item in the collection represents a bucket corresponding to the chosen aggregation level, aggregating data within the same bucket based on the provided dateSelector and aggregator functions.
+ *
+ */
 namespace VisualHFT.Helpers
 {
-    public class AggregatedCollection<T> : IDisposable where T : class, new()
+    public class AggregatedCollection<T> : IDisposable, IEnumerable<T> where T : class, new()
     {
         private bool _disposed = false; // to track whether the object has been disposed
         private TimeSpan _aggregationSpan;
         private TimeSpan _dynamicAggregationSpan;
         private AggregationLevel _level;
-        private readonly CachedCollection<T> _aggregatedData;
+        //private readonly CachedCollection<T> _aggregatedData;
+        private readonly List<T> _aggregatedData;
+
         private readonly Func<T, DateTime> _dateSelector;
-        private readonly Action<T, T> _aggregator;
+        private readonly Action<T, T, int> _aggregator;
 
         private readonly object _lockObject = new object();
         private int _maxPoints = 0; // Maximum number of points
         private DateTime lastItemDate = DateTime.MinValue;
-        private readonly ObjectPool<T> _objectPool;
-
+        private int _ItemsUpdatedCount = 0;
 
         //AUTOMATED Aggregation
         private const int WINDOW_SIZE = 10; // Number of items to consider for frequency calculation
 
+        public event EventHandler<T> OnRemoving;
         public event EventHandler<int> OnRemoved;
         public event EventHandler<T> OnAdded;
 
-        public AggregatedCollection(IEnumerable<T> items, AggregationLevel level, int maxItems, Func<T, DateTime> dateSelector, Action<T, T> aggregator)
+        public AggregatedCollection(IEnumerable<T> items, AggregationLevel level, int maxItems, Func<T, DateTime> dateSelector, Action<T, T, int> aggregator)
         {
-            _aggregatedData = new CachedCollection<T>(items);
+            if (items != null)
+                _aggregatedData = new List<T>(items);
+            else
+                _aggregatedData = new List<T>(maxItems);
+
             _maxPoints = maxItems;
             _level = level;
             _aggregationSpan = level.ToTimeSpan();
             _dynamicAggregationSpan = _aggregationSpan; // Initialize with the same value
             _dateSelector = dateSelector;
             _aggregator = aggregator;
-            _objectPool = new ObjectPool<T>();
+        }
+        public AggregatedCollection(AggregationLevel level, int maxItems, Func<T, DateTime> dateSelector, Action<T, T, int> aggregator)
+            : this(null, level, maxItems, dateSelector, aggregator)
+        {
         }
         public AggregatedCollection(AggregationLevel level, int maxItems, Func<T, DateTime> dateSelector, Action<T, T> aggregator)
-            : this(new List<T>(), level, maxItems, dateSelector, aggregator)
-        { }
+            : this(null, level, maxItems, dateSelector, (a, b, _) => aggregator(a, b))
+        {
+        }
         ~AggregatedCollection()
         {
             Dispose(false);
         }
 
 
-        public ObjectPool<T> GetObjectPool() { return _objectPool; }
 
         public bool Add(T item)
         {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(AggregatedCollection<T>));
+            }
+
+            bool retValue = false;
+            int? removedItemIndexToSendEvent = null;
+            T addedItemToSendEvent = null;
+            T removingItemToSendEvent = null;
+
             lock (_lockObject)
             {
-                if (_aggregationSpan == TimeSpan.Zero && _level != AggregationLevel.Automatic)
+                if (_aggregationSpan == TimeSpan.Zero /*&& _level != AggregationLevel.Automatic*/)
                 {
                     _aggregatedData.Add(item);
-                    OnAdded?.Invoke(this, item);
+                    addedItemToSendEvent = item;
+
                     if (_aggregatedData.Count() > _maxPoints)
                     {
-                        T itemToRemove = _aggregatedData.First();
-                        // If 'itemToRemove' is disposable, dispose it before returning to the pool
-                        if (_objectPool == null && itemToRemove is IDisposable disposableItem)
-                        {
-                            disposableItem.Dispose();
-                        }
-
                         // Remove the item from the collection
+                        T itemToRemove = _aggregatedData[0];
+
+                        removingItemToSendEvent = itemToRemove;
+
                         _aggregatedData.Remove(itemToRemove);
 
-                        // Return the removed item to the pool
-                        if (_objectPool != null)
-                            _objectPool.Return(itemToRemove);
-
                         // Trigger any remove events or perform additional logic as required
-                        OnRemoved?.Invoke(this, 0);
+                        removedItemIndexToSendEvent = 0;
                     }
-                    return true;
+                    retValue = true;
                 }
                 else
                 {
-                    var itemDate = _dateSelector(item);
-                    DateTime bucketTime;
-                    T existingBucket = default(T);
-
-                    // If AggregationLevel is set to Automatic, adjust the dynamic aggregation span based on recent data frequency.
-                    if (_aggregationSpan == AggregationLevel.Automatic.ToTimeSpan())
+                    bool _readyToAdd = true;
+                    T lastItem = _aggregatedData.LastOrDefault();
+                    if (lastItem != null)
                     {
-                        _dynamicAggregationSpan = CalculateAutomaticAggregationSpan(itemDate);
-                        if (_dynamicAggregationSpan.Ticks > 0)
+                        //diff in timestamp between the incoming item and lastItem
+                        /*if (_level == AggregationLevel.Automatic)
                         {
-                            bucketTime = new DateTime((itemDate.Ticks / _dynamicAggregationSpan.Ticks) * _dynamicAggregationSpan.Ticks);
-                            existingBucket = _aggregatedData.FirstOrDefault(p => new DateTime((_dateSelector(p).Ticks / _dynamicAggregationSpan.Ticks) * _dynamicAggregationSpan.Ticks) == bucketTime);
+                            _dynamicAggregationSpan = CalculateAutomaticAggregationSpan();
+                            _readyToAdd = Math.Abs(_dateSelector(item).Ticks - _dateSelector(lastItem).Ticks) >= _dynamicAggregationSpan.Ticks;
                         }
+                        else*/
+                        {
+                            _readyToAdd = Math.Abs(_dateSelector(item).Ticks - _dateSelector(lastItem).Ticks) >= _level.ToTimeSpan().Ticks;
+                        }
+                    }
+
+                    // Check the last item in the list
+                    if (!_readyToAdd)
+                    {
+                        _ItemsUpdatedCount++;
+                        _aggregator(lastItem, item, _ItemsUpdatedCount);
+                        retValue = false;
                     }
                     else
                     {
-                        bucketTime = new DateTime((itemDate.Ticks / _aggregationSpan.Ticks) * _aggregationSpan.Ticks);
-                        existingBucket = _aggregatedData.FirstOrDefault(p => new DateTime((_dateSelector(p).Ticks / _aggregationSpan.Ticks) * _aggregationSpan.Ticks) == bucketTime);
-                    }
-
-
-                    if (existingBucket != null)
-                    {
-                        //CALL THE AGGREGATOR
-                        if (_aggregator != null)
-                        {
-                            _aggregator(existingBucket, item);
-                        }
-                        return false;
-                    }
-                    else
-                    {
+                        _ItemsUpdatedCount = 0; //reset on add new
                         _aggregatedData.Add(item);
-                        OnAdded?.Invoke(this, item);
+                        addedItemToSendEvent = item;
+
                         if (_aggregatedData.Count() > _maxPoints)
                         {
-                            T itemToRemove = _aggregatedData.First();
-                            // If 'itemToRemove' is disposable, dispose it before returning to the pool
-                            if (_objectPool == null && itemToRemove is IDisposable disposableItem)
-                            {
-                                disposableItem.Dispose();
-                            }
+                            T itemToRemove = _aggregatedData[0];
 
                             // Remove the item from the collection
+                            removingItemToSendEvent = itemToRemove;
+
                             _aggregatedData.Remove(itemToRemove);
 
-                            // Return the removed item to the pool
-                            if (_objectPool != null)
-                                _objectPool.Return(itemToRemove);
-
                             // Trigger any remove events or perform additional logic as required
-                            OnRemoved?.Invoke(this, 0);
+                            removedItemIndexToSendEvent = 0;
                         }
 
-                        return true;
+                        retValue = true;
                     }
+
                 }
             }
+
+
+            //SEND ALL EVENTS OUT FROM THE LOCK
+            if (removedItemIndexToSendEvent.HasValue)
+                OnRemoved?.Invoke(this, removedItemIndexToSendEvent.Value);
+            if (removingItemToSendEvent != null)
+                OnRemoving?.Invoke(this, removingItemToSendEvent);
+            if (addedItemToSendEvent != null)
+                OnAdded?.Invoke(this, addedItemToSendEvent);
+
+            return retValue;
         }
+
         public void Clear()
         {
             lock (_lockObject)
@@ -162,7 +177,7 @@ namespace VisualHFT.Helpers
         {
             lock (_lockObject)
             {
-                return _aggregatedData.Any();
+                return _aggregatedData.Count > 0;
             }
         }
         public IEnumerable<T> ToList()
@@ -172,16 +187,32 @@ namespace VisualHFT.Helpers
                 return _aggregatedData.ToList();
             }
         }
+
+        public T this[int index]
+        {
+            get
+            {
+                lock (_lockObject)
+                {
+                    return _aggregatedData[index];
+                }
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
         public IEnumerator<T> GetEnumerator()
         {
             lock (_lockObject)
             {
-                foreach (var item in _aggregatedData)
-                {
-                    yield return item;
-                }
+                return _aggregatedData.ToList().GetEnumerator(); // Avoid direct enumeration on the locked collection
             }
         }
+
+
         public IEnumerable<TResult> Select<TResult>(Func<T, TResult> selector)
         {
             lock (_lockObject)
@@ -222,33 +253,48 @@ namespace VisualHFT.Helpers
         public decimal Min(Func<T, decimal> selector)
         {
             lock (_lockObject)
-                return _aggregatedData.Min(selector);
+                return _aggregatedData.DefaultIfEmpty(new T()).Min(selector);
         }
         public double Min(Func<T, double> selector)
         {
             lock (_lockObject)
-                return _aggregatedData.Min(selector);
+                return _aggregatedData.DefaultIfEmpty(new T()).Min(selector);
         }
         public decimal Max(Func<T, decimal> selector)
         {
             lock (_lockObject)
-                return _aggregatedData.Max(selector);
+                return _aggregatedData.DefaultIfEmpty(new T()).Max(selector);
         }
         public double Max(Func<T, double> selector)
         {
             lock (_lockObject)
-                return _aggregatedData.Max(selector);
+                return _aggregatedData.DefaultIfEmpty(new T()).Max(selector);
         }
+        public TimeSpan DynamicAggregationSpan => _dynamicAggregationSpan;
 
 
-        private TimeSpan CalculateAutomaticAggregationSpan(DateTime currentItemDate)
+        /// <summary>
+        /// Calculates the automatic aggregation span.
+        /// The CalculateAutomaticAggregationSpan method dynamically adjusts the aggregation span of the AggregatedCollection<T> based on the rate of incoming data.
+        /// It calculates the average time interval between the timestamps of the last few items (using a sliding window approach)
+        ///  to determine an appropriate aggregation span. This allows the collection to adapt to varying data frequencies,
+        ///  ensuring that items are aggregated appropriately according to the observed data rate.
+        /// The method returns a TimeSpan that represents the calculated aggregation level, which can range from 1 millisecond to 1 day,
+        ///  based on predefined thresholds.
+        /// </summary>
+        /// <param name="currentItemDate">The current item date.</param>
+        /// <returns>A TimeSpan.</returns>
+        internal TimeSpan CalculateAutomaticAggregationSpan()
         {
-            if (_aggregatedData.Count() < WINDOW_SIZE)
-                return _dynamicAggregationSpan; //return the same
-            //var olderItemDate = _dateSelector(_aggregatedData[_aggregatedData.Count - WINDOW_SIZE]);
-            var averageElapsed = new TimeSpan((currentItemDate - lastItemDate).Ticks / WINDOW_SIZE);
-            lastItemDate = currentItemDate;
+            if (_aggregatedData.Count <= 1)
+                return AggregationLevel.Ms1.ToTimeSpan(); //minimum available
+            int _window = Math.Min(WINDOW_SIZE, _aggregatedData.Count);
+            var lastWindowList = _aggregatedData.Select(x => _dateSelector(x)).TakeLast(_window);
 
+            var avgTimeDiffs = lastWindowList
+                .Zip(lastWindowList.Skip(1), (first, second) => (second - first)).Average(x => x.Milliseconds);
+
+            var averageElapsed = TimeSpan.FromMilliseconds(avgTimeDiffs);
 
             if (averageElapsed <= TimeSpan.FromMilliseconds(1))
                 return AggregationLevel.Ms1.ToTimeSpan();
@@ -265,8 +311,10 @@ namespace VisualHFT.Helpers
             else if (averageElapsed <= TimeSpan.FromSeconds(5))
                 return AggregationLevel.S5.ToTimeSpan();
             else
-                return AggregationLevel.D1.ToTimeSpan( );
+                return AggregationLevel.D1.ToTimeSpan();
         }
+
+
 
         protected virtual void Dispose(bool disposing)
         {
@@ -274,17 +322,7 @@ namespace VisualHFT.Helpers
             {
                 if (disposing)
                 {
-                    if (_objectPool != null)
-                    {
-                        // Return all objects to the pool.
-                        foreach (var item in _aggregatedData)
-                        {
-                            _objectPool.Return(item);
-                        }
-                        _aggregatedData.Clear();
-                    }
-                    if (_aggregatedData != null)
-                        _aggregatedData.Clear();
+                    _aggregatedData?.Clear();
                 }
                 _disposed = true;
             }

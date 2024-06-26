@@ -20,30 +20,68 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../GlobalStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- CollectionViewSource to group by PluginType -->
+            <CollectionViewSource x:Key="GroupedPlugins" Source="{Binding Plugins}">
+                <CollectionViewSource.GroupDescriptions>
+                    <PropertyGroupDescription PropertyName="PluginType" />
+                </CollectionViewSource.GroupDescriptions>
+            </CollectionViewSource>
+
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
-        <ListView ItemsSource="{Binding Plugins}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <!-- Bind ListView to CollectionViewSource -->
+        <ListView ItemsSource="{Binding Source={StaticResource GroupedPlugins}}" Grid.Column="0" SelectionMode="Single" HorizontalAlignment="Stretch">
+            <ListView.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=Name}" FontWeight="Bold" FontSize="16" Padding="5"/>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </ListView.GroupStyle>
+
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="VerticalContentAlignment" Value="Center"/>
-                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="Black" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Foreground" Value="Black" />
+                        </Trigger>
+                    </Style.Triggers>
                 </Style>
             </ListView.ItemContainerStyle>
+
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Plugin Name" DisplayMemberBinding="{Binding Name}" Width="150" />
+                    <GridViewColumn Header="Plugin Name" DisplayMemberBinding="{Binding Name}" Width="200" />
                     <GridViewColumn Header="Version" DisplayMemberBinding="{Binding Version}" Width="120"  />
-                    <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="250" />
+                    <GridViewColumn Header="Description" Width="250" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding Description}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                     <GridViewColumn Header="Status" Width="120" DisplayMemberBinding="{Binding Status}" />
-                    <GridViewColumn Header="Actions" >
+                    <GridViewColumn Header="Actions" Width="180">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="▶" 
                                         Command="{Binding DataContext.StartPluginCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=ListView}}" 
                                         CommandParameter="{Binding}" Margin="0, 0, 10, 0" />
-                                    <Button Content="⏸" 
+                                    <Button Content="⏹️" 
                                         Command="{Binding DataContext.StopPluginCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=ListView}}" 
                                         CommandParameter="{Binding}" Margin="0, 0, 10, 0"/>
                                     <Button Content="⚙" 

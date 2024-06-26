@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using VisualHFT.Enums;
 using VisualHFT.UserSettings;
 
 namespace MarketConnectors.WebSocket.Model

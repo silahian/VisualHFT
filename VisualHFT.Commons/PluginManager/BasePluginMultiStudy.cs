@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using VisualHFT.Commons.Studies;
+using VisualHFT.Enums;
 using VisualHFT.PluginManager;
 using VisualHFT.UserSettings;
 
@@ -8,10 +9,28 @@ namespace VisualHFT.Commons.PluginManager
 {
     public abstract class BasePluginMultiStudy : IMultiStudy, VisualHFT.PluginManager.IPlugin, IDisposable
     {
-        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        protected static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         protected bool _disposed = false; // to track whether the object has been disposed
 
-        public event EventHandler<VisualHFT.PluginManager.ErrorEventArgs> OnError;
+
+        public abstract string Name { get; set; }
+        public abstract string Version { get; set; }
+        public abstract string Description { get; set; }
+        public abstract string Author { get; set; }
+        public abstract ISetting Settings { get; set; }
+        public abstract ePluginStatus Status { get; set; }
+        public abstract Action CloseSettingWindow { get; set; }
+        public abstract string TileTitle { get; set; }
+        public abstract string TileToolTip { get; set; }
+        public ePluginType PluginType
+        {
+            get { return ePluginType.MULTI_STUDY; }
+        }
+        public abstract List<IStudy> Studies { get; set; }
+        protected abstract void LoadSettings();
+        protected abstract void SaveSettings();
+        protected abstract void InitializeDefaultSettings();
+
 
         public BasePluginMultiStudy()
         {
@@ -23,31 +42,16 @@ namespace VisualHFT.Commons.PluginManager
             Status = ePluginStatus.LOADED;
         }
 
-        public abstract List<IStudy> Studies { get; set; }
-        public abstract string Name { get; set; }
-        public abstract string Version { get; set; }
-        public abstract string Description { get; set; }
-        public abstract string Author { get; set; }
-        public abstract ISetting Settings { get; set; }
-        public abstract ePluginStatus Status { get; set; }
-        public abstract Action CloseSettingWindow { get; set; }
-        public abstract string TileTitle { get; set; }
-        public abstract string TileToolTip { get; set; }
-
-        protected abstract void LoadSettings();
-        protected abstract void SaveSettings();
-        protected abstract void InitializeDefaultSettings();
-
         public virtual async Task StartAsync()
         {
-            Status = ePluginStatus.STARTED;
-            log.Info("Plugins: " + this.Name + " has started.");
+            Status = ePluginStatus.STARTING;
+            log.Info($"{this.Name} is starting.");
         }
 
         public virtual async Task StopAsync()
         {
             Status = ePluginStatus.STOPPED;
-            log.Info("Plugins: " + Name + " has stopped.");
+            log.Info($"{this.Name} has stopped.");
         }
 
 
@@ -74,6 +78,7 @@ namespace VisualHFT.Commons.PluginManager
                 {
                     foreach (var s in Studies)
                         s.Dispose();
+                    Studies.Clear();
                 }
 
             }

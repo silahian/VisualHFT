@@ -1,6 +1,5 @@
 ﻿<UserControl x:Class="VisualHFT.AnalyticReports.View.ucChartsStatistics"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:contrib="http://oxyplot.org/wpf/contrib"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -26,7 +25,7 @@
             <ColumnDefinition  Width="*" SharedSizeGroup="A"/>
         </Grid.ColumnDefinitions>
         <!--Trade Duration (Qty trades by holding period)-->
-        <contrib:Plot x:Name="chart1" Title="Trade Duration (Qty trades by holding period)" Grid.Column="0" Grid.Row="0" IsEnabled="True" Style="{StaticResource PlotStyle}" Margin="0,0,0,10">
+        <!--<contrib:Plot x:Name="chart1" Title="Trade Duration (Qty trades by holding period)" Grid.Column="0" Grid.Row="0" IsEnabled="True" Style="{StaticResource PlotStyle}" Margin="0,0,0,10">
             <contrib:Plot.Resources>
                 <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
                 <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
@@ -47,9 +46,9 @@
                 <contrib:BarSeries Title="Wins" ItemsSource="{Binding heldBars}" ValueField="WinPnLCount" Color="Green"/>
                 <contrib:BarSeries Title="Losses" ItemsSource="{Binding heldBars}" ValueField="LossPnlCount" Color="Red"/>
             </contrib:Plot.Series>
-        </contrib:Plot>
+        </contrib:Plot>-->
         <!--Trade Duration (PnL by holding period)-->
-        <contrib:Plot x:Name="chart2" Title="Trade Duration (PnL by holding period)" Grid.Column="1" Grid.Row="0" IsEnabled="True" Style="{StaticResource PlotStyle}" Margin="0,0,0,10">
+        <!--<contrib:Plot x:Name="chart2" Title="Trade Duration (PnL by holding period)" Grid.Column="1" Grid.Row="0" IsEnabled="True" Style="{StaticResource PlotStyle}" Margin="0,0,0,10">
             <contrib:Plot.Resources>
                 <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
                 <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
@@ -70,9 +69,9 @@
                 <contrib:BarSeries Title="Wins" ItemsSource="{Binding heldBars}" ValueField="TotalWinPnL" Color="Green"/>
                 <contrib:BarSeries Title="Losses" ItemsSource="{Binding heldBars}" ValueField="TotalLossPnl" Color="Red"/>
             </contrib:Plot.Series>
-        </contrib:Plot>
+        </contrib:Plot>-->
         <!--Top 20 Symbols (by PL)-->
-        <contrib:Plot x:Name="chart3" Title="Top 20 Symbols (by PL)" Grid.Column="0" Grid.Row="1" IsEnabled="True" Style="{StaticResource PlotStyle}" Margin="0,0,0,10">
+        <!--<contrib:Plot x:Name="chart3" Title="Top 20 Symbols (by PL)" Grid.Column="0" Grid.Row="1" IsEnabled="True" Style="{StaticResource PlotStyle}" Margin="0,0,0,10">
             <contrib:Plot.Resources>
                 <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
                 <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
@@ -93,9 +92,9 @@
                 <contrib:BarSeries Title="Wins" ItemsSource="{Binding Top20}" ValueField="WinsPnL" Color="Green"/>
                 <contrib:BarSeries Title="Losses" ItemsSource="{Binding Top20}" ValueField="LossesPnL" Color="Red"/>
             </contrib:Plot.Series>
-        </contrib:Plot>
+        </contrib:Plot>-->
         <!--PL Ranges-->
-        <contrib:Plot x:Name="chart4" Title="PL Ranges" Grid.Column="1" Grid.Row="1" IsEnabled="True" Style="{StaticResource PlotStyle}" Margin="0,0,0,10">
+        <!--<contrib:Plot x:Name="chart4" Title="PL Ranges" Grid.Column="1" Grid.Row="1" IsEnabled="True" Style="{StaticResource PlotStyle}" Margin="0,0,0,10">
             <contrib:Plot.Resources>
                 <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
                 <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
@@ -115,9 +114,9 @@
             <contrib:Plot.Series>
                 <contrib:BarSeries Title="Qty Trades" ItemsSource="{Binding ListPLRanges}" ValueField="Qty" Color="Blue"/>
             </contrib:Plot.Series>
-        </contrib:Plot>
+        </contrib:Plot>-->
         <!--PL Range($) vs Duration-->
-        <contrib:Plot x:Name="chart5" Title="PL Range($) vs Duration" Grid.ColumnSpan="2" Grid.Row="2" IsEnabled="True" Margin="0,0,0,10">
+        <!--<contrib:Plot x:Name="chart5" Title="PL Range($) vs Duration" Grid.ColumnSpan="2" Grid.Row="2" IsEnabled="True" Margin="0,0,0,10">
             <contrib:Plot.Resources>
                 <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
                 <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
@@ -138,9 +137,9 @@
                 <contrib:ScatterSeries ItemsSource="{Binding PLRangeDuration}" DataFieldX="Duration" DataFieldY="PLRange" MarkerType="Circle" MarkerSize="2"/>
                 <contrib:LineSeries Title="Regression" ItemsSource="{Binding regressionLineData}" DataFieldX="X" DataFieldY="Y" Color="Blue"/>
             </contrib:Plot.Series>
-        </contrib:Plot>
+        </contrib:Plot>-->
         <!--Maximum Adverse Excursion (MAE)-->
-        <contrib:Plot x:Name="chart6" Title="Maximum Adverse Excursion (MAE)" Grid.Column="0" Grid.Row="3" IsEnabled="True" Margin="0,0,0,10">
+        <!--<contrib:Plot x:Name="chart6" Title="Maximum Adverse Excursion (MAE)" Grid.Column="0" Grid.Row="3" IsEnabled="True" Margin="0,0,0,10">
             <contrib:Plot.Resources>
                 <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
                 <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
@@ -161,9 +160,9 @@
                 <contrib:ScatterSeries ItemsSource="{Binding MAE}" DataFieldX="XValue" DataFieldY="YValue" MarkerType="Circle" MarkerSize="2"/>
                 <contrib:LineSeries Title="Regression" ItemsSource="{Binding regressionLineDataMAE}" DataFieldX="X" DataFieldY="Y" Color="Blue"/>
             </contrib:Plot.Series>
-        </contrib:Plot>
+        </contrib:Plot>-->
         <!--Maximum Favorable Excursion (MFE)-->
-        <contrib:Plot x:Name="chart7" Title="Maximum Favorable Excursion (MFE)" Grid.Column="1" Grid.Row="3" IsEnabled="True" Margin="0,0,0,10">
+        <!--<contrib:Plot x:Name="chart7" Title="Maximum Favorable Excursion (MFE)" Grid.Column="1" Grid.Row="3" IsEnabled="True" Margin="0,0,0,10">
             <contrib:Plot.Resources>
                 <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
                 <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
@@ -184,6 +183,6 @@
                 <contrib:ScatterSeries ItemsSource="{Binding MFE}" DataFieldX="XValue" DataFieldY="YValue" MarkerType="Circle" MarkerSize="2"/>
                 <contrib:LineSeries Title="Regression" ItemsSource="{Binding regressionLineDataMFE}" DataFieldX="X" DataFieldY="Y" Color="Blue"/>
             </contrib:Plot.Series>
-        </contrib:Plot>
+        </contrib:Plot>-->
     </Grid>
 </UserControl>

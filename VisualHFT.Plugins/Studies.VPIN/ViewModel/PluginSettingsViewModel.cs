@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using VisualHFT.Enums;
 using VisualHFT.Helpers;
 using VisualHFT.ViewModel.Model;
 
@@ -47,10 +47,8 @@ namespace VisualHFT.Studies.VPIN.ViewModel
             AggregationLevels = new ObservableCollection<Tuple<string, AggregationLevel>>();
             foreach (AggregationLevel level in Enum.GetValues(typeof(AggregationLevel)))
             {
-                AggregationLevels.Add(new Tuple<string, AggregationLevel>(HelperCommon.GetEnumDescription(level), level));
+                AggregationLevels.Add(new Tuple<string, AggregationLevel>(Commons.Helpers.HelperCommon.GetEnumDescription(level), level));
             }
-            AggregationLevelSelection = AggregationLevel.Automatic;
-
 
             LoadSelectedProviderID();
         }
@@ -190,7 +188,7 @@ namespace VisualHFT.Studies.VPIN.ViewModel
             }
         }
 
-        private void ALLSYMBOLS_CollectionChanged(object? sender, EventArgs e)
+        private void ALLSYMBOLS_CollectionChanged(object? sender, string e)
         {
             _symbols = new ObservableCollection<string>(HelperSymbol.Instance);
             OnPropertyChanged(nameof(Symbols));
@@ -202,7 +200,7 @@ namespace VisualHFT.Studies.VPIN.ViewModel
                 var item = new VisualHFT.ViewModel.Model.Provider(e);
                 if (!_providers.Any(x => x.ProviderCode == e.ProviderCode))
                     _providers.Add(item);
-                if (_selectedProvider == null && e.Status == eSESSIONSTATUS.BOTH_CONNECTED) //default provider must be the first who's Active
+                if (_selectedProvider == null && e.Status == eSESSIONSTATUS.CONNECTED) //default provider must be the first who's Active
                     SelectedProvider = item;
             }));
         }

@@ -1,7 +1,4 @@
 ﻿using VisualHFT.Model;
-using System.Collections.Concurrent;
-using VisualHFT.Commons.Pools;
-using VisualHFT.Commons.SubscriberBuffers;
 
 namespace VisualHFT.Helpers
 {
@@ -9,117 +6,84 @@ namespace VisualHFT.Helpers
 
     public sealed class HelperOrderBook : IOrderBookHelper
     {
-        protected BlockingCollection<OrderBook> _DataQueue = new BlockingCollection<OrderBook>(new ConcurrentQueue<OrderBook>());
-        private List<OrderBookSubscriberBuffer> _subscribers = new List<OrderBookSubscriberBuffer>();
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private readonly Task _processingTask;
+
+
+        private List<Action<OrderBook>> _subscribers = new List<Action<OrderBook>>();
+
         private readonly object _lockObj = new object();
-
-
-        // This timer will be used for performance monitoring
-        private readonly System.Timers.Timer _monitoringTimer;
 
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private static readonly HelperOrderBook instance = new HelperOrderBook();
-        public static HelperOrderBook Instance => instance;
 
-        private readonly ObjectPool<OrderBook> orerBookPool = new ObjectPool<OrderBook>();//pool of Trade objects
+        public event Action<VisualHFT.Commons.Model.ErrorEventArgs> OnException;
+
+        public static HelperOrderBook Instance => instance;
 
 
         private HelperOrderBook()
         {
-            _processingTask = Task.Run(async () => await ProcessQueueAsync(), _cancellationTokenSource.Token);
 
-            // Set up the performance monitoring timer
-            _monitoringTimer = new System.Timers.Timer(5000); // Check every 5 seconds
-            _monitoringTimer.Elapsed += MonitorSubscriberBuffers;
-            _monitoringTimer.Start();
         }
         ~HelperOrderBook()
-        {
-            _cancellationTokenSource.Cancel();
-            _processingTask.Wait();
-        }
+        { }
 
 
 
-        public void Subscribe(Action<OrderBook> processor)
-        {
-            lock (_lockObj)
-            {
-                _subscribers.Add(new OrderBookSubscriberBuffer(processor));
-            }
-        }
-
-        public void Unsubscribe(Action<OrderBook> processor)
+        /// <summary>
+        /// Subscribes the.Limit Order Book realtime stream.
+        /// Note:
+        ///     - must be very careful not to block this call, and make sure to TRANSFORM the object into its minimal need to update the UI.
+        ///     - the UI update must be handled in another thread, without using the object coming from this subscription (must be decoupled).
+        ///     
+        /// </summary>
+        /// <param name="subscriber">The subscriber.</param>
+        public void Subscribe(Action<OrderBook> subscriber)
         {
             lock (_lockObj)
             {
-                var bufferToRemove = _subscribers.FirstOrDefault(buffer => buffer.Processor == processor);
-                if (bufferToRemove != null)
-                {
-                    _subscribers.Remove(bufferToRemove);
-                    bufferToRemove.Buffer.CompleteAdding();
-                }
+                _subscribers.Add(subscriber);
             }
         }
 
-
-
-
-        private void MonitorSubscriberBuffers(object? sender, System.Timers.ElapsedEventArgs e)
+        public void Unsubscribe(Action<OrderBook> subscriber)
         {
-            foreach (var subscriber in _subscribers)
+            lock (_lockObj)
             {
-                if (subscriber.Count > 500)  // or some threshold value
-                {
-                    log.Warn($"OrderBook Subscriber buffer is growing large: {subscriber.Count}");
-                    // Additional actions as needed: Pause, Alert, Disconnect
-                }
+                _subscribers.Remove(subscriber);
             }
         }
 
-        private async Task ProcessQueueAsync()
-        {
-            Thread.CurrentThread.IsBackground = true;
-
-            List<OrderBook> data = new List<OrderBook>();
-
-            try
-            {
-                while (!_cancellationTokenSource.Token.IsCancellationRequested)
-                {
-                    if (_DataQueue.Count > 500)
-                    {
-                        log.Warn($"HelperOrderBook QUEUE is way behind: {_DataQueue.Count}");
-                    }
-
-                    var ob = _DataQueue.Take();
-                    DispatchToSubscribers(ob);
-
-
-                    // Wait for the next iteration
-                    await Task.Delay(0);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Fatal(ex);
-            }
-        }
         private void DispatchToSubscribers(OrderBook book)
         {
-            foreach (var subscriber in _subscribers)
+            //lock (_lockObj)
             {
-                subscriber.Add(book);
+                foreach (var subscriber in _subscribers)
+                {
+                    try
+                    {
+                        subscriber(book);
+                    }
+                    catch (Exception ex)
+                    {
+                        Task.Run(() =>
+                        {
+                            log.Error(ex);
+                            OnException?.Invoke(new VisualHFT.Commons.Model.ErrorEventArgs(ex, subscriber.Target));
+                        });
+                    }
+                }
             }
+        }
+        public void UpdateData(OrderBook data)
+        {
+            DispatchToSubscribers(data);
         }
         public void UpdateData(IEnumerable<OrderBook> data)
         {
             foreach (var e in data)
             {
-                _DataQueue.Add(e);
+                DispatchToSubscribers(e);
             }
         }
     }

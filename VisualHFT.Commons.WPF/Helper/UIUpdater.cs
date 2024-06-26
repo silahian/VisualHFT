@@ -1,50 +1,66 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
 using System.Windows.Threading;
 
 namespace VisualHFT.Helpers
 {
-    public class UIUpdater: IDisposable
+    public class UIUpdater : IDisposable
     {
         private bool _disposed = false; // to track whether the object has been disposed
         private DispatcherTimer _debounceTimer;
         private Action _updateAction;
+        private bool _isActionRunning = false;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public UIUpdater(Action updateAction, double debounceTimeInMilliseconds=30)
+        public UIUpdater(Action updateAction, double debounceTimeInMilliseconds = 30)
         {
             _updateAction = updateAction;
 
-            // Ensure the timer is created on the UI thread
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
-            {
-                _debounceTimer = new DispatcherTimer();
-                _debounceTimer.Interval = TimeSpan.FromMilliseconds(debounceTimeInMilliseconds);
-                _debounceTimer.Tick += _debounceTimer_Tick;
-                _debounceTimer.Start();
-            });
+            _debounceTimer = new DispatcherTimer();
+            _debounceTimer.Interval = TimeSpan.FromMilliseconds(debounceTimeInMilliseconds);
+            _debounceTimer.Tick += _debounceTimer_Tick;
+            _debounceTimer.Start();
         }
+
         ~UIUpdater()
         {
             Dispose(false);
         }
+
         private void _debounceTimer_Tick(object sender, EventArgs e)
         {
-            _debounceTimer.Stop();  // Stop the timer
-            _updateAction();        // Execute the UI update action
-            _debounceTimer.Start();  // Stop the timer
+            if (_isActionRunning)
+            {
+                return; // Skip this tick if the action is still running
+            }
+
+            _isActionRunning = true;
+            _debounceTimer.Stop(); // Stop the timer
+            try
+            {
+                _updateAction(); // Execute the UI update action
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+            finally
+            {
+                _isActionRunning = false;
+                _debounceTimer.Start(); // Restart the timer
+            }
         }
 
         public void Stop()
         {
-            _debounceTimer.Stop();   // Reset the timer if it's running
+            _debounceTimer.Stop(); // Stop the timer
         }
+
         public void Start()
         {
-            _debounceTimer.Start();  // Start (or restart) the timer
+            if (!_isActionRunning)
+            {
+                _debounceTimer.Start(); // Start the timer if action is not running
+            }
         }
 
         protected virtual void Dispose(bool disposing)
@@ -59,6 +75,7 @@ namespace VisualHFT.Helpers
                 _disposed = true;
             }
         }
+
         public void Dispose()
         {
             Dispose(true);

@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisualHFT", "VisualHFT.csproj", "{3AA46013-0547-4717-9747-E0467EE60142}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CCC8EF2E-EEE3-4F5C-8A06-F07947D8BCFA} = {CCC8EF2E-EEE3-4F5C-8A06-F07947D8BCFA}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "demoTradingCore", "demoTradingCore\demoTradingCore.csproj", "{932E0DD0-256E-4480-97BC-E0A291D8F3E0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisualHFT.Commons", "VisualHFT.Commons\VisualHFT.Commons.csproj", "{D479C46D-1016-4C55-89CA-7FECB77BADD9}"
@@ -24,11 +19,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Studies.VPIN", "VisualHFT.P
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisualHFT.Commons.WPF", "VisualHFT.Commons.WPF\VisualHFT.Commons.WPF.csproj", "{62BF162D-118E-426C-8B96-1A1612E0A346}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studies.LOBImbalance", "VisualHFT.Plugins\Studies.LOBImbalance\Studies.LOBImbalance.csproj", "{74B08F14-A2A1-43A1-8DBF-CA9F19F9B8E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Studies.LOBImbalance", "VisualHFT.Plugins\Studies.LOBImbalance\Studies.LOBImbalance.csproj", "{74B08F14-A2A1-43A1-8DBF-CA9F19F9B8E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studies.MarketResilience", "VisualHFT.Plugins\Studies.MarketResilience\Studies.MarketResilience.csproj", "{AE79F03E-98FF-4730-BEFE-76204BFD7707}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Studies.MarketResilience", "VisualHFT.Plugins\Studies.MarketResilience\Studies.MarketResilience.csproj", "{AE79F03E-98FF-4730-BEFE-76204BFD7707}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studies.MarketRatios", "VisualHFT.Plugins\Studies.MarketRatios\Studies.MarketRatios.csproj", "{23E6F0D7-139B-48B7-8234-3D415D06B35A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Studies.MarketTradingRatios", "VisualHFT.Plugins\Studies.MarketTradingRatios\Studies.MarketTradingRatios.csproj", "{C70DB572-59CB-4CA4-9373-FFE64935E408}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisualHFT", "VisualHFT.csproj", "{53201298-2106-4464-9ABD-2BAD5A4C9071}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,10 +33,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3AA46013-0547-4717-9747-E0467EE60142}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3AA46013-0547-4717-9747-E0467EE60142}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3AA46013-0547-4717-9747-E0467EE60142}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3AA46013-0547-4717-9747-E0467EE60142}.Release|Any CPU.Build.0 = Release|Any CPU
 		{932E0DD0-256E-4480-97BC-E0A291D8F3E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{932E0DD0-256E-4480-97BC-E0A291D8F3E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{932E0DD0-256E-4480-97BC-E0A291D8F3E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -76,10 +69,14 @@ Global
 		{AE79F03E-98FF-4730-BEFE-76204BFD7707}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE79F03E-98FF-4730-BEFE-76204BFD7707}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE79F03E-98FF-4730-BEFE-76204BFD7707}.Release|Any CPU.Build.0 = Release|Any CPU
-		{23E6F0D7-139B-48B7-8234-3D415D06B35A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{23E6F0D7-139B-48B7-8234-3D415D06B35A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{23E6F0D7-139B-48B7-8234-3D415D06B35A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{23E6F0D7-139B-48B7-8234-3D415D06B35A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C70DB572-59CB-4CA4-9373-FFE64935E408}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C70DB572-59CB-4CA4-9373-FFE64935E408}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C70DB572-59CB-4CA4-9373-FFE64935E408}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C70DB572-59CB-4CA4-9373-FFE64935E408}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53201298-2106-4464-9ABD-2BAD5A4C9071}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53201298-2106-4464-9ABD-2BAD5A4C9071}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53201298-2106-4464-9ABD-2BAD5A4C9071}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53201298-2106-4464-9ABD-2BAD5A4C9071}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -91,7 +88,7 @@ Global
 		{77A17B04-2914-4DB5-874C-C533D437B176} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
 		{74B08F14-A2A1-43A1-8DBF-CA9F19F9B8E2} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
 		{AE79F03E-98FF-4730-BEFE-76204BFD7707} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
-		{23E6F0D7-139B-48B7-8234-3D415D06B35A} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
+		{C70DB572-59CB-4CA4-9373-FFE64935E408} = {EDFECE32-94EC-4AC5-8A4B-B7CDECC65CB0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9EDE643D-268A-4BB9-85A6-F32F11E40516}

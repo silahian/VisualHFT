@@ -2,7 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    
+    using VisualHFT.Enums;
+
     public partial class Position
     {
         public Position()
@@ -141,7 +142,7 @@
         public Nullable<System.DateTime> OpenFireSignalTimestamp { get; set; }
         public Nullable<System.DateTime> CloseFireSignalTimestamp { get; set; }
         public Nullable<decimal> PipsPnLInCurrency { get; set; }
-    
+
         public virtual List<Execution> CloseExecutions { get; set; }
         public virtual List<Execution> OpenExecutions { get; set; }
         private Order GetOrder(bool isOpen)

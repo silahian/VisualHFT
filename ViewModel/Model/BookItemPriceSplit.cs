@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 
 namespace VisualHFT.ViewModel.Model
 {
@@ -13,78 +14,104 @@ namespace VisualHFT.ViewModel.Model
         private string _nextTwoDecimals = "";
         private string _rest = "";
         private string _size = "";
-        private object _locker = new object();
         private string decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
         private string thousandsSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
+        private StringBuilder sPriceBuilder = new StringBuilder();
 
-        public void SetNumber(double price, double size, int symbolDecimalPlaces)
+        public void SetNumber_TOREMOVE(double price, double size, int symbolDecimalPlaces)
         {
-            lock (_locker)
+            _price = price;
+            if (price != 0)
             {
-                _price = price;
-                if (price != 0)
+                try
                 {
-                    try
+                    string sPrice = string.Format("{0:N" + symbolDecimalPlaces + "}", price);
+                    if (symbolDecimalPlaces > 0)
                     {
-                        string sPrice = string.Format("{0:N" + symbolDecimalPlaces + "}", price);
-                        if (symbolDecimalPlaces > 0)
-                        {
-                            /*LastDecimal = sPrice.Last().ToString();
-                            NextTwoDecimals = sPrice.Substring(sPrice.Length - 3, 2);
-                            Rest = sPrice.Substring(0, sPrice.Length - 3);*/
-
-                            _rest = sPrice.Split(decimalSeparator)[0];
-                            _nextTwoDecimals = (sPrice.Split(decimalSeparator)[1] + "00").Substring(0, symbolDecimalPlaces);
-                            _lastDecimal = "";
-                        }
-                        else
-                        {
-                            _rest = sPrice.Split(thousandsSeparator)[0];
-                            _nextTwoDecimals = sPrice.Split(thousandsSeparator)[1];
-                        }
-                        _size = Helpers.HelperCommon.GetKiloFormatter(size);
-
+                        _rest = sPrice.Split(decimalSeparator)[0];
+                        _nextTwoDecimals = (sPrice.Split(decimalSeparator)[1] + "00").Substring(0, symbolDecimalPlaces);
+                        _lastDecimal = "";
                     }
-                    catch
+                    else
                     {
-                        _lastDecimal = "-";
-                        _nextTwoDecimals = "-";
-                        _rest = "-";
-                        _size = "-";
+                        _rest = sPrice.Split(thousandsSeparator)[0];
+                        _nextTwoDecimals = sPrice.Split(thousandsSeparator)[1];
                     }
+                    _size = Helpers.HelperCommon.GetKiloFormatter(size);
+
                 }
-
-
-                if (price == 0)
+                catch
                 {
-                    _lastDecimal = "";
-                    _nextTwoDecimals = "";
-                    _rest = "";
-                    _size = "";
+                    _lastDecimal = "-";
+                    _nextTwoDecimals = "-";
+                    _rest = "-";
+                    _size = "-";
                 }
             }
-        }
-        public void Clear()
-        {
-            lock (_locker)
+
+
+            if (price == 0)
             {
-                _price = 0;
                 _lastDecimal = "";
                 _nextTwoDecimals = "";
                 _rest = "";
                 _size = "";
             }
-            RaiseUIThread();
+        }
+        public void SetNumber(double price, double size, int symbolDecimalPlaces)
+        {
+            if (price == 0)
+            {
+                _lastDecimal = _nextTwoDecimals = _rest = _size = "";
+                return;
+            }
+
+            _price = price;
+            try
+            {
+                // Use StringBuilder to minimize allocations
+                sPriceBuilder.Clear();
+                sPriceBuilder.AppendFormat("{0:N" + symbolDecimalPlaces + "}", price);
+
+                string sPrice = sPriceBuilder.ToString();
+                string[] parts;
+
+                if (symbolDecimalPlaces > 0)
+                {
+                    parts = sPrice.Split(decimalSeparator);
+                    _rest = parts[0];
+                    _nextTwoDecimals = parts[1].PadRight(2, '0').Substring(0, symbolDecimalPlaces);
+                }
+                else
+                {
+                    parts = sPrice.Split(thousandsSeparator);
+                    _rest = parts[0];
+                    _nextTwoDecimals = parts.Length > 1 ? parts[1] : "";
+                }
+
+                _size = Helpers.HelperCommon.GetKiloFormatter(size);
+            }
+            catch
+            {
+                _lastDecimal = _nextTwoDecimals = _rest = _size = "-";
+            }
+        }
+
+
+        public void Clear()
+        {
+            _price = 0;
+            _lastDecimal = "";
+            _nextTwoDecimals = "";
+            _rest = "";
+            _size = "";
         }
         public void RaiseUIThread()
         {
-            lock (_locker)
-            {
-                RaisePropertyChanged(nameof(LastDecimal));
-                RaisePropertyChanged(nameof(NextTwoDecimals));
-                RaisePropertyChanged(nameof(Rest));
-                RaisePropertyChanged(nameof(Size));
-            }
+            RaisePropertyChanged(nameof(LastDecimal));
+            RaisePropertyChanged(nameof(NextTwoDecimals));
+            RaisePropertyChanged(nameof(Rest));
+            RaisePropertyChanged(nameof(Size));
         }
 
         public object Clone() => MemberwiseClone();

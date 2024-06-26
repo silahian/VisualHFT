@@ -43,13 +43,13 @@ namespace VisualHFT.Helpers
         }
         public static int TimerMillisecondsToGetVariables = 1000 * 10; //10 seconds
 
-        public static IDataTradeRetriever EXECUTEDORDERS = new GenericTradesRetriever();
+        //public static IDataTradeRetriever EXECUTEDORDERS = new GenericTradesRetriever();
         //public static IDataTradeRetriever EXECUTEDORDERS = new MSSQLServerTradesRetriever();
         //public static IDataTradeRetriever EXECUTEDORDERS = new FIXTradesRetriever([path_to_fix_log_file], 1, "CME");
 
         //public static HelperExposure EXPOSURES = new HelperExposure();
         //public static HelperActiveOrder ACTIVEORDERS = new HelperActiveOrder();
-        public static HelperStrategy ACTIVESTRATEGIES = new HelperStrategy();
+        //public static HelperStrategy ACTIVESTRATEGIES = new HelperStrategy();
         public static HelperStrategyParams STRATEGYPARAMS = new HelperStrategyParams();
 
 
@@ -153,6 +153,10 @@ namespace VisualHFT.Helpers
             window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             window.Show();
         }
+
+        // Pre-defined lookup table for suffixes based on index
+        static readonly string[] suffixes = { "", "k", "M", "B" };
+
         public static string GetKiloFormatter(int num)
         {
             return GetKiloFormatter((double)num);
@@ -163,22 +167,17 @@ namespace VisualHFT.Helpers
         }
         public static string GetKiloFormatter(double num)
         {
-            if (num < 500)
+            const int Thousand = 1000;
+            const int Million = Thousand * Thousand;
+            const int Billion = Million * Thousand;
+            if (num < Thousand)
+            {
                 return num.ToString("N2");
-            if (num < 10000)
-                return num.ToString("N0");
-
-
-            if (num >= 100000000)
-                return (num / 1000000D).ToString("0.#M");
-            if (num >= 1000000)
-                return (num / 1000000D).ToString("0.##M");
-            if (num >= 100000)
-                return (num / 1000D).ToString("0.#k");
-            if (num >= 10000)
-                return (num / 1000D).ToString("0.##k");
-            return num.ToString("#,0");
+            }
+            int index = (int)Math.Log10(Math.Abs(num)) / 3; // More efficient logarithm for base 10
+            return (num / Math.Pow(Thousand, index)).ToString("0.#") + suffixes[index];
         }
+
         public static string GetKiloFormatterTime(double milliseconds)
         {
             double num = milliseconds;

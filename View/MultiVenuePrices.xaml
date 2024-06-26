@@ -1,7 +1,7 @@
 ﻿<Window x:Class="VisualHFT.View.MultiVenuePrices" 
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:contrib="http://oxyplot.org/wpf/contrib"
+        xmlns:oxyplot="http://oxyplot.org/wpf"
         
         
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -12,7 +12,7 @@
         Background="{DynamicResource MaterialDesignPaper}"
 
         Closed="Window_Closed"
-        Title="Multi Venue Prices" Height="450" Width="800">
+        Title="{Binding Title}" Height="450" Width="800">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -91,27 +91,16 @@
         </StackPanel>
 
         <!-- OxyPlot Chart -->
-        <contrib:Plot 
-            Grid.Row="1" Grid.Column="1" Title="Venue's Prices" 
-                      TitleColor="White" TitleFontSize="10" PlotAreaBorderThickness="0" TextColor="White" DefaultFontSize="8"
-                      HorizontalContentAlignment="Stretch" 
-                      HorizontalAlignment="Stretch" 
-                      VerticalAlignment="Stretch" 
-                      VerticalContentAlignment="Stretch" 
-                      IsEnabled="False"
-                      Model="{Binding MyPlotModel}"
+        <oxyplot:PlotView 
+            Grid.Row="1" Grid.Column="0" 
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            IsEnabled="False" 
+            IsMouseWheelEnabled="False"
+            Style="{StaticResource BaseChartStyle}"
+            Model="{Binding MyPlotModel}"
             >
-            <contrib:Plot.Resources>
-                <SolidColorBrush x:Key="PlotBackgroundBrush" Color="{DynamicResource PrimaryHueLight}" />
-                <SolidColorBrush x:Key="PlotTextBrush" Color="{DynamicResource PrimaryHueMid}" />
-                <SolidColorBrush x:Key="PlotAxisBrush" Color="{DynamicResource PrimaryHueMid}" />
-                <SolidColorBrush x:Key="PlotSeriesBrush" Color="{DynamicResource SecondaryHueMid}" />
-            </contrib:Plot.Resources>
-            <contrib:Plot.Background>
-                <StaticResource ResourceKey="PlotBackgroundBrush" />
-            </contrib:Plot.Background>
-        </contrib:Plot>
+        </oxyplot:PlotView>
 
-        
+
     </Grid>
 </Window>
