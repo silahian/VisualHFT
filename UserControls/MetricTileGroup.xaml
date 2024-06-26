@@ -24,7 +24,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <GroupBox Padding="10">
+    <GroupBox Padding="0" Margin="5">
         <GroupBox.Header>
             <Grid>
                 <!-- Assuming Horizontal alignment of controls -->
