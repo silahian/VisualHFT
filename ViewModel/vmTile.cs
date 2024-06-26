@@ -306,7 +306,13 @@ namespace VisualHFT.ViewModel
                         _study.OnCalculated -= _study_OnCalculated;
                         _study.Dispose();
                     }
-
+                    if (_multiStudy != null)
+                    {
+                        foreach (var s in _multiStudy.Studies)
+                        {
+                            s.Dispose();
+                        }
+                    }
                     uiUpdater.Dispose();
                 }
                 _disposed = true;
