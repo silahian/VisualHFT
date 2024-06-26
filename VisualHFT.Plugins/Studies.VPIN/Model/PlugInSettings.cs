@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using VisualHFT.Enums;
 using VisualHFT.Model;
 using VisualHFT.UserSettings;
 

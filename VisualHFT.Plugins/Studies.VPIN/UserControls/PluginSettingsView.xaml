@@ -51,12 +51,12 @@
 
 
 
-            <Label Content="Aggregation"/>
+            <Label Content="Aggregation" />
             <ComboBox ItemsSource="{Binding AggregationLevels}" Margin="0,5"
                   DisplayMemberPath="Item1" 
                   SelectedValuePath="Item2" 
                   SelectedValue="{Binding AggregationLevelSelection}" 
-                  FontSize="18"/>
+                  FontSize="18" />
 
 
 

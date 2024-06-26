@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using VisualHFT.Commons.PluginManager;
-using VisualHFT.Commons.Pools;
+using VisualHFT.Enums;
 using VisualHFT.Helpers;
 using VisualHFT.Model;
 using VisualHFT.PluginManager;
@@ -25,7 +24,6 @@ namespace VisualHFT.Studies
     {
         private bool _disposed = false; // to track whether the object has been disposed
         private PlugInSettings _settings;
-        private OrderBook _orderBook; //to hold last market data tick
 
         //variables for calculation
         private decimal _bucketVolumeSize; // The volume size of each bucket
@@ -34,6 +32,9 @@ namespace VisualHFT.Studies
         private decimal _lastMarketMidPrice = 0; //keep track of market price
         private object _locker = new object();
 
+        private BookItem _tobBid = new BookItem();
+        private BookItem _tobAsk = new BookItem();
+
         private const decimal VPIN_THRESHOLD = 0.7M; // ALERT Example threshold
 
         private DateTime _currentBucketStartTime;
@@ -41,9 +42,6 @@ namespace VisualHFT.Studies
 
         // Event declaration
         public override event EventHandler<decimal> OnAlertTriggered;
-        public override event EventHandler<BaseStudyModel> OnCalculated;
-        public override event EventHandler<ErrorEventArgs> OnError;
-
 
         public override string Name { get; set; } = "VPIN Study Plugin";
         public override string Version { get; set; } = "1.0.0";
@@ -63,24 +61,52 @@ namespace VisualHFT.Studies
 
         public VPINStudy()
         {
-            HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
-            HelperTrade.Instance.Subscribe(TRADES_OnDataReceived);
-
-
-            CalculateStudy(true); //initial value
         }
         ~VPINStudy()
         {
             Dispose(false);
         }
 
+        public override async Task StartAsync()
+        {
+            await base.StartAsync();//call the base first
+
+            HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
+            HelperTrade.Instance.Subscribe(TRADES_OnDataReceived);
+            DoCalculation(true); //initial value
+
+            log.Info($"{this.Name} Plugin has successfully started.");
+            Status = ePluginStatus.STARTED;
+        }
+
+        public override async Task StopAsync()
+        {
+            Status = ePluginStatus.STOPPING;
+            log.Info($"{this.Name} is stopping.");
+
+            HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
+            HelperTrade.Instance.Unsubscribe(TRADES_OnDataReceived);
+
+            await base.StopAsync();
+        }
 
 
         private void TRADES_OnDataReceived(Trade e)
         {
+            /*
+             * ***************************************************************************************************
+             * TRANSFORM the incoming object (decouple it)
+             * DO NOT hold this call back, since other components depends on the speed of this specific call back.
+             * DO NOT BLOCK
+             * IDEALLY, USE QUEUES TO DECOUPLE
+             * ***************************************************************************************************
+             */
+
             if (e == null)
                 return;
             if (_settings.Provider.ProviderID != e.ProviderId || _settings.Symbol != e.Symbol)
+                return;
+            if (!e.IsBuy.HasValue) //we do not know what it is
                 return;
             lock (_locker)
             {
@@ -90,7 +116,7 @@ namespace VisualHFT.Studies
                     _currentBucketStartTime = e.Timestamp;
                 }
 
-                if (e.IsBuy)
+                if (e.IsBuy.Value)
                     _currentBuyVolume += e.Size;
                 else
                     _currentSellVolume += e.Size;
@@ -99,17 +125,26 @@ namespace VisualHFT.Studies
                 {
                     _currentBucketStartTime = e.Timestamp;
                     _currentBucketEndTime = e.Timestamp; // Set the end time for the current bucket
-                    CalculateStudy(true);
+                    DoCalculation(true);
                 }
                 else
                 {
                     _currentBucketEndTime = e.Timestamp; // Set the end time for the current bucket
-                    CalculateStudy(false);
+                    DoCalculation(false);
                 }
             }
         }
         private void LIMITORDERBOOK_OnDataReceived(OrderBook e)
         {
+            /*
+             * ***************************************************************************************************
+             * TRANSFORM the incoming object (decouple it)
+             * DO NOT hold this call back, since other components depends on the speed of this specific call back.
+             * DO NOT BLOCK
+               * IDEALLY, USE QUEUES TO DECOUPLE
+             * ***************************************************************************************************
+             */
+
             if (e == null)
                 return;
             if (_settings.Provider.ProviderID != e.ProviderID || _settings.Symbol != e.Symbol)
@@ -117,23 +152,25 @@ namespace VisualHFT.Studies
 
             lock (_locker)
             {
-                if (_orderBook == null)
-                {
-                    _orderBook = new OrderBook(e.Symbol, e.DecimalPlaces);
-                }
+                var incomingTobBid = e.GetTOB(true);
+                var incomingTobAsk = e.GetTOB(false);
+                if (incomingTobBid == null || incomingTobAsk == null
+                    || (incomingTobBid.Equals(_tobBid) && incomingTobAsk.Equals(_tobAsk)) //if the top of the book has not changed, no need to continue
+                    )
+                    return;
 
-                if (!_orderBook.LoadData(e.Asks, e.Bids))
-                    return; //if nothing to update, then exit
-                _lastMarketMidPrice = (decimal)_orderBook.MidPrice;
+                _tobBid.CopyFrom(incomingTobBid);
+                _tobAsk.CopyFrom(incomingTobAsk);
 
+                _lastMarketMidPrice = (decimal)e.MidPrice;
                 if (_lastMarketMidPrice != 0)
-                    CalculateStudy(false);
+                    DoCalculation(false);
             }
         }
-        private void CalculateStudy(bool isNewBucket)
+        private void DoCalculation(bool isNewBucket)
         {
-            string valueColor = "White";
             if (Status != VisualHFT.PluginManager.ePluginStatus.STARTED) return;
+            string valueColor = "White";
             if (_bucketVolumeSize == 0)
                 _bucketVolumeSize = (decimal)_settings.BucketVolSize;
 
@@ -156,7 +193,7 @@ namespace VisualHFT.Studies
             newItem.Timestamp = HelperTimeProvider.Now;
             newItem.MarketMidPrice = _lastMarketMidPrice;
             newItem.ValueColor = valueColor;
-            OnCalculated?.Invoke(this, newItem);
+            AddCalculation(newItem);
         }
         private void ResetBucket()
         {
@@ -164,24 +201,29 @@ namespace VisualHFT.Studies
             _currentSellVolume = 0;
         }
 
+        protected override void onDataAggregation(BaseStudyModel existing, BaseStudyModel newItem, int counterAggreated)
+        {
+            //we want to average the aggregations
+            existing.Value = ((existing.Value * (counterAggreated - 1)) + newItem.Value) / counterAggreated;
+            existing.ValueFormatted = existing.Value.ToString("N1");
+            existing.MarketMidPrice = newItem.MarketMidPrice;
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (!_disposed)
             {
+                _disposed = true;
                 if (disposing)
                 {
                     // Dispose managed resources here
                     HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
                     HelperTrade.Instance.Unsubscribe(TRADES_OnDataReceived);
-
-                    _orderBook?.Dispose();
-                    _orderBook = null;
-
+                    _tobAsk?.Dispose();
+                    _tobBid?.Dispose();
+                    base.Dispose();
                 }
 
-                // Dispose unmanaged resources here, if any
-
-                _disposed = true;
             }
         }
 
@@ -210,7 +252,7 @@ namespace VisualHFT.Studies
                 BucketVolSize = 1,
                 Symbol = "",
                 Provider = new ViewModel.Model.Provider(),
-                AggregationLevel = AggregationLevel.Automatic
+                AggregationLevel = AggregationLevel.Ms100
             };
             SaveToUserSettings(_settings);
         }

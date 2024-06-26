@@ -2,7 +2,7 @@
 using VisualHFT.Commons.Helpers;
 namespace VisualHFT.Model
 {
-    public partial class BookItem : IEquatable<BookItem>, IEqualityComparer<BookItem>, IResettable, ICopiable<BookItem>
+    public partial class BookItem : IEquatable<BookItem>, IEqualityComparer<BookItem>, IResettable, ICopiable<BookItem>, IDisposable
     {
 
         private string _Symbol;
@@ -154,6 +154,12 @@ namespace VisualHFT.Model
         {
             get => _ActiveSize;
             set => _ActiveSize = value;
+        }
+
+
+        public virtual void Dispose()
+        {
+
         }
     }
 }
