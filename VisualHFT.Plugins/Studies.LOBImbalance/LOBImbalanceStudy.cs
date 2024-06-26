@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net.Http.Headers;
+using System.DirectoryServices.ActiveDirectory;
 using System.Threading.Tasks;
 using VisualHFT.Commons.PluginManager;
-using VisualHFT.Commons.Pools;
+using VisualHFT.Enums;
 using VisualHFT.Helpers;
 using VisualHFT.Model;
 using VisualHFT.PluginManager;
@@ -19,12 +18,11 @@ namespace VisualHFT.Studies
         private bool _disposed = false; // to track whether the object has been disposed
         private PlugInSettings _settings;
 
-        private OrderBook _orderBook; //to hold last market data tick
+        private double _lobImbalance = 0;
+        private double _lobMidPrice = 0;
 
         // Event declaration
         public override event EventHandler<decimal> OnAlertTriggered;
-        public override event EventHandler<BaseStudyModel> OnCalculated;
-        public override event EventHandler<ErrorEventArgs> OnError;
 
         public override string Name { get; set; } = "LOB Imbalance Study Plugin";
         public override string Version { get; set; } = "1.0.0";
@@ -38,50 +36,89 @@ namespace VisualHFT.Studies
                 "A significant imbalance can indicate a strong buying or selling interest at that price.";
 
         public LOBImbalanceStudy()
-        {
-            HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
-        }
+        { }
         ~LOBImbalanceStudy()
         {
             Dispose(false);
         }
 
+        public override async Task StartAsync()
+        {
+            await base.StartAsync();//call the base first
+
+            HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
+            DoCalculation(); //initial call
+
+            log.Info($"{this.Name} Plugin has successfully started.");
+            Status = ePluginStatus.STARTED;
+        }
+
+        public override async Task StopAsync()
+        {
+            Status = ePluginStatus.STOPPING;
+            log.Info($"{this.Name} is stopping.");
+
+            HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
+
+            await base.StopAsync();
+        }
+
 
         private void LIMITORDERBOOK_OnDataReceived(OrderBook e)
         {
+            /*
+             * ***************************************************************************************************
+             * TRANSFORM the incoming object (decouple it)
+             * DO NOT hold this call back, since other components depends on the speed of this specific call back.
+             * DO NOT BLOCK
+               * IDEALLY, USE QUEUES TO DECOUPLE
+             * ***************************************************************************************************
+             */
+
             if (e == null)
                 return;
             if (_settings.Provider.ProviderID != e.ProviderID || _settings.Symbol != e.Symbol)
                 return;
-            _orderBook = e;
-            if (_orderBook.MidPrice != 0)
-                CalculateStudy();
+
+            e.CalculateMetrics();
+            _lobImbalance = e.ImbalanceValue;
+            _lobMidPrice = e.MidPrice;
+            DoCalculation();
         }
-        private void CalculateStudy()
+
+        private void DoCalculation()
         {
             if (Status != VisualHFT.PluginManager.ePluginStatus.STARTED) return;
-
             var newItem = new BaseStudyModel();
-            newItem.Value = (decimal)_orderBook.ImbalanceValue;
-            newItem.ValueFormatted = _orderBook.ImbalanceValue.ToString("N1");
+            newItem.Value = (decimal)_lobImbalance;
+            newItem.ValueFormatted = _lobImbalance.ToString("N1");
             newItem.Timestamp = HelperTimeProvider.Now;
-            newItem.MarketMidPrice = (decimal)_orderBook.MidPrice;
-            OnCalculated?.Invoke(this, newItem);
+            newItem.MarketMidPrice = (decimal)_lobMidPrice;
+            AddCalculation(newItem);
         }
+
+        protected override void onDataAggregation(BaseStudyModel existing, BaseStudyModel newItem, int counterAggreated)
+        {
+            //Aggregation: last
+            existing.Value = newItem.Value;
+            existing.ValueFormatted = newItem.ValueFormatted;
+            existing.MarketMidPrice = newItem.MarketMidPrice;
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
             {
+                _disposed = true;
                 if (disposing)
                 {
                     // Dispose managed resources here
                     HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
-                    _orderBook?.Dispose();
-                    _orderBook = null;
+                    base.Dispose();
                 }
-                _disposed = true;
             }
         }
+
         protected override void LoadSettings()
         {
             _settings = LoadFromUserSettings<PlugInSettings>();
@@ -106,7 +143,7 @@ namespace VisualHFT.Studies
             {
                 Symbol = "",
                 Provider = new Provider(),
-                AggregationLevel = AggregationLevel.Automatic
+                AggregationLevel = AggregationLevel.Ms100
             };
             SaveToUserSettings(_settings);
         }
@@ -126,6 +163,8 @@ namespace VisualHFT.Studies
 
                 SaveSettings();
 
+                //run this because it will allow to restart with the new values
+                Task.Run(async () => await HandleRestart($"{this.Name} is starting (from reloading settings).", null, true));
             };
             // Display the view, perhaps in a dialog or a new window.
             view.DataContext = viewModel;
