@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using VisualHFT.DataRetriever;
 using VisualHFT.Helpers;
 
 namespace MarketConnectors.Binance.ViewModel
@@ -16,6 +12,7 @@ namespace MarketConnectors.Binance.ViewModel
         private string _apiKey;
         private string _apiSecret;
         private int _depthLevels;
+        private bool _isNonUS;
         private int _updateIntervalMs;
         private int _providerId;
         private string _providerName;
@@ -26,7 +23,7 @@ namespace MarketConnectors.Binance.ViewModel
         private Action _actionCloseWindow;
         public ICommand OkCommand { get; private set; }
         public ICommand CancelCommand { get; private set; }
-        public Action UpdateSettingsFromUI{ get; set; }
+        public Action UpdateSettingsFromUI { get; set; }
 
         public PluginSettingsViewModel(Action actionCloseWindow)
         {
@@ -53,7 +50,7 @@ namespace MarketConnectors.Binance.ViewModel
             {
                 Symbols = value.Split(',').Select(s => s.Trim()).ToList();
                 OnPropertyChanged(nameof(SymbolsText));
-                OnPropertyChanged(nameof(Symbols)); 
+                OnPropertyChanged(nameof(Symbols));
                 RaiseCanExecuteChanged();
             }
         }
@@ -77,6 +74,16 @@ namespace MarketConnectors.Binance.ViewModel
             {
                 _depthLevels = value;
                 OnPropertyChanged(nameof(DepthLevels));
+                RaiseCanExecuteChanged();
+            }
+        }
+        public bool IsNonUS
+        {
+            get => _isNonUS;
+            set
+            {
+                _isNonUS = value;
+                OnPropertyChanged(nameof(IsNonUS));
                 RaiseCanExecuteChanged();
             }
         }
@@ -117,7 +124,7 @@ namespace MarketConnectors.Binance.ViewModel
         public string ValidationMessage
         {
             get { return _validationMessage; }
-            set { _validationMessage = value; OnPropertyChanged(nameof(ValidationMessage));}
+            set { _validationMessage = value; OnPropertyChanged(nameof(ValidationMessage)); }
         }
 
         public string SuccessMessage
@@ -176,7 +183,7 @@ namespace MarketConnectors.Binance.ViewModel
         }
 
         private void ExecuteOkCommand(object obj)
-        {            
+        {
             SuccessMessage = "Settings saved successfully!";
             UpdateSettingsFromUI?.Invoke();
             _actionCloseWindow?.Invoke();
