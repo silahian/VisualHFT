@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading;
+using System.Runtime;
 using System.Threading.Tasks;
 using System.Windows;
-using VisualHFT.PluginManager;
+using System.Windows.Interop;
+using System.Windows.Media;
 
 namespace VisualHFT
 {
@@ -22,7 +19,19 @@ namespace VisualHFT
             //Initialize logging
             log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo("log4net.config"));
 
-            //Launch the GC cleanup thread
+            /*----------------------------------------------------------------------------------------------------------------------*/
+            /*  This is to avoid errors when rendering too much in short times
+             *
+             *  Exception thrown: 'System.Runtime.InteropServices.COMException' in PresentationCore.dll
+             *  An unhandled exception of type 'System.Runtime.InteropServices.COMException' occurred in PresentationCore.dll
+             *  UCEERR_RENDERTHREADFAILURE (0x88980406)
+             *  
+             */
+            //RenderOptions.ProcessRenderMode = RenderMode.SoftwareOnly; 
+            /*----------------------------------------------------------------------------------------------------------------------*/
+
+
+            //Launch the GC cleanup thread ==> *** Since using Object Pools, we improved a lot the memory prints. So We commented this out.
             Task.Run(async () => { await GCCleanupAsync(); });
 
             //Load Plugins
@@ -35,26 +44,25 @@ namespace VisualHFT
                 catch (Exception ex)
                 {
                     // Handle the exception
-                    Application.Current.Dispatcher.Invoke(() =>
+                    Application.Current.Dispatcher.BeginInvoke(() =>
                     {
                         MessageBox.Show("ERROR LOADING Plugins: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     });
                 }
             });
-
         }
-
         protected override void OnExit(ExitEventArgs e)
         {
             PluginManager.PluginManager.UnloadPlugins();
+
             base.OnExit(e);
         }
 
         private async Task LoadPlugins()
         {
             PluginManager.PluginManager.AllPluginsReloaded = false;
-            PluginManager.PluginManager.LoadPlugins();
-            PluginManager.PluginManager.StartPlugins();
+            await PluginManager.PluginManager.LoadPlugins();
+            await PluginManager.PluginManager.StartPlugins();
             PluginManager.PluginManager.AllPluginsReloaded = true;
         }
         private async Task GCCleanupAsync()
@@ -64,7 +72,7 @@ namespace VisualHFT
             while (true)
             {
                 await Task.Delay(5000);
-                GC.Collect(); //force garbage collection
+                GC.Collect(0, GCCollectionMode.Forced, false); //force garbage collection
             };
 
         }

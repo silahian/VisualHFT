@@ -1,10 +1,13 @@
-﻿using System;
+﻿using log4net.Plugin;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using VisualHFT.Commons.Helpers;
 using VisualHFT.Commons.Studies;
 using VisualHFT.DataRetriever;
 
@@ -16,88 +19,92 @@ namespace VisualHFT.PluginManager
         private static object _locker = new object();
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public static void LoadPlugins()
+        public static async Task LoadPlugins()
         {
             // 1. By default load all dll's in current Folder. 
             var pluginsDirectory = AppDomain.CurrentDomain.BaseDirectory; // This gets the directory where your WPF app is running
-            Application.Current.Dispatcher.Invoke(() =>
+            await Task.Run(() =>
             {
                 lock (_locker)
+                {
                     LoadPluginsByDirectory(pluginsDirectory);
+                }
             });
-
-            // 3. Load Other Plugins in different folders
-
-            // 4. If is Started, then Start
-
-            // 5. If empty or Stopped. Do nothing.
         }
         public static List<IPlugin> AllPlugins { get { lock (_locker) return ALL_PLUGINS; } }
         public static bool AllPluginsReloaded { get; internal set; }
 
-        public static void StartPlugins()
+        public static async Task StartPlugins()
         {
+            List<Task> startTasks = new List<Task>();
             lock (_locker)
             {
                 if (ALL_PLUGINS.Count == 0) { return; }
                 foreach (var plugin in ALL_PLUGINS)
                 {
-                    try
+                    // Add a task for starting each plugin and handle exceptions within the task
+                    startTasks.Add(Task.Run(() =>
                     {
-                        StartPlugin(plugin);
-                    }
-                    catch (Exception ex)
-                    {
-                        string msg = $"Plugin {plugin.Name} cannot be loaded: ";
-                        log.Error(msg, ex);
-                        Application.Current.Dispatcher.Invoke(() =>
+                        try
                         {
-                            // Display popup message
-                            MessageBox.Show(msg + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        });
-                    }
+                            StartPlugin(plugin);
+                        }
+                        catch (Exception ex)
+                        {
+                            plugin.Status = ePluginStatus.STOPPED_FAILED;
+                            //SYSTEM ERROR LOGS
+                            //---------------------
+                            string msg = $"Plugin failed to Start.";
+                            HelperNotificationManager.Instance.AddNotification(plugin.Name, msg, HelprNorificationManagerTypes.ERROR, HelprNorificationManagerCategories.PLUGINS, ex);
+                        }
+                    }));
                 }
+            }
+
+            // Await all the tasks
+            await Task.WhenAll(startTasks);
+        }
+        public static void StartPlugin(IPlugin plugin)
+        {
+            if (plugin != null)
+            {
+                if (plugin.Status == ePluginStatus.MALFUNCTIONING || plugin.Status == ePluginStatus.STARTING || plugin.Status == ePluginStatus.STARTED)
+                    return;
+
+                if (plugin is IDataRetriever dataRetriever)
+                    dataRetriever.StartAsync();
+                else if (plugin is IStudy study)
+                    study.StartAsync();
+                else if (plugin is IMultiStudy mstudy)
+                    mstudy.StartAsync();
             }
         }
 
-        public static void StartPlugin(IPlugin plugin)
-        {
-            try
-            {
-                if (plugin != null)
-                {
-                    if (plugin is IDataRetriever dataRetriever)
-                    {
-                        //DATA RETRIEVER
-                        var processor = new VisualHFT.DataRetriever.DataProcessor(dataRetriever);
-                        dataRetriever.StartAsync();
-                    }
-                    else if (plugin is IStudy study)
-                    {
-                        study.StartAsync();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
         public static void StopPlugin(IPlugin plugin)
         {
             try
             {
                 if (plugin != null)
                 {
+                    if (plugin.Status == ePluginStatus.STOPPED || plugin.Status == ePluginStatus.STOPPED_FAILED || plugin.Status == ePluginStatus.STARTING) { return; }
+
                     if (plugin is IDataRetriever dataRetriever)
-                    {
                         dataRetriever.StopAsync();
-                    }
+                    else if (plugin is IStudy study)
+                        study.StopAsync();
+                    else if (plugin is IMultiStudy mstudy)
+                        mstudy.StopAsync();
+                    plugin.Status = ePluginStatus.STOPPED;
                 }
             }
             catch (Exception ex)
             {
-                throw;
+                plugin.Status = ePluginStatus.STOPPED_FAILED;
+                //SYSTEM ERROR LOGS
+                //---------------------
+                string msg = $"Plugin failed to Stop.";
+                HelperNotificationManager.Instance.AddNotification(plugin.Name, msg, HelprNorificationManagerTypes.ERROR, HelprNorificationManagerCategories.PLUGINS, ex);
+
             }
         }
         public static void SettingPlugin(IPlugin plugin)
@@ -130,11 +137,13 @@ namespace VisualHFT.PluginManager
             }
             catch (Exception ex)
             {
-
-                throw;
+                plugin.Status = ePluginStatus.STOPPED_FAILED;
+                //SYSTEM ERROR LOGS
+                //---------------------
+                string msg = $"Plugin failed to load settings.";
+                HelperNotificationManager.Instance.AddNotification(plugin.Name, msg, HelprNorificationManagerTypes.ERROR, HelprNorificationManagerCategories.PLUGINS, ex);
             }
         }
-
         public static void UnloadPlugins()
         {
             lock (_locker)
@@ -146,49 +155,33 @@ namespace VisualHFT.PluginManager
                 }
             }
         }
-
-
         private static void LoadPluginsByDirectory(string pluginsDirectory)
         {
             foreach (var file in Directory.GetFiles(pluginsDirectory, "*.dll"))
             {
-                try
+                var assembly = Assembly.LoadFrom(file);
+                foreach (var type in assembly.GetExportedTypes())
                 {
-                    var assembly = Assembly.LoadFrom(file);
-                    foreach (var type in assembly.GetExportedTypes())
+                    if (!type.IsAbstract && type.GetInterfaces().Contains(typeof(IPlugin)))
                     {
-                        if (!type.IsAbstract && type.GetInterfaces().Contains(typeof(IPlugin)))
+                        try
                         {
                             var plugin = Activator.CreateInstance(type) as IPlugin;
                             if (string.IsNullOrEmpty(plugin.Name))
                                 continue;
+                            plugin.Status = ePluginStatus.LOADING;
                             ALL_PLUGINS.Add(plugin);
-                            plugin.OnError += Plugin_OnError;
-                            log.Info("Plugins: " + plugin.Name + " loaded OK.");
+                            log.Info("Plugin assemblies for: " + plugin.Name + " have loaded OK.");
                         }
-
+                        catch (Exception ex)
+                        {
+                            //SYSTEM ERROR LOGS
+                            //---------------------
+                            string msg = $"Plugin's assemblies located in {file} have failed to load.";
+                            HelperNotificationManager.Instance.AddNotification("Loading Plugins", msg, HelprNorificationManagerTypes.ERROR, HelprNorificationManagerCategories.PLUGINS, ex);
+                        }
                     }
                 }
-                catch (Exception ex)
-                {
-                    log.Error(ex);
-                    throw new Exception($"Plugin {file} has failed to load. Error: " + ex.Message);
-                }
-
-            }
-
-        }
-        private static void Plugin_OnError(object? sender, ErrorEventArgs e)
-        {
-            if (e.IsCritical)
-            {
-                log.Error(e.PluginName, e.Exception);
-                Helpers.HelperCommon.GLOBAL_DIALOGS["error"](e.Exception.Message, e.PluginName);
-            }
-            else
-            {
-                //LOG error
-                log.Error(e.PluginName, e.Exception);
             }
 
         }

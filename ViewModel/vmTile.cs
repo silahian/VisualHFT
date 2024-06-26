@@ -18,13 +18,14 @@ namespace VisualHFT.ViewModel
     {
         private bool _disposed = false; // to track whether the object has been disposed
         private string _tile_id;
-        private string _value;
-        private string _valueToolTip;
         private string _title;
-        private string _tooltip;
+        private string _tileToolTip;
         private bool _isGroup;
         private bool _isUserControl;
+        private bool _DATA_AVAILABLE = false;
         private UIUpdater uiUpdater;
+        private const int UI_UPDATE_TIME_MS = 300;
+
         private System.Windows.Visibility _settingButtonVisibility;
         private System.Windows.Visibility _chartButtonVisibility;
         private System.Windows.Visibility _valueVisibility = Visibility.Visible;
@@ -39,30 +40,37 @@ namespace VisualHFT.ViewModel
         //*********************************************************
 
         private TileSettings _settings;
+        private string _valueColorString = "White";
+        private string _value;
+        private string _valueTooltip;
         private SolidColorBrush _valueColor = Brushes.White;
         private UserControl _customControl;
-
-        public vmTile(PluginManager.IPlugin plugin)
+        private BaseStudyModel _localModel = new BaseStudyModel();
+        private readonly object _lock = new object();
+        public vmTile(IStudy study)
         {
-            _plugin = plugin;
-            _customControl = _plugin.GetCustomUI() as UserControl;
-            IsUserControl = _customControl != null;
+            IsGroup = false;
 
-            _tile_id = _plugin.GetPluginUniqueID();
-            Title = _plugin.Name;
-            Tooltip = _plugin.Description;
-            if (IsUserControl)
-            {
-                IsGroup = true;
-                ValueVisibility = Visibility.Hidden;
-                UCVisibility = Visibility.Visible;
-                ChartButtonVisibility = Visibility.Hidden;
-                SettingButtonVisibility = Visibility.Visible;
-                ChartButtonVisibility = Visibility.Hidden;
+            _study = study;
+            _tile_id = ((PluginManager.IPlugin)_study).GetPluginUniqueID();
+            Title = _study.TileTitle;
+            Tooltip = _study.TileToolTip;
 
-                OpenSettingsCommand = new RelayCommand<vmTile>(OpenSettings);
-            }
+            _localModel.ValueFormatted = ".";
+            _localModel.Tooltip = "Waiting for data...";
 
+            _study.OnCalculated += _study_OnCalculated;
+
+            OpenSettingsCommand = new RelayCommand<vmTile>(OpenSettings);
+            OpenChartCommand = new RelayCommand<vmTile>(OpenChartClick);
+            uiUpdater = new UIUpdater(uiUpdaterAction, UI_UPDATE_TIME_MS);
+
+            RaisePropertyChanged(nameof(SelectedSymbol));
+            RaisePropertyChanged(nameof(SelectedProviderName));
+
+            RaisePropertyChanged(nameof(IsGroup));
+            SettingButtonVisibility = Visibility.Visible;
+            ChartButtonVisibility = Visibility.Visible;
         }
         public vmTile(IMultiStudy multiStudy)
         {
@@ -76,69 +84,82 @@ namespace VisualHFT.ViewModel
             }
 
             _tile_id = ((PluginManager.IPlugin)_multiStudy).GetPluginUniqueID();
-            _title = _multiStudy.TileTitle;
-            _tooltip = _multiStudy.TileToolTip;
-            _value = ".";
-            _valueToolTip = "Waiting for data...";
+            Title = _multiStudy.TileTitle;
+            Tooltip = _multiStudy.TileToolTip;
+
+            _localModel.ValueFormatted = ".";
+            _localModel.Tooltip = "Waiting for data...";
 
             OpenSettingsCommand = new RelayCommand<vmTile>(OpenSettings);
             OpenChartCommand = new RelayCommand<vmTile>(OpenChartClick);
-            uiUpdater = new UIUpdater(uiUpdaterAction, 300);
+            uiUpdater = new UIUpdater(uiUpdaterAction, UI_UPDATE_TIME_MS);
+
 
             RaisePropertyChanged(nameof(SelectedSymbol));
             RaisePropertyChanged(nameof(SelectedProviderName));
-
-            RaisePropertyChanged(nameof(Title));
-            RaisePropertyChanged(nameof(Tooltip));
             RaisePropertyChanged(nameof(IsGroup));
             SettingButtonVisibility = Visibility.Hidden;
             ChartButtonVisibility = Visibility.Hidden;
         }
-        public vmTile(IStudy study)
+        public vmTile(PluginManager.IPlugin plugin)
         {
             IsGroup = false;
 
-            _study = study;
-            _tile_id = ((PluginManager.IPlugin)_study).GetPluginUniqueID();
-            _title = _study.TileTitle;
-            _tooltip = _study.TileToolTip;
-            _value = ".";
-            _valueToolTip = "Waiting for data...";
+            _plugin = plugin;
+            _customControl = _plugin.GetCustomUI() as UserControl;
+            IsUserControl = _customControl != null;
 
-            _study.OnCalculated += _study_OnCalculated;
+            _tile_id = _plugin.GetPluginUniqueID();
+            Title = _plugin.Name;
+            Tooltip = _plugin.Description;
 
-            OpenSettingsCommand = new RelayCommand<vmTile>(OpenSettings);
-            OpenChartCommand = new RelayCommand<vmTile>(OpenChartClick);
-            uiUpdater = new UIUpdater(uiUpdaterAction, 300);
+            if (IsUserControl)
+            {
+                IsGroup = true;
+                ValueVisibility = Visibility.Hidden;
+                UCVisibility = Visibility.Visible;
 
+                OpenSettingsCommand = new RelayCommand<vmTile>(OpenSettings);
+            }
             RaisePropertyChanged(nameof(SelectedSymbol));
             RaisePropertyChanged(nameof(SelectedProviderName));
-
-            RaisePropertyChanged(nameof(Title));
-            RaisePropertyChanged(nameof(Tooltip));
             RaisePropertyChanged(nameof(IsGroup));
-            SettingButtonVisibility = Visibility.Visible;
-            ChartButtonVisibility = Visibility.Visible;
+            SettingButtonVisibility = Visibility.Hidden;
+            ChartButtonVisibility = Visibility.Hidden;
+
         }
+
 
         private void _study_OnCalculated(object? sender, BaseStudyModel e)
         {
-            _value = e.ValueFormatted;
-            if (_value == ".")
-                _valueToolTip = "Waiting for data...";
-            else if (!string.IsNullOrEmpty(e.Tooltip))
-                _valueToolTip = e.Tooltip;
-            else
-                _valueToolTip = null;
+            /*
+             * ***************************************************************************************************
+             * TRANSFORM the incoming object (decouple it)
+             * DO NOT hold this call back, since other components depends on the speed of this specific call back.
+             * DO NOT BLOCK
+             * IDEALLY, USE QUEUES TO DECOUPLE
+             * ***************************************************************************************************
+             */
 
-            if (e.ValueColor != null)
+            lock (_lock)
             {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    _valueColor = new SolidColorBrush((Color)ColorConverter.ConvertFromString(e.ValueColor));
-                });
+                if (e.Value == _localModel.Value
+                    && e.MarketMidPrice == _localModel.MarketMidPrice
+                    && e.ValueColor == _localModel.ValueColor
+                    )
+                    return; //return if nothing has changed
 
+                _localModel.copyFrom(e);
             }
+
+            if (_localModel.ValueFormatted == ".")
+                _localModel.Tooltip = "Waiting for data...";
+            else if (!string.IsNullOrEmpty(_localModel.Tooltip))
+                _localModel.Tooltip = e.Tooltip;
+            else
+                _localModel.Tooltip = null;
+
+            _DATA_AVAILABLE = true;
         }
 
 
@@ -146,12 +167,26 @@ namespace VisualHFT.ViewModel
 
         private void uiUpdaterAction()
         {
-            RaisePropertyChanged(nameof(Value));
-            RaisePropertyChanged(nameof(ValueTooltip));
-            RaisePropertyChanged(nameof(ValueColor));
+            if (_localModel == null || !_DATA_AVAILABLE)
+                return;
+            lock (_lock)
+            {
+                Value = _localModel.ValueFormatted;
+                ValueTooltip = _localModel.Tooltip;
+
+                //update color if set or has changed
+                if (_localModel.ValueColor != null)
+                {
+                    if (_valueColor == null || _valueColor.ToString() != _localModel.ValueColor)
+                        ValueColor = new SolidColorBrush((Color)ColorConverter.ConvertFromString(_localModel.ValueColor));
+                }
+
+                _DATA_AVAILABLE = true;
+            }
         }
         public void UpdateAllUI()
         {
+            _DATA_AVAILABLE = true;
             uiUpdaterAction();
             RaisePropertyChanged(nameof(SelectedSymbol));
             RaisePropertyChanged(nameof(SelectedProviderName));
@@ -160,11 +195,11 @@ namespace VisualHFT.ViewModel
         public ICommand OpenSettingsCommand { get; set; }
         public ICommand OpenChartCommand { get; private set; }
 
-        public string Value { get => _value; }
-        public string ValueTooltip { get => _valueToolTip; }
-        public SolidColorBrush ValueColor { get => _valueColor; }
+        public string Value { get => _value; set => SetProperty(ref _value, value); }
+        public string ValueTooltip { get => _valueTooltip; set => SetProperty(ref _valueTooltip, value); }
+        public SolidColorBrush ValueColor { get => _valueColor; set => SetProperty(ref _valueColor, value); }
         public string Title { get => _title; set => SetProperty(ref _title, value); }
-        public string Tooltip { get => _tooltip; set => SetProperty(ref _tooltip, value); }
+        public string Tooltip { get => _tileToolTip; set => SetProperty(ref _tileToolTip, value); }
         public string SelectedSymbol
         {
             get
@@ -173,6 +208,8 @@ namespace VisualHFT.ViewModel
                     return ((VisualHFT.PluginManager.IPlugin)_study).Settings.Symbol;
                 else if (_multiStudy != null)
                     return ((VisualHFT.PluginManager.IPlugin)_multiStudy).Settings.Symbol;
+                else if (_customControl != null && _plugin != null)
+                    return _plugin.Settings.Symbol;
                 else
                     return "";
             }
@@ -185,6 +222,8 @@ namespace VisualHFT.ViewModel
                     return ((VisualHFT.PluginManager.IPlugin)_study).Settings.Provider.ProviderName;
                 else if (_multiStudy != null)
                     return ((VisualHFT.PluginManager.IPlugin)_multiStudy).Settings.Provider.ProviderName;
+                else if (_customControl != null && _plugin != null)
+                    return _plugin.Settings.Provider.ProviderName;
                 else
                     return "";
             }
@@ -263,6 +302,7 @@ namespace VisualHFT.ViewModel
                 {
                     if (_study != null)
                     {
+                        _study.StopAsync();
                         _study.OnCalculated -= _study_OnCalculated;
                         _study.Dispose();
                     }

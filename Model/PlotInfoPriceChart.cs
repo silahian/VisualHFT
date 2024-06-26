@@ -1,24 +1,26 @@
-﻿using Prism.Mvvm;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows.Media;
 using VisualHFT.Commons.Model;
-using VisualHFT.Helpers;
 
 namespace VisualHFT.Model
 {
     public partial class PlotInfoPriceChart : IResettable
     {
+        protected object _objectAskLevels = new object();
+        protected object _objectBidLevels = new object();
+
+
+        protected List<OrderBookLevel> _askLevelOrders;
+        protected List<OrderBookLevel> _bidsLevelOrders;
+
         public PlotInfoPriceChart()
         {
-            AskLevelOrders = new List<OrderBookLevel>();
-            BidLevelOrders = new List<OrderBookLevel>();
+            _askLevelOrders = new List<OrderBookLevel>();
+            _bidsLevelOrders = new List<OrderBookLevel>();
         }
         public DateTime Date { get; set; }
         public double Volume { get; set; }
-
+        public double Spread { get; set; }
         double _midPrice;
         public double MidPrice
         {
@@ -51,8 +53,41 @@ namespace VisualHFT.Model
             get => _sellActiveOrder;
             set => _sellActiveOrder = value;
         }
-        public List<OrderBookLevel> AskLevelOrders { get; set; }
-        public List<OrderBookLevel> BidLevelOrders { get; set; }
+
+        public List<OrderBookLevel> AskLevelOrders
+        {
+            get
+            {
+                lock (_objectAskLevels)
+                {
+                    return _askLevelOrders;
+                }
+            }
+            set
+            {
+                lock (_objectAskLevels)
+                {
+                    _askLevelOrders = value;
+                }
+            }
+        }
+        public List<OrderBookLevel> BidLevelOrders
+        {
+            get
+            {
+                lock (_objectBidLevels)
+                {
+                    return _bidsLevelOrders;
+                }
+            }
+            set
+            {
+                lock (_objectBidLevels)
+                {
+                    _bidsLevelOrders = value;
+                }
+            }
+        }
 
         public void Reset()
         {
@@ -64,8 +99,11 @@ namespace VisualHFT.Model
             _buyActiveOrder = 0;
             _sellActiveOrder = 0;
 
-            AskLevelOrders?.Clear();
-            BidLevelOrders?.Clear();
+            lock (_objectBidLevels)
+                _bidsLevelOrders?.Clear();
+            lock (_objectAskLevels)
+                _askLevelOrders?.Clear();
         }
+
     }
 }

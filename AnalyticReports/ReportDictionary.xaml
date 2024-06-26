@@ -1,6 +1,5 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:oxy="http://oxyplot.org/wpf"
-                    xmlns:contrib="http://oxyplot.org/wpf/contrib"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:Formatters="clr-namespace:VisualHFT.Converters">
 
@@ -33,14 +32,14 @@
     </Style>
 
     <Style x:Key="ExpanderHeaderStyle" TargetType="TextBlock">
-        <Setter Property="Height" Value="30" />        
+        <Setter Property="Height" Value="30" />
         <Setter Property="Foreground" Value="White" />
         <Setter Property="Background" Value="#898a75" />
         <Setter Property="FontWeight" Value="100" />
         <Setter Property="FontFamily" Value="Myriad Pro" />
-        <Setter Property="Padding" Value="10,6,0,0" />        
+        <Setter Property="Padding" Value="10,6,0,0" />
     </Style>
-    
+
     <Style x:Key="DataTitleStyle" TargetType="Label">
         <Setter Property="FontWeight" Value="300" />
         <Setter Property="Foreground" Value="#4d4e3a" />
@@ -61,7 +60,7 @@
         <Setter Property="Foreground" Value="#4d4e3a" />
         <Setter Property="FontSize" Value="12" />
     </Style>
-    
+
     <Style x:Key="GridDataStyle" TargetType="Label">
         <Setter Property="Template">
             <Setter.Value>
@@ -71,7 +70,7 @@
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
-        </Setter>        
+        </Setter>
         <Setter Property="Background" Value="#fff" />
         <Setter Property="Foreground" Value="#4d4e3a" />
         <Setter Property="FontSize" Value="12" />
@@ -97,12 +96,12 @@
         <Setter Property="Background" Value="GhostWhite" />
         <Setter Property="Foreground" Value="Black" />
         <Setter Property="FontSize" Value="12" />
-        <Setter Property="FontFamily" Value="Segoe UI" />        
+        <Setter Property="FontFamily" Value="Segoe UI" />
         <Setter Property="ToolTipService.ShowDuration" Value="10000"/>
         <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
     </Style>
     <!--CHARTS-->
-        
+
     <Style x:Key="ChartTitleStyle" TargetType="Label">
         <Setter Property="FontWeight" Value="300" />
         <Setter Property="Foreground" Value="#4d4e3a" />
@@ -117,19 +116,6 @@
         <Setter Property="FontStretch" Value="UltraCondensed" />
         <Setter Property="VerticalAlignment" Value="Top" />
         <Setter Property="HorizontalAlignment" Value="Center"/>
-    </Style>
-    <Style x:Key="PlotStyle" TargetType="{x:Type contrib:Plot}">
-        <Setter Property="DefaultTrackerTemplate">
-            <Setter.Value>
-                <ControlTemplate>
-                    <oxy:TrackerControl Position="{Binding Position}" LineExtents="{Binding PlotModel.PlotArea}">
-                        <oxy:TrackerControl.Content>
-                            <TextBlock Text="{Binding}" Margin="7" />
-                        </oxy:TrackerControl.Content>
-                    </oxy:TrackerControl>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
     </Style>
 </ResourceDictionary>
    

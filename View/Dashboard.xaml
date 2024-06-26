@@ -13,7 +13,9 @@
         d:DesignWidth="1800" 
     
         xmlns:materialDesign="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
-        xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" 
+        xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:converters="clr-namespace:VisualHFT.Converters"
+        xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
@@ -29,12 +31,59 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../GlobalStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
+            <converters:IntToInverseVisibilityConverter x:Key="IntToInverseVisibilityConverter"/>
+            <!-- Add the converter for timestamp formatting -->
+            <converters:TimestampConverter x:Key="TimestampConverter"/>
+            <!-- Define the CollectionViewSource for sorting notifications -->
+            <CollectionViewSource x:Key="SortedNotifications" Source="{Binding NotificationsViewModel.GroupedNotifications}">
+                <CollectionViewSource.SortDescriptions>
+                    <componentModel:SortDescription PropertyName="Timestamp" Direction="Descending"/>
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
+
+            <!-- Define DataTemplate for Notification Items -->
+            <DataTemplate x:Key="NotificationItemTemplate">
+                <Border BorderThickness="0,0,0,1" BorderBrush="LightGray" Padding="0 8 0 0">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal" >
+                            <!-- Notification Icon -->
+                            <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16" Margin="0,0,10,0" Padding="0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding NotificationType}" Value="ERROR">
+                                                <Setter Property="Text" Value="&#xEA39;"/>
+                                                <!-- Error icon -->
+                                                <Setter Property="Foreground" Value="Red"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding NotificationType}" Value="WARNING">
+                                                <Setter Property="Text" Value="&#xE7BA;"/>
+                                                <!-- Warning icon -->
+                                                <Setter Property="Foreground" Value="Orange"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBlock TextWrapping="Wrap" Width="320">
+                                <Run Text="{Binding Title}" FontWeight="Bold" Foreground="Black"/>
+                                <Run Text=":" Foreground="Black"/>
+                                <Run Text="{Binding Message}" Foreground="Black"/>
+                            </TextBlock>
+                        </StackPanel>
+                        <TextBlock Text="{Binding Timestamp, Converter={StaticResource TimestampConverter}}" 
+                               FontStyle="Italic" Foreground="Gray" FontSize="10" Margin="26,10,0,5"/>
+                    </StackPanel>
+                </Border>
+            </DataTemplate>
         </ResourceDictionary>
     </Window.Resources>
 
+
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="530" />
+            <ColumnDefinition Width="500" />
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -42,22 +91,57 @@
             <RowDefinition Height="0.6*" />
             <RowDefinition Height="0.3*" />
         </Grid.RowDefinitions>
+        <!-- Notification Bell -->
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" >
+            <Button x:Name="NotificationBellButton" Command="{Binding NotificationsViewModel.ToggleNotificationsCommand}">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <TextBlock Text="&#x1F514;" FontSize="24"/>
+                            <Grid Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Top"
+                                  Visibility="{Binding NotificationsViewModel.UnreadCount, Converter={StaticResource IntToVisibilityConverter}}">
+                                <Ellipse Fill="Red"/>
+                                <TextBlock Text="{Binding NotificationsViewModel.UnreadCount}" Foreground="Black" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Grid>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Popup x:Name="NotificationPopup" Placement="Bottom" 
+                   PlacementTarget="{Binding ElementName=NotificationBellButton}" 
+                   IsOpen="{Binding NotificationsViewModel.IsPopupOpen, Mode=TwoWay}" 
+                   AllowsTransparency="True" 
+                   PopupAnimation="Slide" 
+                   StaysOpen="False">
+                <Border Background="White" BorderBrush="LightGray" BorderThickness="2" Width="380" CornerRadius="10" Padding="5">
+                    <StackPanel>
+                        <TextBlock Text="No alerts" Foreground="Black" Visibility="{Binding NotificationsViewModel.TotalCount, Converter={StaticResource IntToInverseVisibilityConverter}}" Margin="10" HorizontalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10 0 0 0">
+                            <Button Command="{Binding NotificationsViewModel.MarkAllAsReadCommand}" ToolTip="Mark All as Read" Background="Transparent" BorderThickness="0">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16" Text="&#xE8D8;" Foreground="Black"/>
+                            </Button>
+                            <Button Command="{Binding NotificationsViewModel.ClearAllCommand}" ToolTip="Clear All" Background="Transparent" BorderThickness="0" Margin="10,0,0,0">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16" Text="&#xE74D;" Foreground="Black"/>
+                            </Button>
+                        </StackPanel>
+                        <ItemsControl ItemsSource="{Binding Source={StaticResource SortedNotifications}}"
+                                      Margin="0 0 0 10" Padding="5"
+                                      ItemTemplate="{StaticResource NotificationItemTemplate}">
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </Popup>
 
+        </StackPanel>
         <DockPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" Margin="5" VerticalAlignment="Stretch">
             <StackPanel Orientation="Vertical" DockPanel.Dock="Top">
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" >
-                    <Button Content="⛭" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="40" Height="40" Margin="0" Padding="0" ToolTip="App Settings" Click="ButtonAppSettings_Click" />
 
-                    <!--SYMBOLS-->
-                    <Label Content="Symbol" HorizontalAlignment="Left" Margin="10,10,0,0" FontSize="18"/>
-                    <ComboBox x:Name="cboSelectedSymbol" ItemsSource="{Binding SymbolList}" SelectedItem="{Binding SelectedSymbol}" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="340" FontSize="18"/>
-                    <!--STRATEGIES-->
-                    <Label Visibility="Collapsed" Content="Strategy" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
-                    <ComboBox  Visibility="Collapsed" x:Name="cobStrategy" ItemsSource="{Binding Path=StrategyList}" SelectedItem="{Binding SelectedStrategy}" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="203" FontSize="18"/>
                 </StackPanel>
                 <WrapPanel Orientation="Horizontal" Margin="20" HorizontalAlignment="Left">
                     <!-- Buttons inside a WrapPanel -->
-                    <Button Width="200" Height="50" Margin="10" Background="Red" BorderBrush="White" Content="🛑 Abort" ToolTip="Abort remote system (terminate it)" Command="{Binding cmdAbort}"/>
+                    <Button Width="200" Height="50" Margin="10" Content="⛭ Settings" Background="Blue" VerticalAlignment="Top" HorizontalAlignment="Left" ToolTip="App Settings" Click="ButtonAppSettings_Click" />
+                    <!--<Button Visibility="Hidden" Width="200" Height="50" Margin="10" Background="Red" BorderBrush="White" Content="🛑 Abort" ToolTip="Abort remote system (terminate it)" Command="{Binding cmdAbort}"/>-->
                     <Button Width="200" Height="50" Margin="10" Content="🧩Plugins Management" ToolTip="Manage VisualHFT plugins" Click="ButtonPluginManagement_Click" />
                     <Button Width="200" Height="50" Margin="10" Content="🕵️‍♂️ Pos. Analytics" ToolTip="Positions Analytics report" Click="ButtonAnalyticsReport_Click" />
                     <Button Width="200" Height="50" Margin="10" Content="📈 Multi Venue Prices" ToolTip="See prices from all venues at the same time." Click="ButtonMultiVenuePrices_Click" />
@@ -68,7 +152,6 @@
 
             </StackPanel>
             <View:ucProviderConnectivity x:Name="ucProviderConnectivity1" DockPanel.Dock="Bottom" />
-
 
 
             <ScrollViewer VerticalAlignment="Stretch" Margin="10 0 0 20">

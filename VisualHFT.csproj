@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWPF>true</UseWPF>
-    <ApplicationIcon>ico.ico</ApplicationIcon>
-    <RepositoryUrl>https://github.com/silahian/VisualHFT</RepositoryUrl>
+	  <OutputType>WinExe</OutputType>
+	  <TargetFramework>net7.0-windows</TargetFramework>
+	  <Nullable>enable</Nullable>
+	  <UseWPF>true</UseWPF>
+	  <ApplicationIcon>Images\VisualHFT.ico</ApplicationIcon>
+	  <RepositoryUrl>https://github.com/silahian/VisualHFT</RepositoryUrl>
+	  <PackageIcon>VisualHFT.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -63,34 +64,26 @@
     <None Remove="VisualHFT.csproj.bak" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="ico.ico" />
-    <Content Include="log4net.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="Images\VisualHFT.ico" />
+		<Content Include="log4net.config">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Confluent.Kafka" Version="2.2.0" />
-    <PackageReference Include="EntityFramework" Version="6.4.4" />
-    <PackageReference Include="Fody" Version="6.8.0">
+    <PackageReference Include="Fody" Version="6.8.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="log4net" Version="2.0.15" />
-    <PackageReference Include="LumenWorks.Framework.IO.Core" Version="1.0.1" />
-    <PackageReference Include="MaterialDesignColors" Version="2.1.4" />
-    <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
-    <PackageReference Include="MaterialDesignThemes.MahApps" Version="0.3.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.11" />
-    <PackageReference Include="NetMQ" Version="4.0.1.13" />
+    <PackageReference Include="log4net" Version="2.0.17" />
+    <PackageReference Include="MaterialDesignColors" Version="3.1.0" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
+    <PackageReference Include="MaterialDesignThemes.MahApps" Version="3.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="OxyPlot.Contrib.Wpf" Version="2.1.2" />
+    <PackageReference Include="OxyPlot.Wpf" Version="2.1.2" />
     <PackageReference Include="Prism.Core" Version="8.1.97" />
     <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
-    <PackageReference Include="QuickFix.Net.NETCore" Version="1.8.1" />
-    <PackageReference Include="QuickFix.Net.NETCore.FIX44" Version="1.8.1" />
-    <PackageReference Include="WebSocket4Net" Version="0.15.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -99,8 +92,8 @@
     <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Binance\MarketConnectors.Binance.csproj" />
     <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Bitfinex\MarketConnectors.Bitfinex.csproj" />
     <ProjectReference Include="VisualHFT.Plugins\Studies.LOBImbalance\Studies.LOBImbalance.csproj" />
-    <ProjectReference Include="VisualHFT.Plugins\Studies.MarketRatios\Studies.MarketRatios.csproj" />
     <ProjectReference Include="VisualHFT.Plugins\Studies.MarketResilience\Studies.MarketResilience.csproj" />
+    <ProjectReference Include="VisualHFT.Plugins\Studies.MarketTradingRatios\Studies.MarketTradingRatios.csproj" />
     <ProjectReference Include="VisualHFT.Plugins\Studies.VPIN\Studies.VPIN.csproj" />
   </ItemGroup>
 
@@ -175,5 +168,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
+	<ItemGroup>
+		<None Update="Images\VisualHFT.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>
