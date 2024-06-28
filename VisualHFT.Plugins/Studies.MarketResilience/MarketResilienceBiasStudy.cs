@@ -170,8 +170,9 @@ namespace VisualHFT.Studies
 
                 SaveSettings();
 
-                //reset 
-                _MARKETRESILIENCE.Settings = _settings;
+                //run this because it will allow to restart with the new values
+                Task.Run(async () => await HandleRestart($"{this.Name} is starting (from reloading settings).", null, true));
+
 
             };
             // Display the view, perhaps in a dialog or a new window.
