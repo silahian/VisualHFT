@@ -250,8 +250,6 @@ namespace VisualHFT.Studies
         {
             if (e == null) return;
 
-
-
             if (_depletionStateHolder.IsRunning())
             {
                 if (IsSpreadBackToItsAvg(e))
@@ -263,7 +261,6 @@ namespace VisualHFT.Studies
                         TimeSpan timeSinceDepletion = _depletionStateHolder.Elapsed;
                             
                         var resilienceScore = CalculateMarketResilienceScore(timeSinceDepletion, e, recoverySide);
-                        // OnCalculate?.Invoke(this, resilienceScore);
                         TriggerOnCalculate(e, recoverySide, resilienceScore);
 
 
@@ -302,6 +299,9 @@ namespace VisualHFT.Studies
                 }
                 _previousOrderBook.ShallowUpdateFrom(e);
             }
+
+            ReturnBookItemsToPool(e);
+            
         }
         private void QUEUE_onError(Exception ex)
         {
@@ -323,7 +323,19 @@ namespace VisualHFT.Studies
         }
 
 
-
+        private void ReturnBookItemsToPool(OrderBook e)
+        {
+            if (e.Asks != null)
+            {
+                foreach (var it in e.Asks)
+                    _poolBookItems.Return(it);
+            }
+            if (e.Bids != null)
+            {
+                foreach (var it in e.Bids)
+                    _poolBookItems.Return(it);
+            }
+        }
         private Tuple<eLOBSIDE, double> DepletedSideAndItsPrice(CachedCollection<BookItem> previousOrders, CachedCollection<BookItem> currentOrders, bool isBid, int levels)
         {
 
