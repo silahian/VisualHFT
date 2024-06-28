@@ -50,8 +50,11 @@ namespace VisualHFT.Commons.PluginManager
         /// </summary>
         /// <param name="existing">The existing.</param>
         /// <param name="newItem">The new item.</param>
-        protected abstract void onDataAggregation(BaseStudyModel existing, BaseStudyModel newItem, int counterAggreated);
+        protected virtual void onDataAggregation(BaseStudyModel existing, BaseStudyModel newItem, int counterAggreated)
+        {
 
+            OnCalculated?.Invoke(this, existing);
+        }
         protected virtual void onDataAdded()
         {
         }

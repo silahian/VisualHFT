@@ -25,7 +25,7 @@ namespace VisualHFT.UserControls
         public TextBlock ConvertHtmlToTextBlock(string htmlText, TextBlock textBlock)
         {
             textBlock.TextWrapping = System.Windows.TextWrapping.Wrap;
-            textBlock.Width = 300;
+            textBlock.Width = 500;
 
             XmlDocument doc = new XmlDocument();
             doc.LoadXml("<root>" + htmlText + "</root>");

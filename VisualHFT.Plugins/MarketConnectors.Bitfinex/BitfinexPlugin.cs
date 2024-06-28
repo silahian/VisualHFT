@@ -308,10 +308,9 @@ namespace MarketConnectors.Bitfinex
             trade.ProviderId = _settings.Provider.ProviderID;
             trade.ProviderName = _settings.Provider.ProviderName;
             trade.IsBuy = item.Item2.Quantity > 0;
+            trade.MarketMidPrice = _localOrderBooks[item.Item1].MidPrice;
+
             RaiseOnDataReceived(trade);
-
-            var midPrice = _localOrderBooks[item.Item1].MidPrice;
-
             tradePool.Return(trade);
         }
         private void tradesBuffers_onErrorAction(Exception ex)

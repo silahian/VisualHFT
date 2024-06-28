@@ -143,6 +143,8 @@ namespace VisualHFT.Studies
             existing.Value = newItem.Value;
             existing.ValueFormatted = newItem.ValueFormatted;
             existing.MarketMidPrice = newItem.MarketMidPrice;
+
+            base.onDataAggregation(existing, newItem, counterAggreated);
         }
 
         protected override void onDataAdded()

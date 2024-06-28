@@ -316,15 +316,41 @@ namespace VisualHFT.Model
             _data.ShallowUpdateFrom(e);
         }
 
+        private void InternalClear()
+        {
+            for (int i = 0; i < _data.Asks.Count();)
+            {
+                var ask = _data.Asks[i];
+                if (ask.Price != 0)
+                {
+                    DeleteLevel(new DeltaBookItem() { IsBid = false, Price = ask.Price });
+                }
+                else
+                {
+                    i++;
+                }
+            }
+
+            for (int i = 0; i < _data.Bids.Count();)
+            {
+                var bid = _data.Bids[i];
+                if (bid.Price != 0)
+                {
+                    DeleteLevel(new DeltaBookItem() { IsBid = true, Price = bid.Price });
+                }
+                else
+                {
+                    i++;
+                }
+            }
+        }
+
+
         public void Clear()
         {
             lock (_data.Lock)
             {
-                while (_data.Asks.Count() > 0)
-                    DeleteLevel(new DeltaBookItem() { IsBid = false, Price = Asks[0].Price });
-                while (_data.Bids.Count() > 0)
-                    DeleteLevel(new DeltaBookItem() { IsBid = true, Price = Bids[0].Price });
-
+                InternalClear();
                 _data.Clear();
             }
         }
@@ -332,11 +358,7 @@ namespace VisualHFT.Model
         {
             lock (_data.Lock)
             {
-                while (_data.Asks.Count() > 0)
-                    DeleteLevel(new DeltaBookItem() { IsBid = false, Price = Asks[0].Price });
-                while (_data.Bids.Count() > 0)
-                    DeleteLevel(new DeltaBookItem() { IsBid = true, Price = Bids[0].Price });
-
+                InternalClear();
                 _data?.Reset();
             }
 

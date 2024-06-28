@@ -21,7 +21,7 @@
         public bool? IsBuy { get => _isBuy; set => _isBuy = value; }
         public string Flags { get => _flags; set => _flags = value; }
         public double MarketMidPrice { get => _midMarketPrice; set => _midMarketPrice = value; }
-        
+
         internal void CopyTo(Trade target)
         {
             if (target == null) throw new ArgumentNullException(nameof(target));
@@ -33,6 +33,7 @@
             target.Flags = Flags;
             target.ProviderId = ProviderId;
             target.ProviderName = ProviderName;
+            target.MarketMidPrice = MarketMidPrice;
 
         }
     }

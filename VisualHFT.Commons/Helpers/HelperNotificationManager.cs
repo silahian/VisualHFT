@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using VisualHFT.Commons.Model;
+using static log4net.Appender.FileAppender;
 
 namespace VisualHFT.Commons.Helpers
 {
@@ -22,6 +23,7 @@ namespace VisualHFT.Commons.Helpers
 
         private readonly ObservableCollection<ErrorNotification> _notifications;
         private int _nextId;
+        private object _lock = new object();
 
         private HelperNotificationManager()
         {
@@ -46,7 +48,10 @@ namespace VisualHFT.Commons.Helpers
                 Category = category,
                 NotificationType = notificationType
             };
-            _notifications.Add(notification);
+            lock (_lock)
+            {
+                _notifications.Add(notification);
+            }
             OnNotificationAdded(notification);
         }
 
@@ -55,29 +60,41 @@ namespace VisualHFT.Commons.Helpers
             NotificationAdded?.Invoke(this, new ErrorNotificationEventArgs(notification));
         }
 
-        public ObservableCollection<ErrorNotification> GetAllNotifications() => _notifications;
+        public ObservableCollection<ErrorNotification> GetAllNotifications()
+        {
+            lock (_lock)
+                return _notifications;
+        }
+        
 
         public void MarkAsRead(int id)
         {
-            var notification = _notifications.FirstOrDefault(n => n.Id == id);
-            if (notification != null)
+            lock (_lock)
             {
-                notification.IsRead = true;
+                var notification = _notifications.FirstOrDefault(n => n.Id == id);
+                if (notification != null)
+                {
+                    notification.IsRead = true;
+                }
             }
         }
 
         public void ClearNotifications()
         {
-            _notifications.Clear();
+            lock (_lock)
+                _notifications.Clear();
         }
 
         public void ClearReadNotifications()
         {
-            for (int i = _notifications.Count - 1; i >= 0; i--)
+            lock (_lock)
             {
-                if (_notifications[i].IsRead)
+                for (int i = _notifications.Count - 1; i >= 0; i--)
                 {
-                    _notifications.RemoveAt(i);
+                    if (_notifications[i].IsRead)
+                    {
+                        _notifications.RemoveAt(i);
+                    }
                 }
             }
         }
