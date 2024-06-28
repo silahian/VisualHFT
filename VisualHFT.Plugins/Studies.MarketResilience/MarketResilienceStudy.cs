@@ -144,11 +144,9 @@ namespace VisualHFT.Studies
         private double SPREAD_INCREASED_BY = 1.0; //by 100%
         private TimeSpan _depletionRecoveryTimeOut = TimeSpan.FromMilliseconds(500);
 
-
+        private CustomObjectPool<BookItem> _poolBookItems;
 
         private HelperCustomQueue<OrderBook> _QUEUE;
-        //private CustomObjectPool<OrderBook> _POOL_OB;
-        //private CustomObjectPool<BookItem> _objectPool_BookItem;
 
         // Event declaration
         public override event EventHandler<decimal> OnAlertTriggered;
@@ -200,11 +198,8 @@ namespace VisualHFT.Studies
         public override async Task StartAsync()
         {
             await base.StartAsync();//call the base first
-
-            /*
-            _POOL_OB = new CustomObjectPool<OrderBook>(3000);
-            _objectPool_BookItem = new CustomObjectPool<BookItem>(3000);
-            */
+            
+            _poolBookItems = new CustomObjectPool<BookItem>(3000);
             _recentSpreads.Clear();
             _depletionStateHolder.Reset();
             _previousOrderBook.Reset();
@@ -225,6 +220,8 @@ namespace VisualHFT.Studies
             _previousOrderBook.Reset();
             HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
             _QUEUE.Clear();
+            _poolBookItems.Dispose();
+            _poolBookItems = null;
 
             await base.StopAsync();
         }
@@ -245,12 +242,8 @@ namespace VisualHFT.Studies
             if (_settings.Provider.ProviderID != e.ProviderID || _settings.Symbol != e.Symbol)
                 return;
 
-            /*var currentLOB = _POOL_OB.Get();
-            currentLOB.ShallowCopyFrom(e, _objectPool_BookItem);
-            */
-
             var currentLOB = new OrderBook();
-            currentLOB.ShallowCopyFrom(e, null);
+            currentLOB.ShallowCopyFrom(e, _poolBookItems);
             _QUEUE.Add(currentLOB);
         }
         private void QUEUE_onRead(OrderBook e)

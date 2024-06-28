@@ -56,7 +56,7 @@ namespace VisualHFT.Helpers
 
         private void DispatchToSubscribers(OrderBook book)
         {
-            //lock (_lockObj)
+            lock (_lockObj)
             {
                 foreach (var subscriber in _subscribers)
                 {
