@@ -17,6 +17,115 @@ using VisualHFT.UserSettings;
 
 namespace VisualHFT.Studies
 {
+    internal class DepletionState
+    {
+        private OrderBook _iniOrderBook;
+        private OrderBook _endOrderBook;
+        private eLOBSIDE _depletionSide;
+        private eLOBSIDE _recoveredSide;
+        private double? _depletionInitialPrice;
+        private DateTime? _initialTimestamp;
+        private DateTime? _endTimestamp;
+        private TimeSpan _timeout;
+
+        public DepletionState(TimeSpan timeout)
+        {
+            _timeout = timeout;
+        }
+        public eLOBSIDE DepletionSide { get => _depletionSide; }
+
+        public TimeSpan Elapsed
+        {
+            get
+            {
+                if (_initialTimestamp == null || _endTimestamp == null) 
+                    return TimeSpan.Zero;
+                return _endTimestamp.Value - _initialTimestamp.Value;
+            }
+        }
+        public TimeSpan PartialElapsed
+        {
+            get
+            {
+                if (_initialTimestamp == null || _endTimestamp != null)
+                    return TimeSpan.Zero;
+                return HelperTimeProvider.Now - _initialTimestamp.Value;
+            }
+        }
+        public void SetIniOrderBook(OrderBook e, eLOBSIDE depletionSide, double initialDepletionPrice)
+        {
+            if (_iniOrderBook == null)
+                _iniOrderBook = new OrderBook(e.Symbol, e.PriceDecimalPlaces, e.MaxDepth);
+            
+            _iniOrderBook.ShallowCopyFrom(e, null);
+            _endOrderBook = null;
+            _depletionSide = depletionSide;
+            _initialTimestamp = HelperTimeProvider.Now;
+            _endTimestamp = null;
+            _depletionInitialPrice = initialDepletionPrice;
+        }
+        public void SetEndOrderBook(OrderBook e, eLOBSIDE recoveredSide)
+        {
+            if (_endOrderBook == null)
+                _endOrderBook = new OrderBook(e.Symbol, e.PriceDecimalPlaces, e.MaxDepth);
+            _endOrderBook.ShallowCopyFrom(e, null);
+            _recoveredSide = recoveredSide;
+            _endTimestamp = HelperTimeProvider.Now;
+        }
+
+
+
+        public eLOBSIDE GetBookRecoverySide(OrderBook currentOrderBook)
+        {
+            double bestBid = currentOrderBook.GetTOB(true).Price.Value;
+            double bestAsk = currentOrderBook.GetTOB(false).Price.Value;
+
+            if (_depletionSide == eLOBSIDE.BID)
+            {
+                // Check if bids have recovered
+                if (bestBid >= _depletionInitialPrice)
+                {
+                    return eLOBSIDE.BID; // Bids have recovered
+                }
+                else
+                {
+                    return eLOBSIDE.ASK; // Asks have taken over
+                }
+            }
+            else if (_depletionSide == eLOBSIDE.ASK)
+            {
+                // Check if asks have recovered
+                if (bestAsk <= _depletionInitialPrice)
+                {
+                    return eLOBSIDE.ASK; // Asks have recovered
+                }
+                else
+                {
+                    return eLOBSIDE.BID; // Bids have taken over
+                }
+            }
+
+            return eLOBSIDE.NONE;
+        }
+
+        public bool IsTimeout()
+        {
+            return PartialElapsed > _timeout;
+        }
+        public bool IsRunning()
+        {
+            return (_initialTimestamp.HasValue && !_endTimestamp.HasValue);
+        }
+        public void Reset()
+        {
+            _iniOrderBook = null;
+            _endOrderBook = null;
+            _depletionSide = eLOBSIDE.NONE;
+            _initialTimestamp = null;
+            _endTimestamp = null;
+            _depletionInitialPrice = null;
+        }
+    }
     public class MarketResilienceStudy : BasePluginStudy
     {
         private bool _disposed = false; // to track whether the object has been disposed
@@ -24,19 +133,18 @@ namespace VisualHFT.Studies
 
 
 
+
+        private OrderBook _previousOrderBook;
+        private DepletionState _depletionStateHolder;
+        
+        private List<double> _recentSpreads;
+
+        private const int recentSpreadWindowSize = 50;
         private int LEVELS_TO_CONSUME = 3;
         private double SPREAD_INCREASED_BY = 1.0; //by 100%
+        private TimeSpan _depletionRecoveryTimeOut = TimeSpan.FromMilliseconds(500);
 
-        private Stopwatch _largeTradeStopwatch;
-        private OrderBook _previousOrderBook;
-        private List<BookItem> CONDITION1_LEVELS_CONSUMED;
-        //private int     CONDITION1_LEVELS_CONSUMED = 0;
-        private bool CONDITION2_LEVELS_CONSUMED_AT_BID;
-        private double CONDITION3_SPREAD_INCREASE = 0;
 
-        private decimal? _resilienceValue;
-        private List<double> _recentSpreads;
-        private const int recentSpreadWindowSize = 50;
 
         private HelperCustomQueue<OrderBook> _QUEUE;
         //private CustomObjectPool<OrderBook> _POOL_OB;
@@ -44,26 +152,42 @@ namespace VisualHFT.Studies
 
         // Event declaration
         public override event EventHandler<decimal> OnAlertTriggered;
-        public event EventHandler<(BaseStudyModel model, eLOBSIDE recoverySide, int providerID, string symbol)> OnTradeRecovered;
 
-        public override string Name { get; set; } = "Market Resiliecence Study Plugin";
+
+        public override string Name { get; set; } = "Market Resilience Study";
         public override string Version { get; set; } = "1.0.0";
-        public override string Description { get; set; } = "Market Resiliecence";
+        public override string Description { get; set; } = "Market Resilience";
         public override string Author { get; set; } = "VisualHFT";
         public override ISetting Settings { get => _settings; set => _settings = (PlugInSettings)value; }
         public override Action CloseSettingWindow { get; set; }
         public override string TileTitle { get; set; } = "MR";
-        public override string TileToolTip { get; set; } = "<b>Market Resilience</b> (MR) is a real-time metric that quantifies how quickly a market rebounds after experiencing a large trade. <br/> It's an invaluable tool for traders to gauge market stability and sentiment.<br/><br/>" +
-                "The <b>MR</b> score is a composite index derived from two key market behaviors:<br/>" +
-                "1. <b>Spread Recovery:</b> Measures how quickly the gap between buying and selling prices returns to its normal state after a large trade.<br/>" +
-                "2. <b>Depth Recovery:</b>  Assesses how fast the consumed levels of the Limit Order Book (LOB) are replenished post-trade.<br/>" +
-                "<br/>" +
-                "The <b>MR</b> score is the average of these two normalized metrics, ranging from 0 (no recovery) to 1 (full recovery).";
+        public override string TileToolTip { get; set; } =
+            "<b>Market Resilience</b> (MR) is a real-time metric that quantifies how quickly a market rebounds after experiencing a large trade.<br/>" +
+            "It's an invaluable tool for traders to gauge market stability and sentiment.<br/><br/>" +
+            "The <b>MktRes</b> score is a composite index derived from three key market behaviors:<br/>" +
+            "1. <b>Time Recovery:</b> Measures the elapsed time since the large trade, normalized between 0 (immediate recovery) and 1 (close to timeout).<br/>" +
+            "2. <b>Spread Recovery:</b> Measures how quickly the gap between buying and selling prices returns to its normal state after a large trade.<br/>" +
+            "3. <b>Depth Recovery:</b> Assesses how fast the consumed levels of the Limit Order Book (LOB) are replenished post-trade.<br/><br/>" +
+            "The <b>MktRes</b> score is calculated by taking a weighted average of these three normalized metrics, ranging from 0 (no recovery) to 1 (full recovery). The score is then adjusted based on whether the market has recovered on the same side as the depletion.<br/><br/>" +
+            "<b>Resilience Strength</b><br/>" +
+            "1. <b>Strong Resilience:</b> Resilience Score ≥ 0.7<br/>" +
+            "2. <b>Moderate Resilience:</b> 0.3 ≤ Resilience Score &lt; 0.7<br/>" +
+            "3. <b>Weak Resilience:</b> Resilience Score &lt; 0.3<br/><br/>" +
+            "<b>Market Resilience Bias</b><br/>" +
+            "- If the market has a strong resilience and recovers on the same side as the depletion, it indicates a bias in the opposite direction of the recovery.<br/>" +
+            "- If the market has a weak resilience and recovers on the opposite side of the depletion, it indicates a bias in the same direction as the recovery.<br/><br/>" +
+            "<b>Quick Guidance for Traders:</b><br/>" +
+            "- Use the <b>MR</b> score to gauge the market's reaction to large trades.<br/>" +
+            "- A high score indicates a robust market that recovers quickly, ideal for entering or exiting positions.<br/>" +
+            "- A low score suggests the market is more vulnerable to large trades, so exercise caution.<br/>" +
+            "- Adjust your trading strategy based on the resilience strength: strong, moderate, or weak.<br/>" +
+            "- Pay attention to the Market Resilience Bias to understand market sentiment and potential directional moves.";
 
         public MarketResilienceStudy()
         {
             _recentSpreads = new List<double>();
-            _largeTradeStopwatch = new Stopwatch();
+            _depletionStateHolder = new DepletionState(_depletionRecoveryTimeOut);
+
             _previousOrderBook = new OrderBook();
 
             _QUEUE = new HelperCustomQueue<OrderBook>(QUEUE_onRead, QUEUE_onError);
@@ -82,7 +206,7 @@ namespace VisualHFT.Studies
             _objectPool_BookItem = new CustomObjectPool<BookItem>(3000);
             */
             _recentSpreads.Clear();
-            _largeTradeStopwatch.Reset();
+            _depletionStateHolder.Reset();
             _previousOrderBook.Reset();
 
             HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
@@ -97,7 +221,7 @@ namespace VisualHFT.Studies
             log.Info($"{this.Name} is stopping.");
 
             _recentSpreads.Clear();
-            _largeTradeStopwatch.Reset();
+            _depletionStateHolder.Reset();
             _previousOrderBook.Reset();
             HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
             _QUEUE.Clear();
@@ -129,42 +253,62 @@ namespace VisualHFT.Studies
             currentLOB.ShallowCopyFrom(e, null);
             _QUEUE.Add(currentLOB);
         }
-
         private void QUEUE_onRead(OrderBook e)
         {
             if (e == null) return;
 
-            // Update average spread
-            _recentSpreads.Add(e.Spread);
-            if (_recentSpreads.Count > recentSpreadWindowSize)
-                _recentSpreads.RemoveAt(0);
 
 
-            bool levelsHasBeenConsumed = false;
-            bool spreadHasBeenWiden = false;
-            if (!_largeTradeStopwatch.IsRunning)
+            if (_depletionStateHolder.IsRunning())
             {
-                levelsHasBeenConsumed = PostTradeLOBLevelsConsumed(e);
-                spreadHasBeenWiden = PostTradeLOBSpreadIsIncreased(e);
-                // If large trade detected, start resilience calculation
-                if (levelsHasBeenConsumed && spreadHasBeenWiden)
+                if (IsSpreadBackToItsAvg(e))
                 {
-                    _largeTradeStopwatch = Stopwatch.StartNew();    // Capture the time of the large trade
-                }
+                    var recoverySide = _depletionStateHolder.GetBookRecoverySide(e);
+                    if (recoverySide != eLOBSIDE.NONE)
+                    {
+                        _depletionStateHolder.SetEndOrderBook(e, recoverySide);
+                        TimeSpan timeSinceDepletion = _depletionStateHolder.Elapsed;
+                            
+                        var resilienceScore = CalculateMarketResilienceScore(timeSinceDepletion, e, recoverySide);
+                        // OnCalculate?.Invoke(this, resilienceScore);
+                        TriggerOnCalculate(e, recoverySide, resilienceScore);
 
-                //_previousOrderBook = (OrderBook)e.Clone(); //don't do this: VERY EXPENSIVE
-                _previousOrderBook.ShallowUpdateFrom(e); //still expensive, but much better than Clone
+
+                        ResetMonitoring();
+                    }
+                    else if (_depletionStateHolder.IsTimeout())
+                    {
+                        //never recovered
+                        // => means that Resilience Score = 0 (very weak)
+                        // => with no direction eLOBSIDE.NONE
+                        TriggerOnCalculate(e, eLOBSIDE.NONE, 0);
+
+
+                        ResetMonitoring();
+                    }
+                }
             }
             else
             {
-                CalculateResilience(e);
+                // Update average spread
+                _recentSpreads.Add(e.Spread);
+                if (_recentSpreads.Count > recentSpreadWindowSize)
+                    _recentSpreads.RemoveAt(0);
+
+                
+                var depletionState = DepletedSideAndItsPrice(_previousOrderBook.Bids, e.Bids, true, LEVELS_TO_CONSUME);
+                if (depletionState.Item1 == eLOBSIDE.NONE)
+                    depletionState = DepletedSideAndItsPrice(_previousOrderBook.Asks, e.Asks, false, LEVELS_TO_CONSUME);
+                if (depletionState.Item1 != eLOBSIDE.NONE)
+                {
+                    if (IsSpreadIncreased(e))
+                    {
+                        //start watching
+                        _depletionStateHolder.SetIniOrderBook(e, depletionState.Item1, depletionState.Item2);
+                    }
+                }
+                _previousOrderBook.ShallowUpdateFrom(e);
             }
-            TriggerOnCalculatedEvent(e);
-
-
-            /*_objectPool_BookItem.Return(e.Asks);
-            _objectPool_BookItem.Return(e.Bids);
-            _POOL_OB.Return(e);*/
         }
         private void QUEUE_onError(Exception ex)
         {
@@ -175,162 +319,45 @@ namespace VisualHFT.Studies
 
             Task.Run(() => HandleRestart(_error, ex));
         }
-
-
-
-        private void CalculateResilience(OrderBook currentOrderBook)
-        {
-            if (IsDepthRecovered(currentOrderBook))
-            {
-                TimeSpan timeSinceLargeTrade = _largeTradeStopwatch.Elapsed;
-                _resilienceValue = CalculateResilienceValue(timeSinceLargeTrade, currentOrderBook);
-                TriggerOnTradeRecovered(currentOrderBook); // this will invoke when the trade has been recovered.
-                                                           // It can be used for other metrics: for example, Market Resillience Bias
-                ResetPreTradeState();
-            }
-
-        }
-        private bool IsDepthRecovered(OrderBook currentOrderBook)
-        {
-            // Check if the number of levels has recovered
-            bool asksHaveRecoveredCount = currentOrderBook.Asks.Count() >= LEVELS_TO_CONSUME;
-            bool bidsHaveRecoveredCount = currentOrderBook.Bids.Count() >= LEVELS_TO_CONSUME;
-
-            // Check if the spread has recovered
-            bool spreadRecovered = currentOrderBook.Spread <= _previousOrderBook.Spread * (1 + SPREAD_INCREASED_BY);
-
-            // Create an instance of BookItem to use its comparison logic
-            BookItem comparer = new BookItem();
-            bool bookHasPriceRecovered = false;
-
-
-            // Check if the prices of the levels have recovered
-            if (!CONDITION2_LEVELS_CONSUMED_AT_BID)
-            {
-                bookHasPriceRecovered =
-                    // Scenario 1: Levels have shifted up but count is maintained
-                    currentOrderBook.Asks.Take(LEVELS_TO_CONSUME).SequenceEqual(_previousOrderBook.Asks.Skip(LEVELS_TO_CONSUME).Take(LEVELS_TO_CONSUME), comparer) ||
-                    // Scenario 2: Levels have jumped significantly
-                    !currentOrderBook.Asks.Take(LEVELS_TO_CONSUME).Any(ask => _previousOrderBook.Asks.Any(a => comparer.Equals(a, ask))) ||
-                    // Scenario 3: Levels have returned to their original state
-                    currentOrderBook.Asks.Take(LEVELS_TO_CONSUME).SequenceEqual(_previousOrderBook.Asks.Take(LEVELS_TO_CONSUME), comparer);
-            }
-            else
-            {
-                bookHasPriceRecovered =
-                    // Scenario 1: Levels have shifted up but count is maintained
-                    currentOrderBook.Bids.Take(LEVELS_TO_CONSUME).SequenceEqual(_previousOrderBook.Bids.Skip(LEVELS_TO_CONSUME).Take(LEVELS_TO_CONSUME), comparer) ||
-                    // Scenario 2: Levels have jumped significantly
-                    !currentOrderBook.Bids.Take(LEVELS_TO_CONSUME).Any(bid => _previousOrderBook.Bids.Any(a => comparer.Equals(a, bid))) ||
-                    // Scenario 3: Levels have returned to their original state
-                    currentOrderBook.Bids.Take(LEVELS_TO_CONSUME).SequenceEqual(_previousOrderBook.Bids.Take(LEVELS_TO_CONSUME), comparer);
-            }
-            return bookHasPriceRecovered;
-        }
-        private decimal CalculateResilienceValue(TimeSpan timeSinceLargeTrade, OrderBook currentOrderBook)
-        {
-            // Define a threshold for maximum acceptable recovery time (e.g., timeframe set by user settings)            
-            TimeSpan maxRecoveryTime = TimeSpan.FromMinutes(1);
-            if (_settings != null)
-                maxRecoveryTime = _settings.AggregationLevel.ToTimeSpan();
-
-            // Calculate normalized time recovery
-            double normalizedTimeRecovery = 1.00 - (timeSinceLargeTrade.TotalMicroseconds / maxRecoveryTime.TotalMicroseconds);
-            normalizedTimeRecovery = Math.Max(0.0, normalizedTimeRecovery); // Ensure it's not negative
-
-            // Calculate normalized depth recovery (as previously discussed)
-            double normalizedSpreadRecovery = _previousOrderBook.Spread > 0 ? (_previousOrderBook.Spread - currentOrderBook.Spread) / _previousOrderBook.Spread : 0;
-            double normalizedDepthRecovery = (double)(currentOrderBook.Asks.Count() + currentOrderBook.Bids.Count()) / (_previousOrderBook.Asks.Count() + _previousOrderBook.Bids.Count());
-
-            // Weighted average of the metrics
-            double weightTime = 0.5; // Assign a weight to time recovery (can be adjusted)
-            double weightDepth = 0.2; // Assign a weight to depth recovery (can be adjusted)
-            double weightSpread = 0.3;
-
-            decimal resilienceValue = (decimal)(weightTime * normalizedTimeRecovery
-                + weightDepth * normalizedDepthRecovery
-                + weightSpread * normalizedSpreadRecovery);
-
-            return resilienceValue;
-        }
-        private void TriggerOnCalculatedEvent(OrderBook currentOrderBook)
-        {
-            var newItem = new BaseStudyModel()
-            {
-                Value = _resilienceValue.HasValue ? _resilienceValue.Value : 0,
-                ValueFormatted = _resilienceValue.HasValue ? _resilienceValue.Value.ToString("N1") : ".",
-                Tooltip = _resilienceValue.HasValue ? "" : "Waiting for data...",
-                Timestamp = HelperTimeProvider.Now,
-                MarketMidPrice = (decimal)currentOrderBook.MidPrice
-            };
-            AddCalculation(newItem);
-        }
-        private void TriggerOnTradeRecovered(OrderBook currentOrderBook)
-        {
-            var newItem = new BaseStudyModel()
-            {
-                Value = _resilienceValue.HasValue ? _resilienceValue.Value : 0,
-                ValueFormatted = _resilienceValue.HasValue ? _resilienceValue.Value.ToString("N1") : ".",
-                Tooltip = _resilienceValue.HasValue ? "" : "Waiting for data...",
-                Timestamp = HelperTimeProvider.Now,
-                MarketMidPrice = (decimal)currentOrderBook.MidPrice
-            };
-            OnTradeRecovered?.Invoke(
-                this,
-                (newItem,
-                    CONDITION2_LEVELS_CONSUMED_AT_BID ? eLOBSIDE.BID : eLOBSIDE.ASK,
-                    currentOrderBook.ProviderID,
-                    currentOrderBook.Symbol)
-                );
-
-        }
         protected override void onDataAggregation(BaseStudyModel existing, BaseStudyModel newItem, int counterAggreated)
         {
             //we want to average the aggregations
             existing.Value = ((existing.Value * (counterAggreated - 1)) + newItem.Value) / counterAggreated;
             existing.ValueFormatted = existing.Value.ToString("N1");
             existing.MarketMidPrice = newItem.MarketMidPrice;
+
+            base.onDataAggregation(existing, newItem, counterAggreated);
         }
 
-        public void ResetPreTradeState()
+
+
+        private Tuple<eLOBSIDE, double> DepletedSideAndItsPrice(CachedCollection<BookItem> previousOrders, CachedCollection<BookItem> currentOrders, bool isBid, int levels)
         {
-            _previousOrderBook.Clear();
-            CONDITION1_LEVELS_CONSUMED = null;
-            CONDITION2_LEVELS_CONSUMED_AT_BID = false;
-            CONDITION3_SPREAD_INCREASE = 0;
-            _largeTradeStopwatch?.Stop();
+
+            if (previousOrders.Count() < levels || currentOrders.Count() < levels)
+                return new Tuple<eLOBSIDE, double>(eLOBSIDE.NONE, 0); // Not enough levels to compare
+
+            // Compare the top levels between previous and current snapshots
+            for (int i = 0; i < levels; i++)
+            {
+                if (isBid)
+                {
+                    if (currentOrders[i].Price < previousOrders[levels - 1].Price)
+                    {
+                        return new Tuple<eLOBSIDE, double>(eLOBSIDE.BID, previousOrders[0].Price.Value);
+                    }
+                }
+                else
+                {
+                    if (currentOrders[i].Price > previousOrders[levels - 1].Price)
+                    {
+                        return new Tuple<eLOBSIDE, double>(eLOBSIDE.ASK, previousOrders[0].Price.Value);
+                    }
+                }
+            }
+            return new Tuple<eLOBSIDE, double>(eLOBSIDE.NONE, 0);
         }
-        private bool PostTradeLOBLevelsConsumed(OrderBook currentOrderBook)
-        {
-            if (_previousOrderBook == null)
-            {
-                return false;
-            }
-
-            int consumedAskLevels = _previousOrderBook.Asks
-                .Take(LEVELS_TO_CONSUME)
-                .Count(ask => !currentOrderBook.Asks.Any(a => a.Price <= ask.Price));
-
-            int consumedBidLevels = _previousOrderBook.Bids
-                .Take(LEVELS_TO_CONSUME)
-                .Count(bid => !currentOrderBook.Bids.Any(b => b.Price >= bid.Price));
-
-            if (consumedAskLevels >= LEVELS_TO_CONSUME)
-            {
-                CONDITION1_LEVELS_CONSUMED = _previousOrderBook.Asks.Take(LEVELS_TO_CONSUME).ToList();
-                CONDITION2_LEVELS_CONSUMED_AT_BID = false;
-                return true;
-            }
-            else if (consumedBidLevels >= LEVELS_TO_CONSUME)
-            {
-                CONDITION1_LEVELS_CONSUMED = _previousOrderBook.Bids.Take(LEVELS_TO_CONSUME).ToList();
-                CONDITION2_LEVELS_CONSUMED_AT_BID = true;
-                return true;
-            }
-
-            return false;
-        }
-        private bool PostTradeLOBSpreadIsIncreased(OrderBook currentOrderBook)
+        private bool IsSpreadIncreased(OrderBook currentOrderBook)
         {
             if (_previousOrderBook == null)
             {
@@ -340,13 +367,111 @@ namespace VisualHFT.Studies
             var averageSpread = _recentSpreads.Average();
             bool spreadCondition = currentOrderBook.Spread > averageSpread * (1 + SPREAD_INCREASED_BY);
 
-            if (spreadCondition)
+            return spreadCondition;
+        }
+
+        private bool IsSpreadBackToItsAvg(OrderBook currentOrderBook)
+        {
+            if (_previousOrderBook == null)
             {
-                CONDITION3_SPREAD_INCREASE = (currentOrderBook.Spread - averageSpread) / currentOrderBook.Spread;
+                return false;
             }
+            var averageSpread = _recentSpreads.Average();
+            bool spreadCondition = currentOrderBook.Spread <= averageSpread;
 
             return spreadCondition;
         }
+
+        private decimal CalculateMarketResilienceScore(TimeSpan timeSinceLargeTrade, OrderBook currentOrderBook, eLOBSIDE recoveredSide)
+        {
+            var hasRecoveredOnTheSameSide = _depletionStateHolder.DepletionSide == recoveredSide;
+
+            // Calculate normalized time recovery
+            double normalizedTimeRecovery = 1.00 - (timeSinceLargeTrade.TotalMilliseconds / _depletionRecoveryTimeOut.TotalMilliseconds);
+            normalizedTimeRecovery = Math.Max(0.0, normalizedTimeRecovery); // Ensure it's not negative
+
+            // Calculate normalized spread recovery
+            double normalizedSpreadRecovery = _previousOrderBook.Spread > 0 ? (_previousOrderBook.Spread - currentOrderBook.Spread) / _previousOrderBook.Spread : 0;
+            normalizedSpreadRecovery = Math.Max(0.0, Math.Min(1.0, normalizedSpreadRecovery)); // Ensure within range 0-1
+
+            // Calculate normalized depth recovery
+            double normalizedDepthRecovery = (double)(currentOrderBook.Asks.Count() + currentOrderBook.Bids.Count()) / (_previousOrderBook.Asks.Count() + _previousOrderBook.Bids.Count());
+            normalizedDepthRecovery = Math.Max(0.0, Math.Min(1.0, normalizedDepthRecovery)); // Ensure within range 0-1
+
+            // Weighted average of the metrics
+            double weightTime = 0.5; // Assign a weight to time recovery (can be adjusted)
+            double weightDepth = 0.1; // Assign a weight to depth recovery (can be adjusted)
+            double weightSpread = 0.4;
+
+            double baseScore = weightTime * normalizedTimeRecovery
+                               + weightDepth * normalizedDepthRecovery
+                               + weightSpread * normalizedSpreadRecovery;
+
+            // Apply bias based on recovery side
+            double bias = hasRecoveredOnTheSameSide ? 0.5 : -0.5;
+            double resilienceScore = baseScore + bias;
+
+            // Normalize the score to be between 0 and 1 without clipping
+            resilienceScore = hasRecoveredOnTheSameSide
+                ? 0.5 + (baseScore * 0.5)
+                : 0.5 + baseScore;
+            resilienceScore = Math.Min(1, Math.Max(0, resilienceScore));
+            return (decimal)resilienceScore;
+        }
+
+        private eORDERSIDE CalculateMarketResilienceBias(eLOBSIDE recoveredSide, decimal resilienceScore)
+        {
+            // if "Market Resilience" < 0.3 weak resilience
+            // if "Market Resilience" > 0.7 strong resilience
+
+
+            // if strong resilience AND recovered on the same side => Bias on the opposite direction as the recovery
+            // if weak resilience AND recovered on the opposite side => Bias on the same direction as the recovery
+
+            if (recoveredSide == eLOBSIDE.NONE)
+                return eORDERSIDE.None;
+
+            var _biasSide = eORDERSIDE.None;
+            if (resilienceScore < 0.3m)
+            {
+                if (_depletionStateHolder.DepletionSide == eLOBSIDE.BID && _depletionStateHolder.DepletionSide != recoveredSide)
+                    _biasSide = eORDERSIDE.Sell;
+                if (_depletionStateHolder.DepletionSide == eLOBSIDE.ASK && _depletionStateHolder.DepletionSide != recoveredSide)
+                    _biasSide = eORDERSIDE.Buy;
+            }
+            else if (resilienceScore < 0.7m)
+            {
+                if (_depletionStateHolder.DepletionSide == eLOBSIDE.BID && _depletionStateHolder.DepletionSide == recoveredSide)
+                    _biasSide = eORDERSIDE.Buy;
+                if (_depletionStateHolder.DepletionSide == eLOBSIDE.ASK && _depletionStateHolder.DepletionSide == recoveredSide)
+                    _biasSide = eORDERSIDE.Sell;
+            }
+
+            return _biasSide;
+        }
+        private void TriggerOnCalculate(OrderBook currentOrderBook, eLOBSIDE recoveredSide, decimal resilienceScore)
+        {
+
+            var _biasSide = CalculateMarketResilienceBias(recoveredSide, resilienceScore);
+
+            var newItem = new BaseStudyModel()
+            {
+                Value = resilienceScore,
+                ValueFormatted = resilienceScore.ToString("N1"),
+                Tooltip = "",
+                Timestamp = HelperTimeProvider.Now,
+                MarketMidPrice = (decimal)currentOrderBook.MidPrice,
+                Tag = _biasSide.ToString()
+            };
+            AddCalculation(newItem);
+        }
+        private void ResetMonitoring()
+        {
+            _depletionStateHolder.Reset();
+            _previousOrderBook = new OrderBook();
+        }
+
+
 
 
 
@@ -359,14 +484,7 @@ namespace VisualHFT.Studies
                 {
                     HelperOrderBook.Instance.Unsubscribe(LIMITORDERBOOK_OnDataReceived);
                     _QUEUE.Dispose();
-                    _largeTradeStopwatch.Stop();
-                    _largeTradeStopwatch = null;
 
-                    if (CONDITION1_LEVELS_CONSUMED != null)
-                    {
-                        CONDITION1_LEVELS_CONSUMED.Clear();
-                        CONDITION1_LEVELS_CONSUMED = null;
-                    }
                     _previousOrderBook?.Dispose();
 
                     /*_POOL_OB?.Dispose();
@@ -418,8 +536,6 @@ namespace VisualHFT.Studies
 
                 SaveSettings();
 
-                //reset 
-                _resilienceValue = null;
 
                 //run this because it will allow to restart with the new values
                 Task.Run(async () => await HandleRestart($"{this.Name} is starting (from reloading settings).", null, true));

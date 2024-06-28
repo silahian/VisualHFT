@@ -347,11 +347,9 @@ namespace MarketConnectors.Binance
             trade.ProviderId = _settings.Provider.ProviderID;
             trade.ProviderName = _settings.Provider.ProviderName;
             trade.IsBuy = eventData.BuyerIsMaker;
+            trade.MarketMidPrice = _localOrderBooks[_symbol].MidPrice;
 
-            // Add the populated Trade object to the _trades list.
             RaiseOnDataReceived(trade);
-            var midPrice = _localOrderBooks[_symbol].MidPrice;
-
             tradePool.Return(trade);
         }
         private void tradesBuffers_onErrorAction(Exception ex)

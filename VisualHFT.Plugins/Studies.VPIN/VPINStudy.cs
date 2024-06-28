@@ -207,6 +207,8 @@ namespace VisualHFT.Studies
             existing.Value = ((existing.Value * (counterAggreated - 1)) + newItem.Value) / counterAggreated;
             existing.ValueFormatted = existing.Value.ToString("N1");
             existing.MarketMidPrice = newItem.MarketMidPrice;
+
+            base.onDataAggregation(existing, newItem, counterAggreated);
         }
 
         protected override void Dispose(bool disposing)

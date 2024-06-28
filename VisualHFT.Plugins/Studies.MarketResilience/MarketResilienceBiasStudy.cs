@@ -21,9 +21,9 @@ namespace VisualHFT.Studies
         // Event declaration
         public override event EventHandler<decimal> OnAlertTriggered;
 
-        public override string Name { get; set; } = "Market Resiliecence Bias Study Plugin";
+        public override string Name { get; set; } = "Market Resilience Bias";
         public override string Version { get; set; } = "1.0.0";
-        public override string Description { get; set; } = "Market Resiliecence Bias Study Plugin.";
+        public override string Description { get; set; } = "Market Resilience Bias.";
         public override string Author { get; set; } = "VisualHFT";
         public override ISetting Settings { get => _settings; set => _settings = (PlugInSettings)value; }
         public override Action CloseSettingWindow { get; set; }
@@ -51,7 +51,7 @@ namespace VisualHFT.Studies
             await base.StartAsync();//call the base first
 
             _MARKETRESILIENCE.Settings = _settings;
-            _MARKETRESILIENCE.OnTradeRecovered += _MARKETRESILIENCE_OnTradeRecovered;
+            _MARKETRESILIENCE.OnCalculated += _MARKETRESILIENCE_OnCalculated;
             await _MARKETRESILIENCE.StartAsync();
 
             log.Info($"{this.Name} Plugin has successfully started.");
@@ -63,39 +63,41 @@ namespace VisualHFT.Studies
             Status = ePluginStatus.STOPPING;
             log.Info($"{this.Name} is stopping.");
 
-            _MARKETRESILIENCE.OnTradeRecovered -= _MARKETRESILIENCE_OnTradeRecovered;
+            _MARKETRESILIENCE.OnCalculated -= _MARKETRESILIENCE_OnCalculated;
 
             await base.StopAsync();
         }
 
-        private void _MARKETRESILIENCE_OnTradeRecovered(object? sender, (BaseStudyModel model, eLOBSIDE recoverySide, int providerID, string symbol) e)
+        private void _MARKETRESILIENCE_OnCalculated(object? sender, BaseStudyModel model)
         {
-            //in order to have a strong bias, the "Market Resilience" study must be near to zero.
-            // So, to fiand the bias direction, we must have MR < 0.3 and check on wich side the recovery didn't happen.
-
-            if (e.model == null)
+            if (model == null)
                 return;
-            if (_settings.Provider.ProviderID != e.providerID || _settings.Symbol != e.symbol)
-                return;
+            //No need to check the provider/symbol, since this event is subscribed with local settings
 
-            int _valueBias = 0; //unkonw
+
+            eORDERSIDE _valueBias = eORDERSIDE.None; //unkonw
             string _valueFormatted = "-"; //unknown
             string _valueColor = "White";
+            if (model.Tag == "Buy")
+                _valueBias = eORDERSIDE.Buy;
+            else if (model.Tag == "Sell")
+                _valueBias = eORDERSIDE.Sell;
 
-            if (e.model.Value <= 0.3m)
-            {
-                _valueBias = e.recoverySide == eLOBSIDE.ASK ? 1 : -1;
-                _valueFormatted = _valueBias == 1 ? "↑" : "↓";
-                _valueColor = _valueBias == 1 ? "Green" : "Red";
-            }
+            if (_valueBias == eORDERSIDE.None)
+                return;
+
+            _valueFormatted = _valueBias == eORDERSIDE.Buy ? "↑" : "↓";
+            _valueColor = _valueBias == eORDERSIDE.Buy ? "Green" : "Red";
+
+
 
             var newItem = new BaseStudyModel()
             {
-                Value = _valueBias,
+                Value = _valueBias == eORDERSIDE.Buy? 1: -1,
                 ValueFormatted = _valueFormatted,
                 ValueColor = _valueColor,
                 Timestamp = HelperTimeProvider.Now,
-                MarketMidPrice = e.model.MarketMidPrice
+                MarketMidPrice = model.MarketMidPrice
             };
 
             AddCalculation(newItem);
@@ -106,6 +108,8 @@ namespace VisualHFT.Studies
             existing.Value = newItem.Value;
             existing.ValueFormatted = newItem.ValueFormatted;
             existing.MarketMidPrice = newItem.MarketMidPrice;
+
+            base.onDataAggregation(existing, newItem, counterAggreated);
         }
 
 
@@ -118,6 +122,7 @@ namespace VisualHFT.Studies
 
                 if (disposing)
                 {
+                    _MARKETRESILIENCE.OnCalculated -= _MARKETRESILIENCE_OnCalculated;
                     _MARKETRESILIENCE.Dispose();
                 }
 
@@ -167,7 +172,6 @@ namespace VisualHFT.Studies
 
                 //reset 
                 _MARKETRESILIENCE.Settings = _settings;
-                _MARKETRESILIENCE.ResetPreTradeState();
 
             };
             // Display the view, perhaps in a dialog or a new window.
