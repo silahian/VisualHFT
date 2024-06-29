@@ -22,7 +22,7 @@ namespace VisualHFT.ViewModel
     {
         private bool _disposed = false; // to track whether the object has been disposed
         private int _MAX_CHART_POINTS = 1300;
-        private TimeSpan _MIN_UI_REFRESH_TS = TimeSpan.FromMilliseconds(100); //For the UI: do not allow less than this, since it is not noticeble for human eye
+        private TimeSpan _MIN_UI_REFRESH_TS = TimeSpan.FromMilliseconds(300); //For the UI: do not allow less than this, since it is not noticeble for human eye
 
         private object MTX_PLOTS = new object();
         private object MTX_ORDERBOOK = new object();

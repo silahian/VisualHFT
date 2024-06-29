@@ -2,6 +2,9 @@
 using System.Collections.ObjectModel;
 using VisualHFT.Commons.Model;
 using VisualHFT.Commons.Pools;
+using System.Collections.Generic;
+using System.Linq;
+using System;
 
 namespace VisualHFT.Helpers
 {
@@ -12,7 +15,7 @@ namespace VisualHFT.Helpers
         private List<T> _cachedReadOnlyCollection;
         private CachedCollection<T> _takeList;
         private Comparison<T> _comparison;
-
+        
         public CachedCollection(IEnumerable<T> initialData = null)
         {
             _internalList = initialData?.ToList() ?? new List<T>();
@@ -145,8 +148,6 @@ namespace VisualHFT.Helpers
                     return _internalList.FirstOrDefault(predicate);
             }
         }
-
-
         public CachedCollection<T> Take(int count)
         {
             lock (_lock)
@@ -178,7 +179,6 @@ namespace VisualHFT.Helpers
                 return _takeList;
             }
         }
-
         public IEnumerator<T> GetEnumerator()
         {
             lock (_lock)
@@ -187,6 +187,17 @@ namespace VisualHFT.Helpers
                     return _cachedReadOnlyCollection.GetEnumerator();
                 else
                     return _internalList.GetEnumerator(); // Create a copy to ensure thread safety during enumeration
+            }
+        }
+
+        public List<T> ToList()
+        {
+            lock (_lock)
+            {
+                if (_cachedReadOnlyCollection != null)
+                    return _cachedReadOnlyCollection;
+                else
+                    return _internalList;
             }
         }
         IEnumerator IEnumerable.GetEnumerator()
