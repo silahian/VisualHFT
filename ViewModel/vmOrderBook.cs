@@ -83,7 +83,7 @@ namespace VisualHFT.ViewModel
             _objectPool_BookItem = new CustomObjectPool<BookItem>(_MAX_CHART_POINTS * 1000);
             _objectPool_Price = new CustomObjectPool<PlotInfoPriceChart>(_MAX_CHART_POINTS * 10);
             _objectPool_OrderBookLevel = new CustomObjectPool<OrderBookLevel>(_MAX_CHART_POINTS * 1000);
-            _QUEUE = new HelperCustomQueue<OrderBookData>(QUEUE_onReadAction, QUEUE_onErrorAction);
+            _QUEUE = new HelperCustomQueue<OrderBookData>($"<OrderBookData>_vmOrderBook", QUEUE_onReadAction, QUEUE_onErrorAction);
 
 
             _realTimeTrades = new Stack<VisualHFT.Model.Trade>();

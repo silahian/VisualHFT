@@ -48,7 +48,7 @@ namespace VisualHFT.ViewModels
 
         public vmChartStudy(IStudy study)
         {
-            _QUEUE = new HelperCustomQueue<BaseStudyModel>(QUEUE_onReadAction, QUEUE_onErrorAction);
+            _QUEUE = new HelperCustomQueue<BaseStudyModel>($"<BaseStudyModel>_{study.TileTitle}", QUEUE_onReadAction, QUEUE_onErrorAction);
             _studies.Add(study);
             _settings = ((PluginManager.IPlugin)study).Settings;
             _plugin = (PluginManager.IPlugin)study;
@@ -62,7 +62,7 @@ namespace VisualHFT.ViewModels
         }
         public vmChartStudy(IMultiStudy multiStudy)
         {
-            _QUEUE = new HelperCustomQueue<BaseStudyModel>(QUEUE_onReadAction, QUEUE_onErrorAction);
+            _QUEUE = new HelperCustomQueue<BaseStudyModel>($"<BaseStudyModel>_{multiStudy.TileTitle}", QUEUE_onReadAction, QUEUE_onErrorAction);
             foreach (var study in multiStudy.Studies)
             {
                 _studies.Add(study);

@@ -40,7 +40,7 @@ namespace VisualHFT.ViewModel
         private UIUpdater uiUpdater;
         public vmMultiVenuePrices()
         {
-            _QUEUE = new HelperCustomQueue<Tuple<int, string, double>>(QUEUE_onReadAction, QUEUE_onErrorAction);
+            _QUEUE = new HelperCustomQueue<Tuple<int, string, double>>($"<Tuple<int, string, double>>_vmMultiVenuePrices", QUEUE_onReadAction, QUEUE_onErrorAction);
             CreatePlotModel();
 
             _symbols = new ObservableCollection<string>(HelperSymbol.Instance);

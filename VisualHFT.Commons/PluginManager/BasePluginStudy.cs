@@ -77,7 +77,7 @@ namespace VisualHFT.Commons.PluginManager
         public virtual async Task StartAsync()
         {
             _QUEUE?.Dispose();
-            _QUEUE = new HelperCustomQueue<BaseStudyModel>(QUEUE_onReadAction, QUEUE_onErrorAction);
+            _QUEUE = new HelperCustomQueue<BaseStudyModel>($"<BaseStudyModel>_{this.Name}", QUEUE_onReadAction, QUEUE_onErrorAction);
             _AGG_DATA?.Dispose();
             _AGG_DATA = new AggregatedCollection<BaseStudyModel>(
                 Settings.AggregationLevel,

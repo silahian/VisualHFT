@@ -188,7 +188,7 @@ namespace VisualHFT.Studies
 
             _previousOrderBook = new OrderBook();
 
-            _QUEUE = new HelperCustomQueue<OrderBook>(QUEUE_onRead, QUEUE_onError);
+            _QUEUE = new HelperCustomQueue<OrderBook>($"<OrderBook>_{this.Name}", QUEUE_onRead, QUEUE_onError);
         }
         ~MarketResilienceStudy()
         {

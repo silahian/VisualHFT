@@ -1,4 +1,6 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Security.Principal;
 
 namespace VisualHFT.Commons.Helpers
 {
@@ -12,18 +14,39 @@ namespace VisualHFT.Commons.Helpers
         private Action<T> _actionOnRead;
         private Action<Exception> _actionOnError;
         private readonly object _lock = new object();
-
         private bool _isConsumerPaused;
-        public HelperCustomQueue(Action<T> actionOnRead, Action<Exception> actionOnError = null)
+
+        private readonly HelperPerformanceCounter _performanceCounter;
+        private readonly string _queueName;
+
+        public HelperCustomQueue(string queueName, Action<T> actionOnRead, Action<Exception> actionOnError = null)
         {
             _queue = new BlockingCollection<T>();
             _ctx = new CancellationTokenSource();
             _resetEvent = new ManualResetEventSlim(false);
             _actionOnRead = actionOnRead;
             _actionOnError = actionOnError;
+            _queueName = queueName;
+
+
+            //TODO: this is disabled until we can improve its execution and usage
+            /*
+            if (IsUserAdministrator())
+            {
+                _performanceCounter = new HelperPerformanceCounter("QUEUE", queueName);
+            }*/
+
+
             _taskConsumer = Task.Run(RunConsumer, _ctx.Token);
         }
-
+        private bool IsUserAdministrator()
+        {
+            using (var identity = WindowsIdentity.GetCurrent())
+            {
+                var principal = new WindowsPrincipal(identity);
+                return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
+        }
         public void Add(T item)
         {
             lock (_lock)
@@ -32,6 +55,8 @@ namespace VisualHFT.Commons.Helpers
                     return;
                 _queue.Add(item, _ctx.Token);
                 _resetEvent.Set();
+
+                _performanceCounter?.QueueItemAdded();
             }
         }
 
@@ -49,7 +74,12 @@ namespace VisualHFT.Commons.Helpers
                     }
                     while (!_isConsumerPaused && _queue.TryTake(out var item, 0, _ctx.Token))
                     {
+                        var stopwatch = Stopwatch.StartNew();
                         _actionOnRead(item);
+                        stopwatch.Stop();
+
+                        _performanceCounter?.QueueItemRemoved();
+                        _performanceCounter?.UpdateLatency(stopwatch.ElapsedTicks);
                     }
                     _resetEvent.Reset();
                 }
@@ -143,6 +173,7 @@ namespace VisualHFT.Commons.Helpers
                     ClearAndResetTask(false);
                     _queue?.Dispose();
                     _ctx?.Dispose();
+                    _performanceCounter?.Dispose();
                 }
                 _disposed = true;
             }

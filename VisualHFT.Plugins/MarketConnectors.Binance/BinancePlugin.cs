@@ -100,8 +100,8 @@ namespace MarketConnectors.Binance
             await SetupClientsAsync();
 
 
-            _tradesBuffers = new HelperCustomQueue<IBinanceTrade>(tradesBuffers_onReadAction, tradesBuffers_onErrorAction);
-            _eventBuffers = new HelperCustomQueue<IBinanceEventOrderBook>(eventBuffers_onReadAction, eventBuffers_onErrorAction);
+            _tradesBuffers = new HelperCustomQueue<IBinanceTrade>($"<IBinanceTrade>_{this.Name}", tradesBuffers_onReadAction, tradesBuffers_onErrorAction);
+            _eventBuffers = new HelperCustomQueue<IBinanceEventOrderBook>($"<IBinanceEventOrderBook>_{this.Name}", eventBuffers_onReadAction, eventBuffers_onErrorAction);
 
             //Pause QUEUES until we get the snapshots ready
             _eventBuffers.PauseConsumer();

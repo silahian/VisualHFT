@@ -108,8 +108,8 @@ namespace MarketConnectors.Bitfinex
             // Initialize event buffer for each symbol
             foreach (var symbol in GetAllNormalizedSymbols())
             {
-                _eventBuffers.Add(symbol, new HelperCustomQueue<Tuple<DateTime, string, BitfinexOrderBookEntry>>(eventBuffers_onReadAction, eventBuffers_onErrorAction));
-                _tradesBuffers.Add(symbol, new HelperCustomQueue<Tuple<string, BitfinexTradeSimple>>(tradesBuffers_onReadAction, tradesBuffers_onErrorAction));
+                _eventBuffers.Add(symbol, new HelperCustomQueue<Tuple<DateTime, string, BitfinexOrderBookEntry>>($"<Tuple<DateTime, string, BitfinexOrderBookEntry>>_{this.Name.Replace(" Plugin", "")}", eventBuffers_onReadAction, eventBuffers_onErrorAction));
+                _tradesBuffers.Add(symbol, new HelperCustomQueue<Tuple<string, BitfinexTradeSimple>>($"<Tuple<DateTime, string, BitfinexOrderBookEntry>>_{this.Name.Replace(" Plugin", "")}", tradesBuffers_onReadAction, tradesBuffers_onErrorAction));
             }
 
             await InitializeSnapshotsAsync();
