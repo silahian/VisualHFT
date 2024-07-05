@@ -50,6 +50,8 @@ namespace VisualHFT.Commons.Pools
             CalculatePercentageUtilization();
         }
         public int AvailableObjects => _availableObjects;
+        public double UtilizationPercentage => _utilizationPercentage;
+
         public string? ProviderName { get; set; }
 
         private void CalculatePercentageUtilization()
