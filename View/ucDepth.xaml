@@ -83,21 +83,20 @@
                             <!-- Adding DataTriggers to control visibility -->
                             <Grid.Style>
                                 <Style TargetType="Grid">
-                                    <Setter Property="Visibility" Value="Visible"/>
                                     <Style.Triggers>
                                         <!-- Check if Price is 0 or null -->
                                         <DataTrigger Binding="{Binding Price}" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Hidden"/>
+                                            <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Price}" Value="0">
-                                            <Setter Property="Visibility" Value="Hidden"/>
+                                            <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
                                         <!-- Check if Size is 0 or null -->
                                         <DataTrigger Binding="{Binding Size}" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Hidden"/>
+                                            <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Size}" Value="0">
-                                            <Setter Property="Visibility" Value="Hidden"/>
+                                            <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -170,21 +169,20 @@
                             <!-- Adding DataTriggers to control visibility -->
                             <Grid.Style>
                                 <Style TargetType="Grid">
-                                    <Setter Property="Visibility" Value="Visible"/>
                                     <Style.Triggers>
                                         <!-- Check if Price is 0 or null -->
                                         <DataTrigger Binding="{Binding Price}" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Hidden"/>
+                                            <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Price}" Value="0">
-                                            <Setter Property="Visibility" Value="Hidden"/>
+                                            <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
                                         <!-- Check if Size is 0 or null -->
                                         <DataTrigger Binding="{Binding Size}" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Hidden"/>
+                                            <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Size}" Value="0">
-                                            <Setter Property="Visibility" Value="Hidden"/>
+                                            <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>

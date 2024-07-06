@@ -195,9 +195,9 @@ namespace VisualHFT.Helpers
             lock (_lock)
             {
                 if (_cachedReadOnlyCollection != null)
-                    return _cachedReadOnlyCollection;
+                    return _cachedReadOnlyCollection.ToList();
                 else
-                    return _internalList;
+                    return _internalList.ToList();
             }
         }
         IEnumerator IEnumerable.GetEnumerator()
