@@ -169,8 +169,8 @@
                             </Grid.ColumnDefinitions>
                             <!-- Adding DataTriggers to control visibility -->
                             <Grid.Style>
-                                <Setter Property="Visibility" Value="Visible"/>
                                 <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Visible"/>
                                     <Style.Triggers>
                                         <!-- Check if Price is 0 or null -->
                                         <DataTrigger Binding="{Binding Price}" Value="{x:Null}">
