@@ -12,8 +12,6 @@
              d:DataContext="{d:DesignInstance Type=ViewModel:vmOrderBook}"
              mc:Ignorable="d" 
     
-            TextElement.Foreground="{StaticResource MaterialDesignBody}"
-            Background="{StaticResource MaterialDesignPaper}"
             FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
             d:DesignHeight="776" d:DesignWidth="873" MinWidth="300" 
              
@@ -43,9 +41,6 @@
                 </CollectionViewSource.SortDescriptions>
             </CollectionViewSource>
             <CollectionViewSource x:Key="SymbolView" Source="{Binding SymbolList}">
-                <CollectionViewSource.SortDescriptions>
-                    <componentModel:SortDescription PropertyName="SymbolName" />
-                </CollectionViewSource.SortDescriptions>
             </CollectionViewSource>
 
         </ResourceDictionary>
@@ -202,7 +197,7 @@
                         <!--DATAGRID BID/ASK-->
                         <Grid Grid.Row="2" Grid.Column="0" VerticalAlignment="Stretch" >
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="28" />
+                                <RowDefinition Height="5" />
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <Button Visibility="Collapsed" Grid.Row="0" x:Name="butDepthView1" Command="{Binding}" CommandParameter="DepthView1" ToolTip="Change depth view" HorizontalAlignment="Left" Margin="0,0,0,0" Padding="0" Width="25" Height="25" VerticalAlignment="Top" Click="butDepthView1_Click">

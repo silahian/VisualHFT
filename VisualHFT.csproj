@@ -2,12 +2,13 @@
 
   <PropertyGroup>
 	  <OutputType>WinExe</OutputType>
-	  <TargetFramework>net7.0-windows</TargetFramework>
+	  <TargetFramework>net8.0-windows8.0</TargetFramework>
 	  <Nullable>enable</Nullable>
 	  <UseWPF>true</UseWPF>
 	  <ApplicationIcon>Images\VisualHFT.ico</ApplicationIcon>
 	  <RepositoryUrl>https://github.com/silahian/VisualHFT</RepositoryUrl>
 	  <PackageIcon>VisualHFT.png</PackageIcon>
+	  <SupportedOSPlatformVersion>8.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <ItemGroup>
