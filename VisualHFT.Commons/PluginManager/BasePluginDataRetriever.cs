@@ -263,9 +263,14 @@ namespace VisualHFT.Commons.PluginManager
                 await StopAsync();
                 if (_internalStartAsync != null)
                     await _internalStartAsync.Invoke();
-                else
+                {
+                    //avoid resetting these values
+                    var _reconnect = _reconnectionAttempt;
+                    var _pendingRec = _pendingReconnectionRequests;
                     await StartAsync();
-
+                    _reconnectionAttempt = _reconnect;
+                    _pendingReconnectionRequests = _pendingRec;
+                }
 
 
                 if (!forceStartRegardlessStatus && Status == ePluginStatus.STOPPED_FAILED) //means that a fata error occurred, and user's attention is needed.

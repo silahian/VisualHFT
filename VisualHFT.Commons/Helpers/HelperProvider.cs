@@ -31,13 +31,13 @@ namespace VisualHFT.Helpers
         {
             foreach (var x in this)
             {
-                //only check if current status is connected
-                if (x.Value.Status != eSESSIONSTATUS.CONNECTED && x.Value.Status != eSESSIONSTATUS.CONNECTED_WITH_WARNINGS)
+                if (x.Value.Status == eSESSIONSTATUS.DISCONNECTED || x.Value.Status == eSESSIONSTATUS.DISCONNECTED_FAILED)
                     continue;
+
 
                 if (HelperTimeProvider.Now.Subtract(x.Value.LastUpdated).TotalMilliseconds > _MILLISECONDS_HEART_BEAT)
                 {
-                    var _msg = $"{x.Value.ProviderName} hasn't received any market updates. Last message received: {x.Value.LastUpdated}";
+                    var _msg = $"{x.Value.ProviderName} hasn't received any provider's heartbeat. Last message received: {x.Value.LastUpdated}";
                     HelperNotificationManager.Instance.AddNotification(x.Value.ProviderName, _msg, HelprNorificationManagerTypes.WARNING, HelprNorificationManagerCategories.PLUGINS, null);
                     log.Warn(_msg);
 

@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Binance.Net" Version="9.11.0" />
+    <PackageReference Include="Binance.Net" Version="9.11.1" />
     <PackageReference Include="log4net" Version="2.0.17" />
   </ItemGroup>
 
