@@ -1,0 +1,133 @@
+﻿<UserControl x:Class="VisualHFT.View.ucProviderConnectivity"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+             xmlns:local="clr-namespace:VisualHFT.View"
+             xmlns:behaviors="clr-namespace:VisualHFT.Helpers"
+             xmlns:enums="clr-namespace:VisualHFT.Enums;assembly=VisualHFT.Commons"
+             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="15"
+             TextOptions.TextFormattingMode="Ideal" 
+             TextOptions.TextRenderingMode="Auto"        
+             Background="{DynamicResource MaterialDesignPaper}"
+             FontFamily="{StaticResource MaterialDesignFont}"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="280" MinWidth="280">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../GlobalStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Define Brushes for Different Statuses -->
+            <SolidColorBrush x:Key="ConnectedBrush" Color="Green" />
+            <SolidColorBrush x:Key="DisconnectedBrush" Color="Red" />
+            <SolidColorBrush x:Key="ConnectingBrush" Color="Yellow" />
+            <SolidColorBrush x:Key="WarningBrush" Color="Green" />
+            <SolidColorBrush x:Key="FailedBrush" Color="Red" />
+
+
+            <CollectionViewSource x:Key="ProviderView" Source="{Binding Providers}">
+                <CollectionViewSource.SortDescriptions>
+                    <componentModel:SortDescription PropertyName="ProviderName" />
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <GroupBox Header="Providers' Status" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5" Padding="5">
+            <ListView x:Name="lstItem" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Source={StaticResource ProviderView}}" 
+                      behaviors:ListViewItemSelectedBehavior.Command="{Binding CmdUpdateStatus}">
+
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Cursor="Hand" Width="{Binding (FrameworkElement.ActualWidth), RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}" ItemWidth="{Binding (ListView.View).ItemWidth, RelativeSource={RelativeSource AncestorType=ListView}}" MinWidth="{Binding ItemWidth, RelativeSource={RelativeSource Self}}" ItemHeight="{Binding (ListView.View).ItemHeight, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <WrapPanel Margin="5" ToolTip="{Binding Tooltip}" >
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="18" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+
+                                <Ellipse Width="16" Height="16" Grid.Row="0" Grid.Column="0" >
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="{StaticResource ConnectedBrush}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:eSESSIONSTATUS.CONNECTED}">
+                                                    <Setter Property="Fill" Value="{StaticResource ConnectedBrush}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:eSESSIONSTATUS.DISCONNECTED}">
+                                                    <Setter Property="Fill" Value="{StaticResource DisconnectedBrush}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:eSESSIONSTATUS.CONNECTING}">
+                                                    <Setter Property="Fill" Value="{StaticResource ConnectingBrush}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:eSESSIONSTATUS.CONNECTED_WITH_WARNINGS}">
+                                                    <Setter Property="Fill" Value="{StaticResource WarningBrush}" />
+
+                                                    <DataTrigger.EnterActions>
+                                                        <BeginStoryboard Name="WarningStoryboard">
+                                                            <Storyboard RepeatBehavior="Forever" FillBehavior="HoldEnd">
+                                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Fill" Duration="0:0:0.8">
+                                                                    <DiscreteObjectKeyFrame KeyTime="0:0:0.1" Value="{StaticResource WarningBrush}" />
+                                                                    <DiscreteObjectKeyFrame KeyTime="0:0:0.7" Value="{StaticResource ConnectingBrush}" />
+                                                                </ObjectAnimationUsingKeyFrames>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </DataTrigger.EnterActions>
+
+                                                    <DataTrigger.ExitActions>
+                                                        <StopStoryboard BeginStoryboardName="WarningStoryboard" />
+                                                    </DataTrigger.ExitActions>
+                                                </DataTrigger>
+
+                                                <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:eSESSIONSTATUS.DISCONNECTED_FAILED}">
+                                                    <Setter Property="Fill" Value="{StaticResource FailedBrush}" />
+                                                    <DataTrigger.EnterActions>
+
+                                                        <BeginStoryboard Name="FailedStoryboard">
+
+                                                            <Storyboard RepeatBehavior="Forever" FillBehavior="HoldEnd" >
+                                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Fill" Duration="0:0:0.3">
+                                                                    <DiscreteObjectKeyFrame KeyTime="0:0:0.1" Value="{StaticResource ConnectingBrush}" />
+                                                                    <DiscreteObjectKeyFrame KeyTime="0:0:0.2" Value="{StaticResource FailedBrush}" />
+                                                                </ObjectAnimationUsingKeyFrames>
+                                                            </Storyboard>
+
+                                                        </BeginStoryboard>
+
+                                                    </DataTrigger.EnterActions>
+                                                    <DataTrigger.ExitActions>
+                                                        <StopStoryboard BeginStoryboardName="FailedStoryboard" />
+                                                    </DataTrigger.ExitActions>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+
+                                <TextBlock Text="{Binding ProviderName}" 
+                                           Margin="5,0,0,0" Grid.Row="0" Grid.Column="1" FontSize="20" HorizontalAlignment="Left" />
+                            </Grid>
+                        </WrapPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </GroupBox>
+    </Grid>
+</UserControl>

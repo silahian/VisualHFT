@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\log4net.config" Link="log4net.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CryptoExchange.Net" Version="8.4.0" />
+    <PackageReference Include="Websocket.Client" Version="5.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\VisualHFT.Commons\VisualHFT.Commons.csproj" />
+    <ProjectReference Include="..\MarketConnectors.BaseDAL\BitStamp.Net\BitStamp.Net.csproj" />
+  </ItemGroup>
+
+</Project>

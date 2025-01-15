@@ -1,0 +1,4 @@
+{
+	"data":"[{\"ProviderID\":23,\"ProviderName\":\"Binance\",\"Status\":2},{\"ProviderID\":42,\"ProviderName\":\"Gemini\",\"Status\":2}]",
+	"type":"HeartBeats"
+}

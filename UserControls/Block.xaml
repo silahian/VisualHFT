@@ -1,0 +1,8 @@
+﻿<UserControl x:Class="LoadingControl.Control.Block"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Height="Auto" Width="Auto" >
+    <Grid x:Name="LayoutRoot">
+        <Path Fill="#FF5482A1" Stretch="Fill" RenderTransformOrigin="0.5,4.3689" Data="M291.15499,85.897525 C291.15499,85.897525 301.88917,85.87921 301.88917,85.87921 301.88917,85.87921 300.38339,94.355061 300.38339,94.355061 300.38339,94.355061 292.85366,94.355042 292.85366,94.355042 292.85366,94.355042 291.15499,85.897525 291.15499,85.897525 z" Panel.ZIndex="99999" />
+    </Grid>
+</UserControl>

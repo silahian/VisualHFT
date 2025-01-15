@@ -1,0 +1,219 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <OutputType>WinExe</OutputType>
+	  <TargetFramework>net8.0-windows7.0</TargetFramework>
+	  <Nullable>enable</Nullable>
+	  <UseWPF>true</UseWPF>
+	  <ApplicationIcon>Images\VisualHFT.ico</ApplicationIcon>
+	  <RepositoryUrl>https://github.com/silahian/VisualHFT</RepositoryUrl>
+	  <PackageIcon>VisualHFT.png</PackageIcon>
+	  <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+	  <UseWindowsForms>False</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="demoTradingCore\**" />
+    <Compile Remove="packages\**" />
+    <Compile Remove="VisualHFT.Commons.WPF\**" />
+    <Compile Remove="VisualHFT.Commons\**" />
+    <Compile Remove="VisualHFT.Plugins\**" />
+    <EmbeddedResource Remove="demoTradingCore\**" />
+    <EmbeddedResource Remove="packages\**" />
+    <EmbeddedResource Remove="VisualHFT.Commons.WPF\**" />
+    <EmbeddedResource Remove="VisualHFT.Commons\**" />
+    <EmbeddedResource Remove="VisualHFT.Plugins\**" />
+    <None Remove="demoTradingCore\**" />
+    <None Remove="packages\**" />
+    <None Remove="VisualHFT.Commons.WPF\**" />
+    <None Remove="VisualHFT.Commons\**" />
+    <None Remove="VisualHFT.Plugins\**" />
+    <Page Remove="demoTradingCore\**" />
+    <Page Remove="packages\**" />
+    <Page Remove="VisualHFT.Commons.WPF\**" />
+    <Page Remove="VisualHFT.Commons\**" />
+    <Page Remove="VisualHFT.Plugins\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="C:\Users\freshcore\.nuget\packages\sharpfont.dependencies\2.6.0\build\..\bin\msvc10\x86\freetype6.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="App.config" />
+    <None Remove="debug.log" />
+    <None Remove="Images\database.png" />
+    <None Remove="Images\excel.png" />
+    <None Remove="Images\ico.png" />
+    <None Remove="Images\imgDepth.png" />
+    <None Remove="Images\imgDepth1.png" />
+    <None Remove="Images\imgDepth2.png" />
+    <None Remove="Images\imgGreenBall.png" />
+    <None Remove="Images\imgRedBall.png" />
+    <None Remove="Images\imgYellowBall.png" />
+    <None Remove="Images\LOBImbalance.png" />
+    <None Remove="Images\new-window.png" />
+    <None Remove="Images\pop-up.png" />
+    <None Remove="Images\refresh.png" />
+    <None Remove="Images\refreshD.png" />
+    <None Remove="Images\send.png" />
+    <None Remove="Images\sendingParam.png" />
+    <None Remove="Images\settings.png" />
+    <None Remove="Images\start.png" />
+    <None Remove="Images\startD.png" />
+    <None Remove="Images\stop.png" />
+    <None Remove="Images\stopD.png" />
+    <None Remove="Images\VPIN.png" />
+    <None Remove="log4net.config" />
+    <None Remove="README.md.bak" />
+    <None Remove="README.md.docx" />
+    <None Remove="VisualHFT.csproj.bak" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<Content Include="Images\VisualHFT.ico" />
+		<Content Include="log4net.config">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fody" Version="6.8.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FreeTypeSharp" Version="3.0.0" />
+    <PackageReference Include="log4net" Version="2.0.17" />
+    <PackageReference Include="MaterialDesignColors" Version="3.1.0" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
+    <PackageReference Include="MaterialDesignThemes.MahApps" Version="3.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="OpenTK.Core" Version="4.9.3" />
+    <PackageReference Include="OpenTK.GLControl" Version="4.0.1" />
+    <PackageReference Include="OpenTK.GLWpfControl" Version="4.0.0" />
+    <PackageReference Include="OpenTK.Graphics" Version="4.9.3" />
+    <PackageReference Include="OpenTK.Mathematics" Version="4.9.3" />
+    <PackageReference Include="OxyPlot.Wpf" Version="2.1.2" />
+    <PackageReference Include="Prism.Core" Version="8.1.97" />
+    <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
+    <PackageReference Include="SharpFont" Version="4.0.1" />
+    <PackageReference Include="SharpFont.Dependencies" Version="2.6.0" />
+    <PackageReference Include="SharpFont.Dependencies.x64" Version="2.6.0" />
+    <PackageReference Include="SharpFontStandard.Runtimes.WindowsOnly" Version="2.6.0" />
+    <PackageReference Include="SpaceWizards.SharpFont" Version="1.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="VisualHFT.Commons.WPF\VisualHFT.Commons.WPF.csproj" />
+    <ProjectReference Include="VisualHFT.Commons\VisualHFT.Commons.csproj">
+      <Private>True</Private>
+      <CopyLocalSatelliteAssemblies>True</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>True</ReferenceOutputAssembly>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </ProjectReference>
+	
+	<ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Binance\MarketConnectors.Binance.csproj" />
+    <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Bitfinex\MarketConnectors.Bitfinex.csproj" />
+    <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.BitStamp\MarketConnectors.BitStamp.csproj">
+      <Private></Private>
+      <CopyLocalSatelliteAssemblies></CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly></ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Coinbase\MarketConnectors.Coinbase.csproj">
+      <Private></Private>
+      <CopyLocalSatelliteAssemblies></CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly></ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Gemini\MarketConnectors.Gemini\MarketConnectors.Gemini.csproj" />
+	<ProjectReference Include="VisualHFT.Plugins\MarketConnectors.Kraken\MarketConnectors.Kraken.csproj" />
+	<ProjectReference Include="VisualHFT.Plugins\MarketConnectors.KuCoin\MarketConnectors.KuCoin.csproj">
+	  <Private></Private>
+	  <CopyLocalSatelliteAssemblies></CopyLocalSatelliteAssemblies>
+	  <EmbedInteropTypes></EmbedInteropTypes>
+	  <ReferenceOutputAssembly></ReferenceOutputAssembly>
+	</ProjectReference>
+    <ProjectReference Include="VisualHFT.Plugins\Studies.LOBImbalance\Studies.LOBImbalance.csproj" />
+    <ProjectReference Include="VisualHFT.Plugins\Studies.MarketResilience\Studies.MarketResilience.csproj" />
+    <ProjectReference Include="VisualHFT.Plugins\Studies.MarketTradingRatios\Studies.MarketTradingRatios.csproj" />
+    <ProjectReference Include="VisualHFT.Plugins\Studies.VPIN\Studies.VPIN.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="App.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Resource Include="Images\database.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\excel.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\ico.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\imgDepth.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\imgDepth1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\imgDepth2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\imgGreenBall.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\imgRedBall.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\imgYellowBall.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\LOBImbalance.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\new-window.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\pop-up.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\refresh.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\refreshD.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\send.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\sendingParam.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\settings.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\start.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\startD.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\stop.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\stopD.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\VPIN.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+	<ItemGroup>
+		<None Update="Images\VisualHFT.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>VisualHFT.Plugins</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Binance.Net" Version="9.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\VisualHFT_L3\VisualHFT.Commons\VisualHFT.Commons.csproj" />
+  </ItemGroup>
+	<ItemGroup>
+		<Reference Include="PresentationCore" />
+		<Reference Include="PresentationFramework" />
+		<Reference Include="WindowsBase" />
+	</ItemGroup>
+	<ItemGroup>
+		<Page Include="**\*.xaml" SubType="Designer" Generator="MSBuild:Compile" />
+		<Compile Update="**\*.xaml.cs" SubType="Designer" DependentUpon="%(Filename)" />
+	</ItemGroup>
+
+</Project>

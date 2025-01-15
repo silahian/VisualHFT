@@ -1,0 +1,121 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:oxy="http://oxyplot.org/wpf"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:Formatters="clr-namespace:VisualHFT.Converters">
+
+    <Formatters:KiloFormatter x:Key="KiloFormatter"/>
+    <Style x:Key="WindowStyle" TargetType="Window">
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                    <GradientStop Color="#ede8dd" Offset="0.6"></GradientStop>
+                    <GradientStop Color="#b6b4ad" Offset="0"></GradientStop>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="FontFamily" Value="Myriad Pro" />
+    </Style>
+    <Style x:Key="UserControlStyle" TargetType="UserControl">
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                    <GradientStop Color="#ede8dd" Offset="0.6"></GradientStop>
+                    <GradientStop Color="#b6b4ad" Offset="0"></GradientStop>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="FontFamily" Value="Myriad Pro" />
+        <Setter Property="TextElement.Foreground" Value="#4d4e3a" />
+        <Setter Property="TextElement.FontFamily" Value="Myriad Pro" />
+        <Setter Property="TextElement.FontSize" Value="14" />
+        <Setter Property="Padding" Value="0,0,0,10" />
+    </Style>
+
+    <Style x:Key="ExpanderHeaderStyle" TargetType="TextBlock">
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Background" Value="#898a75" />
+        <Setter Property="FontWeight" Value="100" />
+        <Setter Property="FontFamily" Value="Myriad Pro" />
+        <Setter Property="Padding" Value="10,6,0,0" />
+    </Style>
+
+    <Style x:Key="DataTitleStyle" TargetType="Label">
+        <Setter Property="FontWeight" Value="300" />
+        <Setter Property="Foreground" Value="#4d4e3a" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="VerticalAlignment" Value="Bottom" />
+    </Style>
+    <Style x:Key="DataStyle" TargetType="Label">
+        <Setter Property="Foreground" Value="#f26222" />
+        <Setter Property="FontSize" Value="56" />
+        <Setter Property="FontStretch" Value="Condensed" />
+        <Setter Property="FontWeight" Value="300" />
+        <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GridDataTitleStyle" TargetType="Label">
+        <Setter Property="FontWeight" Value="300" />
+        <Setter Property="Foreground" Value="#4d4e3a" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <Style x:Key="GridDataStyle" TargetType="Label">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Label}">
+                    <Border BorderThickness="2" CornerRadius="5" Padding="3" BorderBrush="#b6b4ad" Background="#fff">
+                        <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background" Value="#fff" />
+        <Setter Property="Foreground" Value="#4d4e3a" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="300" />
+        <Setter Property="BorderBrush" Value="#b6b4ad" />
+        <Setter Property="BorderThickness" Value="3" />
+        <Setter Property="Margin" Value="0,3,0,0" />
+    </Style>
+
+
+    <Style x:Key="GridColumnAligmentRight" TargetType="DataGridCell">
+        <Setter Property="TextBlock.HorizontalAlignment" Value="Right" />
+    </Style>
+    <Style x:Key="GridHeaderAligmentRight" TargetType="DataGridColumnHeader">
+        <Setter Property="HorizontalContentAlignment" Value="Right"/>
+    </Style>
+    <Style x:Key="GridHeaderAligmentCenter" TargetType="DataGridColumnHeader">
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+
+    <!--TOOLTIPS-->
+    <Style TargetType="ToolTip">
+        <Setter Property="Background" Value="GhostWhite" />
+        <Setter Property="Foreground" Value="Black" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="ToolTipService.ShowDuration" Value="10000"/>
+        <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+    </Style>
+    <!--CHARTS-->
+
+    <Style x:Key="ChartTitleStyle" TargetType="Label">
+        <Setter Property="FontWeight" Value="300" />
+        <Setter Property="Foreground" Value="#4d4e3a" />
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="ChartDataLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontWeight" Value="300" />
+        <Setter Property="Foreground" Value="#4d4e3a" />
+        <Setter Property="FontSize" Value="9" />
+        <Setter Property="FontStretch" Value="UltraCondensed" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+    </Style>
+</ResourceDictionary>
+   

@@ -1,0 +1,55 @@
+﻿<UserControl x:Class="VisualHFT.UserControls.MetricTileCustomUI"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:VisualHFT.UserControls"
+             
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             
+            TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+            TextElement.FontWeight="Regular"
+            TextElement.FontSize="15"
+            TextOptions.TextFormattingMode="Ideal" 
+            TextOptions.TextRenderingMode="Auto"
+            Background="{DynamicResource MaterialDesignPaper}"
+            FontFamily="{StaticResource MaterialDesignFont}"
+             
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../GlobalStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <GroupBox Padding="10">
+        <GroupBox.Header>
+            <Grid>
+                <!-- Assuming Horizontal alignment of controls -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Title Label -->
+                <Button Content="⛭"  Grid.Column="0"  VerticalAlignment="Top" HorizontalAlignment="Left" Width="20" Height="20" Margin="0 0 0 0" Padding="0" ToolTip="Settings" Command="{Binding OpenSettingsCommand}" />
+                <TextBlock Text="{Binding Title}" Grid.Column="0" VerticalAlignment="Center" Margin="25 0 0 0"/>
+            </Grid>
+        </GroupBox.Header>
+        <StackPanel Orientation="Vertical" Grid.Row="1">
+            <ContentControl Grid.Row="0" HorizontalAlignment="Stretch" Content="{Binding CustomControl}" Visibility="{Binding UCVisibility}" />
+            <Separator HorizontalAlignment="Stretch"  Height="10" BorderBrush="White"/>
+            <TextBlock FontSize="9" Margin="0 0 0 5" Padding="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}{0}: {1}">
+                        <Binding Path="SelectedProviderName"/>
+                        <Binding Path="SelectedSymbol"/>
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+        </StackPanel>
+    </GroupBox>
+
+</UserControl>

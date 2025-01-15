@@ -1,0 +1,61 @@
+﻿<UserControl x:Class="VisualHFT.UserControls.MetricTile"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:VisualHFT.Converters" xmlns:viewmodel="clr-namespace:VisualHFT.ViewModel" d:DataContext="{d:DesignInstance Type=viewmodel:vmTile}"
+             mc:Ignorable="d" 
+            TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+            TextElement.FontWeight="Regular"
+            TextElement.FontSize="15"
+            TextOptions.TextFormattingMode="Ideal" 
+            TextOptions.TextRenderingMode="Auto"
+            Background="{DynamicResource MaterialDesignPaper}"
+            FontFamily="{StaticResource MaterialDesignFont}"
+
+             
+             d:DesignHeight="250" d:DesignWidth="300">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../GlobalStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <local:BoolToVisibilityConverter x:Key="convBoolToVisibility"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Border BorderThickness="1" BorderBrush="White">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ToolTip>
+                    <TextBlock x:Name="txtToolTip" TextWrapping="Wrap" Width="300" />
+                </Grid.ToolTip>
+                <TextBox Visibility="Collapsed" Text="{Binding Tooltip, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_TextChanged" />
+
+                <Viewbox Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Visibility="{Binding ValueVisibility}">
+                    <TextBlock Text="{Binding Value}" Foreground="{Binding ValueColor}" ToolTip="{Binding ValueTooltip}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2 0 2 0"/>
+                </Viewbox>
+
+                <StackPanel Orientation="Vertical" Grid.Row="1">
+                    <Separator HorizontalAlignment="Stretch"  Height="10" BorderBrush="White"/>
+                    <TextBlock Text="{Binding Title}" FontSize="16" Margin="0 0 0 5 " VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <TextBlock FontSize="9" Margin="0 0 0 5" Padding="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0}: {1}">
+                                <Binding Path="SelectedProviderName"/>
+                                <Binding Path="SelectedSymbol"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </StackPanel>
+                <Button Content="📈" Visibility="{Binding ChartButtonVisibility}" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="20" Height="20" Margin="0" Padding="0" ToolTip="Open Chart" Command="{Binding OpenChartCommand}" />
+                <Button Content="⛭" Visibility="{Binding SettingButtonVisibility}"  Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="20" Height="20" Margin="0" Padding="0" ToolTip="Settings" Command="{Binding OpenSettingsCommand}" />
+            </Grid>
+
+        </Border>
+    </Grid>
+</UserControl>
+

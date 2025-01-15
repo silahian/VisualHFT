@@ -1,0 +1,102 @@
+﻿<UserControl x:Class="VisualHFT.UserControls.LoadingAnimationSmall"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:LoadingControl.Control"
+    Height="Auto" Width="Auto" mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" d:DesignWidth="48">
+    <UserControl.Resources>
+        <Storyboard x:Key="ProgressAnimation" RepeatBehavior="Forever">
+            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="block4" Storyboard.TargetProperty="(UIElement.OpacityMask).(SolidColorBrush.Color)">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#26000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2290000" Value="#19000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4590000" Value="#0C000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6880000" Value="#00000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.9180000" Value="Black"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.1470000" Value="#EF000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.3760000" Value="#E2000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.6060000" Value="#D3000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.8350000" Value="#C6000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.0650000" Value="#B7000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.2940000" Value="#AA000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.5240000" Value="#9B000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.7530000" Value="#91000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.9820000" Value="#7F000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.2120000" Value="#72000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.4410000" Value="#63000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.6710000" Value="#56000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.9000000" Value="#3D000000"/>
+            </ColorAnimationUsingKeyFrames>
+            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="block3" Storyboard.TargetProperty="(UIElement.OpacityMask).(SolidColorBrush.Color)">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#19000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2290000" Value="#0C000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4590000" Value="#00000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6880000" Value="Black"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.9180000" Value="#EF000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.1470000" Value="#E2000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.3760000" Value="#D3000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.6060000" Value="#C6000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.8350000" Value="#B7000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.0650000" Value="#AA000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.2940000" Value="#9B000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.5240000" Value="#91000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.7530000" Value="#7F000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.9820000" Value="#72000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.2120000" Value="#63000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.4410000" Value="#56000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.6710000" Value="#3D000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.9000000" Value="#26000000"/>
+            </ColorAnimationUsingKeyFrames>
+            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="block2" Storyboard.TargetProperty="(UIElement.OpacityMask).(SolidColorBrush.Color)">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#0C000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2290000" Value="#00000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4590000" Value="Black"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6880000" Value="#EF000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.9180000" Value="#E2000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.1470000" Value="#D3000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.3760000" Value="#C6000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.6060000" Value="#B7000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.8350000" Value="#AA000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.0650000" Value="#9B000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.2940000" Value="#91000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.5240000" Value="#7F000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.7530000" Value="#72000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.9820000" Value="#63000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.2120000" Value="#56000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.4410000" Value="#3D000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.6710000" Value="#26000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.9000000" Value="#19000000"/>
+            </ColorAnimationUsingKeyFrames>
+            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="block1" Storyboard.TargetProperty="(UIElement.OpacityMask).(SolidColorBrush.Color)">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#00000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2290000" Value="Black"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4590000" Value="#EF000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6880000" Value="#E2000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.9180000" Value="#D3000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.1470000" Value="#C6000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.3760000" Value="#B7000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.6060000" Value="#AA000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.8350000" Value="#9B000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.0650000" Value="#8E000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.2940000" Value="#7F000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.5240000" Value="#72000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.7530000" Value="#63000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:02.9820000" Value="#56000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.2120000" Value="#3D000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.4410000" Value="#26000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.6710000" Value="#19000000"/>
+                <SplineColorKeyFrame KeyTime="00:00:03.9000000" Value="#0C000000"/>
+            </ColorAnimationUsingKeyFrames>
+        </Storyboard>
+    </UserControl.Resources>
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard x:Name="ProgressAnimation_BeginStoryboard" Storyboard="{StaticResource ProgressAnimation}"/>
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <Canvas x:Name="LayoutRoot" VerticalAlignment="Top" Height="12" Width="46">
+        <local:Block x:Name="block1" RenderTransformOrigin="0.5,4.3689" OpacityMask="#64000000" Height="10.004" Canvas.Left="0" Canvas.Top="0" />
+        <local:Block x:Name="block2" OpacityMask="#8E000000" RenderTransformOrigin="0.5,4.3689" Height="10.004" Canvas.Left="12" Canvas.Top="0" />
+        <local:Block x:Name="block3" RenderTransformOrigin="0.5,4.3689" OpacityMask="#C6000000" Height="10.004" Canvas.Left="24" Canvas.Top="0"></local:Block>
+        <local:Block x:Name="block4" RenderTransformOrigin="0.5,4.3689" OpacityMask="Black" Height="10.004" Canvas.Left="36" Canvas.Top="0"></local:Block>
+    </Canvas>
+</UserControl>
