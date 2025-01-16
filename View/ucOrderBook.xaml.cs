@@ -44,7 +44,7 @@ namespace VisualHFT.View
 
 
         private DateTime _startTime;
-        private float _timeWindow = 60; // Show last 30 seconds of data 
+        private float _timeWindow = 60; // Show last 60 seconds of data 
         public ucOrderBook()
         {
             InitializeComponent();
